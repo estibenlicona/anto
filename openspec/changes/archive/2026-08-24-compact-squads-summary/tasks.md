@@ -1,0 +1,5 @@
+- [x] 1.1 Reinstalar tuip con `add-separated-to-capacity-bar`.
+- [x] 1.2 `squadService.SquadsStats.atCapacityCount` + mock (`squads.handlers`) + test del handler.
+- [x] 1.3 `SquadsStatsCards`: grid sin `grid-cols-1`; tres cards con el patrón de Personas (Card con leyenda en línea; DistributionCard headline para capacidad y criticidad).
+- [x] 1.4 `SquadsList`: `CapacityBar separated`.
+- [x] 1.5 Tests de cards y lista; suite, typecheck, lint; navegador (tres en fila, tabla visible en el primer pantallazo).

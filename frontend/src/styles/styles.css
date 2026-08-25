@@ -1,0 +1,77 @@
+/* ✅ src/styles/main.css */
+
+/* Importar Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* Tuya UI (tuip) — tokens + utilidades pre-generadas del design system */
+@import "@tuya-ui/components/styles.css";
+
+/* Base styles */
+/* layer(base): sin esto, las reglas de elemento (p, h1-h6, a, ...) quedan sin
+   capa igual que el import de tuip de arriba, y ganan por orden de aparición
+   sin importar la especificidad — pisando el reset de tuip (p{margin:0}) y
+   los colores/tipografía de sus componentes. Mismo motivo por el que el
+   reset de `*` de abajo ya vive en @layer base explícitamente. */
+@import "./base/typography.css" layer(base);
+@import "./base/utilities.css";
+
+/* Theme tokens */
+@import "./themes/tokens.css";
+@import "./themes/light.css";
+@import "./themes/dark.css";
+
+/* Layouts */
+@import "./layouts/auth-layout.css";
+@import "./layouts/main-layout.css";
+@import "./layouts/empty-layout.css";
+
+/* Global styles */
+/* En @layer base (no sin capa) para que las utilidades de Tailwind (capa
+   "utilities", posterior a "base") puedan sobrescribir este reset — sin
+   capa, este selector universal le ganaba a CUALQUIER utilidad de margin/
+   padding sin importar su valor, por las reglas de cascade layers de CSS. */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  /* tuip's canvas token, not --color-bg-primary — that variable also backs
+     the auth/main/empty layout shells (see src/styles/layouts/), which keep
+     their own tone; only the body itself moves to this one. */
+  background-color: var(--color-bg-neutral-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}

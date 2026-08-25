@@ -1,0 +1,2246 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "api_capacidadti_celulasti.WebApi",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/v1/squads/{squadId}/allocations": {
+      "get": {
+        "tags": [
+          "Allocations"
+        ],
+        "parameters": [
+          {
+            "name": "squadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AllocationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Allocations"
+        ],
+        "parameters": [
+          {
+            "name": "squadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAllocationRequest"
+              },
+              "example": {"personId":"11111111-1111-1111-1111-111111111111","squadId":"22222222-2222-2222-2222-222222222222","initiativeId":"33333333-3333-3333-3333-333333333333","dedicationPercentage":100,"bauPercentage":30,"transformationPercentage":70}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateAllocationResponse"
+                },
+                "example": {"allocation":{"id":"b1a1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d","personId":"11111111-1111-1111-1111-111111111111","personName":"Ana María Rodríguez","squadId":"22222222-2222-2222-2222-222222222222","squadName":"Squad Pagos","initiativeId":"33333333-3333-3333-3333-333333333333","initiativeName":"Migración pasarela de pagos","dedicationPercentage":100,"bauPercentage":30,"transformationPercentage":70,"createdAtUtc":"2026-01-15T08:30:00-05:00","updatedAtUtc":null}}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/people/{personId}/allocations": {
+      "get": {
+        "tags": [
+          "Allocations"
+        ],
+        "parameters": [
+          {
+            "name": "personId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AllocationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/allocations/{id}": {
+      "put": {
+        "tags": [
+          "Allocations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAllocationRequest"
+              },
+              "example": {"id":"b1a1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d","initiativeId":"33333333-3333-3333-3333-333333333333","dedicationPercentage":80,"bauPercentage":20,"transformationPercentage":60}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateAllocationResponse"
+                },
+                "example": {"allocation":{"id":"b1a1c2d3-e4f5-4a6b-8c7d-9e0f1a2b3c4d","personId":"11111111-1111-1111-1111-111111111111","personName":"Ana María Rodríguez","squadId":"22222222-2222-2222-2222-222222222222","squadName":"Squad Pagos","initiativeId":"33333333-3333-3333-3333-333333333333","initiativeName":"Migración pasarela de pagos","dedicationPercentage":100,"bauPercentage":30,"transformationPercentage":70,"createdAtUtc":"2026-01-15T08:30:00-05:00","updatedAtUtc":null}}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Allocations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/squads/{squadId}/bau-tasks": {
+      "get": {
+        "tags": [
+          "BauTasks"
+        ],
+        "parameters": [
+          {
+            "name": "squadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BauTaskDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "BauTasks"
+        ],
+        "parameters": [
+          {
+            "name": "squadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBauTaskRequest"
+              },
+              "example": {"squadId":"22222222-2222-2222-2222-222222222222","name":"Soporte nivel 2 - Pagos"}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBauTaskResponse"
+                },
+                "example": {"bauTask":{"id":"c4d5e6f7-a8b9-4c0d-8e1f-2a3b4c5d6e7f","squadId":"22222222-2222-2222-2222-222222222222","name":"Soporte nivel 2 - Pagos","createdAtUtc":"2026-01-10T04:00:00-05:00","updatedAtUtc":null}}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/squads/{squadId}/bau-tasks/{taskId}": {
+      "put": {
+        "tags": [
+          "BauTasks"
+        ],
+        "parameters": [
+          {
+            "name": "squadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBauTaskRequest"
+              },
+              "example": {"squadId":"22222222-2222-2222-2222-222222222222","taskId":"c4d5e6f7-a8b9-4c0d-8e1f-2a3b4c5d6e7f","name":"Soporte nivel 3 - Pagos"}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateBauTaskResponse"
+                },
+                "example": {"bauTask":{"id":"c4d5e6f7-a8b9-4c0d-8e1f-2a3b4c5d6e7f","squadId":"22222222-2222-2222-2222-222222222222","name":"Soporte nivel 2 - Pagos","createdAtUtc":"2026-01-10T04:00:00-05:00","updatedAtUtc":null}}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "BauTasks"
+        ],
+        "parameters": [
+          {
+            "name": "squadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/catalogs/initiative-types": {
+      "get": {
+        "tags": [
+          "Catalogs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogs/initiative-statuses": {
+      "get": {
+        "tags": [
+          "Catalogs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/criticalities": {
+      "get": {
+        "tags": [
+          "Catalogs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogs/seniorities": {
+      "get": {
+        "tags": [
+          "Catalogs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogs/modalities": {
+      "get": {
+        "tags": [
+          "Catalogs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/catalogs/sfia-levels": {
+      "get": {
+        "tags": [
+          "Catalogs"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/companies": {
+      "get": {
+        "tags": [
+          "Companies"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompanyDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Companies"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyRequest"
+              },
+              "example": {"name":"Proveedor Tecnológico S.A.S.","identificationNumber":"900123456-7","email":"contacto@proveedortecnologico.com"}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCompanyResponse"
+                },
+                "example": {"id":"44444444-4444-4444-4444-444444444444","name":"Proveedor Tecnológico S.A.S.","identificationNumber":"900123456-7","email":"contacto@proveedortecnologico.com","isActive":true}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/v1/companies/{id}": {
+      "get": {
+        "tags": [
+          "Companies"
+        ],
+        "operationId": "GetCompanyById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCompanyByIdResponse"
+                },
+                "example": {"id":"44444444-4444-4444-4444-444444444444","name":"Proveedor Tecnológico S.A.S.","identificationNumber":"900123456-7","email":"contacto@proveedortecnologico.com","isActive":true}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Companies"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyRequest"
+              },
+              "example": {"id":"44444444-4444-4444-4444-444444444444","name":"Proveedor Tecnológico S.A.S.","identificationNumber":"900123456-7","email":"facturacion@proveedortecnologico.com"}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateCompanyResponse"
+                },
+                "example": {"id":"44444444-4444-4444-4444-444444444444","name":"Proveedor Tecnológico S.A.S.","identificationNumber":"900123456-7","email":"facturacion@proveedortecnologico.com","isActive":true}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Companies"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/company-registry/{identificationNumber}": {
+      "get": {
+        "tags": [
+          "CompanyRegistry"
+        ],
+        "parameters": [
+          {
+            "name": "identificationNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetExternalCompanyResponse"
+                },
+                "example": {"identificationNumber":"900123456-7","name":"Proveedor Tecnológico S.A.S.","status":"ACTIVE"}
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetExternalCompanyResponse"
+                },
+                "example": {"identificationNumber":"900123456-7","name":"Proveedor Tecnológico S.A.S.","status":"ACTIVE"}
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetExternalCompanyResponse"
+                },
+                "example": {"identificationNumber":"900123456-7","name":"Proveedor Tecnológico S.A.S.","status":"ACTIVE"}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/squads/{squadId}/initiatives": {
+      "get": {
+        "tags": [
+          "Initiatives"
+        ],
+        "parameters": [
+          {
+            "name": "squadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InitiativeDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Initiatives"
+        ],
+        "parameters": [
+          {
+            "name": "squadId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInitiativeRequest"
+              },
+              "example": {"squadId":"22222222-2222-2222-2222-222222222222","name":"Migración pasarela de pagos","type":"Transformation","deadlineMonths":6}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateInitiativeResponse"
+                },
+                "example": {"initiative":{"id":"33333333-3333-3333-3333-333333333333","squadId":"22222222-2222-2222-2222-222222222222","name":"Migración pasarela de pagos","type":"Transformation","status":"InProgress","deadlineMonths":6,"backlogDefined":true,"architectureDefined":true,"earlyStageCompleted":false,"createdAtUtc":"2026-02-01T03:00:00-05:00","updatedAtUtc":null}}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/initiatives/{id}": {
+      "get": {
+        "tags": [
+          "Initiatives"
+        ],
+        "operationId": "GetInitiativeById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitiativeDto"
+                },
+                "example": {"id":"33333333-3333-3333-3333-333333333333","squadId":"22222222-2222-2222-2222-222222222222","name":"Migración pasarela de pagos","type":"Transformation","status":"InProgress","deadlineMonths":6,"backlogDefined":true,"architectureDefined":true,"earlyStageCompleted":false,"createdAtUtc":"2026-02-01T03:00:00-05:00","updatedAtUtc":null}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Initiatives"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateInitiativeRequest"
+              },
+              "example": {"id":"33333333-3333-3333-3333-333333333333","name":"Migración pasarela de pagos v2","type":"Transformation","deadlineMonths":8}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateInitiativeResponse"
+                },
+                "example": {"initiative":{"id":"33333333-3333-3333-3333-333333333333","squadId":"22222222-2222-2222-2222-222222222222","name":"Migración pasarela de pagos","type":"Transformation","status":"InProgress","deadlineMonths":6,"backlogDefined":true,"architectureDefined":true,"earlyStageCompleted":false,"createdAtUtc":"2026-02-01T03:00:00-05:00","updatedAtUtc":null}}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Initiatives"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/initiatives/{id}/status": {
+      "put": {
+        "tags": [
+          "Initiatives"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeInitiativeStatusRequest"
+              },
+              "example": {"id":"33333333-3333-3333-3333-333333333333","squadId":"22222222-2222-2222-2222-222222222222","status":"Completed"}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/people": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PersonDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "People"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePersonRequest"
+              },
+              "example": {"name":"Ana María Rodríguez","documentId":"1020304050","entraObjectId":"9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f","userPrincipalName":"ana.rodriguez@empresa.com","position":"Backend Developer","role":"Developer","seniority":"Senior","sfiaLevel":4,"modality":"Remote","availableFte":1,"monthlyCost":8500000,"startDate":"2024-03-01"}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePersonResponse"
+                },
+                "example": {"person":{"id":"11111111-1111-1111-1111-111111111111","name":"Ana María Rodríguez","documentId":"1020304050","entraObjectId":"9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f","userPrincipalName":"ana.rodriguez@empresa.com","position":"Backend Developer","role":"Developer","seniority":"Senior","sfiaLevel":4,"sfiaLevelLabel":"Enable","modality":"Remote","availableFte":1,"monthlyCost":8500000,"startDate":"2024-03-01","chapterId":"55555555-5555-5555-5555-555555555555","providerId":null,"createdAtUtc":"2024-03-01T03:00:00-05:00","updatedAtUtc":null}}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/v1/people/{id}": {
+      "get": {
+        "tags": [
+          "People"
+        ],
+        "operationId": "GetPersonById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersonDto"
+                },
+                "example": {"id":"11111111-1111-1111-1111-111111111111","name":"Ana María Rodríguez","documentId":"1020304050","entraObjectId":"9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f","userPrincipalName":"ana.rodriguez@empresa.com","position":"Backend Developer","role":"Developer","seniority":"Senior","sfiaLevel":4,"sfiaLevelLabel":"Enable","modality":"Remote","availableFte":1,"monthlyCost":8500000,"startDate":"2024-03-01","chapterId":"55555555-5555-5555-5555-555555555555","providerId":null,"createdAtUtc":"2024-03-01T03:00:00-05:00","updatedAtUtc":null}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "People"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePersonRequest"
+              },
+              "example": {"id":"11111111-1111-1111-1111-111111111111","name":"Ana María Rodríguez","documentId":"1020304050","entraObjectId":"9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f","userPrincipalName":"ana.rodriguez@empresa.com","position":"Tech Lead","role":"Lead","seniority":"Senior","sfiaLevel":5,"modality":"Hybrid","availableFte":0.8,"monthlyCost":9800000}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePersonResponse"
+                },
+                "example": {"person":{"id":"11111111-1111-1111-1111-111111111111","name":"Ana María Rodríguez","documentId":"1020304050","entraObjectId":"9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f","userPrincipalName":"ana.rodriguez@empresa.com","position":"Backend Developer","role":"Developer","seniority":"Senior","sfiaLevel":4,"sfiaLevelLabel":"Enable","modality":"Remote","availableFte":1,"monthlyCost":8500000,"startDate":"2024-03-01","chapterId":"55555555-5555-5555-5555-555555555555","providerId":null,"createdAtUtc":"2024-03-01T03:00:00-05:00","updatedAtUtc":null}}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "People"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/people/{id}/chapter/{chapterId}": {
+      "put": {
+        "tags": [
+          "People"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chapterId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/people/{id}/chapter": {
+      "delete": {
+        "tags": [
+          "People"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/people/{id}/provider/{providerId}": {
+      "put": {
+        "tags": [
+          "People"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "providerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/squads": {
+      "get": {
+        "tags": [
+          "Squads"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SquadDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Squads"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSquadRequest"
+              },
+              "example": {"name":"Squad Pagos","criticality":"High","tribe":"Medios de Pago","description":"Squad responsable de la pasarela de pagos y conciliación"}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSquadResponse"
+                },
+                "example": {"id":"22222222-2222-2222-2222-222222222222","name":"Squad Pagos","criticality":"High","tribe":"Medios de Pago","description":"Squad responsable de la pasarela de pagos y conciliación","createdAtUtc":"2025-11-01T03:00:00-05:00"}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/v1/squads/{id}": {
+      "get": {
+        "tags": [
+          "Squads"
+        ],
+        "operationId": "GetSquadById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetSquadByIdResponse"
+                },
+                "example": {"squad":{"id":"22222222-2222-2222-2222-222222222222","name":"Squad Pagos","criticality":"High","tribe":"Medios de Pago","description":"Squad responsable de la pasarela de pagos y conciliación","devOpsBoardId":"66666666-6666-6666-6666-666666666666","createdAtUtc":"2025-11-01T03:00:00-05:00","updatedAtUtc":null}}
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Squads"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSquadRequest"
+              },
+              "example": {"id":"22222222-2222-2222-2222-222222222222","name":"Squad Pagos","criticality":"Critical","tribe":"Medios de Pago","description":"Squad responsable de la pasarela de pagos, conciliación y fraude"}
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateSquadResponse"
+                },
+                "example": {"id":"22222222-2222-2222-2222-222222222222","name":"Squad Pagos","criticality":"Critical","tribe":"Medios de Pago","description":"Squad responsable de la pasarela de pagos, conciliación y fraude","createdAtUtc":"2025-11-01T03:00:00-05:00","updatedAtUtc":"2026-06-15T05:15:00-05:00"}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Squads"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AllocationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "personName": {
+            "type": "string",
+            "nullable": true
+          },
+          "squadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "squadName": {
+            "type": "string",
+            "nullable": true
+          },
+          "initiativeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "initiativeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "dedicationPercentage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bauPercentage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transformationPercentage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "BauTaskDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "squadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ChangeInitiativeStatusRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "squadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CompanyDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "identificationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateAllocationRequest": {
+        "type": "object",
+        "properties": {
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "squadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "initiativeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dedicationPercentage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bauPercentage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transformationPercentage": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateAllocationResponse": {
+        "type": "object",
+        "properties": {
+          "allocation": {
+            "$ref": "#/components/schemas/AllocationDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateBauTaskRequest": {
+        "type": "object",
+        "properties": {
+          "squadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateBauTaskResponse": {
+        "type": "object",
+        "properties": {
+          "bauTask": {
+            "$ref": "#/components/schemas/BauTaskDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateCompanyRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "identificationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateCompanyResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "identificationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateInitiativeRequest": {
+        "type": "object",
+        "properties": {
+          "squadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "deadlineMonths": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateInitiativeResponse": {
+        "type": "object",
+        "properties": {
+          "initiative": {
+            "$ref": "#/components/schemas/InitiativeDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePersonRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "entraObjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userPrincipalName": {
+            "type": "string",
+            "nullable": true
+          },
+          "position": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "seniority": {
+            "type": "string",
+            "nullable": true
+          },
+          "sfiaLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "modality": {
+            "type": "string",
+            "nullable": true
+          },
+          "availableFte": {
+            "type": "number",
+            "format": "float"
+          },
+          "monthlyCost": {
+            "type": "number",
+            "format": "double"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreatePersonResponse": {
+        "type": "object",
+        "properties": {
+          "person": {
+            "$ref": "#/components/schemas/PersonDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateSquadRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "criticality": {
+            "type": "string",
+            "nullable": true
+          },
+          "tribe": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateSquadResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "criticality": {
+            "type": "string",
+            "nullable": true
+          },
+          "tribe": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetCompanyByIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "identificationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetExternalCompanyResponse": {
+        "type": "object",
+        "properties": {
+          "identificationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetSquadByIdResponse": {
+        "type": "object",
+        "properties": {
+          "squad": {
+            "$ref": "#/components/schemas/SquadDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InitiativeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "squadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "deadlineMonths": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "backlogDefined": {
+            "type": "boolean"
+          },
+          "architectureDefined": {
+            "type": "boolean"
+          },
+          "earlyStageCompleted": {
+            "type": "boolean"
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PersonDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "entraObjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userPrincipalName": {
+            "type": "string",
+            "nullable": true
+          },
+          "position": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "seniority": {
+            "type": "string",
+            "nullable": true
+          },
+          "sfiaLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sfiaLevelLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "modality": {
+            "type": "string",
+            "nullable": true
+          },
+          "availableFte": {
+            "type": "number",
+            "format": "float"
+          },
+          "monthlyCost": {
+            "type": "number",
+            "format": "double"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "chapterId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "providerId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "SquadDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "criticality": {
+            "type": "string",
+            "nullable": true
+          },
+          "tribe": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "devOpsBoardId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateAllocationRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "initiativeId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dedicationPercentage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "bauPercentage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transformationPercentage": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateAllocationResponse": {
+        "type": "object",
+        "properties": {
+          "allocation": {
+            "$ref": "#/components/schemas/AllocationDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBauTaskRequest": {
+        "type": "object",
+        "properties": {
+          "squadId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "taskId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateBauTaskResponse": {
+        "type": "object",
+        "properties": {
+          "bauTask": {
+            "$ref": "#/components/schemas/BauTaskDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateCompanyRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "identificationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateCompanyResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "identificationNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateInitiativeRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "deadlineMonths": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateInitiativeResponse": {
+        "type": "object",
+        "properties": {
+          "initiative": {
+            "$ref": "#/components/schemas/InitiativeDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePersonRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "documentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "entraObjectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userPrincipalName": {
+            "type": "string",
+            "nullable": true
+          },
+          "position": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
+          },
+          "seniority": {
+            "type": "string",
+            "nullable": true
+          },
+          "sfiaLevel": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "modality": {
+            "type": "string",
+            "nullable": true
+          },
+          "availableFte": {
+            "type": "number",
+            "format": "float"
+          },
+          "monthlyCost": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdatePersonResponse": {
+        "type": "object",
+        "properties": {
+          "person": {
+            "$ref": "#/components/schemas/PersonDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateSquadRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "criticality": {
+            "type": "string",
+            "nullable": true
+          },
+          "tribe": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateSquadResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "criticality": {
+            "type": "string",
+            "nullable": true
+          },
+          "tribe": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

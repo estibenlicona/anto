@@ -1,0 +1,3 @@
+@import "tailwindcss" source(none);
+@config "./tw.config.js";
+@source inline("bg-brand-bold bg-blue-500");

@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);NU1510</NoWarn>
+  </PropertyGroup>
+  <!-- Snappier GHSA-pggp-6c3x-2xmx: DoS via malformed SnappyStream decompression.
+       All available versions (1.0.0–1.1.5) are affected; no patched release exists.
+       Snappier is an indirect dependency of MongoDB.Driver 2.x (snappy compression support).
+       Remove this suppression and update Snappier once a patched version is published. -->
+  <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-pggp-6c3x-2xmx" />
+  </ItemGroup>
+</Project>

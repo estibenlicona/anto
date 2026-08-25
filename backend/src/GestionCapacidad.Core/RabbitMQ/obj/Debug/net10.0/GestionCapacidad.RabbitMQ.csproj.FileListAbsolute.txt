@@ -1,0 +1,12 @@
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\bin\Debug\net10.0\GestionCapacidad.RabbitMQ.deps.json
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\bin\Debug\net10.0\GestionCapacidad.RabbitMQ.dll
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\bin\Debug\net10.0\GestionCapacidad.RabbitMQ.pdb
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\obj\Debug\net10.0\GestionCapacidad.RabbitMQ.csproj.AssemblyReference.cache
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\obj\Debug\net10.0\GestionCapacidad.RabbitMQ.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\obj\Debug\net10.0\GestionCapacidad.RabbitMQ.AssemblyInfoInputs.cache
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\obj\Debug\net10.0\GestionCapacidad.RabbitMQ.AssemblyInfo.cs
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\obj\Debug\net10.0\GestionCapacidad.RabbitMQ.csproj.CoreCompileInputs.cache
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\obj\Debug\net10.0\GestionCapacidad.RabbitMQ.dll
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\obj\Debug\net10.0\refint\GestionCapacidad.RabbitMQ.dll
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\obj\Debug\net10.0\GestionCapacidad.RabbitMQ.pdb
+C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RabbitMQ\obj\Debug\net10.0\ref\GestionCapacidad.RabbitMQ.dll

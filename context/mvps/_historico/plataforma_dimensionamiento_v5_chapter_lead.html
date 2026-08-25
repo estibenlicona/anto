@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Dimensionamiento · v5 Chapter Lead · Tuya</title>
+<style>
+  :root{
+    --brand:#2F4BD8; --brand2:#5B6BE8; --cyan:#0EA5A4;
+    --ink:#1E293B; --muted:#5b6b80; --line:#e5e9f2;
+    --bg:#f4f6fb; --card:#ffffff; --seg:#eef2f8;
+    --ok:#16A34A; --ok-bg:#e7f6ec; --bad:#DC2626; --bad-bg:#fbe5e5;
+    --warn:#B45309; --warn-bg:#f9efdc; --amber:#f0b429; --green:#8bd7a7;
+    --radius:14px; --shadow:0 1px 3px rgba(20,40,90,.06),0 6px 24px rgba(20,40,90,.05);
+    --font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+  .app{display:flex;min-height:100vh}
+
+  /* ===== Sidebar ===== */
+  .side{width:270px;flex-shrink:0;background:linear-gradient(180deg,#ffffff,#f4f6fb);border-right:1px solid var(--line);padding:18px 13px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 14px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;box-shadow:0 4px 12px rgba(47,75,216,.3)}
+  .brand b{font-size:14.5px;display:block;line-height:1.05}
+  .brand span{font-size:10px;color:var(--muted);letter-spacing:.07em}
+  .chapterbox{background:linear-gradient(135deg,#eef1fb,#f7f9ff);border:1px solid #d5dcf7;border-radius:11px;padding:10px 12px;margin:0 4px 10px}
+  .chapterbox .cl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--brand);font-weight:800}
+  .chapterbox .cn{font-size:13px;font-weight:800;margin:2px 0}
+  .chapterbox .cs{font-size:11px;color:var(--muted)}
+  .navlabel{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#9aa6be;padding:13px 10px 4px;font-weight:700}
+  .navitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;cursor:pointer;color:#42506a;font-weight:600;font-size:13px;border:none;background:none;width:100%;text-align:left;transition:.15s}
+  .navitem svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.9}
+  .navitem:hover{background:#eef1fb;color:var(--brand)}
+  .navitem.on{background:linear-gradient(90deg,#eef1fb,transparent);color:var(--brand)}
+  .navitem.on svg{stroke:var(--brand)}
+  .navitem .count{margin-left:auto;background:var(--bad);color:#fff;font-size:9.5px;font-weight:800;min-width:17px;height:17px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+  .navitem .count.ok{background:var(--ok)}
+  .navitem .count.br{background:var(--brand)}
+  .side-foot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--line);font-size:10.5px;color:var(--muted)}
+
+  /* ===== Main ===== */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  .crumb{font-size:12.5px;color:var(--muted)}.crumb b{color:var(--ink)}
+  .topbar .sp{flex:1}
+  .ctx{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .ctx select{font-family:var(--font);font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;color:var(--ink);font-weight:600}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .content{padding:24px 26px 60px;max-width:1280px}
+
+  .head{margin-bottom:18px}
+  .kick{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);font-weight:800;margin-bottom:5px}
+  .head h1{margin:0;font-size:23px;letter-spacing:-.01em}
+  .head p{margin:5px 0 0;color:var(--muted);max-width:84ch}
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--brand);font-weight:700;font-size:12.5px;cursor:pointer;margin-bottom:8px}
+
+  .view{display:none;animation:fade .35s}.view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .hd{padding:13px 17px;border-bottom:1px solid var(--line);font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:9px}
+  .card .hd .tag{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+  .card .bd{padding:17px}
+  .grid{display:grid;gap:15px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:980px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .mt{margin-top:15px}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.bad{background:var(--bad-bg);color:var(--bad)}
+  .pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.info{background:#e9edfc;color:var(--brand)}
+  .pill.gray{background:#eef1f6;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;padding:8px 11px;border-bottom:1px solid var(--line)}
+  td{padding:9px 11px;border-bottom:1px solid #f1f4fa;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fafbfe}
+  tbody tr.click{cursor:pointer}
+  td .b{font-weight:600}.sub{font-size:11px;color:var(--muted)}
+
+  .bar{height:8px;border-radius:6px;background:#eef1f6;overflow:hidden;display:flex}
+  .bar i{display:block;height:100%}
+  .bar.lg{height:16px;border-radius:8px}
+
+  .lab{font-size:12px;font-weight:700;color:#42506a;margin-bottom:5px;display:block}
+  input,select.fld,textarea{width:100%;font-family:var(--font);font-size:13px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink)}
+  .prow{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+  .btn{border:none;border-radius:10px;padding:9px 16px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
+  .btn.pri{background:var(--brand);color:#fff}.btn.gh{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn.ok{background:var(--ok);color:#fff}.btn.bad{background:#fff;border:1px solid var(--bad);color:var(--bad)}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .num{width:74px;text-align:center}
+  .totrow{font-weight:800}
+  .hidden{display:none!important}
+
+  /* Células cards (torre de control) */
+  .cellcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px;box-shadow:var(--shadow);cursor:pointer;transition:.15s;border-top:3px solid var(--line)}
+  .cellcard:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(20,40,90,.11)}
+  .cellcard.g{border-top-color:var(--ok)}.cellcard.y{border-top-color:var(--amber)}.cellcard.b{border-top-color:var(--brand)}
+  .cellcard h3{margin:0 0 2px;font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .cellcard .cs{font-size:11.5px;color:var(--muted);margin-bottom:10px}
+  .sema{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .sema.g{background:var(--ok)}.sema.y{background:var(--amber)}.sema.r{background:var(--bad)}
+  .pstat{display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid #f1f4fa}
+  .pstat:last-child{border-bottom:none}
+  .pstat b{font-weight:700}
+
+  .todo{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;background:#fff;cursor:pointer;transition:.15s}
+  .todo:hover{border-color:var(--brand);background:#fbfcff}
+  .todo .big{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+  .todo .big.red{background:var(--bad-bg);color:var(--bad)}
+  .todo .big.amb{background:var(--warn-bg);color:var(--warn)}
+  .todo .big.blu{background:#e9edfc;color:var(--brand)}
+  .todo h4{margin:0;font-size:13.5px}
+  .todo p{margin:1px 0 0;font-size:11.5px;color:var(--muted)}
+  .todo .go{margin-left:auto;color:var(--brand);font-weight:800;font-size:18px}
+
+  .ringrow{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+  .ringbox{text-align:center}
+  .ring{width:118px;height:118px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;margin:0 auto 8px}
+  .ring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:#fff}
+  .ring .c{position:relative;z-index:1}
+  .ring .c b{font-size:21px;display:block;letter-spacing:-.02em}
+  .ring .c span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+  .ringbox .rl{font-size:12px;font-weight:700}
+  .ringbox .rs{font-size:11px;color:var(--muted)}
+
+  .pipe{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:6px 0 14px}
+  .pnode{background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:9px 14px;text-align:center;min-width:118px}
+  .pnode b{display:block;font-size:12px}
+  .pnode span{font-size:10.5px;color:var(--muted)}
+  .pnode.hot{border-color:var(--brand);background:#f7f9ff;box-shadow:0 0 0 4px #e9edfc}
+  .parr{padding:0 9px;color:#c3cbe0;font-size:17px;font-weight:800}
+
+  .inbox{border:1px solid var(--line);border-radius:13px;background:#fff;padding:14px 16px;margin-bottom:11px;display:flex;gap:13px;align-items:flex-start;transition:.3s}
+  .inbox.out{opacity:0;transform:translateX(30px)}
+  .inbox .wico{width:38px;height:38px;border-radius:11px;background:#e9edfc;color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0}
+  .inbox h4{margin:0 0 2px;font-size:13.5px}
+  .inbox .meta{font-size:11.5px;color:var(--muted)}
+  .inbox .acts{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+
+  .segbtn{display:inline-flex;background:var(--seg);border-radius:9px;padding:3px;flex-wrap:wrap}
+  .segbtn button{border:none;background:none;padding:6px 14px;border-radius:7px;font-family:var(--font);font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer}
+  .segbtn button.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:960px){.board{grid-template-columns:1fr 1fr}}
+  .col{background:#f6f8fc;border:1px solid var(--line);border-radius:12px;padding:10px}
+  .col h5{margin:2px 4px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:flex;justify-content:space-between}
+  .wi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:8px;box-shadow:0 1px 2px rgba(20,40,90,.05)}
+  .wi .id{font-size:10px;color:var(--muted);font-weight:700}
+  .wi .tt{font-size:12px;font-weight:600;margin:2px 0 6px;line-height:1.3}
+  .wi .ft{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted)}
+  .wi .pts{margin-left:auto;background:#eef1fb;color:var(--brand);font-weight:800;border-radius:8px;padding:1px 7px;font-size:10px}
+  .mini-av{width:19px;height:19px;border-radius:50%;background:var(--cyan);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800}
+  .mini-av.b{background:var(--brand2)}.mini-av.o{background:#d97706}.mini-av.p{background:#7c3aed}
+
+  .callout{display:flex;gap:11px;padding:13px 15px;border-radius:11px;background:#e9edfc;border:1px solid #d5dcf7;font-size:12.5px;color:#31418f;margin-bottom:15px;align-items:flex-start}
+  .callout.warn{background:var(--warn-bg);border-color:#eeddba;color:var(--warn)}
+  .callout.ok{background:var(--ok-bg);border-color:#c7e8d2;color:#136b36}
+  .callout.bad{background:var(--bad-bg);border-color:#f3c8c8;color:#a01f1f}
+  .callout svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;margin-top:1px}
+
+  .chk{display:flex;align-items:center;gap:11px;padding:10px 4px;border-bottom:1px solid #f1f4fa}
+  .chk:last-child{border-bottom:none}
+  .chk .ic{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+  .chk.done .ic{background:var(--ok-bg);color:var(--ok)}
+  .chk.pend .ic{background:var(--warn-bg);color:var(--warn)}
+  .chk .t{font-size:13px;font-weight:600}
+  .chk .s{font-size:11px;color:var(--muted)}
+  .chk .go{margin-left:auto}
+
+  .wiz{position:relative;padding-left:4px}
+  .wstep{display:flex;gap:15px;position:relative;padding-bottom:10px}
+  .wstep .rail{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+  .wstep .wball{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;border:2.5px solid var(--line);background:#fff;color:var(--muted);z-index:1}
+  .wstep.done .wball{background:var(--ok);border-color:var(--ok);color:#fff}
+  .wstep.curr .wball{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 0 0 5px #e9edfc}
+  .wstep.warn .wball{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+  .wstep .rail i{flex:1;width:3px;background:var(--line);border-radius:2px;margin:4px 0}
+  .wstep.done .rail i{background:var(--ok)}
+  .wstep:last-child .rail i{display:none}
+  .wstep .wbody{flex:1;padding-bottom:14px}
+  .wstep .wtitle{font-weight:800;font-size:14px;display:flex;align-items:center;gap:9px}
+  .wstep .wsub{font-size:12px;color:var(--muted);margin-top:2px}
+  .wstep .wcontent{margin-top:11px}
+
+  .diff-row td:first-child{border-left:3px solid transparent}
+  .diff-add td:first-child{border-left-color:var(--ok)}
+  .diff-upd td:first-child{border-left-color:var(--warn)}
+  .diff-del td:first-child{border-left-color:var(--bad)}
+
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(10px);transition:.3s;z-index:99;max-width:440px}
+  .toast.show{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">◳</div>
+      <div><b>Dimensionamiento TI</b><span>MVP v5 · CHAPTER LEAD</span></div>
+    </div>
+
+    <div class="chapterbox">
+      <div class="cl">Tu chapter</div>
+      <div class="cn">Backend Development &amp; AS-400</div>
+      <div class="cs">3 células · 24 capacidades · Sprint 16</div>
+    </div>
+
+    <button class="navitem on" data-v="home"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Inicio · Torre de control</button>
+
+    <div class="navlabel">1 · Gestión de Capacidad</div>
+    <button class="navitem" data-v="celulas"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>Gestionar Células</button>
+    <button class="navitem" data-v="iniciativas"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>Gestionar Iniciativas</button>
+    <button class="navitem" data-v="capacidades"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Gestionar Capacidades<span class="count">1</span></button>
+    <button class="navitem" data-v="reporte"><svg viewBox="0 0 24 24"><path d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>Reporte de Horas<span class="count br">S16</span></button>
+    <button class="navitem" data-v="backlogs"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Gestionar Backlogs<span class="count" id="navCur">3</span></button>
+
+    <div class="navlabel">2 · Integraciones</div>
+    <button class="navitem" data-v="conexion"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>Configurar Conexión<span class="count ok">✓</span></button>
+    <button class="navitem" data-v="tableros"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>Sincronización de Tableros</button>
+    <button class="navitem" data-v="usuarios"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 11h-6M19 8v6"/></svg>Sincronización de Usuarios<span class="count" id="navUsers">2</span></button>
+
+    <div class="navlabel">3 · Administración</div>
+    <button class="navitem" data-v="admin"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configuraciones de la Plataforma</button>
+
+    <div class="side-foot">MVP v5 · datos moqueados<br>Rol: <b>Chapter Lead</b></div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Plataforma / <b id="crumbTxt">Inicio</b></div>
+      <div class="sp"></div>
+      <div class="ctx">
+        Sprint:
+        <select><option>Sprint 16 · 2026 (28 jul – 8 ago)</option><option>Sprint 15 · 2026</option></select>
+      </div>
+      <div class="avatar">CL</div>
+    </div>
+
+    <div class="content">
+
+      <!-- ================= INICIO: TORRE DE CONTROL ================= -->
+      <section class="view on" id="v-home">
+        <div class="head">
+          <div class="kick">Chapter Backend Development · Sprint 16</div>
+          <h1>Torre de control de tus células</h1>
+          <p>Visión transversal de tus <b>3 células</b> para gestionar el día a día: capacidad, asignaciones y rebalanceos desde un solo lugar.</p>
+        </div>
+
+        <div class="grid g4" style="grid-template-columns:repeat(4,1fr);margin-bottom:15px">
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800">24.0</div><div class="sub">FTE total del chapter</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--brand)">8.8 <span style="font-size:13px">(37%)</span></div><div class="sub">en transformación</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--warn)">9.2 <span style="font-size:13px">(38%)</span></div><div class="sub">en BAU</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--ok)">6.0 <span style="font-size:13px">(25%)</span></div><div class="sub">FTE libre del chapter</div></div></div>
+        </div>
+
+        <div class="grid g3">
+          <div class="cellcard y" onclick="go('celula-det')">
+            <h3><span class="sema y"></span>Backend Platform</h3>
+            <div class="cs">10 capacidades · Kafka Migration (M)</div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:32%;background:var(--brand)"></i><i style="width:44%;background:var(--amber)"></i><i style="width:24%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Transformación</span><b>3.2 / est 3.5</b></div>
+            <div class="pstat"><span>BAU</span><b style="color:var(--warn)">4.4 / est 4.2 ▲</b></div>
+            <div class="pstat"><span>Libre</span><b>2.4</b></div>
+            <div class="pstat"><span>Alerta</span><b><span class="pill warn" style="font-size:10px">BAU creciendo · 1 sobreasignada</span></b></div>
+          </div>
+          <div class="cellcard g" onclick="toast('Detalle de Fraude Tarjetas · demo: solo Backend Platform tiene detalle completo')">
+            <h3><span class="sema g"></span>Fraude Tarjetas</h3>
+            <div class="cs">8 capacidades · Motor scoring v2 (L)</div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:51%;background:var(--brand)"></i><i style="width:33%;background:var(--amber)"></i><i style="width:16%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Transformación</span><b>4.1 / est 4.0</b></div>
+            <div class="pstat"><span>BAU</span><b>2.6 / est 2.6</b></div>
+            <div class="pstat"><span>Libre</span><b>1.3</b></div>
+            <div class="pstat"><span>Estado</span><b><span class="pill ok" style="font-size:10px">en balance</span></b></div>
+          </div>
+          <div class="cellcard b" onclick="toast('Detalle de Canales Digitales · demo: solo Backend Platform tiene detalle completo')">
+            <h3><span class="sema g"></span>Canales Digitales</h3>
+            <div class="cs">6 capacidades · Onboarding digital (S)</div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:25%;background:var(--brand)"></i><i style="width:37%;background:var(--amber)"></i><i style="width:38%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Transformación</span><b>1.5 / est 1.6</b></div>
+            <div class="pstat"><span>BAU</span><b>2.2 / est 2.3</b></div>
+            <div class="pstat"><span>Libre</span><b style="color:var(--ok)">2.3 ★</b></div>
+            <div class="pstat"><span>Estado</span><b><span class="pill ok" style="font-size:10px">capacidad disponible</span></b></div>
+          </div>
+        </div>
+
+        <div class="grid g2 mt">
+          <div class="card">
+            <div class="hd">Pendientes para ti<span class="tag">requieren tu decisión</span></div>
+            <div class="bd">
+              <div class="todo" onclick="go('capacidades')">
+                <div class="big red">1</div>
+                <div><h4>Sobreasignación: María González al 110%</h4><p>Backend Platform · sugerencia de rebalanceo hacia Canales Digitales</p></div>
+                <div class="go">→</div>
+              </div>
+              <div class="todo" onclick="go('backlogs');blTab(null,'bl2')">
+                <div class="big red" id="homeCurCount">3</div>
+                <div><h4>Items esperando curación</h4><p>Confirma con cada capacidad si los items del backlog aplican</p></div>
+                <div class="go">→</div>
+              </div>
+              <div class="todo" onclick="go('reporte')">
+                <div class="big amb">4</div>
+                <div><h4>Reportes de horas sin enviar</h4><p>2 en Backend Platform · 1 en Fraude · 1 en Canales</p></div>
+                <div class="go">→</div>
+              </div>
+              <div class="todo" onclick="go('usuarios')">
+                <div class="big amb">2</div>
+                <div><h4>Identidades sin resolver</h4><p>7 items no cuentan en ninguna capacidad hasta resolverlas</p></div>
+                <div class="go">→</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hd">Alertas transversales del chapter</div>
+            <div class="bd">
+              <div class="callout bad" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Sobreasignación:</b> María González (Backend Platform) al 110%. <a href="#" onclick="go('capacidades');return false" style="color:inherit;font-weight:800">Ver rebalanceo →</a></div></div>
+              <div class="callout warn" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>BAU creciendo</b> en Backend Platform: 44% real vs 42% plan. Tendencia de 2 sprints.</div></div>
+              <div class="callout warn" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Concentración de conocimiento:</b> AS-400 depende solo de Julián Pérez (bus factor = 1).</div></div>
+              <div class="callout ok" style="margin-bottom:0"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div><b>Canales Digitales con 2.3 FTE libres:</b> capacidad para absorber demanda o recibir rebalanceo.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 1.1 GESTIONAR CÉLULAS ================= -->
+      <section class="view" id="v-celulas">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Células</h1>
+          <p>Las células de tu chapter, comparables lado a lado. Haz clic en una para ver su detalle: capacidad, BAU y equipo.</p>
+        </div>
+
+        <div class="card">
+          <div class="hd">Células del chapter<span class="tag">3 células · 24 capacidades</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <thead><tr><th></th><th>Célula</th><th>Tribu</th><th>Criticidad</th><th>Capacidades</th><th>Iniciativa activa</th><th>Distribución FTE (real)</th><th>Libre</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr class="click" onclick="go('celula-det')"><td><span class="sema y"></span></td><td class="b">Backend Platform</td><td>Payments</td><td><span class="pill bad">Crítica</span></td><td>10</td><td>Kafka Migration <span class="pill gray">M</span></td><td style="min-width:150px"><div class="bar"><i style="width:32%;background:var(--brand)"></i><i style="width:44%;background:var(--amber)"></i><i style="width:24%;background:var(--green)"></i></div></td><td class="b">2.4</td><td><span class="pill warn">BAU ▲</span></td></tr>
+                <tr class="click" onclick="toast('Demo: solo Backend Platform tiene detalle completo')"><td><span class="sema g"></span></td><td class="b">Fraude Tarjetas</td><td>Risk &amp; Fraud</td><td><span class="pill bad">Crítica</span></td><td>8</td><td>Motor scoring v2 <span class="pill gray">L</span></td><td style="min-width:150px"><div class="bar"><i style="width:51%;background:var(--brand)"></i><i style="width:33%;background:var(--amber)"></i><i style="width:16%;background:var(--green)"></i></div></td><td class="b">1.3</td><td><span class="pill ok">OK</span></td></tr>
+                <tr class="click" onclick="toast('Demo: solo Backend Platform tiene detalle completo')"><td><span class="sema g"></span></td><td class="b">Canales Digitales</td><td>Customer</td><td><span class="pill warn">Alta</span></td><td>6</td><td>Onboarding digital <span class="pill gray">S</span></td><td style="min-width:150px"><div class="bar"><i style="width:25%;background:var(--brand)"></i><i style="width:37%;background:var(--amber)"></i><i style="width:38%;background:var(--green)"></i></div></td><td class="b" style="color:var(--ok)">2.3</td><td><span class="pill ok">Disponible</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="margin-top:13px"><button class="btn pri" onclick="toast('POST /api/squads · crear célula (nombre, tribu, criticidad)')">+ Nueva célula</button></div>
+      </section>
+
+      <!-- ================= 1.1b DETALLE CÉLULA ================= -->
+      <section class="view" id="v-celula-det">
+        <div class="head">
+          <div class="back" onclick="go('celulas')">← Volver a células</div>
+          <div class="kick">Gestión de Capacidad · Células</div>
+          <h1>Backend Platform <span class="pill warn" style="vertical-align:middle">BAU creciendo</span></h1>
+          <p>Payments · Criticidad crítica · 10 capacidades · Iniciativa activa: Kafka Migration</p>
+        </div>
+
+        <div class="card">
+          <div class="hd">Capacidad · sprint 16 · estimado vs real</div>
+          <div class="bd">
+            <div class="ringrow" style="justify-content:space-around">
+              <div class="ringbox">
+                <div class="ring" style="background:conic-gradient(var(--brand) 0 32%,#e8ebf5 32% 100%)"><div class="c"><b>3.2</b><span>de 3.5 est</span></div></div>
+                <div class="rl" style="color:var(--brand)">Transformación</div>
+                <div class="rs"><span class="pill ok" style="font-size:10px">−8.6% mejor</span></div>
+              </div>
+              <div class="ringbox">
+                <div class="ring" style="background:conic-gradient(var(--amber) 0 44%,#e8ebf5 44% 100%)"><div class="c"><b>4.4</b><span>de 4.2 est</span></div></div>
+                <div class="rl" style="color:var(--warn)">BAU</div>
+                <div class="rs"><span class="pill warn" style="font-size:10px">+4.8% arriba</span></div>
+              </div>
+              <div class="ringbox">
+                <div class="ring" style="background:conic-gradient(var(--green) 0 24%,#e8ebf5 24% 100%)"><div class="c"><b>2.4</b><span>de 2.3 est</span></div></div>
+                <div class="rl" style="color:var(--ok)">Libre</div>
+                <div class="rs">disponible</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g2 mt">
+          <div class="card">
+            <div class="hd">Tareas BAU<span class="tag">42% planeado · 44% real</span></div>
+            <div class="bd" style="padding:0">
+              <table id="bauTable">
+                <thead><tr><th>Tarea</th><th>Plan</th><th>Real</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td class="b">Soporte producción</td><td>20%</td><td>22%</td><td><span class="pill warn">▲</span></td></tr>
+                  <tr><td class="b">Transferencia de conocimiento</td><td>15%</td><td>14%</td><td><span class="pill ok">▼</span></td></tr>
+                  <tr><td class="b">Ceremonias y reuniones</td><td>7%</td><td>8%</td><td><span class="pill warn">▲</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Equipo asignado<span class="tag">10 capacidades</span></div>
+            <div class="bd" style="padding:0 0 6px">
+              <table>
+                <tbody>
+                  <tr><td class="b">Carlos López</td><td>Backend Dev · Senior</td><td><div class="bar" style="width:110px"><i style="width:40%;background:var(--brand)"></i><i style="width:40%;background:var(--amber)"></i><i style="width:20%;background:var(--green)"></i></div></td><td><span class="pill ok">100%</span></td></tr>
+                  <tr><td class="b">María González</td><td>Backend Dev · Semi-sr</td><td><div class="bar" style="width:110px"><i style="width:55%;background:var(--brand)"></i><i style="width:45%;background:var(--amber)"></i></div></td><td><span class="pill bad">110%</span></td></tr>
+                  <tr><td class="b">Ana Gómez</td><td>QA · Senior</td><td><div class="bar" style="width:110px"><i style="width:30%;background:var(--brand)"></i><i style="width:45%;background:var(--amber)"></i><i style="width:25%;background:var(--green)"></i></div></td><td><span class="pill ok">100%</span></td></tr>
+                  <tr><td class="b">Julián Pérez</td><td>Arquitecto · Senior</td><td><div class="bar" style="width:110px"><i style="width:50%;background:var(--brand)"></i><i style="width:30%;background:var(--amber)"></i><i style="width:20%;background:var(--green)"></i></div></td><td><span class="pill ok">100%</span></td></tr>
+                  <tr><td colspan="4" class="sub" style="text-align:center;padding:9px">+ 6 más · <a href="#" onclick="go('capacidades');return false" style="color:var(--brand);font-weight:700">gestionar capacidades →</a></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 1.2 GESTIONAR INICIATIVAS ================= -->
+      <section class="view" id="v-iniciativas">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Iniciativas</h1>
+          <p>Todas las iniciativas de tus células. Regla: <b>una sola Active por célula</b>. Estimar es opcional — nunca bloquea crear, activar ni asignar.</p>
+        </div>
+
+        <div class="card">
+          <div class="hd">Iniciativas del chapter<span class="tag">5 iniciativas en 3 células</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <thead><tr><th>Iniciativa</th><th>Célula</th><th>Estado</th><th>Estimación</th><th>FTE est</th><th>FTE real S16</th><th>Backlog</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="b">Kafka Migration</td><td>Backend Platform</td><td><span class="pill info">ACTIVE</span></td><td><span class="pill ok">Etapa 1 · M</span></td><td>3.5</td><td class="b" style="color:var(--ok)">3.2</td><td>34 items · 89 pts</td><td><button class="btn gh sm" onclick="document.getElementById('estimDetail').scrollIntoView({behavior:'smooth'})">Estimación ↓</button></td></tr>
+                <tr><td class="b">API Open Finance</td><td>Backend Platform</td><td><span class="pill gray">EVALUATION</span></td><td><span class="pill ok">Etapa 1 · S</span></td><td>1.2</td><td>—</td><td>sin mapear</td><td><button class="btn gh sm" onclick="toast('Solo 1 Active por célula: cierra Kafka Migration primero')">Activar</button></td></tr>
+                <tr><td class="b">Motor reglas AML</td><td>Backend Platform</td><td><span class="pill gray">EVALUATION</span></td><td><span class="pill warn">Sin estimar</span></td><td class="sub">sin estimar</td><td>—</td><td>—</td><td><button class="btn pri sm" onclick="toast('Abriría el scoring de Etapa 1 (30 preguntas + triaje)')">Estimar</button></td></tr>
+                <tr><td class="b">Motor scoring v2</td><td>Fraude Tarjetas</td><td><span class="pill info">ACTIVE</span></td><td><span class="pill ok">Etapa 1 · L</span></td><td>4.0</td><td class="b">4.1</td><td>28 items · 71 pts</td><td><button class="btn gh sm" onclick="toast('Demo: detalle solo para Kafka Migration')">Estimación</button></td></tr>
+                <tr><td class="b">Onboarding digital</td><td>Canales Digitales</td><td><span class="pill info">ACTIVE</span></td><td><span class="pill ok">Etapa 1 · S</span></td><td>1.6</td><td class="b" style="color:var(--ok)">1.5</td><td>12 items · 30 pts</td><td><button class="btn gh sm" onclick="toast('Demo: detalle solo para Kafka Migration')">Estimación</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="margin-top:13px"><button class="btn pri" onclick="toast('POST /api/squads/{id}/initiatives · la estimación es opcional al crear')">+ Nueva iniciativa</button></div>
+
+        <div class="card mt" id="estimDetail">
+          <div class="hd">Estimación por etapas · Kafka Migration<span class="tag">Backend Platform</span></div>
+          <div class="bd">
+            <div class="pipe">
+              <div class="pnode hot"><b>Etapa 1 · Temprana</b><span>T-Shirt Sizing · ✓ completada · ±50-100%</span></div>
+              <div class="parr">→</div>
+              <div class="pnode"><b>Etapa 2 · Refinada</b><span>COCOMO II · 🔒 2/3 prerequisitos · ±25%</span></div>
+              <div class="parr">→</div>
+              <div class="pnode"><b>Real</b><span>calibración al cierre</span></div>
+            </div>
+            <div class="grid g2">
+              <div>
+                <label class="lab">Resultado vigente (Etapa 1 · v2)</label>
+                <table>
+                  <tbody>
+                    <tr><td class="sub">Talla / complejidad</td><td class="b">M · 45.2%</td></tr>
+                    <tr><td class="sub">FTE (opt / medio / pes)</td><td class="b">1.33 / <span style="color:var(--brand)">2.67</span> / 3.50</td></tr>
+                    <tr><td class="sub">Duración</td><td class="b">8–16 PM</td></tr>
+                    <tr><td class="sub">Historial</td><td class="sub">v1 (28-jul · S) → v2 (02-ago · M)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <label class="lab">Prerequisitos Etapa 2</label>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Etapa 1 completada</div><div class="s">vigente v2</div></div></div>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Backlog definido</div><div class="s">automático: 34 items desde DevOps</div></div></div>
+                <div class="chk pend"><div class="ic">!</div><div><div class="t">Arquitectura definida</div><div class="s">pendiente de aprobación</div></div><button class="btn gh sm go" onclick="toast('PUT /estimations/prerequisites · queda registrado quién y cuándo')">Marcar lista</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 1.3 GESTIONAR CAPACIDADES ================= -->
+      <section class="view" id="v-capacidades">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Capacidades</h1>
+          <p>Las 24 personas de tu chapter, transversal a células. Detecta sobreasignaciones y <b>rebalancea</b> entre células con capacidad libre.</p>
+        </div>
+
+        <div class="callout bad"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <div><b>1 sobreasignación detectada.</b> María González al 110% en Backend Platform. Revisa la sugerencia de rebalanceo abajo.</div>
+        </div>
+
+        <div class="card">
+          <div class="hd">Capacidades del chapter<span class="tag">24 personas · filtro: todas las células</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <thead><tr><th>Capacidad</th><th>Rol · Seniority</th><th>Célula</th><th>Asignaciones</th><th>Utilización</th><th>Entra ID</th><th></th></tr></thead>
+              <tbody>
+                <tr style="background:#fff8f8"><td class="b">María González</td><td>Backend Dev · Semi-sr</td><td>Backend Platform</td><td class="sub">Kafka 60% · BAU 50%</td><td><span class="pill bad">110%</span></td><td><span class="pill ok">✓</span></td><td><button class="btn bad sm" onclick="document.getElementById('rebal').scrollIntoView({behavior:'smooth'})">Rebalancear</button></td></tr>
+                <tr><td class="b">Carlos López</td><td>Backend Dev · Senior</td><td>Backend Platform</td><td class="sub">Kafka 40% · BAU 40% · libre 20%</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓</span></td><td><button class="btn gh sm" onclick="toast('Detalle: allocations, skills, backlog individual, utilización')">Ver</button></td></tr>
+                <tr><td class="b">Julián Pérez</td><td>Arquitecto · Senior</td><td>Backend Platform</td><td class="sub">Kafka 50% · BAU 30% · libre 20%</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓</span></td><td><button class="btn gh sm" onclick="toast('⚠ Bus factor: único con AS-400 en el chapter')">Ver</button></td></tr>
+                <tr><td class="b">Sofía Torres</td><td>Backend Dev · Senior</td><td>Canales Digitales</td><td class="sub">Onboarding 35% · BAU 25% · libre 40%</td><td><span class="pill info">60%</span></td><td><span class="pill ok">✓</span></td><td><button class="btn gh sm" onclick="toast('Candidata a recibir rebalanceo: 40% libre')">Ver</button></td></tr>
+                <tr><td class="b">Laura Ruiz</td><td>QA · Junior</td><td>Backend Platform</td><td class="sub">sin reporte S16</td><td><span class="pill gray">—</span></td><td><span class="pill warn">sin match</span></td><td><button class="btn gh sm" onclick="go('usuarios')">Resolver ID</button></td></tr>
+                <tr><td colspan="7" class="sub" style="text-align:center;padding:9px">+ 19 capacidades más · filtros por célula, rol y utilización</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card mt" id="rebal">
+          <div class="hd">Rebalanceo sugerido<span class="tag">transversal entre células</span></div>
+          <div class="bd">
+            <div class="pipe" style="margin-bottom:12px">
+              <div class="pnode"><b>María González</b><span>Backend Platform · 110% ⚠</span></div>
+              <div class="parr">→</div>
+              <div class="pnode hot"><b>mover 10% BAU soporte</b><span>≈ 0.1 FTE del sprint</span></div>
+              <div class="parr">→</div>
+              <div class="pnode"><b>Sofía Torres</b><span>Canales Digitales · 60%</span></div>
+            </div>
+            <div id="rebalResult" class="hidden callout ok" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div><b>Simulación:</b> María queda al 100% · Sofía al 70% · Sin sobreasignaciones en el chapter. Aplicar creará la allocation en Canales y ajustará la de Backend Platform.</div></div>
+            <div style="display:flex;gap:9px">
+              <button class="btn gh" onclick="document.getElementById('rebalResult').classList.remove('hidden');toast('Simulación calculada · nada se ha aplicado')">Simular</button>
+              <button class="btn pri" onclick="toast('PUT /api/allocations · rebalanceo aplicado · María 100%, Sofía 70%')">Aplicar rebalanceo</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 1.4 REPORTE DE HORAS ================= -->
+      <section class="view" id="v-reporte">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad · al cierre de cada sprint</div>
+          <h1>Reporte de Horas · Sprint 16</h1>
+          <p>Estado de reportes en tus 3 células y captura individual. Sprint de <b id="repTotalLbl">80 horas</b> (configurable en <a href="#" onclick="go('admin');return false" style="color:var(--brand);font-weight:700">Administración</a>).</p>
+        </div>
+
+        <div class="grid g3" style="margin-bottom:15px">
+          <div class="card"><div class="bd"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>Backend Platform</b><span class="pill warn">8/10</span></div><div class="bar"><i style="width:80%;background:var(--ok)"></i></div><div class="sub" style="margin-top:5px">faltan Laura y Pedro</div></div></div>
+          <div class="card"><div class="bd"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>Fraude Tarjetas</b><span class="pill warn">7/8</span></div><div class="bar"><i style="width:87%;background:var(--ok)"></i></div><div class="sub" style="margin-top:5px">falta Andrés</div></div></div>
+          <div class="card"><div class="bd"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>Canales Digitales</b><span class="pill warn">5/6</span></div><div class="bar"><i style="width:83%;background:var(--ok)"></i></div><div class="sub" style="margin-top:5px">falta Camila</div></div></div>
+        </div>
+
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Captura individual<span class="tag">Carlos López · Backend Platform</span></div>
+            <div class="bd">
+              <table>
+                <thead><tr><th>Destino</th><th>Tipo</th><th style="width:90px">Horas</th><th style="width:70px">FTE</th></tr></thead>
+                <tbody>
+                  <tr><td class="b">Kafka Migration</td><td><span class="pill info">Iniciativa</span></td><td><input class="num fteh" type="number" value="32" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.40</td></tr>
+                  <tr><td class="b">Soporte producción</td><td><span class="pill warn">BAU</span></td><td><input class="num fteh" type="number" value="24" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.30</td></tr>
+                  <tr><td class="b">Transferencia conocimiento</td><td><span class="pill warn">BAU</span></td><td><input class="num fteh" type="number" value="8" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.10</td></tr>
+                  <tr><td class="b">Libre / reuniones / otros</td><td><span class="pill gray">Libre</span></td><td><input class="num fteh" type="number" value="16" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.20</td></tr>
+                  <tr class="totrow"><td colspan="2">Total sprint</td><td id="fteTotH" style="padding-left:22px">80</td><td id="fteTotF">1.00</td></tr>
+                </tbody>
+              </table>
+              <div id="fteMsg" class="callout ok" style="margin:11px 0 0"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div>Total dentro del rango (76–84 h). Listo para enviar.</div></div>
+              <div style="margin-top:12px;display:flex;gap:9px"><button class="btn pri" onclick="toast('Reporte del sprint 16 enviado · pendiente validación')">Enviar reporte</button><button class="btn gh">Borrador</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Pendientes de validar / reportar<span class="tag">todas las células</span></div>
+            <div class="bd" style="padding:0 0 6px">
+              <table>
+                <tbody>
+                  <tr><td class="b">Ana Gómez</td><td>Backend Platform</td><td><span class="pill gray">80 h · por validar</span></td><td><button class="btn ok sm" onclick="toast('Reporte validado')">Validar</button></td></tr>
+                  <tr><td class="b">Laura Ruiz</td><td>Backend Platform</td><td><span class="pill bad">sin reportar</span></td><td><button class="btn gh sm" onclick="toast('Recordatorio enviado')">Recordar</button></td></tr>
+                  <tr><td class="b">Pedro Sanín</td><td>Backend Platform</td><td><span class="pill bad">sin reportar</span></td><td><button class="btn gh sm" onclick="toast('Recordatorio enviado')">Recordar</button></td></tr>
+                  <tr><td class="b">Andrés Mora</td><td>Fraude Tarjetas</td><td><span class="pill bad">sin reportar</span></td><td><button class="btn gh sm" onclick="toast('Recordatorio enviado')">Recordar</button></td></tr>
+                  <tr><td class="b">Camila Osorio</td><td>Canales Digitales</td><td><span class="pill bad">sin reportar</span></td><td><button class="btn gh sm" onclick="toast('Recordatorio enviado')">Recordar</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 1.5 GESTIONAR BACKLOGS ================= -->
+      <section class="view" id="v-backlogs">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Backlogs</h1>
+          <p>El backlog sincronizado de cada célula: mapeo a iniciativas, curación de items por capacidad y el board del equipo.</p>
+        </div>
+
+        <div class="segbtn" style="margin-bottom:15px" id="blTabs">
+          <button class="on" onclick="blTab(this,'bl1')">Mapeo Epic ↔ Iniciativa</button>
+          <button onclick="blTab(this,'bl2')">Curación de items <span class="pill bad" style="margin-left:4px" id="blCurPill">3</span></button>
+          <button onclick="blTab(this,'bl3')">Squad Board</button>
+        </div>
+
+        <div id="bl1">
+          <div class="card">
+            <div class="hd">Mapeo de Epics/Features<span class="tag">célula: Backend Platform · tablero: Backend Core</span></div>
+            <div class="bd" style="padding:0">
+              <table>
+                <tbody>
+                  <tr><td class="b">#12345 · Migración plataforma Kafka <span class="pill info">Epic</span></td><td>→ Kafka Migration</td><td><span class="pill ok">mapeado</span></td><td></td></tr>
+                  <tr><td class="b">#12388 · Conectores legacy AS-400 <span class="pill info">Feature</span></td><td>→ Kafka Migration</td><td><span class="pill ok">mapeado</span></td><td></td></tr>
+                  <tr><td class="b">#12290 · Observabilidad plataforma <span class="pill info">Epic</span></td><td class="sub">sin mapear</td><td><span class="pill gray">disponible</span></td><td><button class="btn gh sm" onclick="toast('PUT /api/initiatives/{id}/backlog-mapping · un epic solo puede pertenecer a UNA iniciativa (409 si ya está)')">Mapear</button></td></tr>
+                  <tr><td class="b">#12101 · Rediseño motor de pagos <span class="pill info">Epic</span></td><td class="sub">de otra iniciativa</td><td><span class="pill bad">409 · Payment Engine v2</span></td><td></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="callout mt" style="margin-bottom:0"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg><div>El mapeo marca automáticamente el prerequisito <b>backlogDefined</b> de la Etapa 2 de estimación.</div></div>
+        </div>
+
+        <div id="bl2" class="hidden">
+          <div class="pipe">
+            <div class="pnode"><b>Sync aplicado</b><span>Integraciones</span></div>
+            <div class="parr">→</div>
+            <div class="pnode"><b>Match Entra ID</b><span>automático</span></div>
+            <div class="parr">→</div>
+            <div class="pnode hot"><b>Tu revisión con la capacidad</b><span id="pipeCount">3 pendientes</span></div>
+            <div class="parr">→</div>
+            <div class="pnode"><b>Confirmado</b><span>board + FTE real</span></div>
+          </div>
+          <div id="inboxList">
+            <div class="inbox">
+              <div class="wico">US</div>
+              <div><h4>#12401 · Consumer group rebalanceo</h4><div class="meta">Para <b>Carlos López</b> · Backend Platform · Kafka Migration · 5 pts</div></div>
+              <div class="acts"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button><button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></div>
+            </div>
+            <div class="inbox">
+              <div class="wico">T</div>
+              <div><h4>#12405 · Test de carga tópicos</h4><div class="meta">Para <b>Julián Pérez</b> · Backend Platform · Kafka Migration · 2 pts</div></div>
+              <div class="acts"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button><button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></div>
+            </div>
+            <div class="inbox" style="border-color:#eeddba;background:#fffdf8">
+              <div class="wico" style="background:var(--warn-bg);color:var(--warn)">!</div>
+              <div><h4>#12318 · Ajuste reporte contable</h4><div class="meta">Para <b>Carlos López</b> · <b style="color:var(--warn)">de otro equipo</b> · 3 pts · posible error en DevOps</div></div>
+              <div class="acts"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button><button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></div>
+            </div>
+          </div>
+          <div id="inboxEmpty" class="callout ok hidden"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div><b>Bandeja vacía.</b> Los confirmados ya alimentan el board y el FTE real.</div></div>
+        </div>
+
+        <div id="bl3" class="hidden">
+          <div class="callout"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg><div>Solo items <b>confirmados en curación</b>. <b id="boardPend">5 pendientes</b> no aparecen aún. Célula: <b>Backend Platform</b>.</div></div>
+          <div class="board">
+            <div class="col">
+              <h5>Nuevo <span>3</span></h5>
+              <div class="wi"><div class="id">#12401 · US</div><div class="tt">Consumer group rebalanceo</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+              <div class="wi"><div class="id">#12402 · US</div><div class="tt">Retry policy DLQ</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+              <div class="wi"><div class="id">#12405 · Task</div><div class="tt">Test de carga tópicos</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">2</span></div></div>
+            </div>
+            <div class="col">
+              <h5>Activo <span>4</span></h5>
+              <div class="wi"><div class="id">#12350 · US</div><div class="tt">Esquemas Avro registry</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+              <div class="wi"><div class="id">#12344 · US</div><div class="tt">Productor idempotente pagos</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+              <div class="wi"><div class="id">#12351 · US</div><div class="tt">Migración consumidores fraude</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">8</span></div></div>
+              <div class="wi"><div class="id">#12360 · Task</div><div class="tt">Runbook operación clúster</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">3</span></div></div>
+            </div>
+            <div class="col">
+              <h5>Resuelto <span>2</span></h5>
+              <div class="wi"><div class="id">#12388 · Feature</div><div class="tt">Conectores legacy AS-400</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">38</span></div></div>
+              <div class="wi"><div class="id">#12331 · US</div><div class="tt">Config TLS brokers</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">5</span></div></div>
+            </div>
+            <div class="col">
+              <h5>Cerrado <span>3</span></h5>
+              <div class="wi"><div class="id">#12322 · US</div><div class="tt">Migración tópico transacciones</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+              <div class="wi"><div class="id">#12310 · US</div><div class="tt">Spike particionamiento</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+              <div class="wi"><div class="id">#12290 · Task</div><div class="tt">Hotfix reproceso nocturno</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">2</span></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2.1 CONFIGURAR CONEXIÓN ================= -->
+      <section class="view" id="v-conexion">
+        <div class="head">
+          <div class="kick">Integraciones</div>
+          <h1>Configurar Conexión</h1>
+          <p>Conexión global con Azure DevOps. <b>Solo lectura</b>: la plataforma nunca escribe en DevOps.</p>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Azure DevOps</div>
+            <div class="bd">
+              <div class="prow"><div><label class="lab">Organización</label><input value="https://dev.azure.com/tuya" readonly></div><div><label class="lab">Proyecto</label><input value="Ecosistema-Digital" readonly></div></div>
+              <div class="prow"><div><label class="lab">Autenticación</label><select class="fld"><option>Service Principal (Entra ID)</option><option>PAT</option></select></div><div><label class="lab">Secreto</label><input type="password" value="••••••••••••" readonly></div></div>
+              <div style="display:flex;gap:9px"><button class="btn pri" onclick="toast('Conexión verificada · acceso de lectura confirmado')">Probar conexión</button><button class="btn gh">Editar</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Estado</div>
+            <div class="bd">
+              <div class="pstat"><span>Estado</span><b><span class="pill ok">Conectado</span></b></div>
+              <div class="pstat"><span>Última verificación</span><b>Hoy 09:12</b></div>
+              <div class="pstat"><span>Permisos</span><b>Work Items (Read) · Boards (Read)</b></div>
+              <div class="pstat"><span>Dirección</span><b>DevOps → Plataforma</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2.2 SINCRONIZACIÓN DE TABLEROS ================= -->
+      <section class="view" id="v-tableros">
+        <div class="head">
+          <div class="kick">Integraciones</div>
+          <h1>Sincronización de Tableros vs Squads</h1>
+          <p>Dos partes: la <b>curación del vínculo</b> tablero↔célula (2 sesiones: explorar → decidir) y la <b>sincronización del backlog</b> (preview → apply).</p>
+        </div>
+
+        <div class="card" style="margin-bottom:15px">
+          <div class="hd">Curación de tableros · vínculos por célula<span class="tag">explorar (S1) → decidir (S2) → Active</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <thead><tr><th>Célula</th><th>Tablero DevOps</th><th>Sesión 1 · Exploración</th><th>Sesión 2 · Decisión</th><th>Estado</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="b">Backend Platform</td><td>Backend Core · Payments\Backend</td><td><span class="pill ok">shortlist ✓</span></td><td><span class="pill ok">confirmado 25-jul</span></td><td><span class="pill ok">Active</span></td><td></td></tr>
+                <tr><td class="b">Fraude Tarjetas</td><td>Fraude · Risk\Fraude</td><td><span class="pill ok">shortlist ✓</span></td><td><span class="pill ok">confirmado 22-jul</span></td><td><span class="pill ok">Active</span></td><td></td></tr>
+                <tr><td class="b">Canales Digitales</td><td class="sub">Canales Web · en borrador</td><td><span class="pill ok">shortlist ✓</span></td><td><span class="pill warn">Draft · expira en 21 días</span></td><td><span class="pill warn">Draft</span></td><td><button class="btn pri sm" onclick="this.closest('tr').querySelectorAll('.pill')[1].outerHTML='<span class=\'pill ok\'>confirmado hoy</span>';this.closest('tr').querySelectorAll('.pill')[1].outerHTML='<span class=\'pill ok\'>Active</span>';this.remove();toast('Vínculo confirmado · POST /devops-board-link/confirm')">Confirmar</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd">Sincronización del backlog<span class="tag">Backend Platform · preview → apply</span></div>
+          <div class="bd">
+            <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+              <button class="btn pri" onclick="doPreview()">Calcular previsualización</button>
+              <button class="btn ok" id="btnApply" onclick="doApply()" disabled>Aplicar</button>
+              <button class="btn bad" id="btnDisc" onclick="doDiscard()" disabled>Descartar</button>
+              <span class="sub">Último sync: 29-jul · +8 nuevos, 3 actualizados · historial completo trazado</span>
+            </div>
+            <div id="diffCard" class="hidden" style="margin-top:13px">
+              <table>
+                <thead><tr><th>Cambio</th><th>Work item</th><th>Detalle</th><th>Pts</th></tr></thead>
+                <tbody>
+                  <tr class="diff-row diff-add"><td><span class="pill ok">Nuevo</span></td><td class="b">#12406 · Alertas lag consumidores</td><td>no existe en snapshot local</td><td>3</td></tr>
+                  <tr class="diff-row diff-upd"><td><span class="pill warn">Cambia</span></td><td class="b">#12388 · Conectores AS-400</td><td>state: Active → <b>Resolved</b></td><td>38</td></tr>
+                  <tr class="diff-row diff-upd"><td><span class="pill warn">Cambia</span></td><td class="b">#12350 · Esquemas Avro</td><td>assignedTo: María → <b>Laura</b> (volverá a curación)</td><td>8</td></tr>
+                  <tr class="diff-row diff-del"><td><span class="pill bad">Sale</span></td><td class="b">#12102 · Spike mensajería</td><td>eliminado en DevOps</td><td>1</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2.3 SINCRONIZACIÓN DE USUARIOS ================= -->
+      <section class="view" id="v-usuarios">
+        <div class="head">
+          <div class="kick">Integraciones</div>
+          <h1>Sincronización de Usuarios</h1>
+          <p>Une las personas de DevOps con tus capacidades vía <b>Entra ID</b> (automático por objectId → fallback UPN). Sin match, sus items no cuentan en ninguna capacidad.</p>
+        </div>
+
+        <div class="grid g3" style="margin-bottom:15px">
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--ok)">22</div><div class="sub">identidades resueltas (auto)</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--bad)" id="unmCount">2</div><div class="sub">sin match · requieren decisión</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800">7</div><div class="sub">items afectados sin dueño</div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="hd">Identidades sin match<span class="tag">el match manual queda persistido</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <tbody id="unmatchedRows">
+                <tr><td><div class="b">l.ruiz@contractor-tuya.com</div><div class="sub">Laura Ruiz (DevOps) · 4 items afectados</div></td><td><select class="fld" style="max-width:230px"><option selected>Laura Ruiz · QA · Backend Platform</option><option>Pedro Sanín · Backend Dev</option></select></td><td><button class="btn pri sm" onclick="matchId(this)">Vincular</button></td></tr>
+                <tr><td><div class="b">svc.integracion@tuya.com</div><div class="sub">Cuenta de servicio · 3 items</div></td><td><select class="fld" style="max-width:230px"><option selected>Ignorar (no es una capacidad)</option></select></td><td><button class="btn gh sm" onclick="matchId(this)">Resolver</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div id="idDone" class="callout ok mt hidden"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div><b>Identidades al día.</b> Los items re-resueltos pasaron a la bandeja de curación.</div></div>
+      </section>
+
+      <!-- ================= 3 ADMINISTRACIÓN ================= -->
+      <section class="view" id="v-admin">
+        <div class="head">
+          <div class="kick">Administración</div>
+          <h1>Configuraciones de la Plataforma</h1>
+          <p>Parámetros globales que gobiernan el comportamiento de todos los módulos.</p>
+        </div>
+
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Calendario de sprints<span class="tag">única fuente de verdad</span></div>
+            <div class="bd">
+              <div class="prow"><div><label class="lab">Semanas por sprint</label><input id="cfgWeeks" type="number" value="2" min="1" max="4" oninput="updCfgOut()"></div><div><label class="lab">Horas por semana</label><input id="cfgHours" type="number" value="40" min="20" max="48" oninput="updCfgOut()"></div></div>
+              <div class="prow"><div><label class="lab">Sprints por quarter</label><input id="cfgSprintsQ" type="number" value="6" min="4" max="8"></div><div><label class="lab">Tolerancia de reporte (± h)</label><input id="cfgTol" type="number" value="4" min="0" max="16" oninput="updCfgOut()"></div></div>
+              <div class="callout" style="margin-bottom:13px"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg><div>Horas por sprint: <b id="cfgOut">80 h</b> · rango de reporte: <b id="cfgRange">76–84 h</b>. Cambiarlo no recalcula sprints ya reportados.</div></div>
+              <button class="btn pri" onclick="saveCfg()">Guardar</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Parámetros del modelo de estimación</div>
+            <div class="bd" style="padding:0 0 10px">
+              <table>
+                <tbody>
+                  <tr><td class="b">Tallas (XS–XL)</td><td class="sub">rangos de complejidad y PM</td><td><span class="pill gray">default</span></td></tr>
+                  <tr><td class="b">Preguntas del scoring</td><td class="sub">30 preguntas · dimensión y peso</td><td><span class="pill gray">default</span></td></tr>
+                  <tr><td class="b">Mix de capacidades</td><td class="sub">roles y SFIA por talla</td><td><span class="pill gray">default</span></td></tr>
+                  <tr><td class="b">Niveles SFIA</td><td class="sub">referencia 0–7</td><td><span class="pill gray">default</span></td></tr>
+                </tbody>
+              </table>
+              <div style="padding:0 15px"><button class="btn gh sm" onclick="toast('GET/PUT /api/model/parameters')">Editar parámetros</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== Navegación =====
+  var TITLES={home:'Inicio',celulas:'Gestionar Células','celula-det':'Células · Backend Platform',iniciativas:'Gestionar Iniciativas',capacidades:'Gestionar Capacidades',reporte:'Reporte de Horas',backlogs:'Gestionar Backlogs',conexion:'Configurar Conexión',tableros:'Sincronización de Tableros',usuarios:'Sincronización de Usuarios',admin:'Configuraciones'};
+  function go(v){
+    var navV=(v==='celula-det')?'celulas':v;
+    document.querySelectorAll('.navitem').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===navV)});
+    document.querySelectorAll('.view').forEach(function(s){s.classList.remove('on')});
+    document.getElementById('v-'+v).classList.add('on');
+    document.getElementById('crumbTxt').textContent=TITLES[v]||v;
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll('.navitem[data-v]').forEach(function(btn){btn.addEventListener('click',function(){go(btn.getAttribute('data-v'))});});
+
+  // ===== Toast =====
+  var tmr;
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tmr);tmr=setTimeout(function(){t.classList.remove('show')},3800);}
+
+  // ===== Config sprint =====
+  var CFG={weeksPerSprint:2,hoursPerWeek:40,toleranceHours:4};
+  function sprintHours(){return CFG.weeksPerSprint*CFG.hoursPerWeek;}
+  function updCfgOut(){
+    var w=parseInt(document.getElementById('cfgWeeks').value)||2;
+    var h=parseInt(document.getElementById('cfgHours').value)||40;
+    var t=parseInt(document.getElementById('cfgTol').value)||4;
+    var s=w*h;
+    document.getElementById('cfgOut').textContent=s+' h';
+    document.getElementById('cfgRange').textContent=(s-t)+'–'+(s+t)+' h';
+  }
+  function saveCfg(){
+    CFG.weeksPerSprint=parseInt(document.getElementById('cfgWeeks').value)||2;
+    CFG.hoursPerWeek=parseInt(document.getElementById('cfgHours').value)||40;
+    CFG.toleranceHours=parseInt(document.getElementById('cfgTol').value)||4;
+    document.getElementById('repTotalLbl').textContent=sprintHours()+' horas';
+    calcFte();
+    toast('Guardado · el reporte ahora valida contra '+sprintHours()+' h por sprint');
+  }
+
+  // ===== FTE =====
+  function calcFte(){
+    var S=sprintHours(),T=CFG.toleranceHours;
+    var inputs=document.querySelectorAll('.fteh'),outs=document.querySelectorAll('.fte-out'),tot=0;
+    inputs.forEach(function(inp,i){var h=parseFloat(inp.value)||0;tot+=h;outs[i].textContent=(h/S).toFixed(2);});
+    document.getElementById('fteTotH').textContent=tot;
+    document.getElementById('fteTotF').textContent=(tot/S).toFixed(2);
+    var msg=document.getElementById('fteMsg');
+    if(tot>=S-T&&tot<=S+T){msg.className='callout ok';msg.innerHTML='<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div>Total dentro del rango ('+(S-T)+'–'+(S+T)+' h). Listo para enviar.</div>';}
+    else{msg.className='callout warn';msg.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Total '+tot+' h:</b> fuera del rango '+(S-T)+'–'+(S+T)+' h. Revisa antes de enviar.</div>';}
+  }
+
+  // ===== Backlogs tabs =====
+  function blTab(btn,id){
+    if(!btn){btn=document.querySelectorAll('#blTabs button')[id==='bl2'?1:(id==='bl3'?2:0)];}
+    btn.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('on')});
+    btn.classList.add('on');
+    ['bl1','bl2','bl3'].forEach(function(x){document.getElementById(x).classList.toggle('hidden',x!==id)});
+  }
+
+  // ===== Curación =====
+  var curCount=3,boardPendCount=5;
+  function refreshCur(){
+    document.getElementById('navCur').textContent=curCount;
+    document.getElementById('homeCurCount').textContent=curCount;
+    document.getElementById('pipeCount').textContent=curCount+' pendientes';
+    document.getElementById('blCurPill').textContent=curCount;
+    document.getElementById('boardPend').textContent=boardPendCount+' pendientes';
+    if(curCount<=0){
+      document.getElementById('inboxEmpty').classList.remove('hidden');
+      var nc=document.getElementById('navCur');nc.classList.add('ok');nc.textContent='✓';
+      document.getElementById('blCurPill').className='pill ok';document.getElementById('blCurPill').textContent='✓';
+    }
+  }
+  function curate(btn,ok){
+    var card=btn.closest('.inbox');
+    if(!ok){
+      var reason=prompt('Motivo del rechazo:','Asignado por error en DevOps');
+      if(reason===null)return;
+      toast('Rechazado ("'+reason+'") · trazado, no cuenta en ninguna vista');
+    }else{
+      toast('Confirmado · cuenta en backlog individual, board y FTE real');
+    }
+    card.classList.add('out');
+    setTimeout(function(){card.remove();},280);
+    curCount--;boardPendCount--;refreshCur();
+  }
+
+  // ===== Identidades =====
+  var unmatched=2;
+  function matchId(btn){
+    btn.closest('tr').remove();
+    unmatched--;
+    document.getElementById('unmCount').textContent=unmatched;
+    var nu=document.getElementById('navUsers');
+    if(unmatched<=0){
+      nu.classList.add('ok');nu.textContent='✓';
+      document.getElementById('idDone').classList.remove('hidden');
+    }else{nu.textContent=unmatched;}
+    toast('Identidad resuelta · items re-resueltos pasan a curación');
+  }
+
+  // ===== Sync =====
+  function doPreview(){
+    document.getElementById('diffCard').classList.remove('hidden');
+    document.getElementById('btnApply').disabled=false;
+    document.getElementById('btnDisc').disabled=false;
+    toast('Preview calculado · nada se ha modificado aún');
+  }
+  function doApply(){
+    document.getElementById('diffCard').classList.add('hidden');
+    document.getElementById('btnApply').disabled=true;document.getElementById('btnDisc').disabled=true;
+    curCount+=2;boardPendCount+=2;
+    var nc=document.getElementById('navCur');nc.classList.remove('ok');
+    document.getElementById('inboxEmpty').classList.add('hidden');
+    var pill=document.getElementById('blCurPill');pill.className='pill bad';
+    refreshCur();
+    toast('Aplicado · 2 items con nueva asignación llegaron a la bandeja de curación');
+  }
+  function doDiscard(){
+    document.getElementById('diffCard').classList.add('hidden');
+    document.getElementById('btnApply').disabled=true;document.getElementById('btnDisc').disabled=true;
+    toast('Preview descartado · el snapshot local no cambió');
+  }
+</script>
+</body>
+</html>

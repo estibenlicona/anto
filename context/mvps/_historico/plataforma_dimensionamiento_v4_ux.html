@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Dimensionamiento · v4 UX · Tuya</title>
+<style>
+  :root{
+    --brand:#2F4BD8; --brand2:#5B6BE8; --cyan:#0EA5A4;
+    --ink:#1E293B; --muted:#5b6b80; --line:#e5e9f2;
+    --bg:#f4f6fb; --card:#ffffff; --seg:#eef2f8;
+    --ok:#16A34A; --ok-bg:#e7f6ec; --bad:#DC2626; --bad-bg:#fbe5e5;
+    --warn:#B45309; --warn-bg:#f9efdc; --amber:#f0b429; --green:#8bd7a7;
+    --radius:14px; --shadow:0 1px 3px rgba(20,40,90,.06),0 6px 24px rgba(20,40,90,.05);
+    --font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+  .app{display:flex;min-height:100vh}
+
+  /* ===== Sidebar ===== */
+  .side{width:262px;flex-shrink:0;background:linear-gradient(180deg,#ffffff,#f4f6fb);border-right:1px solid var(--line);padding:18px 13px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;box-shadow:0 4px 12px rgba(47,75,216,.3)}
+  .brand b{font-size:14.5px;display:block;line-height:1.05}
+  .brand span{font-size:10px;color:var(--muted);letter-spacing:.07em}
+  .navlabel{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#9aa6be;padding:13px 10px 4px;font-weight:700}
+  .navitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;cursor:pointer;color:#42506a;font-weight:600;font-size:13px;border:none;background:none;width:100%;text-align:left;transition:.15s}
+  .navitem svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.9}
+  .navitem:hover{background:#eef1fb;color:var(--brand)}
+  .navitem.on{background:linear-gradient(90deg,#eef1fb,transparent);color:var(--brand)}
+  .navitem.on svg{stroke:var(--brand)}
+  .navitem .count{margin-left:auto;background:var(--bad);color:#fff;font-size:9.5px;font-weight:800;min-width:17px;height:17px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+  .navitem .count.ok{background:var(--ok)}
+  .navitem .count.br{background:var(--brand)}
+  .side-foot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--line);font-size:10.5px;color:var(--muted)}
+
+  /* ===== Main ===== */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  .crumb{font-size:12.5px;color:var(--muted)}.crumb b{color:var(--ink)}
+  .topbar .sp{flex:1}
+  .ctx{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .ctx select{font-family:var(--font);font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;color:var(--ink);font-weight:600}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .content{padding:24px 26px 60px;max-width:1240px}
+
+  .head{margin-bottom:18px}
+  .kick{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);font-weight:800;margin-bottom:5px}
+  .head h1{margin:0;font-size:23px;letter-spacing:-.01em}
+  .head p{margin:5px 0 0;color:var(--muted);max-width:82ch}
+
+  .view{display:none;animation:fade .35s}.view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .hd{padding:13px 17px;border-bottom:1px solid var(--line);font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:9px}
+  .card .hd .tag{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+  .card .bd{padding:17px}
+  .grid{display:grid;gap:15px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:980px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .mt{margin-top:15px}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.bad{background:var(--bad-bg);color:var(--bad)}
+  .pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.info{background:#e9edfc;color:var(--brand)}
+  .pill.gray{background:#eef1f6;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;padding:8px 11px;border-bottom:1px solid var(--line)}
+  td{padding:9px 11px;border-bottom:1px solid #f1f4fa;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fafbfe}
+  td .b{font-weight:600}.sub{font-size:11px;color:var(--muted)}
+
+  .bar{height:8px;border-radius:6px;background:#eef1f6;overflow:hidden;display:flex}
+  .bar i{display:block;height:100%}
+  .bar.lg{height:16px;border-radius:8px}
+
+  .lab{font-size:12px;font-weight:700;color:#42506a;margin-bottom:5px;display:block}
+  input,select.fld,textarea{width:100%;font-family:var(--font);font-size:13px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink)}
+  .prow{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+  .btn{border:none;border-radius:10px;padding:9px 16px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
+  .btn.pri{background:var(--brand);color:#fff}.btn.gh{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn.ok{background:var(--ok);color:#fff}.btn.bad{background:#fff;border:1px solid var(--bad);color:var(--bad)}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.pri:hover:not(:disabled){background:#2740b8}
+  .num{width:74px;text-align:center}
+  .totrow{font-weight:800}
+  .hidden{display:none!important}
+
+  /* ===== Home: journey ===== */
+  .journey{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:stretch;margin-bottom:16px}
+  .jcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:17px;cursor:pointer;transition:.15s;position:relative}
+  .jcard:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(20,40,90,.11)}
+  .jcard .n{width:30px;height:30px;border-radius:9px;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:9px}
+  .jcard h3{margin:0 0 4px;font-size:14.5px}
+  .jcard p{margin:0;font-size:12px;color:var(--muted)}
+  .jcard .st{margin-top:10px}
+  .jarrow{display:flex;align-items:center;padding:0 8px;color:#c3cbe0;font-size:22px;font-weight:800}
+  @media(max-width:980px){.journey{grid-template-columns:1fr}.jarrow{display:none}}
+
+  /* ===== Checklist ===== */
+  .chk{display:flex;align-items:center;gap:11px;padding:10px 4px;border-bottom:1px solid #f1f4fa}
+  .chk:last-child{border-bottom:none}
+  .chk .ic{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+  .chk.done .ic{background:var(--ok-bg);color:var(--ok)}
+  .chk.pend .ic{background:var(--warn-bg);color:var(--warn)}
+  .chk .t{font-size:13px;font-weight:600}
+  .chk .s{font-size:11px;color:var(--muted)}
+  .chk .go{margin-left:auto}
+
+  /* ===== Todos ===== */
+  .todo{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;background:#fff;cursor:pointer;transition:.15s}
+  .todo:hover{border-color:var(--brand);background:#fbfcff}
+  .todo .big{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+  .todo .big.red{background:var(--bad-bg);color:var(--bad)}
+  .todo .big.amb{background:var(--warn-bg);color:var(--warn)}
+  .todo .big.blu{background:#e9edfc;color:var(--brand)}
+  .todo h4{margin:0;font-size:13.5px}
+  .todo p{margin:1px 0 0;font-size:11.5px;color:var(--muted)}
+  .todo .go{margin-left:auto;color:var(--brand);font-weight:800;font-size:18px}
+
+  /* ===== Rings ===== */
+  .ringrow{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+  .ringbox{text-align:center}
+  .ring{width:118px;height:118px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;margin:0 auto 8px}
+  .ring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:#fff}
+  .ring .c{position:relative;z-index:1}
+  .ring .c b{font-size:21px;display:block;letter-spacing:-.02em}
+  .ring .c span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+  .ringbox .rl{font-size:12px;font-weight:700}
+  .ringbox .rs{font-size:11px;color:var(--muted)}
+
+  /* ===== Wizard ===== */
+  .wiz{position:relative;padding-left:4px}
+  .wstep{display:flex;gap:15px;position:relative;padding-bottom:10px}
+  .wstep .rail{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+  .wstep .wball{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;border:2.5px solid var(--line);background:#fff;color:var(--muted);z-index:1}
+  .wstep.done .wball{background:var(--ok);border-color:var(--ok);color:#fff}
+  .wstep.curr .wball{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 0 0 5px #e9edfc}
+  .wstep.warn .wball{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+  .wstep .rail i{flex:1;width:3px;background:var(--line);border-radius:2px;margin:4px 0}
+  .wstep.done .rail i{background:var(--ok)}
+  .wstep:last-child .rail i{display:none}
+  .wstep .wbody{flex:1;padding-bottom:14px}
+  .wstep .wtitle{font-weight:800;font-size:14px;display:flex;align-items:center;gap:9px}
+  .wstep .wsub{font-size:12px;color:var(--muted);margin-top:2px}
+  .wstep .wcontent{margin-top:11px}
+
+  /* ===== Pipeline ===== */
+  .pipe{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:6px 0 14px}
+  .pnode{background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:9px 14px;text-align:center;min-width:120px}
+  .pnode b{display:block;font-size:12px}
+  .pnode span{font-size:10.5px;color:var(--muted)}
+  .pnode.hot{border-color:var(--brand);background:#f7f9ff;box-shadow:0 0 0 4px #e9edfc}
+  .parr{padding:0 9px;color:#c3cbe0;font-size:17px;font-weight:800}
+
+  /* ===== Inbox ===== */
+  .inbox{border:1px solid var(--line);border-radius:13px;background:#fff;padding:14px 16px;margin-bottom:11px;display:flex;gap:13px;align-items:flex-start;transition:.3s}
+  .inbox.out{opacity:0;transform:translateX(30px)}
+  .inbox .wico{width:38px;height:38px;border-radius:11px;background:#e9edfc;color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0}
+  .inbox h4{margin:0 0 2px;font-size:13.5px}
+  .inbox .meta{font-size:11.5px;color:var(--muted)}
+  .inbox .acts{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+
+  .segbtn{display:inline-flex;background:var(--seg);border-radius:9px;padding:3px}
+  .segbtn button{border:none;background:none;padding:6px 14px;border-radius:7px;font-family:var(--font);font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer}
+  .segbtn button.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+  /* ===== Kanban ===== */
+  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:960px){.board{grid-template-columns:1fr 1fr}}
+  .col{background:#f6f8fc;border:1px solid var(--line);border-radius:12px;padding:10px}
+  .col h5{margin:2px 4px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:flex;justify-content:space-between}
+  .wi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:8px;box-shadow:0 1px 2px rgba(20,40,90,.05)}
+  .wi .id{font-size:10px;color:var(--muted);font-weight:700}
+  .wi .tt{font-size:12px;font-weight:600;margin:2px 0 6px;line-height:1.3}
+  .wi .ft{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted)}
+  .wi .pts{margin-left:auto;background:#eef1fb;color:var(--brand);font-weight:800;border-radius:8px;padding:1px 7px;font-size:10px}
+  .mini-av{width:19px;height:19px;border-radius:50%;background:var(--cyan);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800}
+  .mini-av.b{background:var(--brand2)}.mini-av.o{background:#d97706}.mini-av.p{background:#7c3aed}
+
+  /* ===== Person cards ===== */
+  .pcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px;box-shadow:var(--shadow)}
+  .pcard .ph{display:flex;gap:11px;align-items:center;margin-bottom:11px}
+  .pcard .pav{width:42px;height:42px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+  .pcard h4{margin:0;font-size:14px}
+  .pcard .pr{font-size:11.5px;color:var(--muted)}
+  .pstat{display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid #f1f4fa}
+  .pstat:last-child{border-bottom:none}
+  .pstat b{font-weight:700}
+
+  /* ===== Callouts / help ===== */
+  .callout{display:flex;gap:11px;padding:13px 15px;border-radius:11px;background:#e9edfc;border:1px solid #d5dcf7;font-size:12.5px;color:#31418f;margin-bottom:15px;align-items:flex-start}
+  .callout.warn{background:var(--warn-bg);border-color:#eeddba;color:var(--warn)}
+  .callout.ok{background:var(--ok-bg);border-color:#c7e8d2;color:#136b36}
+  .callout svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;margin-top:1px}
+  details.help{margin-bottom:15px;border:1px dashed #c7d0e6;border-radius:11px;background:#fbfcff}
+  details.help summary{cursor:pointer;padding:10px 15px;font-weight:700;font-size:12.5px;color:var(--brand);list-style:none;display:flex;align-items:center;gap:8px}
+  details.help summary::before{content:"?";width:19px;height:19px;border-radius:50%;background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+  details.help .hbd{padding:2px 16px 13px;font-size:12.5px;color:#42506a}
+
+  .diff-row td:first-child{border-left:3px solid transparent}
+  .diff-add td:first-child{border-left-color:var(--ok)}
+  .diff-upd td:first-child{border-left-color:var(--warn)}
+  .diff-del td:first-child{border-left-color:var(--bad)}
+
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(10px);transition:.3s;z-index:99;max-width:420px}
+  .toast.show{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">◳</div>
+      <div><b>Dimensionamiento TI</b><span>MVP v4 · UX REDISEÑADA</span></div>
+    </div>
+
+    <button class="navitem on" data-v="home"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Inicio</button>
+
+    <div class="navlabel">Mi Squad</div>
+    <button class="navitem" data-v="capacidad"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 16l4-6 4 3 5-8"/></svg>Capacidad</button>
+    <button class="navitem" data-v="iniciativas"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>Iniciativas y estimación</button>
+    <button class="navitem" data-v="bau"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>Trabajo BAU</button>
+    <button class="navitem" data-v="equipo"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Equipo</button>
+
+    <div class="navlabel">Ritmo del sprint</div>
+    <button class="navitem" data-v="reporte"><svg viewBox="0 0 24 24"><path d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>Mi reporte de horas<span class="count br">S16</span></button>
+    <button class="navitem" data-v="curacion"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2M5.5 5.1L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.7 4H7.3a2 2 0 0 0-1.8 1.1z"/></svg>Bandeja de curación<span class="count" id="navCur">3</span></button>
+    <button class="navitem" data-v="board"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Squad Board</button>
+
+    <div class="navlabel">Configuración</div>
+    <button class="navitem" data-v="devops"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>Conectar Azure DevOps<span class="count" id="navDevops">1</span></button>
+    <button class="navitem" data-v="admin"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Administración</button>
+
+    <div class="side-foot">MVP v4 · datos moqueados<br>Squad: <b>Backend Platform</b> · Sprint 16</div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Plataforma / <b id="crumbTxt">Inicio</b></div>
+      <div class="sp"></div>
+      <div class="ctx">
+        Squad:
+        <select><option>Backend Platform</option><option>Fraude Tarjetas</option><option>Canales Digitales</option></select>
+        Sprint:
+        <select><option>Sprint 16 · 2026 (28 jul – 8 ago)</option><option>Sprint 15 · 2026</option></select>
+      </div>
+      <div class="avatar">CL</div>
+    </div>
+
+    <div class="content">
+
+      <!-- ================= INICIO ================= -->
+      <section class="view on" id="v-home">
+        <div class="head">
+          <div class="kick">Backend Platform · Sprint 16</div>
+          <h1>Hola, Chapter Lead 👋</h1>
+          <p>Esta plataforma dimensiona tu squad y compara el plan con la realidad. Funciona en 3 pasos: <b>configura</b> las fuentes una vez, <b>opera</b> al ritmo del sprint y <b>analiza</b> la capacidad.</p>
+        </div>
+
+        <div class="journey">
+          <div class="jcard" onclick="go('devops')">
+            <div class="n" style="background:var(--cyan)">1</div>
+            <h3>Configura</h3>
+            <p>Conecta Azure DevOps, vincula el tablero de tu squad y mapea el backlog. Se hace una sola vez.</p>
+            <div class="st"><div class="bar"><i style="width:80%;background:var(--cyan)"></i></div><div class="sub" style="margin-top:4px">4 de 5 pasos · falta resolver identidades</div></div>
+          </div>
+          <div class="jarrow">→</div>
+          <div class="jcard" onclick="go('reporte')">
+            <div class="n" style="background:var(--brand)">2</div>
+            <h3>Opera cada sprint</h3>
+            <p>Reporta horas al cierre del sprint, cura los items del backlog y gestiona el trabajo BAU.</p>
+            <div class="st"><div class="bar"><i style="width:60%;background:var(--brand)"></i></div><div class="sub" style="margin-top:4px">3 pendientes de curación · 2 sin reportar</div></div>
+          </div>
+          <div class="jarrow">→</div>
+          <div class="jcard" onclick="go('capacidad')">
+            <div class="n" style="background:var(--ok)">3</div>
+            <h3>Analiza</h3>
+            <p>Mira cuánta capacidad va a transformación, cuánta a BAU y cuánta queda libre. Estimado vs real.</p>
+            <div class="st"><div class="bar"><i style="width:32%;background:var(--brand)"></i><i style="width:44%;background:var(--amber)"></i><i style="width:24%;background:var(--green)"></i></div><div class="sub" style="margin-top:4px">32% transformación · 44% BAU · 24% libre</div></div>
+          </div>
+        </div>
+
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Pendientes para ti<span class="tag">acciones que requieren tu decisión</span></div>
+            <div class="bd">
+              <div class="todo" onclick="go('curacion')">
+                <div class="big red" id="homeCurCount">3</div>
+                <div><h4>Items esperando curación</h4><p>Confirma con cada capacidad si los items del backlog aplican</p></div>
+                <div class="go">→</div>
+              </div>
+              <div class="todo" onclick="go('reporte')">
+                <div class="big amb">2</div>
+                <div><h4>Reportes de horas sin enviar</h4><p>Laura y Pedro no han reportado el sprint 16</p></div>
+                <div class="go">→</div>
+              </div>
+              <div class="todo" onclick="go('devops')">
+                <div class="big amb">2</div>
+                <div><h4>Identidades sin resolver</h4><p>7 items no aparecen en ninguna capacidad hasta resolverlas</p></div>
+                <div class="go">→</div>
+              </div>
+              <div class="todo" onclick="go('iniciativas')">
+                <div class="big blu">1</div>
+                <div><h4>Prerequisito de Etapa 2 pendiente</h4><p>Marca "arquitectura definida" cuando el diseño esté aprobado</p></div>
+                <div class="go">→</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hd">Tu squad hoy<span class="tag">resumen rápido</span></div>
+            <div class="bd">
+              <div class="ringrow" style="justify-content:center;margin-bottom:8px">
+                <div class="ringbox">
+                  <div class="ring" style="background:conic-gradient(var(--brand) 0 32%,var(--amber) 32% 76%,var(--green) 76% 100%)">
+                    <div class="c"><b>10.0</b><span>FTE total</span></div>
+                  </div>
+                  <div class="rl">Capacidad del sprint</div>
+                  <div class="rs">3.2 transf · 4.4 BAU · 2.4 libre</div>
+                </div>
+                <div style="flex:1;min-width:210px">
+                  <div class="pstat"><span><span class="dot" style="background:var(--brand);display:inline-block;margin-right:6px"></span>Iniciativa activa</span><b>Kafka Migration · talla M</b></div>
+                  <div class="pstat"><span><span class="dot" style="background:var(--amber);display:inline-block;margin-right:6px"></span>Tareas BAU</span><b>3 tareas · 42% estimado</b></div>
+                  <div class="pstat"><span><span class="dot" style="background:var(--green);display:inline-block;margin-right:6px"></span>FTE libre</span><b>2.4 · disponible para demanda</b></div>
+                  <div class="pstat"><span>Backlog sincronizado</span><b>34 items · 89 pts</b></div>
+                  <div class="pstat"><span>Reportes del sprint</span><b>8 de 10 personas</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CAPACIDAD ================= -->
+      <section class="view" id="v-capacidad">
+        <div class="head">
+          <div class="kick">Mi Squad · Analiza</div>
+          <h1>Capacidad de la squad</h1>
+          <p>¿A dónde se va el tiempo de tu equipo? Compara lo <b>planeado</b> con lo <b>real</b> (reportes de horas del sprint).</p>
+        </div>
+
+        <details class="help">
+          <summary>¿Cómo se calcula esto?</summary>
+          <div class="hbd">FTE total = suma de la disponibilidad de las 10 personas. <b>Transformación</b> = horas en la iniciativa activa ÷ 80 h. <b>BAU</b> = horas en tareas operativas ÷ 80 h. <b>Libre</b> = lo que resta. El estimado viene del modelo de scoring (iniciativa) y del % planeado (BAU).</div>
+        </details>
+
+        <div class="card">
+          <div class="hd">Sprint 16 · estimado vs real</div>
+          <div class="bd">
+            <div class="ringrow" style="justify-content:space-around">
+              <div class="ringbox">
+                <div class="ring" style="background:conic-gradient(var(--brand) 0 32%,#e8ebf5 32% 100%)"><div class="c"><b>3.2</b><span>de 3.5 est</span></div></div>
+                <div class="rl" style="color:var(--brand)">Transformación</div>
+                <div class="rs">Kafka Migration · <span class="pill ok" style="font-size:10px">−8.6% mejor</span></div>
+              </div>
+              <div class="ringbox">
+                <div class="ring" style="background:conic-gradient(var(--amber) 0 44%,#e8ebf5 44% 100%)"><div class="c"><b>4.4</b><span>de 4.2 est</span></div></div>
+                <div class="rl" style="color:var(--warn)">BAU</div>
+                <div class="rs">3 tareas · <span class="pill warn" style="font-size:10px">+4.8% arriba</span></div>
+              </div>
+              <div class="ringbox">
+                <div class="ring" style="background:conic-gradient(var(--green) 0 24%,#e8ebf5 24% 100%)"><div class="c"><b>2.4</b><span>de 2.3 est</span></div></div>
+                <div class="rl" style="color:var(--ok)">Libre</div>
+                <div class="rs">Capacidad disponible</div>
+              </div>
+            </div>
+            <div class="callout warn" style="margin:16px 0 0"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>El BAU está creciendo:</b> 44% real vs 42% planeado. Revisa las tareas operativas en <a href="#" onclick="go('bau');return false" style="color:inherit;font-weight:800">Trabajo BAU →</a></div></div>
+          </div>
+        </div>
+
+        <div class="card mt">
+          <div class="hd">Detalle por persona<span class="tag">sprint 16 · 8/10 reportaron</span></div>
+          <div class="bd" style="padding:0 0 6px">
+            <table>
+              <thead><tr><th>Capacidad</th><th>Rol</th><th>Distribución real del sprint</th><th>Transf.</th><th>BAU</th><th>Libre</th><th>Fuente</th></tr></thead>
+              <tbody>
+                <tr><td class="b">Carlos López</td><td>Backend Dev</td><td><div class="bar"><i style="width:40%;background:var(--brand)"></i><i style="width:40%;background:var(--amber)"></i><i style="width:20%;background:var(--green)"></i></div></td><td>0.40</td><td>0.40</td><td>0.20</td><td><span class="pill gray">Manual</span></td></tr>
+                <tr><td class="b">María González</td><td>Backend Dev</td><td><div class="bar"><i style="width:35%;background:var(--brand)"></i><i style="width:50%;background:var(--amber)"></i><i style="width:15%;background:var(--green)"></i></div></td><td>0.35</td><td>0.50</td><td>0.15</td><td><span class="pill gray">Manual</span></td></tr>
+                <tr><td class="b">Ana Gómez</td><td>QA Engineer</td><td><div class="bar"><i style="width:30%;background:var(--brand)"></i><i style="width:45%;background:var(--amber)"></i><i style="width:25%;background:var(--green)"></i></div></td><td>0.30</td><td>0.45</td><td>0.25</td><td><span class="pill info">DevOps ✓</span></td></tr>
+                <tr><td class="b">Julián Pérez</td><td>Arquitecto</td><td><div class="bar"><i style="width:50%;background:var(--brand)"></i><i style="width:30%;background:var(--amber)"></i><i style="width:20%;background:var(--green)"></i></div></td><td>0.50</td><td>0.30</td><td>0.20</td><td><span class="pill gray">Manual</span></td></tr>
+                <tr><td colspan="7" class="sub" style="text-align:center;padding:10px">+ 6 capacidades · <span class="pill warn">Laura y Pedro sin reportar</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= INICIATIVAS Y ESTIMACIÓN ================= -->
+      <section class="view" id="v-iniciativas">
+        <div class="head">
+          <div class="kick">Mi Squad</div>
+          <h1>Iniciativas y estimación</h1>
+          <p>Una squad tiene <b>una sola iniciativa activa</b> (la que consume FTE de transformación). Estimar es opcional: agrega valor pero nunca bloquea crear, activar ni asignar.</p>
+        </div>
+
+        <div class="grid g3">
+          <div class="card" style="border-top:3px solid var(--brand)">
+            <div class="bd">
+              <div style="display:flex;gap:8px;margin-bottom:8px"><span class="pill info">ACTIVE</span><span class="pill gray">Talla M</span></div>
+              <h3 style="margin:0 0 4px;font-size:15px">Kafka Migration</h3>
+              <div class="sub" style="margin-bottom:10px">Estimación vigente: Etapa 1 · 2.67 FTE medio · ±50-100%</div>
+              <div class="pstat"><span>FTE real sprint 16</span><b style="color:var(--ok)">3.2 (−8.6%)</b></div>
+              <div class="pstat"><span>Backlog</span><b>34 items · 89 pts</b></div>
+              <button class="btn pri sm" style="margin-top:11px" onclick="document.getElementById('estimDetail').scrollIntoView({behavior:'smooth'})">Ver estimación por etapas ↓</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="bd">
+              <div style="display:flex;gap:8px;margin-bottom:8px"><span class="pill gray">EVALUATION</span><span class="pill ok">Estimada · S</span></div>
+              <h3 style="margin:0 0 4px;font-size:15px">API Open Finance</h3>
+              <div class="sub" style="margin-bottom:10px">Etapa 1 completada · 1.2 FTE medio · esperando priorización</div>
+              <div class="pstat"><span>Para activarla</span><b>cerrar Kafka Migration</b></div>
+              <button class="btn gh sm" style="margin-top:11px" onclick="toast('Solo puede haber 1 iniciativa Active por squad (regla de negocio)')">Activar</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="bd">
+              <div style="display:flex;gap:8px;margin-bottom:8px"><span class="pill gray">EVALUATION</span><span class="pill warn">Sin estimar</span></div>
+              <h3 style="margin:0 0 4px;font-size:15px">Motor reglas AML</h3>
+              <div class="sub" style="margin-bottom:10px">Registrada sin estimación — es válido: la estimación es opcional</div>
+              <div class="pstat"><span>Demanda FTE</span><b>sin estimar</b></div>
+              <button class="btn pri sm" style="margin-top:11px" onclick="toast('Abriría el formulario de scoring de Etapa 1 (30 preguntas + triaje)')">Estimar ahora</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt" id="estimDetail">
+          <div class="hd">Estimación por etapas · Kafka Migration<span class="tag">línea de progreso</span></div>
+          <div class="bd">
+            <div class="pipe">
+              <div class="pnode hot"><b>Etapa 1 · Temprana</b><span>T-Shirt Sizing · ✓ completada</span></div>
+              <div class="parr">→</div>
+              <div class="pnode"><b>Etapa 2 · Refinada</b><span>COCOMO II · 🔒 2/3 prerequisitos</span></div>
+              <div class="parr">→</div>
+              <div class="pnode"><b>Real</b><span>calibración al cierre</span></div>
+            </div>
+
+            <div class="callout"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg>
+              <div><b>Estás en la ESTIMACIÓN TEMPRANA.</b> Es un rango preliminar (±50-100%) basado en complejidad percibida. Cuando exista backlog y arquitectura, la Etapa 2 lo refinará a ±25% y podrás comparar ambas.</div>
+            </div>
+
+            <div class="grid g2">
+              <div>
+                <label class="lab">Resultado vigente (Etapa 1 · v2)</label>
+                <table>
+                  <tbody>
+                    <tr><td class="sub">Talla / complejidad</td><td class="b">M · 45.2%</td></tr>
+                    <tr><td class="sub">FTE (opt / medio / pes)</td><td class="b">1.33 / <span style="color:var(--brand)">2.67</span> / 3.50</td></tr>
+                    <tr><td class="sub">Duración</td><td class="b">8–16 PM</td></tr>
+                    <tr><td class="sub">Historial</td><td class="sub">v1 (28-jul · talla S) → v2 (02-ago · talla M)</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <label class="lab">Desbloquear Etapa 2 · prerequisitos</label>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Etapa 1 completada</div><div class="s">vigente v2</div></div></div>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Backlog definido</div><div class="s">automático: 34 items sincronizados de DevOps</div></div></div>
+                <div class="chk pend"><div class="ic">!</div><div><div class="t">Arquitectura definida</div><div class="s">pendiente de aprobación del diseño</div></div><button class="btn gh sm go" onclick="toast('PUT /estimations/prerequisites · architectureDefined=true (queda registrado quién y cuándo)')">Marcar lista</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BAU ================= -->
+      <section class="view" id="v-bau">
+        <div class="head">
+          <div class="kick">Mi Squad</div>
+          <h1>Trabajo BAU</h1>
+          <p>El día a día que consume tiempo pero no aporta a los KRs: soporte, operación, ceremonias. Se registra simple: <b>nombre + % dedicación planeada</b>. El real sale de los reportes de horas.</p>
+        </div>
+
+        <div class="grid g3" style="margin-bottom:15px">
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800">42%</div><div class="sub">planeado en BAU</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--warn)">44%</div><div class="sub">real sprint 16</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--ok)">OK</div><div class="sub">suma &lt; 100% · sin sobreasignación</div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="hd">Tareas BAU<span class="tag">3 registradas</span></div>
+          <div class="bd" style="padding:0">
+            <table id="bauTable">
+              <thead><tr><th>Tarea</th><th>Planeado</th><th>Real (S16)</th><th>Tendencia</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="b">Soporte producción</div><div class="sub">Incidentes, monitoreo, on-call</div></td><td>20%</td><td>22%</td><td><span class="pill warn">▲ +2</span></td><td><button class="btn gh sm">Editar</button></td></tr>
+                <tr><td><div class="b">Transferencia de conocimiento</div><div class="sub">Onboarding, documentación</div></td><td>15%</td><td>14%</td><td><span class="pill ok">▼ −1</span></td><td><button class="btn gh sm">Editar</button></td></tr>
+                <tr><td><div class="b">Ceremonias y reuniones</div><div class="sub">Dailys, refinamientos, comités</div></td><td>7%</td><td>8%</td><td><span class="pill warn">▲ +1</span></td><td><button class="btn gh sm">Editar</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card mt">
+          <div class="hd">Agregar tarea BAU</div>
+          <div class="bd">
+            <div class="prow" style="grid-template-columns:2fr 1fr auto">
+              <div><label class="lab">Nombre</label><input id="bauName" placeholder="Ej: Gestión de vulnerabilidades"></div>
+              <div><label class="lab">% dedicación planeada</label><input id="bauPct" type="number" placeholder="10" min="1" max="100"></div>
+              <div style="display:flex;align-items:flex-end"><button class="btn pri" onclick="addBau()">Agregar</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= EQUIPO ================= -->
+      <section class="view" id="v-equipo">
+        <div class="head">
+          <div class="kick">Mi Squad</div>
+          <h1>Equipo · 10 capacidades</h1>
+          <p>Cada persona con su identidad Entra ID, su distribución del sprint y sus items confirmados del backlog (evidencia de trabajo real).</p>
+        </div>
+
+        <div class="grid g3">
+          <div class="pcard">
+            <div class="ph"><div class="pav" style="background:var(--cyan)">CL</div><div><h4>Carlos López</h4><div class="pr">Backend Dev · Senior · SFIA 4</div></div></div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:40%;background:var(--brand)"></i><i style="width:40%;background:var(--amber)"></i><i style="width:20%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Entra ID</span><b><span class="pill ok" style="font-size:10px">vinculado</span></b></div>
+            <div class="pstat"><span>Items confirmados</span><b>4 · 23 pts</b></div>
+            <div class="pstat"><span>Reporte sprint 16</span><b><span class="pill ok" style="font-size:10px">enviado · 80 h</span></b></div>
+          </div>
+          <div class="pcard">
+            <div class="ph"><div class="pav" style="background:var(--brand2)">MG</div><div><h4>María González</h4><div class="pr">Backend Dev · Semi-senior · SFIA 3</div></div></div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:35%;background:var(--brand)"></i><i style="width:50%;background:var(--amber)"></i><i style="width:15%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Entra ID</span><b><span class="pill ok" style="font-size:10px">vinculado</span></b></div>
+            <div class="pstat"><span>Items confirmados</span><b>3 · 14 pts</b></div>
+            <div class="pstat"><span>Reporte sprint 16</span><b><span class="pill ok" style="font-size:10px">enviado · 82 h</span></b></div>
+          </div>
+          <div class="pcard">
+            <div class="ph"><div class="pav" style="background:#7c3aed">AG</div><div><h4>Ana Gómez</h4><div class="pr">QA Engineer · Senior · SFIA 4</div></div></div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:30%;background:var(--brand)"></i><i style="width:45%;background:var(--amber)"></i><i style="width:25%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Entra ID</span><b><span class="pill ok" style="font-size:10px">vinculado</span></b></div>
+            <div class="pstat"><span>Items confirmados</span><b>2 · 8 pts</b></div>
+            <div class="pstat"><span>Reporte sprint 16</span><b><span class="pill gray" style="font-size:10px">por validar</span></b></div>
+          </div>
+          <div class="pcard">
+            <div class="ph"><div class="pav" style="background:#d97706">JP</div><div><h4>Julián Pérez</h4><div class="pr">Arquitecto · Senior · SFIA 5</div></div></div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:50%;background:var(--brand)"></i><i style="width:30%;background:var(--amber)"></i><i style="width:20%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Entra ID</span><b><span class="pill ok" style="font-size:10px">vinculado</span></b></div>
+            <div class="pstat"><span>Items confirmados</span><b>1 · 38 pts</b></div>
+            <div class="pstat"><span>Reporte sprint 16</span><b><span class="pill ok" style="font-size:10px">enviado · 78 h</span></b></div>
+          </div>
+          <div class="pcard" style="border-color:#eeddba;background:#fffdf8">
+            <div class="ph"><div class="pav" style="background:#9aa6be">LR</div><div><h4>Laura Ruiz</h4><div class="pr">QA Engineer · Junior · SFIA 2</div></div></div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:100%;background:#eef1f6"></i></div>
+            <div class="pstat"><span>Entra ID</span><b><span class="pill warn" style="font-size:10px">sin match</span></b></div>
+            <div class="pstat"><span>Items confirmados</span><b>—</b></div>
+            <div class="pstat"><span>Reporte sprint 16</span><b><span class="pill bad" style="font-size:10px">sin reportar</span></b></div>
+          </div>
+          <div class="pcard">
+            <div class="ph"><div class="pav" style="background:#0d7d7c">PS</div><div><h4>Pedro Sanín</h4><div class="pr">Backend Dev · Semi-senior · SFIA 3</div></div></div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:100%;background:#eef1f6"></i></div>
+            <div class="pstat"><span>Entra ID</span><b><span class="pill ok" style="font-size:10px">vinculado</span></b></div>
+            <div class="pstat"><span>Items confirmados</span><b>2 · 6 pts</b></div>
+            <div class="pstat"><span>Reporte sprint 16</span><b><span class="pill bad" style="font-size:10px">sin reportar</span></b></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= REPORTE DE HORAS ================= -->
+      <section class="view" id="v-reporte">
+        <div class="head">
+          <div class="kick">Ritmo del sprint · al cierre de cada sprint</div>
+          <h1>Mi reporte de horas · Sprint 16</h1>
+          <p>28 jul – 8 ago · Reparte tus <b id="repTotalLbl">80 horas</b> entre la iniciativa, tareas BAU y tiempo libre. La duración del sprint se configura en <a href="#" onclick="go('admin');return false" style="color:var(--brand);font-weight:700">Administración</a>.</p>
+        </div>
+
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Reparte tus horas<span class="tag">Carlos López</span></div>
+            <div class="bd">
+              <table>
+                <thead><tr><th>Destino</th><th>Tipo</th><th style="width:90px">Horas</th><th style="width:70px">FTE</th></tr></thead>
+                <tbody>
+                  <tr><td class="b">Kafka Migration</td><td><span class="pill info">Iniciativa</span></td><td><input class="num fteh" type="number" value="32" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.40</td></tr>
+                  <tr><td class="b">Soporte producción</td><td><span class="pill warn">BAU</span></td><td><input class="num fteh" type="number" value="24" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.30</td></tr>
+                  <tr><td class="b">Transferencia conocimiento</td><td><span class="pill warn">BAU</span></td><td><input class="num fteh" type="number" value="8" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.10</td></tr>
+                  <tr><td class="b">Libre / reuniones / otros</td><td><span class="pill gray">Libre</span></td><td><input class="num fteh" type="number" value="16" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.20</td></tr>
+                  <tr class="totrow"><td colspan="2">Total sprint</td><td id="fteTotH" style="padding-left:22px">80</td><td id="fteTotF">1.00</td></tr>
+                </tbody>
+              </table>
+              <div style="margin:12px 0 4px"><div class="bar lg" id="repBar"><i style="width:40%;background:var(--brand)"></i><i style="width:40%;background:var(--amber)"></i><i style="width:20%;background:var(--green)"></i></div></div>
+              <div id="fteMsg" class="callout ok" style="margin:10px 0 0"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div>Total dentro del rango esperado (76–84 h por sprint). Listo para enviar.</div></div>
+              <div style="margin-top:13px;display:flex;gap:9px"><button class="btn pri" onclick="toast('Reporte del sprint 16 enviado · pendiente validación del Chapter Lead')">Enviar reporte</button><button class="btn gh">Guardar borrador</button></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hd">¿Quién ha reportado?<span class="tag">8 de 10</span></div>
+            <div class="bd">
+              <div class="bar lg" style="margin-bottom:13px"><i style="width:80%;background:var(--ok)"></i></div>
+              <table>
+                <tbody>
+                  <tr><td class="b">Carlos López</td><td><span class="pill ok">80 h · validado</span></td></tr>
+                  <tr><td class="b">María González</td><td><span class="pill ok">82 h · validado</span></td></tr>
+                  <tr><td class="b">Ana Gómez</td><td><span class="pill gray">80 h · por validar</span></td></tr>
+                  <tr><td class="b">Julián Pérez</td><td><span class="pill ok">78 h · validado</span></td></tr>
+                  <tr><td class="b">Laura Ruiz</td><td><span class="pill bad">sin reportar</span></td></tr>
+                  <tr><td class="b">Pedro Sanín</td><td><span class="pill bad">sin reportar</span></td></tr>
+                </tbody>
+              </table>
+              <button class="btn gh sm" style="margin-top:11px" onclick="toast('Recordatorio enviado a Laura y Pedro')">Enviar recordatorio a pendientes</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BANDEJA DE CURACIÓN ================= -->
+      <section class="view" id="v-curacion">
+        <div class="head">
+          <div class="kick">Ritmo del sprint · después de cada sync</div>
+          <h1>Bandeja de curación</h1>
+          <p>El match por Entra ID <b>no asocia automáticamente</b>: cada item llega aquí como candidato. Revísalo con la capacidad: si aplica, confírmalo; si es un error de DevOps, recházalo con motivo.</p>
+        </div>
+
+        <div class="pipe">
+          <div class="pnode"><b>Azure DevOps</b><span>sync aplicado</span></div>
+          <div class="parr">→</div>
+          <div class="pnode"><b>Match Entra ID</b><span>automático</span></div>
+          <div class="parr">→</div>
+          <div class="pnode hot"><b>Tu revisión</b><span id="pipeCount">3 pendientes</span></div>
+          <div class="parr">→</div>
+          <div class="pnode"><b>Confirmado</b><span>backlog individual + board + FTE real</span></div>
+        </div>
+
+        <div id="inboxList">
+          <div class="inbox">
+            <div class="wico">US</div>
+            <div><h4>#12401 · Consumer group rebalanceo</h4><div class="meta">Para <b>Carlos López</b> · Kafka Migration · 5 pts · llegó con el sync del 02-ago</div></div>
+            <div class="acts"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button><button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></div>
+          </div>
+          <div class="inbox">
+            <div class="wico">T</div>
+            <div><h4>#12405 · Test de carga tópicos</h4><div class="meta">Para <b>Julián Pérez</b> · Kafka Migration · 2 pts · llegó con el sync del 02-ago</div></div>
+            <div class="acts"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button><button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></div>
+          </div>
+          <div class="inbox" style="border-color:#eeddba;background:#fffdf8">
+            <div class="wico" style="background:var(--warn-bg);color:var(--warn)">!</div>
+            <div><h4>#12318 · Ajuste reporte contable</h4><div class="meta">Para <b>Carlos López</b> · <b style="color:var(--warn)">de otro equipo</b> · 3 pts · posible error de asignación en DevOps</div></div>
+            <div class="acts"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button><button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></div>
+          </div>
+        </div>
+        <div id="inboxEmpty" class="callout ok hidden"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div><b>Bandeja vacía.</b> Todo el backlog está curado: los confirmados ya alimentan el Squad Board y el FTE real.</div></div>
+
+        <div class="card mt">
+          <div class="hd">Curados recientemente</div>
+          <div class="bd" style="padding:0">
+            <table>
+              <tbody id="confRows">
+                <tr><td><div class="b">#12350 · Esquemas Avro registry</div><div class="sub">Carlos López · confirmado 30-jul</div></td><td><span class="pill ok">Confirmed</span></td></tr>
+                <tr><td><div class="b">#12344 · Productor idempotente pagos</div><div class="sub">Carlos López · confirmado 30-jul</div></td><td><span class="pill ok">Confirmed</span></td></tr>
+                <tr><td><div class="b">#12299 · Spike compresión mensajes</div><div class="sub">María González · rechazado 30-jul · "duplicado"</div></td><td><span class="pill bad">Rejected</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= SQUAD BOARD ================= -->
+      <section class="view" id="v-board">
+        <div class="head">
+          <div class="kick">Mi Squad</div>
+          <h1>Squad Board</h1>
+          <p>Espejo del backlog de DevOps con <b>solo los items confirmados</b> en curación. Se alimenta automáticamente: nada aparece aquí sin pasar por la bandeja.</p>
+        </div>
+
+        <div class="board">
+          <div class="col">
+            <h5>Nuevo <span>3</span></h5>
+            <div class="wi"><div class="id">#12401 · US</div><div class="tt">Consumer group rebalanceo</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+            <div class="wi"><div class="id">#12402 · US</div><div class="tt">Retry policy DLQ</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+            <div class="wi"><div class="id">#12405 · Task</div><div class="tt">Test de carga tópicos</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">2</span></div></div>
+          </div>
+          <div class="col">
+            <h5>Activo <span>4</span></h5>
+            <div class="wi"><div class="id">#12350 · US</div><div class="tt">Esquemas Avro registry</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+            <div class="wi"><div class="id">#12344 · US</div><div class="tt">Productor idempotente pagos</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+            <div class="wi"><div class="id">#12351 · US</div><div class="tt">Migración consumidores fraude</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">8</span></div></div>
+            <div class="wi"><div class="id">#12360 · Task</div><div class="tt">Runbook operación clúster</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">3</span></div></div>
+          </div>
+          <div class="col">
+            <h5>Resuelto <span>2</span></h5>
+            <div class="wi"><div class="id">#12388 · Feature</div><div class="tt">Conectores legacy AS-400</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">38</span></div></div>
+            <div class="wi"><div class="id">#12331 · US</div><div class="tt">Config TLS brokers</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">5</span></div></div>
+          </div>
+          <div class="col">
+            <h5>Cerrado <span>3</span></h5>
+            <div class="wi"><div class="id">#12322 · US</div><div class="tt">Migración tópico transacciones</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+            <div class="wi"><div class="id">#12310 · US</div><div class="tt">Spike particionamiento</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+            <div class="wi"><div class="id">#12290 · Task</div><div class="tt">Hotfix reproceso nocturno</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">2</span></div></div>
+          </div>
+        </div>
+
+        <div class="callout mt" style="margin-bottom:0"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg><div><b id="boardPend">5 items pendientes de curación</b> no aparecen en el board. Revísalos en la <a href="#" onclick="go('curacion');return false" style="color:inherit;font-weight:800">Bandeja de curación →</a></div></div>
+      </section>
+
+      <!-- ================= CONECTAR DEVOPS (WIZARD) ================= -->
+      <section class="view" id="v-devops">
+        <div class="head">
+          <div class="kick">Configuración · se hace una sola vez</div>
+          <h1>Conectar Azure DevOps</h1>
+          <p>Un flujo guiado de 4 pasos. Todo es <b>solo lectura</b> (la plataforma nunca escribe en DevOps) y cada decisión pasa por tu confirmación.</p>
+        </div>
+
+        <div class="card" style="margin-bottom:15px">
+          <div class="hd">Sincronización del backlog<span class="tag">acción recurrente · preview → apply</span></div>
+          <div class="bd">
+            <div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap">
+              <button class="btn pri" id="btnPrev" onclick="doPreview()">Calcular previsualización</button>
+              <button class="btn ok" id="btnApply" onclick="doApply()" disabled>Aplicar cambios</button>
+              <button class="btn bad" id="btnDisc" onclick="doDiscard()" disabled>Descartar</button>
+              <span class="sub">Último sync aplicado: 29-jul · +8 nuevos, 3 actualizados</span>
+            </div>
+            <div id="diffCard" class="hidden" style="margin-top:13px">
+              <table>
+                <thead><tr><th>Cambio</th><th>Work item</th><th>Detalle</th><th>Pts</th></tr></thead>
+                <tbody>
+                  <tr class="diff-row diff-add"><td><span class="pill ok">Nuevo</span></td><td class="b">#12406 · Alertas lag consumidores</td><td>no existe en snapshot local</td><td>3</td></tr>
+                  <tr class="diff-row diff-upd"><td><span class="pill warn">Cambia</span></td><td class="b">#12388 · Conectores legacy AS-400</td><td>state: Active → <b>Resolved</b></td><td>38</td></tr>
+                  <tr class="diff-row diff-upd"><td><span class="pill warn">Cambia</span></td><td class="b">#12350 · Esquemas Avro registry</td><td>assignedTo: María → <b>Laura</b> (volverá a curación)</td><td>8</td></tr>
+                  <tr class="diff-row diff-del"><td><span class="pill bad">Sale</span></td><td class="b">#12102 · Spike inicial mensajería</td><td>eliminado en DevOps</td><td>1</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="wiz card"><div class="bd">
+          <div class="wstep done">
+            <div class="rail"><div class="wball">✓</div><i></i></div>
+            <div class="wbody">
+              <div class="wtitle">Paso 1 · Conexión con la organización <span class="pill ok">Conectado</span></div>
+              <div class="wsub">https://dev.azure.com/tuya · Proyecto Ecosistema-Digital · Service Principal (Entra ID) · permisos de lectura verificados hoy 09:12. Se administra en <a href="#" onclick="go('admin');return false" style="color:var(--brand);font-weight:700">Administración</a>.</div>
+            </div>
+          </div>
+
+          <div class="wstep done">
+            <div class="rail"><div class="wball">✓</div><i></i></div>
+            <div class="wbody">
+              <div class="wtitle">Paso 2 · Vincular el tablero de la squad <span class="pill ok">Active</span></div>
+              <div class="wsub">Se hace en <b>dos sesiones</b> para decidir con calma: primero exploras y guardas candidatos; luego revisas el borrador y confirmas.</div>
+              <div class="wcontent">
+                <div class="pipe" style="margin:0">
+                  <div class="pnode"><b>Sesión 1 · Exploración</b><span>✓ 3 tableros inspeccionados · shortlist: 1</span></div>
+                  <div class="parr">→</div>
+                  <div class="pnode"><b>Sesión 2 · Decisión</b><span>✓ borrador confirmado 25-jul</span></div>
+                  <div class="parr">→</div>
+                  <div class="pnode hot"><b>Vínculo Active</b><span>Backend Core Team · Payments\Backend</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="wstep done">
+            <div class="rail"><div class="wball">✓</div><i></i></div>
+            <div class="wbody">
+              <div class="wtitle">Paso 3 · Mapear backlog a iniciativas <span class="pill ok">2 epics mapeados</span></div>
+              <div class="wsub">Del tablero vinculado, tú decides qué Epics/Features pertenecen a cada iniciativa. Un epic solo puede pertenecer a una.</div>
+              <div class="wcontent">
+                <table>
+                  <tbody>
+                    <tr><td class="b">#12345 · Migración plataforma Kafka <span class="pill info">Epic</span></td><td>→ Kafka Migration</td><td><span class="pill ok">mapeado</span></td></tr>
+                    <tr><td class="b">#12388 · Conectores legacy AS-400 <span class="pill info">Feature</span></td><td>→ Kafka Migration</td><td><span class="pill ok">mapeado</span></td></tr>
+                    <tr><td class="b">#12290 · Observabilidad plataforma <span class="pill info">Epic</span></td><td>→ sin mapear</td><td><button class="btn gh sm" onclick="toast('Se abriría la selección de iniciativa para este epic')">Mapear</button></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="wstep warn">
+            <div class="rail"><div class="wball">!</div><i></i></div>
+            <div class="wbody">
+              <div class="wtitle">Paso 4 · Resolver identidades Entra ID <span class="pill warn" id="idPill">2 sin match</span></div>
+              <div class="wsub">Cada persona de DevOps se une a una capacidad por su Entra ID. Sin match, sus items no aparecen en ninguna persona.</div>
+              <div class="wcontent">
+                <table>
+                  <tbody id="unmatchedRows">
+                    <tr><td><div class="b">l.ruiz@contractor-tuya.com</div><div class="sub">Laura Ruiz (DevOps) · 4 items afectados</div></td><td><select class="fld" style="max-width:220px"><option selected>Laura Ruiz · QA Engineer</option><option>Pedro Sanín · Backend Dev</option></select></td><td><button class="btn pri sm" onclick="matchId(this)">Vincular</button></td></tr>
+                    <tr><td><div class="b">svc.integracion@tuya.com</div><div class="sub">Cuenta de servicio · 3 items</div></td><td><select class="fld" style="max-width:220px"><option selected>Ignorar (no es una capacidad)</option></select></td><td><button class="btn gh sm" onclick="matchId(this)">Resolver</button></td></tr>
+                  </tbody>
+                </table>
+                <div id="idDone" class="callout ok hidden" style="margin:10px 0 0"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div><b>Identidades al día.</b> El setup está completo: la sincronización fluye de DevOps a la bandeja de curación.</div></div>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      </section>
+
+      <!-- ================= ADMIN ================= -->
+      <section class="view" id="v-admin">
+        <div class="head">
+          <div class="kick">Configuración</div>
+          <h1>Administración</h1>
+          <p>Conexiones y parámetros globales de la plataforma.</p>
+        </div>
+
+        <div class="segbtn" style="margin-bottom:15px">
+          <button class="on" onclick="admTab(this,'adm1')">Calendario de sprints</button>
+          <button onclick="admTab(this,'adm2')">Conexiones</button>
+          <button onclick="admTab(this,'adm3')">Parámetros del modelo</button>
+        </div>
+
+        <div id="adm1">
+          <div class="grid g2">
+            <div class="card">
+              <div class="hd">Calendario de sprints<span class="tag">única fuente de verdad</span></div>
+              <div class="bd">
+                <div class="prow"><div><label class="lab">Semanas por sprint</label><input id="cfgWeeks" type="number" value="2" min="1" max="4" oninput="updCfgOut()"></div><div><label class="lab">Horas por semana</label><input id="cfgHours" type="number" value="40" min="20" max="48" oninput="updCfgOut()"></div></div>
+                <div class="prow"><div><label class="lab">Sprints por quarter</label><input id="cfgSprintsQ" type="number" value="6" min="4" max="8"></div><div><label class="lab">Tolerancia de reporte (± h)</label><input id="cfgTol" type="number" value="4" min="0" max="16" oninput="updCfgOut()"></div></div>
+                <div class="callout" style="margin-bottom:13px"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg><div>Horas por sprint: <b id="cfgOut">80 h</b> · rango de reporte aceptado: <b id="cfgRange">76–84 h</b>. Cambiarlo no recalcula sprints ya reportados.</div></div>
+                <button class="btn pri" onclick="saveCfg()">Guardar configuración</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="hd">¿Qué usa este calendario?</div>
+              <div class="bd">
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Reporte de horas por sprint</div><div class="s">valida el total contra horas del sprint ± tolerancia</div></div></div>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Dashboard de capacidad</div><div class="s">convierte horas → FTE con la duración vigente</div></div></div>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Roadmap</div><div class="s">posiciona iniciativas por sprint y quarter</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="adm2" class="hidden">
+          <div class="grid g2">
+            <div class="card">
+              <div class="hd">Azure DevOps<span class="tag">solo lectura</span></div>
+              <div class="bd">
+                <div class="prow"><div><label class="lab">Organización</label><input value="https://dev.azure.com/tuya" readonly></div><div><label class="lab">Proyecto</label><input value="Ecosistema-Digital" readonly></div></div>
+                <div class="prow"><div><label class="lab">Autenticación</label><select class="fld"><option>Service Principal (Entra ID)</option><option>PAT</option></select></div><div><label class="lab">Secreto</label><input type="password" value="••••••••••••" readonly></div></div>
+                <div style="display:flex;gap:9px"><button class="btn pri" onclick="toast('Conexión verificada · acceso de lectura confirmado')">Probar conexión</button><button class="btn gh">Editar</button></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="hd">Estado</div>
+              <div class="bd">
+                <div class="pstat"><span>Estado</span><b><span class="pill ok">Conectado</span></b></div>
+                <div class="pstat"><span>Última verificación</span><b>Hoy 09:12</b></div>
+                <div class="pstat"><span>Permisos</span><b>Work Items (Read) · Boards (Read)</b></div>
+                <div class="pstat"><span>Dirección</span><b>DevOps → Plataforma</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="adm3" class="hidden">
+          <div class="card">
+            <div class="hd">Parámetros del modelo de estimación<span class="tag">sección 8 de la API</span></div>
+            <div class="bd">
+              <table>
+                <tbody>
+                  <tr><td class="b">Tallas (XS–XL)</td><td class="sub">rangos de complejidad y esfuerzo PM</td><td><span class="pill gray">default</span></td></tr>
+                  <tr><td class="b">Preguntas del scoring</td><td class="sub">30 preguntas · dimensión y peso</td><td><span class="pill gray">default</span></td></tr>
+                  <tr><td class="b">Mix de capacidades</td><td class="sub">roles y SFIA por talla</td><td><span class="pill gray">default</span></td></tr>
+                </tbody>
+              </table>
+              <button class="btn gh sm" style="margin-top:11px" onclick="toast('Abriría la edición de parámetros del modelo (GET/PUT /api/model/parameters)')">Editar parámetros</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== Navegación =====
+  var TITLES={home:'Inicio',capacidad:'Capacidad',iniciativas:'Iniciativas y estimación',bau:'Trabajo BAU',equipo:'Equipo',reporte:'Mi reporte de horas',curacion:'Bandeja de curación',board:'Squad Board',devops:'Conectar Azure DevOps',admin:'Administración'};
+  function go(v){
+    document.querySelectorAll('.navitem').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===v)});
+    document.querySelectorAll('.view').forEach(function(s){s.classList.remove('on')});
+    document.getElementById('v-'+v).classList.add('on');
+    document.getElementById('crumbTxt').textContent=TITLES[v]||v;
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll('.navitem[data-v]').forEach(function(btn){btn.addEventListener('click',function(){go(btn.getAttribute('data-v'))});});
+
+  // ===== Toast =====
+  var tmr;
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tmr);tmr=setTimeout(function(){t.classList.remove('show')},3800);}
+
+  // ===== Config sprint =====
+  var CFG={weeksPerSprint:2,hoursPerWeek:40,toleranceHours:4};
+  function sprintHours(){return CFG.weeksPerSprint*CFG.hoursPerWeek;}
+  function updCfgOut(){
+    var w=parseInt(document.getElementById('cfgWeeks').value)||2;
+    var h=parseInt(document.getElementById('cfgHours').value)||40;
+    var t=parseInt(document.getElementById('cfgTol').value)||4;
+    var s=w*h;
+    document.getElementById('cfgOut').textContent=s+' h';
+    document.getElementById('cfgRange').textContent=(s-t)+'–'+(s+t)+' h';
+  }
+  function saveCfg(){
+    CFG.weeksPerSprint=parseInt(document.getElementById('cfgWeeks').value)||2;
+    CFG.hoursPerWeek=parseInt(document.getElementById('cfgHours').value)||40;
+    CFG.toleranceHours=parseInt(document.getElementById('cfgTol').value)||4;
+    document.getElementById('repTotalLbl').textContent=sprintHours()+' horas';
+    calcFte();
+    toast('Configuración guardada · el reporte ahora valida contra '+sprintHours()+' h por sprint');
+  }
+
+  // ===== FTE =====
+  function calcFte(){
+    var S=sprintHours(),T=CFG.toleranceHours;
+    var inputs=document.querySelectorAll('.fteh'),outs=document.querySelectorAll('.fte-out'),tot=0,vals=[];
+    inputs.forEach(function(inp,i){var h=parseFloat(inp.value)||0;tot+=h;vals.push(h);outs[i].textContent=(h/S).toFixed(2);});
+    document.getElementById('fteTotH').textContent=tot;
+    document.getElementById('fteTotF').textContent=(tot/S).toFixed(2);
+    if(tot>0){
+      var bar=document.getElementById('repBar');
+      var ini=vals[0]/tot*100,b1=(vals[1]+vals[2])/tot*100,fr=vals[3]/tot*100;
+      bar.innerHTML='<i style="width:'+ini+'%;background:var(--brand)"></i><i style="width:'+b1+'%;background:var(--amber)"></i><i style="width:'+fr+'%;background:var(--green)"></i>';
+    }
+    var msg=document.getElementById('fteMsg');
+    if(tot>=S-T&&tot<=S+T){msg.className='callout ok';msg.innerHTML='<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div>Total dentro del rango esperado ('+(S-T)+'–'+(S+T)+' h por sprint). Listo para enviar.</div>';}
+    else{msg.className='callout warn';msg.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Total '+tot+' h:</b> fuera del rango '+(S-T)+'–'+(S+T)+' h del sprint. Revisa antes de enviar.</div>';}
+  }
+
+  // ===== BAU =====
+  function addBau(){
+    var n=document.getElementById('bauName').value.trim(),p=document.getElementById('bauPct').value;
+    if(!n||!p){toast('Completa nombre y % de dedicación');return;}
+    var tb=document.querySelector('#bauTable tbody');
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td><div class="b">'+n+'</div><div class="sub">Nueva tarea BAU</div></td><td>'+p+'%</td><td>—</td><td><span class="pill gray">sin datos</span></td><td><button class="btn gh sm">Editar</button></td>';
+    tb.appendChild(tr);
+    document.getElementById('bauName').value='';document.getElementById('bauPct').value='';
+    toast('Tarea BAU agregada · POST /api/squads/{id}/bau-tasks');
+  }
+
+  // ===== Curación =====
+  var curCount=3,boardPendCount=5;
+  function refreshCur(){
+    document.getElementById('navCur').textContent=curCount;
+    document.getElementById('homeCurCount').textContent=curCount;
+    document.getElementById('pipeCount').textContent=curCount+' pendientes';
+    document.getElementById('boardPend').textContent=boardPendCount+' items pendientes de curación';
+    if(curCount<=0){document.getElementById('inboxEmpty').classList.remove('hidden');document.getElementById('navCur').classList.add('ok');document.getElementById('navCur').textContent='✓';}
+  }
+  function curate(btn,ok){
+    var card=btn.closest('.inbox');
+    var title=card.querySelector('h4').textContent;
+    var who=card.querySelector('.meta b').textContent;
+    if(!ok){
+      var reason=prompt('Motivo del rechazo:','Asignado por error en DevOps');
+      if(reason===null)return;
+      addCurated(title,who,'Rejected','rechazado hoy · "'+reason+'"');
+      toast('Rechazado · trazado con motivo, no cuenta en ninguna vista');
+    }else{
+      addCurated(title,who,'Confirmed','confirmado hoy');
+      toast('Confirmado · ya cuenta en backlog individual, Squad Board y FTE real');
+    }
+    card.classList.add('out');
+    setTimeout(function(){card.remove();},280);
+    curCount--;boardPendCount--;refreshCur();
+  }
+  function addCurated(title,who,status,note){
+    var tb=document.getElementById('confRows');
+    var tr=document.createElement('tr');
+    var pill=status==='Confirmed'?'<span class="pill ok">Confirmed</span>':'<span class="pill bad">Rejected</span>';
+    tr.innerHTML='<td><div class="b">'+title+'</div><div class="sub">'+who+' · '+note+'</div></td><td>'+pill+'</td>';
+    tb.insertBefore(tr,tb.firstChild);
+  }
+
+  // ===== Identidades =====
+  var unmatched=2;
+  function matchId(btn){
+    btn.closest('tr').remove();
+    unmatched--;
+    var pill=document.getElementById('idPill');
+    if(unmatched<=0){
+      pill.textContent='resueltas';pill.className='pill ok';
+      document.getElementById('idDone').classList.remove('hidden');
+      document.getElementById('navDevops').classList.add('ok');document.getElementById('navDevops').textContent='✓';
+      var st=document.querySelector('.wstep.warn');if(st){st.classList.remove('warn');st.classList.add('done');st.querySelector('.wball').textContent='✓';}
+    }else{pill.textContent=unmatched+' sin match';}
+    toast('Identidad resuelta · los items se re-resuelven y pasan a la bandeja de curación');
+  }
+
+  // ===== Sync =====
+  function doPreview(){
+    document.getElementById('diffCard').classList.remove('hidden');
+    document.getElementById('btnApply').disabled=false;
+    document.getElementById('btnDisc').disabled=false;
+    toast('Preview calculado · 1 nuevo, 2 cambios, 1 sale · nada se ha modificado aún');
+  }
+  function doApply(){
+    document.getElementById('diffCard').classList.add('hidden');
+    document.getElementById('btnApply').disabled=true;document.getElementById('btnDisc').disabled=true;
+    curCount+=2;boardPendCount+=2;
+    var nc=document.getElementById('navCur');nc.classList.remove('ok');
+    document.getElementById('inboxEmpty').classList.add('hidden');
+    refreshCur();
+    toast('Cambios aplicados · 2 items con nueva asignación llegaron a la bandeja de curación');
+  }
+  function doDiscard(){
+    document.getElementById('diffCard').classList.add('hidden');
+    document.getElementById('btnApply').disabled=true;document.getElementById('btnDisc').disabled=true;
+    toast('Preview descartado · el snapshot local no cambió');
+  }
+
+  // ===== Admin tabs =====
+  function admTab(btn,id){
+    btn.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('on')});
+    btn.classList.add('on');
+    ['adm1','adm2','adm3'].forEach(function(x){document.getElementById(x).classList.toggle('hidden',x!==id)});
+  }
+</script>
+</body>
+</html>

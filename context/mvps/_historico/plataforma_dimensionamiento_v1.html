@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Dimensionamiento · TI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+:root{
+  --ink:#1E293B;--muted:#5b6b80;--faint:#9aa6b6;
+  --brand:#2F4BD8;--brand2:#5B6BE8;--cyan:#0EA5A4;--lime:#16A34A;--amber:#D97706;
+  --line:#e7ebf2;--line2:#d8deea;--glass:#ffffff;--glass2:#f2f5fa;
+  --surf:#f5f7fb;--input-bg:#ffffff;--opt-bg:#ffffff;--track:#e6eaf2;--hover:#f5f7fb;--seg-bg:#eef2f8;--seg-hover:#e7edf6;
+  --side-bg:linear-gradient(180deg,#ffffff,#f4f6fb);--nav-on:linear-gradient(120deg,#e9edfc,#eef1fb);
+  --hd-grad:linear-gradient(90deg,#eef1fb,transparent);--kpi-a:#2F4BD8;--kpi-b:#0EA5A4;--glow:rgba(47,75,216,.12);
+  --xs:#7c8aa0;--s:#22c55e;--m:#eab308;--l:#fb923c;--xl:#f43f5e;
+  --ok:#16A34A;--ok-bg:#e7f6ec;--warn:#B45309;--warn-bg:#f9efdc;--bad:#DC2626;--bad-bg:#fbe5e5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--ink);font-size:14px;line-height:1.45;
+  background:radial-gradient(800px 500px at 90% -10%,rgba(47,75,216,.07),transparent 60%),radial-gradient(700px 500px at -5% 5%,rgba(14,165,164,.06),transparent 60%),linear-gradient(160deg,#fbfcfe,#f4f6fb 60%,#eef2f8);
+  background-attachment:fixed;min-height:100vh}
+::selection{background:rgba(255,77,166,.35)}
+.loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;letter-spacing:.05em}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(128,128,140,.45);border-radius:6px}
+input,select,button{font-family:inherit}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+@media(max-width:1000px){.app{grid-template-columns:1fr}}
+.side{position:sticky;top:0;height:100vh;padding:22px 16px;display:flex;flex-direction:column;gap:6px;
+  background:var(--side-bg);border-right:1px solid var(--line);backdrop-filter:blur(14px)}
+@media(max-width:1000px){.side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center}}
+.brandbox{display:flex;align-items:center;gap:11px;padding:4px 6px 16px}
+.logo-dot{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--brand2));
+  display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;box-shadow:0 6px 16px rgba(0,0,0,.18);flex-shrink:0}
+.brandbox .nm{font-weight:700;font-size:14px;line-height:1.15}.brandbox .nm small{display:block;color:var(--muted);font-weight:400;font-size:10.5px;letter-spacing:.14em;margin-top:2px}
+.navi{display:flex;flex-direction:column;gap:4px;flex:1}
+@media(max-width:1000px){.navi{flex-direction:row;flex-wrap:wrap}}
+.navi button{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:12px;border:1px solid transparent;background:transparent;
+  color:var(--muted);cursor:pointer;font-size:13.5px;text-align:left;transition:.18s;width:100%}
+.navi button:hover{background:var(--glass);color:var(--ink)}
+.navi button.on{color:var(--ink);background:var(--nav-on);border-color:var(--line2);
+  box-shadow:0 4px 14px rgba(0,0,0,.10)}
+.navi button.on svg{filter:drop-shadow(0 0 6px rgba(255,77,166,.6))}
+.navi svg{width:18px;height:18px;flex-shrink:0}
+.io{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.io .btn{justify-content:center}
+.collapsebtn{margin-left:auto;width:30px;height:30px;border-radius:8px;border:1px solid var(--line2);background:var(--glass);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.18s;flex-shrink:0;padding:0}
+.collapsebtn:hover{background:var(--nav-on);color:var(--ink)}
+.collapsebtn svg{width:17px;height:17px}
+.menuopen{position:fixed;top:16px;left:16px;z-index:60;width:42px;height:42px;border-radius:11px;border:1px solid var(--line2);background:var(--glass);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,.14);transition:.18s;backdrop-filter:blur(8px)}
+.menuopen:hover{background:var(--nav-on);transform:translateY(-1px)}
+.menuopen svg{width:20px;height:20px}
+.app.collapsed{grid-template-columns:1fr}
+.app.collapsed .side{display:none}
+.app.collapsed .main{padding-top:68px}
+.app.collapsed .head{padding-left:54px}
+@media(max-width:1000px){.collapsebtn{display:none}.app.collapsed .side{display:flex}.app.collapsed .main{padding-top:20px}.app.collapsed .head{padding-left:0}}
+.main{padding:28px 34px 70px;max-width:none;width:100%}
+@media(max-width:600px){.main{padding:20px 16px 50px}}
+.head{margin-bottom:22px;padding-right:170px}
+.head .kick{font-size:17px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+  background:linear-gradient(90deg,var(--brand),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.head h1{font-size:27px;font-weight:760;letter-spacing:-.01em;margin-top:6px}
+.head p{color:var(--muted);margin-top:5px;max-width:74ch;font-size:13.5px}
+.fade{animation:fade .4s ease}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 1px 2px rgba(20,26,48,.04);overflow:hidden}
+.card .hd{padding:14px 18px;font-weight:650;font-size:14px;display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--line);background:var(--hd-grad)}
+.card .bd{padding:18px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:920px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.sec-t{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:6px 0 10px}
+.muted{color:var(--muted)}.small{font-size:12.5px}
+.btn{border:1px solid var(--line2);background:var(--glass2);color:var(--ink);padding:9px 14px;border-radius:11px;font-size:13px;cursor:pointer;transition:.16s;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{border-color:var(--brand);background:var(--seg-hover);box-shadow:0 4px 12px rgba(0,0,0,.10)}
+.btn.pri{background:linear-gradient(120deg,var(--brand),var(--brand2));border:none;color:#fff;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:9px}
+.btn.gh{background:transparent;border-color:var(--line)}
+label.lab{display:block;font-size:10.5px;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+input,select{padding:9px 11px;border:1px solid var(--line2);border-radius:11px;font-size:14px;width:100%;background:var(--input-bg);color:var(--ink)}
+input::placeholder{color:var(--faint)}
+input:focus,select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(255,77,166,.20)}
+select option{background:var(--opt-bg);color:var(--ink)}
+input.mini{width:64px;padding:6px;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 11px;text-align:left;border-bottom:1px solid var(--line)}
+thead th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+td.c,th.c{text-align:center}tbody tr:hover{background:var(--hover)}
+.chip{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:30px;border:1px solid var(--line2)}
+.chip.cuant{background:var(--surf);color:var(--cyan);border-color:var(--line2)}
+.chip.cual{background:var(--surf);color:var(--muted)}
+.pill{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:30px}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.bad{background:var(--bad-bg);color:var(--bad)}
+.badgeT{display:inline-flex;align-items:center;justify-content:center;min-width:30px;color:#1b2030;font-weight:800;border-radius:8px;padding:3px 9px;font-size:13px}
+.eval{display:block}
+.evalcol{display:flex;flex-direction:column;gap:16px}
+.resbar{position:sticky;top:0;z-index:35;display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:10px 74px 10px 16px;margin-bottom:16px;
+  backdrop-filter:blur(12px);box-shadow:0 2px 8px rgba(20,26,48,.05)}
+.app.collapsed .resbar{padding-left:54px}
+@media(max-width:1000px){.app.collapsed .resbar{padding-left:16px}}
+.rb-talla{padding:4px 11px;border-radius:9px;font-weight:800;font-size:15px;color:#fff;letter-spacing:.02em;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.rb-item{display:flex;flex-direction:column;line-height:1.15}
+.rb-item .k{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.rb-item .v{font-size:16.5px;font-weight:780;color:var(--ink)}
+.rb-item .v small{font-size:10.5px;color:var(--muted);font-weight:600}
+.resbar .rb-spacer{flex:1;min-width:8px}
+.resbar .rb-open{display:flex;align-items:center;gap:7px}
+@media(max-width:560px){.resbar{gap:12px}.resbar .rb-open{width:100%;justify-content:center}}
+.drawer-ovl{position:fixed;inset:0;background:rgba(12,16,30,.40);z-index:79;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(2px)}
+.drawer-ovl.show{opacity:1;pointer-events:auto}
+.resdrawer{position:fixed;top:0;right:0;height:100vh;width:80vw;z-index:80;
+  background:var(--surf);border-left:1px solid var(--line2);box-shadow:-18px 0 50px rgba(20,26,48,.32);
+  transform:translateX(100%);transition:transform .34s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.resdrawer.open{transform:none}
+.resdrawer-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 20px;border-bottom:1px solid var(--line);background:var(--hd-grad)}
+.resdrawer-hd .ttl{font-weight:680;font-size:15.5px}
+.resdrawer-hd .acts{display:flex;align-items:center;gap:8px}
+.drawer-close{width:32px;height:32px;border-radius:9px;border:1px solid var(--line2);background:var(--glass);color:var(--muted);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:.18s;flex-shrink:0}
+.drawer-close:hover{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.resdrawer-bd{padding:18px 20px 40px;overflow-y:auto;flex:1}
+.resgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;align-items:start}
+.dimh{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);margin:16px 0 8px}
+.dimh:first-child{margin-top:0}.dimh::before{content:"";width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--brand),var(--brand2))}
+.q{padding:11px 2px;border-bottom:1px solid var(--line)}.q:last-child{border-bottom:none}
+.q .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.q .txt b{color:var(--ink)}.help{font-size:11px;color:var(--faint);margin-top:3px}
+.seg{display:inline-flex;margin-top:9px;border:1px solid var(--line2);border-radius:11px;overflow:hidden;background:var(--seg-bg)}
+.seg button{border:none;background:transparent;color:var(--muted);width:40px;height:32px;cursor:pointer;font-size:13px;font-weight:700;border-left:1px solid var(--line);transition:.14s}
+.seg button:first-child{border-left:none}
+.seg button.on{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff}
+.seg button:hover:not(.on){color:var(--ink);background:var(--seg-hover)}
+.tq{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.tq:last-child{border-bottom:none}
+.tgl{display:inline-flex;border:1px solid var(--line2);border-radius:11px;overflow:hidden;flex-shrink:0;background:var(--seg-bg)}
+.tgl button{border:none;background:transparent;color:var(--muted);padding:6px 14px;cursor:pointer;font-size:12.5px;font-weight:700;border-left:1px solid var(--line)}
+.tgl button.on.si{background:linear-gradient(135deg,#f43f5e,#be123c);color:#fff}
+.tgl button.on.no{background:linear-gradient(135deg,#22c55e,#15803d);color:#fff}
+.crit{font-size:9.5px;font-weight:800;color:var(--bad);background:var(--bad-bg);padding:2px 6px;border-radius:20px;margin-left:6px}
+.reco{margin-top:12px;border-radius:13px;padding:13px;font-weight:650;font-size:13px;text-align:center;border:1px solid}
+.reco.via{background:var(--ok-bg);border-color:rgba(52,211,153,.42);color:var(--ok)}
+.reco.rec{background:var(--warn-bg);border-color:rgba(251,191,36,.42);color:var(--warn)}
+.reco.obl{background:var(--bad-bg);border-color:rgba(251,113,133,.42);color:var(--bad)}
+.res{position:sticky;top:18px}
+.gauge-wrap{display:flex;gap:16px;align-items:center}
+.gauge{position:relative;width:128px;height:128px;flex-shrink:0}
+.gauge .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge .ctr .tl{font-size:34px;font-weight:850;line-height:1}
+.gauge .ctr .lb{font-size:9px;letter-spacing:.14em;color:var(--muted);margin-top:2px}
+.kf .big{font-size:30px;font-weight:800;line-height:1}.kf .sub{color:var(--muted);font-size:11.5px;margin-top:3px}
+.statg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.stat{background:var(--surf);border:1px solid var(--line);border-radius:13px;padding:10px 12px;position:relative;overflow:hidden;cursor:help}
+.stat::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--brand),var(--brand2))}
+.stat .k{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.stat .v{font-size:18px;font-weight:750;margin-top:2px}.stat .v small{font-size:11px;color:var(--muted);font-weight:500}
+.note{border-radius:12px;padding:10px 12px;font-size:12px;margin-bottom:12px;border:1px solid var(--line2)}
+.note b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;color:var(--muted)}
+.note.amber{background:var(--warn-bg);border-color:rgba(251,191,36,.32)}
+.note.cyan{background:rgba(63,198,240,.10);border-color:rgba(63,198,240,.30)}
+.note.lime{background:rgba(163,230,53,.10);border-color:rgba(163,230,53,.30)}
+.dbar{margin-bottom:8px}.dbar .lab{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px}
+.dbar .track{height:8px;background:var(--track);border-radius:6px;overflow:hidden}
+.dbar .bar{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--cyan),var(--brand2),var(--brand));transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.sfia{display:inline-flex;align-items:center;justify-content:center;min-width:22px;background:linear-gradient(135deg,rgba(145,104,240,.6),rgba(255,77,166,.6));color:#fff;border-radius:7px;font-weight:800;font-size:12px;padding:2px 4px}
+.sfia.s0{background:#9aa2ad}.sfia.s1{background:#8b9ae6}.sfia.s2{background:#9a8ce2}.sfia.s3{background:#a87fda}.sfia.s4{background:#bd72cf}.sfia.s5{background:#d063b4}
+.sfiaCell{display:inline-flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
+.sfiaLow{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--bad);background:var(--bad-bg);padding:1px 6px;border-radius:20px}
+.ubar{display:inline-flex;align-items:center;gap:8px;min-width:130px}
+.ubar .trk{flex:1;height:8px;border-radius:6px;background:var(--track);overflow:hidden;min-width:64px}
+.ubar .fl{height:100%;border-radius:6px;transition:width .4s}
+.ubar .pc{font-size:12px;font-weight:800;width:38px;text-align:right}
+.atbl{table-layout:fixed}
+.atbl th:nth-child(2),.atbl td:nth-child(2){width:90px}
+.atbl th:nth-child(3),.atbl td:nth-child(3){width:140px}
+.atbl th:nth-child(4),.atbl td:nth-child(4){width:140px}
+.acard{margin-bottom:10px}
+.acard-hd{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 16px;cursor:pointer;background:var(--hd-grad);transition:.16s;flex-wrap:wrap;border-bottom:1px solid transparent}
+.acard-hd:hover{background:var(--seg-hover)}
+.acard.open .acard-hd{border-bottom-color:var(--line)}
+.acard-l{display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap}
+.acard-nm{font-weight:650;font-size:14px}
+.acard-cnt{font-size:10.5px;font-weight:700;color:var(--muted);background:var(--surf);border:1px solid var(--line);border-radius:20px;padding:1px 8px}
+.acard-r{display:flex;align-items:center;gap:14px}
+.acard-sub{font-size:11.5px;color:var(--muted);white-space:nowrap;min-width:92px;text-align:right}
+.chev{display:inline-flex;color:var(--muted);transition:transform .2s;flex-shrink:0}
+.acard.open .chev{transform:rotate(90deg)}
+.mixtbl th.comp,.mixtbl td.comp{text-align:left;width:46%}
+.mixbar{display:flex;align-items:center;gap:12px}
+.mixbar .mtrk{flex:1;height:9px;background:var(--track);border-radius:6px;overflow:hidden;min-width:90px}
+.mixbar .mfl{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--brand2),var(--brand))}
+.mixbar .mpc{font-size:12px;font-weight:700;width:42px;text-align:right;color:var(--muted)}
+.gantt-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--glass)}
+.gantt-hd,.gantt-row{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}
+.gantt-row:last-child{border-bottom:none}
+.gantt-side{width:300px;flex-shrink:0;box-sizing:border-box;padding:8px 12px;border-right:1px solid var(--line)}
+.gantt-hd{background:var(--hd-grad)}
+.gantt-hd .gantt-side{display:flex;align-items:flex-end;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.gantt-cols{flex-shrink:0}
+.gantt-qrow{display:grid;border-bottom:1px solid var(--line)}
+.gantt-q{padding:6px 4px;font-weight:700;font-size:12px;border-left:2px solid var(--line2);text-align:center;white-space:nowrap}
+.gantt-q:first-child{border-left:none}
+.gantt-srow{display:grid}
+.gantt-s{padding:4px 0;font-size:10px;color:var(--faint);text-align:center;border-left:1px solid var(--line)}
+.gantt-s.qstart{border-left:2px solid var(--line2)}
+.gantt-nm{font-size:12.5px;font-weight:600;margin-bottom:7px;display:flex;align-items:center;line-height:1.2}
+.gantt-ctrl{display:flex;gap:6px}
+.gantt-ctrl label{display:flex;flex-direction:column;font-size:8px;text-transform:uppercase;letter-spacing:.03em;color:var(--faint);gap:2px;flex:1;min-width:0}
+.gantt-ctrl select{padding:3px 4px;font-size:11px;border-radius:7px;width:100%}
+.gantt-track{position:relative;flex-shrink:0;min-height:46px;background-repeat:repeat-x;background-position:0 0;background-image:linear-gradient(to right,var(--line) 0 1px,transparent 1px),linear-gradient(to right,var(--line2) 0 2px,transparent 2px)}
+.gbar{position:absolute;height:15px;border-radius:5px;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.gbar.est{top:7px;background:linear-gradient(90deg,var(--brand2),var(--brand))}
+.gbar.real{top:25px;background:var(--ok)}
+.gantt-today{position:absolute;top:0;bottom:0;width:2px;background:var(--bad);z-index:3;opacity:.85}
+.rm-bar{display:flex;align-items:center;gap:20px;flex-wrap:wrap;background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:9px 16px;margin-bottom:12px;font-size:13px}
+.rm-stat{color:var(--muted)}
+.rm-stat b{color:var(--ink);font-size:17px;font-weight:800;margin-right:4px}
+.statstrip{display:flex;background:var(--glass);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.ss-item{flex:1;padding:14px 20px;border-left:1px solid var(--line);min-width:0}
+.ss-item:first-child{border-left:none}
+.ss-n{font-size:25px;font-weight:820;line-height:1;background:linear-gradient(120deg,var(--kpi-a),var(--kpi-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.ss-l{font-size:11.5px;color:var(--muted);margin-top:5px}
+@media(max-width:700px){.statstrip{flex-wrap:wrap}.ss-item{flex:1 1 45%;border-top:1px solid var(--line)}.ss-item:nth-child(-n+2){border-top:none}}
+.kpi{background:var(--glass);border:1px solid var(--line);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 70%)}
+.kpi .n{font-size:30px;font-weight:820;background:linear-gradient(120deg,var(--kpi-a),var(--kpi-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi .l{font-size:11.5px;color:var(--muted);margin-top:3px}
+.barrow{display:flex;align-items:center;gap:12px;margin-bottom:11px;font-size:13px}
+.barrow .nm{width:175px;flex-shrink:0}
+.barrow .tk{flex:1;height:22px;background:var(--track);border-radius:8px;position:relative;overflow:hidden}
+.barrow .tk .d{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--brand2),var(--brand));border-radius:8px;transition:width .5s}
+.barrow .tk .cap{position:absolute;top:-2px;height:26px;width:0;border-right:2px dashed #fff;opacity:.85}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.iconbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line2);background:var(--glass);color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:.16s}
+.iconbtn:hover{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.prow{display:grid;grid-template-columns:2fr 2fr 1fr 1fr auto;gap:10px;align-items:end}
+@media(max-width:760px){.prow{grid-template-columns:1fr 1fr}}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:4px 0 8px}
+.sumtag{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:8px}
+.radar-lab{font-size:9.5px;fill:var(--muted)}
+hr.sep{border:none;border-top:1px solid var(--line);margin:18px 0}
+.subtabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.subtabs button{padding:9px 15px;border-radius:12px;border:1px solid var(--line2);background:var(--glass);color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;transition:.16s}
+.subtabs button:hover{color:var(--ink);background:var(--glass2)}
+.subtabs button.on{color:#fff;background:linear-gradient(120deg,var(--brand),var(--brand2));border-color:transparent;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.evalbar-info{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+
+.themebtn{position:fixed;top:16px;right:20px;z-index:60;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line2);background:var(--glass2);backdrop-filter:blur(10px);color:var(--ink);cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.14);transition:.2s}
+.themebtn:hover{transform:translateY(-1px) rotate(20deg)}
+.themebtn svg{width:21px;height:21px}
+.phasebar{margin:8px 0 14px}
+.phasebar-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;gap:10px}
+.phase-lbl{font-weight:700;font-size:13.5px}
+.ptrack{height:9px;background:var(--track);border-radius:6px;overflow:hidden}
+.pfill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--cyan),var(--brand2),var(--brand));transition:width .45s cubic-bezier(.2,.8,.2,1)}
+.pdots{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+.pdot{width:30px;height:30px;border-radius:9px;border:1px solid var(--line2);background:var(--glass);color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;transition:.15s}
+.pdot:hover{color:var(--ink);border-color:var(--brand)}
+.pdot.done{background:var(--surf);color:var(--ink)}
+.pdot.on{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(0,0,0,.14)}
+.phasenav{display:flex;justify-content:space-between;margin-top:16px;gap:10px}
+.phasenav .btn:disabled{opacity:.4;cursor:not-allowed}
+.demo-ex{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px}
+.demo-ex .small{width:100%;margin-bottom:1px}
+.demo-ex .btn{flex:1 1 60px;justify-content:center;padding:6px 6px}
+.ctip{position:fixed;z-index:200;max-width:262px;background:#1f2430;color:#f4f6fb;font-size:12px;font-weight:400;line-height:1.5;padding:11px 13px;border-radius:12px;box-shadow:0 12px 34px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);pointer-events:none}
+.tgh{text-align:center;padding:7px 6px;font-weight:700}
+.tgalt{background:var(--surf)}
+.rolecard{border:1px solid var(--line);border-radius:13px;padding:14px 16px;background:var(--surf)}
+.rolehd{font-weight:700;margin-bottom:4px;color:var(--ink)}
+.rolelv{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line);font-size:13px;line-height:1.45}
+.rolelv .sfia{margin-top:1px;flex-shrink:0}
+.qlabel{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scalegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin-top:8px}
+.scalerow{display:flex;align-items:center;gap:9px}
+.scoreb{width:28px;height:28px;flex-shrink:0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff}
+.opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.opt{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink);background:var(--surf);border:1px solid var(--line2);border-radius:9px;padding:6px 11px 6px 7px;cursor:pointer;transition:.14s;font-family:inherit;line-height:1.2}
+.opt:hover{border-color:var(--brand);background:var(--glass2)}
+.opt b{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:6px;background:var(--track);color:var(--muted);font-size:11px;font-weight:800;flex-shrink:0}
+.opt.on{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent;box-shadow:0 4px 13px rgba(0,0,0,.14)}
+.opt.on b{background:rgba(255,255,255,.26);color:#fff}
+</style>
+</head>
+<body>
+<div id="root"><div class="loading">Cargando plataforma…</div></div>
+<script type="text/babel">
+const {useState,useEffect,useMemo,useRef}=React;
+
+/* ================= DATOS DEL MODELO ================= */
+const DIMS=["Negocio y cliente","Alcance funcional","Integraciones","Datos, seguridad y cumplimiento","Tecnología y arquitectura","Operación y soporte","Incertidumbre y dependencias"];
+const DIM_SHORT=["Negocio","Alcance","Integr.","Seguridad","Tecnología","Operación","Incert."];
+const DEFAULTS={
+ qualLabels:["Sin impacto / no aplica","Bajo","Medio","Alto","Crítico / muy alto"],
+ quantRanges:{
+  areas:["Ninguna / solo la célula","1 área","2 áreas","3–4 áreas","5 o más áreas"],
+  canales:["Ninguno","1 canal","2 canales","3 canales","4 o más canales"],
+  sistemas:["Ninguno","1–2 sistemas","3–5 sistemas","6–10 sistemas","Más de 10"],
+  terceros:["Ninguno","1 tercero","2 terceros","3–4 terceros","5 o más"],
+  apis:["Ninguna","1–2","3–5","6–10","Más de 10"],
+  equipos:["Ninguno","1 equipo","2 equipos","3 equipos","4 o más"]
+ },
+ questions:[
+  ["N1",0,"¿Impacta directamente clientes, comercios aliados o canales digitales?",2,"cual"],
+  ["N2",0,"¿Soporta una capacidad crítica del negocio (originación, pagos, tarjetas, crédito, cartera o recaudo)?",3,"cual"],
+  ["N3",0,"¿Tiene fecha comprometida por negocio, campaña, aliado, regulador o auditoría?",2,"cual"],
+  ["N4",0,"¿Cuántas áreas de negocio u operación deben coordinarse?",1,"areas"],
+  ["F1",1,"¿Crea una capacidad nueva y no solo modifica una existente?",3,"cual"],
+  ["F2",1,"¿Cuántos canales o frontales impacta (App, web, portal, contact center, backoffice)?",2,"canales"],
+  ["F3",1,"¿Incluye reglas de negocio complejas, parametrización o flujos de aprobación?",2,"cual"],
+  ["F4",1,"¿Requiere trazabilidad, reversos, conciliación o auditoría funcional?",3,"cual"],
+  ["I1",2,"¿Cuántos sistemas internos deben integrarse o modificarse?",3,"sistemas"],
+  ["I2",2,"¿Cuántos terceros externos involucra (aliados, bureaus, pasarelas, core, antifraude)?",3,"terceros"],
+  ["I3",2,"¿Cuántas APIs o integraciones nuevas/cambios requiere (APIM, eventos, mensajería)?",2,"apis"],
+  ["I4",2,"¿De cuántos equipos externos a la célula depende?",2,"equipos"],
+  ["S1",3,"¿Procesa datos personales, financieros, transaccionales o sensibles?",3,"cual"],
+  ["S2",3,"¿Está expuesta a internet o a canales de cliente/aliado?",3,"cual"],
+  ["S3",3,"¿Requiere controles de identidad, autorización, roles, MFA o segregación?",2,"cual"],
+  ["S4",3,"¿Puede generar impacto de fraude, pérdida económica, reputacional o sanción?",3,"cual"],
+  ["S5",3,"¿Requiere evidencia para auditoría, cumplimiento o trazabilidad regulatoria?",2,"cual"],
+  ["T1",4,"¿Introduce tecnología, patrón o componente nuevo para TI?",3,"cual"],
+  ["T2",4,"¿Modifica arquitectura transversal, APIs comunes, plataforma o capacidades compartidas?",3,"cual"],
+  ["T3",4,"¿Exige alta disponibilidad, resiliencia, performance o escalabilidad relevante?",3,"cual"],
+  ["T4",4,"¿Requiere diseño de datos complejo, migración, sincronización o consistencia?",2,"cual"],
+  ["T5",4,"¿Requiere automatización CI/CD, cloud, Kubernetes, APIM, colas o IaC?",2,"cual"],
+  ["O1",5,"¿Impacta operación 7x24, mesa de servicio, backoffice o soporte?",2,"cual"],
+  ["O2",5,"¿Requiere observabilidad, alertas, métricas, SLI/SLO o trazabilidad técnica nueva?",2,"cual"],
+  ["O3",5,"¿Un error en producción afecta continuidad, recaudo, pagos, crédito o atención?",3,"cual"],
+  ["O4",5,"¿Requiere despliegue gradual, rollback, feature flags o migración controlada?",2,"cual"],
+  ["D1",6,"¿El requerimiento aún es ambiguo o requiere discovery funcional/técnico?",2,"cual"],
+  ["D2",6,"¿Hay dependencias con proveedores, áreas internas o decisiones no confirmadas?",2,"cual"],
+  ["D3",6,"¿Cambia procesos, roles operativos o requiere gestión del cambio?",1,"cual"],
+  ["D4",6,"¿Hay restricciones fuertes de tiempo, capacidad o coexistencia con otros proyectos?",2,"cual"]
+ ],
+ tallas:[
+  {n:"XS",min:0,max:20,pmMin:1,pmMax:3,lec:"Cambio menor o ajuste acotado.",acc:"Resolver con capacidad existente o célula ligera."},
+  {n:"S",min:21,max:35,pmMin:3,pmMax:8,lec:"Iniciativa pequeña con alcance conocido.",acc:"Célula reducida y apoyo puntual de arquitectura/seguridad."},
+  {n:"M",min:36,max:50,pmMin:8,pmMax:16,lec:"Iniciativa media con varias piezas o integraciones.",acc:"Célula base y discovery corto para validar supuestos."},
+  {n:"L",min:51,max:70,pmMin:16,pmMax:32,lec:"Iniciativa grande, transversal o con riesgo relevante.",acc:"Célula completa, arquitectura temprana y validación AppSec."},
+  {n:"XL",min:71,max:100,pmMin:32,pmMax:64,lec:"Programa estratégico de alta incertidumbre.",acc:"Evaluar dividir en frentes/células y hacer discovery formal."}
+ ],
+ caps:[
+  {n:"Product Owner / Negocio",sfia:[3,3,4,4,5],mix:[20,15,12,10,8]},
+  {n:"Analista negocio / funcional",sfia:[2,3,3,4,4],mix:[20,15,14,12,10]},
+  {n:"Arquitectura de solución",sfia:[0,4,4,5,5],mix:[10,8,8,8,8]},
+  {n:"Desarrollo Backend / API",sfia:[2,3,3,4,4],mix:[25,30,30,28,25]},
+  {n:"Desarrollo Frontend / Mobile",sfia:[0,3,3,4,4],mix:[0,10,12,14,15]},
+  {n:"QA / Automatización",sfia:[2,3,3,4,4],mix:[15,12,12,13,14]},
+  {n:"Seguridad / AppSec",sfia:[0,3,4,4,5],mix:[0,3,4,5,6]},
+  {n:"DevOps / Plataforma",sfia:[2,3,3,4,4],mix:[5,5,4,4,5]},
+  {n:"Datos / Integración",sfia:[0,0,3,4,4],mix:[0,0,2,3,4]},
+  {n:"UX/UI / Experiencia",sfia:[0,2,3,3,4],mix:[0,2,2,2,3]},
+  {n:"Operación / SRE",sfia:[0,0,0,3,4],mix:[5,0,0,1,2]}
+ ],
+ triage:[
+  {t:"¿Integra o modifica sistemas internos o terceros externos?",c:false},
+  {t:"¿Procesa datos personales, financieros o sensibles, o está expuesta a internet?",c:true},
+  {t:"¿Puede generar fraude, pérdida económica, impacto reputacional o sanción?",c:true},
+  {t:"¿Introduce tecnología nueva o cambia arquitectura transversal/compartida?",c:false},
+  {t:"¿Impacta una capacidad crítica (pagos, crédito, cartera, recaudo, originación)?",c:false},
+  {t:"¿El requerimiento aún es ambiguo o requiere discovery funcional o técnico?",c:false}
+ ]
+};
+const TALLA_COL={XS:"#7c8aa0",S:"#22c55e",M:"#eab308",L:"#fb923c",XL:"#f43f5e"};
+const QKEY_LABEL={areas:"Áreas a coordinar",canales:"Canales / frontales",sistemas:"Sistemas internos",terceros:"Terceros externos",apis:"APIs / integraciones",equipos:"Equipos externos"};
+const THEMES={
+ azul:{label:"Azul corporativo",bg:"radial-gradient(800px 500px at 90% -10%,rgba(47,75,216,.07),transparent 60%),radial-gradient(700px 500px at -5% 5%,rgba(14,165,164,.06),transparent 60%),linear-gradient(160deg,#fbfcfe,#f4f6fb 60%,#eef2f8)",vars:{"--ink":"#1E293B","--muted":"#5b6b80","--faint":"#9aa6b6","--brand":"#2F4BD8","--brand2":"#5B6BE8","--cyan":"#0EA5A4","--lime":"#16A34A","--amber":"#D97706","--line":"#e7ebf2","--line2":"#d8deea","--glass":"#ffffff","--glass2":"#f2f5fa","--surf":"#f5f7fb","--input-bg":"#ffffff","--opt-bg":"#ffffff","--track":"#e6eaf2","--hover":"#f5f7fb","--seg-bg":"#eef2f8","--seg-hover":"#e7edf6","--side-bg":"linear-gradient(180deg,#ffffff,#f4f6fb)","--nav-on":"linear-gradient(120deg,#e9edfc,#eef1fb)","--hd-grad":"linear-gradient(90deg,#eef1fb,transparent)","--kpi-a":"#2F4BD8","--kpi-b":"#0EA5A4","--glow":"rgba(47,75,216,.12)","--ok":"#16A34A","--ok-bg":"#e7f6ec","--warn":"#B45309","--warn-bg":"#f9efdc","--bad":"#DC2626","--bad-bg":"#fbe5e5"}},
+ tuya:{label:"Tuya",bg:"radial-gradient(820px 520px at 92% -10%,rgba(255,84,93,.06),transparent 60%),linear-gradient(160deg,#f4f4f5,#efeff0 60%,#eaeaec)",vars:{"--ink":"#20242b","--muted":"#5b626d","--faint":"#9aa0aa","--brand":"#ff545d","--brand2":"#e23b45","--cyan":"#F2784B","--lime":"#16A34A","--amber":"#D97706","--line":"#e2e2e5","--line2":"#d6d6da","--glass":"#ffffff","--glass2":"#f6f6f7","--surf":"#f4f4f5","--input-bg":"#ffffff","--opt-bg":"#ffffff","--track":"#e6e6e8","--hover":"#f6f6f7","--seg-bg":"#eeeef0","--seg-hover":"#e8e8ea","--side-bg":"linear-gradient(180deg,#ffffff,#efeff0)","--nav-on":"linear-gradient(120deg,#fde2e3,#fdecec)","--hd-grad":"linear-gradient(90deg,#fdeaea,transparent)","--kpi-a":"#ff545d","--kpi-b":"#8f1118","--glow":"rgba(255,84,93,.12)","--ok":"#16A34A","--ok-bg":"#e7f6ec","--warn":"#B45309","--warn-bg":"#f9efdc","--bad":"#DC2626","--bad-bg":"#fbe5e5"}}
+};
+function applyTheme(key){var t=THEMES[key]||THEMES.azul;var r=document.documentElement;for(var k in t.vars){r.style.setProperty(k,t.vars[k]);}document.body.style.background=t.bg;document.body.style.backgroundAttachment="fixed";}
+
+const EXAMPLES={
+ pequena:{nombre:"Ajuste de mensajes informativos en App",plazo:3,ans:[1,1,1,1,1,1,1,1,1,1,1,0,1,2,1,1,0,0,0,1,0,1,1,1,2,0,1,1,1,1],tri:[false,false,false,false,false,false]},
+ mediana:{nombre:"Pago con QR en App",plazo:6,ans:[2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,1,2,1,2,2,1,2,2,2,1,2,2,1,1],tri:[true,false,false,true,false,false]},
+ grande:{nombre:"Originación digital de crédito con terceros",plazo:9,ans:[3,3,2,2,3,2,2,3,3,3,2,2,4,3,2,3,2,3,2,3,2,2,2,2,4,2,2,3,2,2],tri:[true,true,true,true,true,false]}
+};
+const _mkDemo=(id,nombre,ex,plazo,estado,real)=>({id:id,nombre:nombre,plazo:plazo,estado:estado,ans:EXAMPLES[ex].ans.slice(),tri:EXAMPLES[ex].tri.slice(),real:real||{fte:null,dur:null}});
+const DEMO_PORTFOLIO=[
+  _mkDemo(1001,"Ajuste de mensajes en App","pequena",3,"Cerrada",{fte:1.9,dur:3}),
+  _mkDemo(1002,"Pago con QR en App","mediana",6,"Activa",null),
+  _mkDemo(1003,"Originación de crédito con terceros","grande",9,"Activa",null),
+  _mkDemo(1004,"Nueva pantalla de saldos en App","pequena",4,"Activa",null),
+  _mkDemo(1005,"Motor antifraude de tarjetas","grande",12,"Evaluación",null),
+  _mkDemo(1006,"Reportes regulatorios de cartera","mediana",5,"Cerrada",{fte:2.6,dur:7})
+];
+const DEMO_PEOPLE=[
+  {id:2001,nombre:"Ana Restrepo",rol:"Product Owner / Negocio",sfia:4,fte:1},
+  {id:2002,nombre:"Diego Cardona",rol:"Product Owner / Negocio",sfia:3,fte:1},
+  {id:2003,nombre:"Carlos Méndez",rol:"Analista negocio / funcional",sfia:3,fte:1},
+  {id:2004,nombre:"Paola Henao",rol:"Analista negocio / funcional",sfia:4,fte:1},
+  {id:2005,nombre:"Laura Gómez",rol:"Arquitectura de solución",sfia:5,fte:0.5},
+  {id:2006,nombre:"Mateo Salazar",rol:"Arquitectura de solución",sfia:4,fte:1},
+  {id:2007,nombre:"Julián Ríos",rol:"Desarrollo Backend / API",sfia:4,fte:1},
+  {id:2008,nombre:"Daniela Soto",rol:"Desarrollo Backend / API",sfia:3,fte:1},
+  {id:2009,nombre:"Esteban Quintero",rol:"Desarrollo Backend / API",sfia:3,fte:1},
+  {id:2010,nombre:"Camila Torres",rol:"Desarrollo Backend / API",sfia:2,fte:1},
+  {id:2011,nombre:"Andrés Pérez",rol:"Desarrollo Frontend / Mobile",sfia:3,fte:1},
+  {id:2012,nombre:"Natalia Bedoya",rol:"Desarrollo Frontend / Mobile",sfia:4,fte:1},
+  {id:2013,nombre:"María López",rol:"QA / Automatización",sfia:3,fte:1},
+  {id:2014,nombre:"Sebastián Ortiz",rol:"QA / Automatización",sfia:3,fte:1},
+  {id:2015,nombre:"Felipe Cano",rol:"Seguridad / AppSec",sfia:4,fte:0.5},
+  {id:2016,nombre:"Sara Vélez",rol:"DevOps / Plataforma",sfia:3,fte:1},
+  {id:2017,nombre:"Tomás Arango",rol:"Datos / Integración",sfia:3,fte:0.5},
+  {id:2018,nombre:"Lucía Franco",rol:"Datos / Integración",sfia:4,fte:1},
+  {id:2019,nombre:"Valentina Ruiz",rol:"UX/UI / Experiencia",sfia:3,fte:0.5},
+  {id:2020,nombre:"Jorge Mejía",rol:"Operación / SRE",sfia:3,fte:0.5}
+];
+const DEMO_ASSIGN={
+  1003:{2001:40,2003:50,2005:40,2007:80,2008:60,2009:50,2011:50,2013:60,2015:40,2016:40,2018:50},
+  1002:{2002:40,2004:40,2007:20,2010:50,2012:40,2014:30,2019:40},
+  1004:{2002:30,2004:20,2010:30,2011:30,2013:20}
+};
+const DEMO_ROADMAP={
+  1001:{start:0,finReal:6},
+  1006:{start:6,finReal:17},
+  1003:{start:2},
+  1002:{start:4},
+  1004:{start:8},
+  1005:{start:12}
+};
+const DEMO_CALENDAR={year:2026,spq:6,weeks:2,start:"2026-01-01"};
+const SFIA_LEVELS=[
+ {n:0,guia:"No dedicado",implica:"No se asigna como capacidad dedicada; apoyo bajo demanda.",uso:"Solo si la iniciativa dispara una necesidad puntual."},
+ {n:1,guia:"Seguir",implica:"Trabaja bajo instrucciones; impacto individual; tareas simples.",uso:"No recomendado para responsabilizarse de una iniciativa."},
+ {n:2,guia:"Asistir",implica:"Requiere guía frecuente; impacto a nivel de tareas; problemas acotados.",uso:"Apoyo con supervisión."},
+ {n:3,guia:"Aplicar",implica:"Autonomía en tareas y entregables conocidos; impacto en la célula; complejidad moderada.",uso:"Semi-senior (aprox. ingeniero II)."},
+ {n:4,guia:"Facilitar",implica:"Decide a nivel técnico local; impacto en el equipo o componente; problemas complejos pero conocidos.",uso:"Senior / especialista."},
+ {n:5,guia:"Asegurar y asesorar",implica:"Define enfoques y asesora; impacto transversal o multi-equipo; alta complejidad e incertidumbre.",uso:"Arquitectura, seguridad o liderazgo técnico."},
+ {n:6,guia:"Iniciar e influir",implica:"Inicia cambios y define prácticas; impacto organizacional; problemas amplios y estratégicos.",uso:"Principal / arquitecto empresarial."},
+ {n:7,guia:"Definir estrategia",implica:"Define estrategia organizacional; impacto ejecutivo; ambigüedad estratégica.",uso:"Dirección tecnológica."}
+];
+const ROLE_LEVELS={
+ "Product Owner / Negocio":{3:"Prioriza el backlog y decide el alcance del día a día con autonomía; conoce bien el negocio.",4:"Alinea a varios stakeholders, gestiona trade-offs de valor y resuelve conflictos de prioridad entre áreas.",5:"Define la visión y la estrategia de la iniciativa, asesora a la dirección y responde por el resultado de negocio."},
+ "Analista negocio / funcional":{2:"Documenta requisitos y reglas con guía; apoya el levantamiento.",3:"Levanta y modela reglas, criterios de aceptación y trazabilidad de forma autónoma.",4:"Diseña procesos complejos, concilia varias áreas y define el detalle funcional de extremo a extremo."},
+ "Arquitectura de solución":{4:"Define la arquitectura de la solución y sus decisiones técnicas (componentes, integraciones, requisitos no funcionales).",5:"Diseña arquitectura transversal, fija estándares y asesora a varias células; responde por la coherencia técnica."},
+ "Desarrollo Backend / API":{2:"Implementa servicios y endpoints siguiendo un diseño dado, con revisión frecuente.",3:"Construye APIs y lógica de negocio de forma autónoma, con buenas prácticas y seguridad técnica.",4:"Lidera el diseño técnico del backend, define patrones e integra sistemas críticos."},
+ "Desarrollo Frontend / Mobile":{3:"Implementa pantallas y flujos integrando APIs, con validaciones y buenas prácticas, de forma autónoma.",4:"Define la arquitectura frontend, componentes reutilizables y resuelve problemas complejos de experiencia y rendimiento."},
+ "QA / Automatización":{2:"Ejecuta casos de prueba y reporta defectos con guía.",3:"Diseña la estrategia de pruebas, automatiza regresión y gestiona datos de prueba de forma autónoma.",4:"Define el enfoque de calidad de extremo a extremo (E2E y no funcionales) y lidera la automatización del equipo."},
+ "Seguridad / AppSec":{3:"Aplica controles y revisiones de seguridad (OWASP, identidad básica) en la solución.",4:"Hace threat modeling, define controles de identidad y datos, y valida riesgos de fraude del componente.",5:"Define la estrategia de seguridad, asesora a varias células y responde por el cumplimiento y la evidencia."},
+ "DevOps / Plataforma":{2:"Opera pipelines e infraestructura existentes con guía.",3:"Configura CI/CD, cloud y despliegues de forma autónoma sobre plataforma madura.",4:"Diseña la automatización e infraestructura (IaC, Kubernetes, APIM, observabilidad) y resuelve problemas complejos."},
+ "Datos / Integración":{3:"Modela datos, construye integraciones y persistencia de forma autónoma.",4:"Diseña esquemas complejos, migraciones y consistencia entre sistemas; define el enfoque de datos."},
+ "UX/UI / Experiencia":{2:"Aplica el sistema de diseño y produce pantallas con guía.",3:"Diseña journeys e interacción de forma autónoma, con pruebas con usuario.",4:"Define la estrategia de experiencia omnicanal y resuelve problemas complejos de diseño."},
+ "Operación / SRE":{3:"Monitorea, atiende incidentes y mantiene runbooks de forma autónoma.",4:"Define SLOs, resiliencia y continuidad; lidera la operación de servicios críticos."}
+};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const fmt=n=>(Math.round(n*100)/100).toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+/* ================= LÓGICA ================= */
+function maxPts(cfg){return cfg.questions.reduce((a,q)=>a+4*q[3],0)}
+function compute(cfg,ans,plazo){
+  const MP=maxPts(cfg);const pts=cfg.questions.reduce((a,q,i)=>a+(ans[i]||0)*q[3],0);
+  const pct=MP?Math.round(pts/MP*1000)/10:0;
+  let idx=cfg.tallas.findIndex(t=>pct<=t.max);if(idx<0)idx=cfg.tallas.length-1;
+  const t=cfg.tallas[idx];const pl=Math.max(0.1,plazo||1);
+  const fMin=t.pmMin/pl,fMax=t.pmMax/pl,fMed=((t.pmMin+t.pmMax)/2)/pl;
+  const dp=Array(7).fill(0),dm=Array(7).fill(0);
+  cfg.questions.forEach((q,i)=>{dp[q[1]]+=(ans[i]||0)*q[3];dm[q[1]]+=4*q[3];});
+  const dims=DIMS.map((d,k)=>({d,short:DIM_SHORT[k],pct:dm[k]?Math.round(dp[k]/dm[k]*100):0}));
+  const mix=cfg.caps.map(c=>({n:c.n,sfia:c.sfia[idx],mixPct:c.mix[idx],fte:c.mix[idx]/100*fMed})).filter(x=>x.mixPct>0&&x.sfia>0);
+  return {pts,MP,pct,idx,t,fMin,fMax,fMed,dims,mix,plazo:pl};
+}
+function triageEval(cfg,tri){
+  const count=tri.filter(Boolean).length;const crit=tri.some((v,i)=>v&&cfg.triage[i].c);
+  if(crit||count>=3)return{cls:"obl",txt:"Evaluación completa obligatoria — talla probable M o superior"};
+  if(count>=1)return{cls:"rec",txt:"Evaluación completa recomendada — talla probable S–M"};
+  return{cls:"via",txt:"Vía rápida (XS–S) — no requiere evaluación completa"};
+}
+const useLS=(key,init)=>{
+  const [v,setV]=useState(()=>{try{const s=localStorage.getItem(key);return s?JSON.parse(s):init}catch(e){return init}});
+  useEffect(()=>{try{localStorage.setItem(key,JSON.stringify(v))}catch(e){}},[key,v]);
+  return [v,setV];
+};
+
+/* ================= ICONOS ================= */
+const Ico=({d,...p})=><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" {...p}><path d={d}/></svg>;
+const icons={
+ evaluar:"M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11",
+ portafolio:"M3 7h18M3 12h18M3 17h18",
+ capacidad:"M3 3v18h18M7 16l4-6 4 3 5-8",
+ calibracion:"M12 8v4l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z",
+ parametros:"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z",
+ sfia:"M12 2l9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5",down:"M12 3v12m0 0l-4-4m4 4l4-4M4 21h16",up:"M12 21V9m0 0l-4 4m4-4l4 4M4 3h16",plus:"M12 5v14M5 12h14",
+ personas:"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75",
+ trash:"M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
+ roadmap:"M3 5h18M3 5v14M3 12h12M3 19h8M16 9l3 3-3 3"
+};
+
+/* ================= COMPONENTES VISUALES ================= */
+function Gauge({pct,talla,color}){
+  const r=54,c=2*Math.PI*r,off=c*(1-Math.min(100,pct)/100);
+  return (
+   <div className="gauge">
+    <svg width="128" height="128" viewBox="0 0 128 128">
+      <defs>
+        <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" style={{stopColor:"var(--cyan)"}}/><stop offset="55%" style={{stopColor:"var(--brand2)"}}/><stop offset="100%" style={{stopColor:"var(--brand)"}}/>
+        </linearGradient>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <circle cx="64" cy="64" r={r} stroke="var(--track)" strokeWidth="11" fill="none"/>
+      <circle cx="64" cy="64" r={r} stroke="url(#gg)" strokeWidth="11" fill="none" strokeLinecap="round"
+        strokeDasharray={c} strokeDashoffset={off} transform="rotate(-90 64 64)" filter="url(#glow)"
+        style={{transition:"stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)"}}/>
+    </svg>
+    <div className="ctr"><div className="tl" style={{color}}>{talla}</div><div className="lb">TALLA</div></div>
+   </div>
+  );
+}
+function Radar({dims}){
+  const N=dims.length,R=72,cx=100,cy=102;
+  const pt=(val,i)=>{const a=-Math.PI/2+i*2*Math.PI/N;const rr=R*Math.min(100,val)/100;return [cx+rr*Math.cos(a),cy+rr*Math.sin(a)];};
+  const axis=(i)=>{const a=-Math.PI/2+i*2*Math.PI/N;return [cx+R*Math.cos(a),cy+R*Math.sin(a)];};
+  const poly=dims.map((d,i)=>pt(d.pct,i).join(",")).join(" ");
+  const labpos=(i)=>{const a=-Math.PI/2+i*2*Math.PI/N;return [cx+(R+15)*Math.cos(a),cy+(R+15)*Math.sin(a)];};
+  return (
+   <svg width="100%" viewBox="0 0 200 200" style={{maxHeight:200}}>
+     <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" style={{stopColor:"var(--cyan)"}}/><stop offset="100%" style={{stopColor:"var(--brand)"}}/></linearGradient></defs>
+     {[25,50,75,100].map(g=>(<polygon key={g} points={dims.map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/N;const rr=R*g/100;return [cx+rr*Math.cos(a),cy+rr*Math.sin(a)].join(",")}).join(" ")} fill="none" stroke="var(--track)"/>))}
+     {dims.map((_,i)=>{const[x,y]=axis(i);return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="var(--track)"/>})}
+     <polygon points={poly} fill="url(#rg)" fillOpacity={0.35} stroke="var(--brand)" strokeWidth="1.8" opacity="1" style={{transition:"all .5s"}}/>
+     {dims.map((d,i)=>{const[x,y]=pt(d.pct,i);return <circle key={i} cx={x} cy={y} r="2.4" fill="var(--brand)"/>})}
+     {dims.map((d,i)=>{const[x,y]=labpos(i);return <text key={i} x={x} y={y} className="radar-lab" textAnchor="middle" dominantBaseline="middle">{d.short}</text>})}
+   </svg>
+  );
+}
+
+/* ================= EVALUAR ================= */
+function Evaluar({cfg,cur,setCur,onSave,resetKey,setTip}){
+  const R=useMemo(()=>compute(cfg,cur.ans,cur.plazo),[cfg,cur.ans,cur.plazo]);
+  const tri=triageEval(cfg,cur.tri);
+  const col=TALLA_COL[R.t.n]||"#888";
+  const [phase,setPhase]=useState(0);
+  const [restab,setRestab]=useState("evaluacion");
+  const NPH=DIMS.length+1;
+  const phaseQs=phase===0?[]:cfg.questions.map((q,i)=>({q,i})).filter(x=>x.q[1]===phase-1);
+  useEffect(()=>{setPhase(0);},[cur.id]);
+  useEffect(()=>{setPhase(0);},[resetKey]);
+  const set=(patch)=>setCur({...cur,...patch});
+  const setAns=(i,v)=>{const a=cur.ans.slice();a[i]=v;set({ans:a});};
+  const setTri=(i,v)=>{const t=cur.tri.slice();t[i]=v;set({tri:t});};
+  const factor=Math.round((R.t.pmMax/Math.max(.01,R.t.pmMin))*10)/10;
+  const human=(n)=>{if(n<0.5)return "Es muy poquito: con una persona a tiempo parcial alcanza.";if(n<0.9)return "Con una persona prácticamente dedicada es suficiente.";if(n<1.5)return "Hablamos de alrededor de una persona dedicada por completo.";if(n<2.5)return "Hablamos de un equipo pequeño, de unas dos personas.";return "Hablamos de un equipo de aproximadamente "+Math.round(n)+" personas dedicadas.";};
+  const tips={
+    pm:"Es el tamaño del trabajo, no el tiempo ni la gente. En total equivale a entre "+R.t.pmMin+" y "+R.t.pmMax+" meses del trabajo de una persona. Cuántas personas necesitas depende del plazo: eso te lo dicen los FTE.",
+    med:"Lo más probable. Para terminarla en el plazo que definiste ("+R.plazo+" meses) necesitarías el equivalente a "+fmt(R.fMed)+" personas a tiempo completo trabajando a la vez. "+human(R.fMed),
+    min:"El mejor de los casos. Si todo fluye y el alcance no crece, te bastaría con "+fmt(R.fMin)+" personas a tiempo completo. "+human(R.fMin)+" Tómalo como un piso, no como el plan.",
+    max:"El caso más exigente. Si aparecen complicaciones o el alcance crece, podrías necesitar hasta "+fmt(R.fMax)+" personas a tiempo completo. "+human(R.fMax)+" Tenerlo presente evita quedarte corto."
+  };
+  let dimIdx=-1;
+  return (
+   <div className="fade">
+    <div className="head" style={{marginBottom:14}}><div className="kick">Evaluar Iniciativa</div></div>
+    <div className="subtabs" style={{alignItems:"center"}}>
+      <button className={restab==="evaluacion"?"on":""} onClick={()=>setRestab("evaluacion")}>Evaluación</button>
+      <button className={restab==="resultado"?"on":""} onClick={()=>setRestab("resultado")}><Ico d={icons.capacidad} width="14" height="14"/>Resultado</button>
+    </div>
+    {restab==="evaluacion"&&<div className="evalcol fade">
+        <div className="card">
+          <div className="hd"><span>Evaluación</span>
+            <div className="evalbar-info">
+              <div className="rb-talla" style={{background:col}}>{R.t.n}</div>
+              <div className="rb-item"><span className="k">Complejidad</span><span className="v">{R.pct}%</span></div>
+              <div className="rb-item"><span className="k">FTE esperado</span><span className="v">{fmt(R.fMed)} <small>FTE</small></span></div>
+              <div className="rb-item"><span className="k">Esfuerzo</span><span className="v">{R.t.pmMin}–{R.t.pmMax} <small>PM</small></span></div>
+            </div>
+          </div>
+          <div className="bd">
+            <div className="grid g2" style={{marginBottom:10}}>
+              <div><label className="lab">Nombre de la iniciativa</label><input value={cur.nombre} placeholder="Ej. Nuevo flujo de pagos" onChange={e=>set({nombre:e.target.value})}/></div>
+              <div className="grid g2" style={{gap:10}}>
+                <div><label className="lab">Plazo (meses)</label><input type="number" min="1" value={cur.plazo} onChange={e=>set({plazo:parseFloat(e.target.value)||1})}/></div>
+                <div><label className="lab">Estado</label><select value={cur.estado} onChange={e=>set({estado:e.target.value})}><option>Evaluación</option><option>Activa</option><option>Cerrada</option></select></div>
+              </div>
+            </div>
+            <div className="phasebar">
+              <div className="phasebar-top">
+                <span className="phase-lbl">Fase {phase+1} de {NPH} · {phase===0?"Tamizaje inicial":DIMS[phase-1]}</span>
+                <span className="muted small">{NPH-phase-1>0?(NPH-phase-1)+" fase(s) restante(s)":"última fase"}</span>
+              </div>
+              <div className="ptrack"><div className="pfill" style={{width:((phase+1)/NPH*100)+"%"}}/></div>
+              <div className="pdots">{Array.from({length:NPH}).map((_,k)=>(<button key={k} className={"pdot"+(k===phase?" on":k<phase?" done":"")} title={k===0?"Tamizaje":DIMS[k-1]} onClick={()=>setPhase(k)}>{k===0?"T":k}</button>))}</div>
+            </div>
+            {phase===0 ? (
+              <div>
+                <p className="muted small" style={{margin:"2px 0 10px"}}>Responde el tamizaje. Según el resultado se define si la iniciativa requiere la evaluación completa de las 7 dimensiones.</p>
+                {cfg.triage.map((t,i)=>(
+                  <div className="tq" key={i}>
+                    <div>{t.t}{t.c&&<span className="crit">crítica</span>}</div>
+                    <div className="tgl">
+                      <button className={"no"+(!cur.tri[i]?" on":"")} onClick={()=>setTri(i,false)}>No</button>
+                      <button className={"si"+(cur.tri[i]?" on":"")} onClick={()=>setTri(i,true)}>Sí</button>
+                    </div>
+                  </div>))}
+                <div className={"reco "+tri.cls}>{tri.txt}</div>
+                <div className="note cyan" style={{marginTop:12}}><b>Siguiente paso</b>{tri.cls==="via"?"El tamizaje sugiere vía rápida (XS–S). Puedes guardar así o continuar la evaluación completa para mayor detalle.":"Continúa con las 7 fases de la evaluación completa."}</div>
+              </div>
+            ) : phaseQs.map(({q,i})=>{
+              const quant=q[4]!=="cual";const labs=quant?cfg.quantRanges[q[4]]:cfg.qualLabels;
+              return (
+                <div className="q" key={i}>
+                  <div className="top">
+                    <div className="txt"><b>{q[0]}.</b> {q[2]}</div>
+                    <span className={"chip "+(quant?"cuant":"cual")}>{quant?"Cuantitativa":"Cualitativa"}</span>
+                  </div>
+                  <div className="opts">{labs.map((o,v)=>(<button key={v} className={"opt"+(cur.ans[i]===v?" on":"")} onClick={()=>setAns(i,v)} title={"Puntaje "+v}><b>{v}</b> {o}</button>))}</div>
+                </div>
+              );
+            })}
+            <div className="phasenav">
+              <button className="btn" disabled={phase===0} onClick={()=>setPhase(Math.max(0,phase-1))}>‹ Anterior</button>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"flex-end"}}>
+              {phase===0
+                ? <React.Fragment>
+                    {tri.cls==="via"&&<button className="btn pri" onClick={()=>onSave(cur,R)}><Ico d={icons.plus} width="14" height="14"/>Guardar (vía rápida)</button>}
+                    <button className={tri.cls==="via"?"btn":"btn pri"} onClick={()=>setPhase(1)}>Comenzar evaluación ›</button>
+                  </React.Fragment>
+                : phase<NPH-1
+                ? <button className="btn pri" onClick={()=>setPhase(phase+1)}>Siguiente ›</button>
+                : <button className="btn pri" onClick={()=>onSave(cur,R)}><Ico d={icons.plus} width="14" height="14"/>Guardar resultado</button>}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>}
+    {restab==="resultado"&&<div className="fade">
+        <div className="card"><div className="bd">
+            <div className="resgrid">
+            <div>
+            <div className="gauge-wrap">
+              <Gauge pct={R.pct} talla={R.t.n} color={col}/>
+              <div className="kf">
+                <div className="big" style={{color:col}}>{R.pct}%</div>
+                <div className="sub">complejidad<br/>{R.pts}/{R.MP} puntos</div>
+              </div>
+            </div>
+            <div className="small muted" style={{margin:"2px 0 9px"}}>FTE estimados para el plazo objetivo de <b style={{color:"var(--ink)"}}>{cur.plazo} {cur.plazo===1?"mes":"meses"}</b>.</div>
+            <div className="statg">
+              <div className="stat" onMouseEnter={e=>setTip({t:tips.pm,x:e.clientX,y:e.clientY})} onMouseLeave={()=>setTip(null)}><div className="k">Esfuerzo</div><div className="v">{R.t.pmMin}–{R.t.pmMax} <small>PM</small></div></div>
+              <div className="stat" onMouseEnter={e=>setTip({t:tips.med,x:e.clientX,y:e.clientY})} onMouseLeave={()=>setTip(null)}><div className="k">FTE esperado</div><div className="v">{fmt(R.fMed)} <small>FTE</small></div></div>
+              <div className="stat" onMouseEnter={e=>setTip({t:tips.min,x:e.clientX,y:e.clientY})} onMouseLeave={()=>setTip(null)}><div className="k">Optimista</div><div className="v">{fmt(R.fMin)} <small>FTE</small></div></div>
+              <div className="stat" onMouseEnter={e=>setTip({t:tips.max,x:e.clientX,y:e.clientY})} onMouseLeave={()=>setTip(null)}><div className="k">Pesimista</div><div className="v">{fmt(R.fMax)} <small>FTE</small></div></div>
+            </div>
+            <div className="note amber"><b>Banda de incertidumbre</b>Estimación temprana: el esfuerzo real puede variar ~{factor}× entre el escenario optimista y el pesimista. Se estrecha con discovery.</div>
+            <div className="note cyan"><b>Lectura ejecutiva</b>{R.t.lec}</div>
+            <div className="note lime"><b>Acción recomendada</b>{R.t.acc}</div>
+            </div>
+            <div>
+            <div className="sec-t" style={{marginTop:0}}>Complejidad por dimensión</div>
+            <Radar dims={R.dims}/>
+            <div style={{marginTop:8}}>
+              {R.dims.map((d,k)=>(<div className="dbar" key={k}><div className="lab"><span>{d.d}</span><span className="muted">{d.pct}%</span></div><div className="track"><div className="bar" style={{width:d.pct+"%"}}/></div></div>))}
+            </div>
+            </div>
+            </div>
+            <div className="sec-t" style={{marginTop:18}}>Mix de capacidades</div>
+            <table className="mixtbl"><thead><tr><th>Capacidad</th><th className="c">SFIA</th><th className="comp">Composición del equipo</th><th className="c">FTE</th><th className="c">Personas</th></tr></thead>
+              <tbody>
+                {R.mix.map((m,k)=>{const hc=m.fte>0?Math.ceil(m.fte-1e-9):0;return (<tr key={k}><td>{m.n}</td><td className="c"><span className={"sfia s"+m.sfia}>{m.sfia}</span></td><td className="comp"><div className="mixbar"><div className="mtrk"><div className="mfl" style={{width:Math.min(100,m.mixPct)+"%"}}/></div><span className="mpc">{m.mixPct}%</span></div></td><td className="c">{fmt(m.fte)}</td><td className="c">{hc}</td></tr>);})}
+                <tr style={{fontWeight:700}}><td>Total</td><td className="c">—</td><td className="comp" style={{color:"var(--muted)"}}>{R.mix.reduce((a,m)=>a+m.mixPct,0)}% del equipo</td><td className="c">{fmt(R.mix.reduce((a,m)=>a+m.fte,0))}</td><td className="c">{R.mix.reduce((a,m)=>a+(m.fte>0?Math.ceil(m.fte-1e-9):0),0)}</td></tr>
+              </tbody>
+            </table>
+            <div className="small muted" style={{marginTop:8}}><b>Composición del equipo</b> = qué proporción del equipo es cada capacidad (suma 100%); no es el % de dedicación de cada persona. <b>FTE</b> = esfuerzo (dedicación equivalente a tiempo completo). <b>Personas</b> = cabezas mínimas para cubrirlo (redondeo hacia arriba; un FTE pequeño igual requiere 1 persona, normalmente compartida).</div>
+          </div>
+        </div>
+    </div>}
+   </div>
+  );
+}
+
+/* ================= PORTAFOLIO ================= */
+function Portafolio({cfg,portfolio,setPortfolio,onEdit}){
+  const rows=portfolio.map(p=>({p,R:compute(cfg,p.ans,p.plazo)}));
+  const activas=rows.filter(x=>x.p.estado==="Activa");
+  const totFte=activas.reduce((a,x)=>a+x.R.fMed,0);
+  const byTalla={};rows.forEach(x=>byTalla[x.R.t.n]=(byTalla[x.R.t.n]||0)+1);
+  const tallaOrder=["XS","S","M","L","XL"];
+  const maxC=Math.max(1,...tallaOrder.map(t=>byTalla[t]||0));
+  const setEstado=(id,v)=>setPortfolio(portfolio.map(p=>p.id===id?{...p,estado:v}:p));
+  const del=id=>{if(confirm("¿Eliminar esta iniciativa?"))setPortfolio(portfolio.filter(p=>p.id!==id));};
+  return (
+   <div className="fade">
+    <div className="head"><div className="kick">Portafolio de iniciativas</div><p>Iniciativas evaluadas y guardadas. Cambia el estado a <b>Activa</b> para incluirlas en la demanda de capacidad.</p></div>
+    <div className="statstrip">
+      <div className="ss-item"><div className="ss-n">{portfolio.length}</div><div className="ss-l">Iniciativas</div></div>
+      <div className="ss-item"><div className="ss-n">{activas.length}</div><div className="ss-l">Activas</div></div>
+      <div className="ss-item"><div className="ss-n">{fmt(totFte)}</div><div className="ss-l">FTE demandado (activas)</div></div>
+      <div className="ss-item"><div className="ss-n">{Object.keys(byTalla).length}</div><div className="ss-l">Tallas presentes</div></div>
+    </div>
+    <div className="card"><div className="hd">Distribución por talla</div><div className="bd">
+      {tallaOrder.map(t=>(<div className="barrow" key={t}><div className="nm" style={{width:40}}><span className="badgeT" style={{background:TALLA_COL[t]}}>{t}</span></div>
+        <div className="tk"><div className="d" style={{width:((byTalla[t]||0)/maxC*100)+"%"}}/></div><div style={{width:30,textAlign:"right"}}>{byTalla[t]||0}</div></div>))}
+    </div></div>
+    <div className="card" style={{marginTop:16}}>
+      <div className="hd">Iniciativas</div>
+      <div className="bd" style={{padding:0}}>
+        {!portfolio.length? <div className="empty">Aún no hay iniciativas. Ve a <b>Evaluar</b> y guarda una.</div> :
+        <table><thead><tr><th>Iniciativa</th><th className="c">Talla</th><th className="c">Compl.</th><th className="c">PM</th><th className="c">Plazo</th><th className="c">FTE</th><th>Estado</th><th></th></tr></thead>
+          <tbody>{rows.map(({p,R})=>(<tr key={p.id}>
+            <td>{p.nombre}</td>
+            <td className="c"><span className="badgeT" style={{background:TALLA_COL[R.t.n]}}>{R.t.n}</span></td>
+            <td className="c">{R.pct}%</td><td className="c">{R.t.pmMin}–{R.t.pmMax}</td><td className="c">{p.plazo}m</td><td className="c">{fmt(R.fMed)}</td>
+            <td><select style={{width:120,padding:"5px 8px"}} value={p.estado} onChange={e=>setEstado(p.id,e.target.value)}><option>Evaluación</option><option>Activa</option><option>Cerrada</option></select></td>
+            <td className="c" style={{whiteSpace:"nowrap"}}><button className="btn sm" onClick={()=>onEdit(p)}>Editar</button> <button className="btn sm gh" onClick={()=>del(p.id)}>✕</button></td>
+          </tr>))}</tbody>
+        </table>}
+      </div>
+    </div>
+   </div>
+  );
+}
+
+/* ================= PERSONAS Y ASIGNACIÓN ================= */
+function personLoadPct(assign,pid){let s=0;for(const k in assign){const a=assign[k];if(a&&a[pid])s+=a[pid];}return s;}
+function fteOf(person,pct){return (pct||0)/100*((person&&person.fte)||0);}
+
+function AsignIniciativa({cfg,ini,R,people,assign,setPct,loadPct}){
+  const cur=assign[ini.id]||{};
+  const rows=R.mix.map(m=>{const ppl=people.filter(p=>p.rol===m.n);const asgFte=ppl.reduce((a,p)=>a+fteOf(p,cur[p.id]||0),0);return {m,ppl,asgFte};});
+  const totDem=R.mix.reduce((a,m)=>a+m.fte,0);
+  const totAsg=rows.reduce((a,r)=>a+r.asgFte,0);
+  const [open,setOpen]=useState({});
+  const toggle=k=>setOpen(o=>({...o,[k]:!o[k]}));
+  const allOpen=rows.length>0&&rows.every(r=>open[r.m.n]);
+  const setAll=v=>{const o={};rows.forEach(r=>{o[r.m.n]=v;});setOpen(o);};
+  return (
+   <div className="fade">
+    <div className="statstrip">
+      <div className="ss-item"><div className="ss-n">{fmt(totDem)}</div><div className="ss-l">FTE demandado</div></div>
+      <div className="ss-item"><div className="ss-n">{fmt(totAsg)}</div><div className="ss-l">FTE asignado</div></div>
+      <div className="ss-item"><div className="ss-n" style={{WebkitTextFillColor:(totAsg-totDem>=-0.001?"var(--ok)":"var(--bad)")}}>{totAsg-totDem>=0?"+":""}{fmt(totAsg-totDem)}</div><div className="ss-l">Balance de cobertura</div></div>
+    </div>
+    <div style={{display:"flex",justifyContent:"flex-end",marginBottom:10}}>
+      <button className="btn sm gh" onClick={()=>setAll(!allOpen)}>{allOpen?"Contraer todo":"Desplegar todo"}</button>
+    </div>
+    {rows.map(({m,ppl,asgFte})=>{const cov=m.fte>0?asgFte/m.fte:1;const st=cov>=0.999?"ok":cov>=0.5?"warn":"bad";const col=st==="bad"?"var(--bad)":st==="warn"?"var(--warn)":"var(--ok)";const op=!!open[m.n];const low=ppl.some(p=>(cur[p.id]||0)>0&&p.sfia<m.sfia);
+      return (<div className={"card acard"+(op?" open":"")} key={m.n}>
+        <div className="acard-hd" onClick={()=>toggle(m.n)}>
+          <div className="acard-l">
+            <span className="chev"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg></span>
+            <span className="acard-nm">{m.n}</span>
+            <span className="chip">SFIA {m.sfia}+</span>
+            <span className="acard-cnt">{ppl.length} pers.</span>
+            {low&&<span className="sfiaLow">nivel bajo</span>}
+          </div>
+          <div className="acard-r">
+            <div className="ubar"><div className="trk"><div className="fl" style={{width:Math.min(100,cov*100)+"%",background:col}}/></div><span className="pc" style={{color:col}}>{Math.round(cov*100)}%</span></div>
+            <span className="acard-sub">{fmt(asgFte)} / {fmt(m.fte)} FTE</span>
+          </div>
+        </div>
+        {op&&<div className="bd" style={{padding:0}}>
+          {!ppl.length? <div className="empty" style={{padding:18}}>No hay personas con esta capacidad. Agrégalas en <b>Equipo</b>.</div> :
+          <table className="atbl"><thead><tr><th>Persona</th><th className="c">SFIA</th><th className="c">% dedic.</th><th className="c">FTE aporta</th></tr></thead>
+            <tbody>{ppl.map(p=>{const pct=cur[p.id]||0;const aporta=fteOf(p,pct);const lw=p.sfia<m.sfia;
+              return (<tr key={p.id}>
+                <td>{p.nombre}</td>
+                <td className="c"><span className="sfiaCell"><span className={"sfia s"+p.sfia}>{p.sfia}</span>{lw&&<span className="sfiaLow">bajo</span>}</span></td>
+                <td className="c"><input className="mini" type="number" min="0" max="100" step="5" value={pct} onChange={e=>setPct(ini.id,p.id,e.target.value)}/></td>
+                <td className="c">{fmt(aporta)}</td>
+              </tr>);})}</tbody>
+          </table>}
+        </div>}
+      </div>);})}
+    <div className="note cyan" style={{marginTop:8}}><b>Cómo leer</b>Cada tarjeta es una capacidad que pide la iniciativa. La barra muestra la cobertura (asignado ÷ demanda); despliégala para asignar el % de dedicación de cada persona. El aporte en FTE = % × FTE disponible de la persona. "bajo" señala que el nivel SFIA de la persona es menor al requerido.</div>
+   </div>
+  );
+}
+
+function Personas({cfg,portfolio,people,setPeople,assign,setAssign}){
+  const roles=cfg.caps.map(c=>c.n);
+  const [tab,setTab]=useState("equipo");
+  const [form,setForm]=useState({nombre:"",rol:roles[0],sfia:3,fte:1});
+  const [iniSel,setIniSel]=useState(portfolio[0]?portfolio[0].id:null);
+  const loadPct=pid=>personLoadPct(assign,pid);
+  const addP=()=>{if(!form.nombre.trim()){alert("Escribe el nombre de la persona.");return;}
+    setPeople([...people,{id:Date.now(),nombre:form.nombre.trim(),rol:form.rol,sfia:Number(form.sfia)||1,fte:parseFloat(form.fte)||0}]);
+    setForm({nombre:"",rol:form.rol,sfia:form.sfia,fte:1});};
+  const updP=(id,patch)=>setPeople(people.map(p=>p.id===id?{...p,...patch}:p));
+  const delP=id=>{if(!confirm("¿Eliminar esta persona? Se quitarán sus asignaciones."))return;
+    setPeople(people.filter(p=>p.id!==id));
+    const na={};for(const k in assign){const a={...assign[k]};delete a[id];na[k]=a;}setAssign(na);};
+  const setPct=(iniId,pid,v)=>{const pct=Math.max(0,Math.min(100,parseFloat(v)||0));const a={...(assign[iniId]||{})};if(pct<=0)delete a[pid];else a[pid]=pct;setAssign({...assign,[iniId]:a});};
+  const totFte=people.reduce((a,p)=>a+(p.fte||0),0);
+  const totAsg=people.reduce((a,p)=>a+fteOf(p,loadPct(p.id)),0);
+  const ini=portfolio.find(p=>p.id===iniSel)||portfolio[0]||null;
+  const R=ini?compute(cfg,ini.ans,ini.plazo):null;
+  return (
+   <div className="fade">
+    <div className="head"><div className="kick">Personas y asignación</div><p>Registra a las personas con su capacidad y nivel, y asígnalas a las iniciativas según su % de dedicación.</p></div>
+    <div className="subtabs">
+      <button className={tab==="equipo"?"on":""} onClick={()=>setTab("equipo")}>Equipo</button>
+      <button className={tab==="asignacion"?"on":""} onClick={()=>setTab("asignacion")}>Asignación</button>
+    </div>
+
+    {tab==="equipo"&&<div className="fade">
+      <div className="statstrip">
+        <div className="ss-item"><div className="ss-n">{people.length}</div><div className="ss-l">Personas</div></div>
+        <div className="ss-item"><div className="ss-n">{fmt(totFte)}</div><div className="ss-l">FTE total</div></div>
+        <div className="ss-item"><div className="ss-n">{fmt(totAsg)}</div><div className="ss-l">FTE asignado</div></div>
+        <div className="ss-item"><div className="ss-n" style={{WebkitTextFillColor:(totFte-totAsg>=-0.001?"var(--ok)":"var(--bad)")}}>{fmt(totFte-totAsg)}</div><div className="ss-l">FTE libre</div></div>
+      </div>
+      <div className="card" style={{marginBottom:16}}><div className="hd">Agregar persona</div><div className="bd">
+        <div className="prow">
+          <div><label className="lab">Nombre</label><input value={form.nombre} placeholder="Ej. Ana Gómez" onChange={e=>setForm({...form,nombre:e.target.value})}/></div>
+          <div><label className="lab">Capacidad / rol</label><select value={form.rol} onChange={e=>setForm({...form,rol:e.target.value})}>{roles.map(r=>(<option key={r}>{r}</option>))}</select></div>
+          <div><label className="lab">SFIA</label><select value={form.sfia} onChange={e=>setForm({...form,sfia:Number(e.target.value)})}>{[1,2,3,4,5].map(n=>(<option key={n} value={n}>{n}</option>))}</select></div>
+          <div><label className="lab">FTE disp.</label><input type="number" min="0" step="0.1" value={form.fte} onChange={e=>setForm({...form,fte:e.target.value})}/></div>
+          <button className="btn pri" onClick={addP}><Ico d={icons.plus} width="14" height="14"/>Agregar</button>
+        </div>
+      </div></div>
+      <div className="card"><div className="hd">Equipo ({people.length})</div><div className="bd" style={{padding:0,overflowX:"auto"}}>
+        {!people.length? <div className="empty">Aún no hay personas. Agrega la primera arriba.</div> :
+        <table><thead><tr><th>Persona</th><th>Capacidad</th><th className="c">SFIA</th><th className="c">FTE disp.</th><th className="c">Utilización</th><th></th></tr></thead>
+          <tbody>{people.map(p=>{const lp=loadPct(p.id);const st=lp>100?"bad":lp>=85?"warn":"ok";const col=st==="bad"?"var(--bad)":st==="warn"?"var(--warn)":"var(--ok)";
+            return (<tr key={p.id}>
+              <td><input value={p.nombre} onChange={e=>updP(p.id,{nombre:e.target.value})} style={{padding:"6px 8px",minWidth:140}}/></td>
+              <td><select value={p.rol} onChange={e=>updP(p.id,{rol:e.target.value})} style={{padding:"6px 8px",minWidth:180}}>{roles.map(r=>(<option key={r}>{r}</option>))}</select></td>
+              <td className="c"><input className="mini" type="number" min="1" max="5" value={p.sfia} onChange={e=>updP(p.id,{sfia:Number(e.target.value)||1})}/></td>
+              <td className="c"><input className="mini" type="number" min="0" step="0.1" value={p.fte} onChange={e=>updP(p.id,{fte:parseFloat(e.target.value)||0})}/></td>
+              <td className="c"><div className="ubar" title={fmt(fteOf(p,lp))+" de "+fmt(p.fte||0)+" FTE · libre "+fmt((p.fte||0)-fteOf(p,lp))}><div className="trk"><div className="fl" style={{width:Math.min(100,lp)+"%",background:col}}/></div><span className="pc" style={{color:col}}>{Math.round(lp)}%</span></div></td>
+              <td className="c"><button className="iconbtn" title="Eliminar" onClick={()=>delP(p.id)}><Ico d={icons.trash} width="15" height="15"/></button></td>
+            </tr>);})}</tbody>
+        </table>}
+      </div></div>
+    </div>}
+
+    {tab==="asignacion"&&<div className="fade">
+      {!portfolio.length? <div className="card"><div className="bd"><div className="empty">No hay iniciativas. Crea y guarda iniciativas en <b>Evaluar</b> / <b>Portafolio</b> primero.</div></div></div> :
+      !people.length? <div className="card"><div className="bd"><div className="empty">No hay personas. Agrégalas en la pestaña <b>Equipo</b> primero.</div></div></div> :
+      <div>
+        <div className="card" style={{marginBottom:16}}><div className="bd">
+          <label className="lab">Iniciativa</label>
+          <select value={ini?ini.id:""} onChange={e=>setIniSel(Number(e.target.value))}>
+            {portfolio.map(p=>{const rr=compute(cfg,p.ans,p.plazo);return <option key={p.id} value={p.id}>{p.nombre} · {rr.t.n} · {fmt(rr.fMed)} FTE</option>;})}
+          </select>
+        </div></div>
+        {ini&&R&&<AsignIniciativa cfg={cfg} ini={ini} R={R} people={people} assign={assign} setPct={setPct} loadPct={loadPct}/>}
+      </div>}
+    </div>}
+   </div>
+  );
+}
+
+/* ================= ROADMAP ================= */
+function plazoToSprints(plazo,weeks){return Math.max(1,Math.ceil((plazo||1)*4.345/Math.max(1,weeks)));}
+function Roadmap({cfg,portfolio,roadmap,setRoadmap,calendar,setCalendar}){
+  const spq=Math.max(1,parseInt(calendar.spq)||6);
+  const weeks=Math.max(1,parseFloat(calendar.weeks)||2);
+  const total=4*spq;const colW=36;const sideW=300;
+  const cal=(k,v)=>setCalendar({...calendar,[k]:v});
+  const setRM=(id,patch)=>{const next={...(roadmap[id]||{}),...patch};Object.keys(next).forEach(k=>{if(next[k]===null||next[k]===undefined||next[k]==="")delete next[k];});setRoadmap({...roadmap,[id]:next});};
+  const lbl=i=>"Q"+(Math.floor(i/spq)+1)+"·S"+(i%spq+1);
+  const start0=new Date((calendar.start||"2026-01-01")+"T00:00:00");
+  const curIdx=Math.floor((Date.now()-start0.getTime())/(weeks*7*86400000));
+  const showToday=curIdx>=0&&curIdx<total;
+  const opts=Array.from({length:total},(_,i)=>i);
+  const rows=portfolio.map(p=>{const R=compute(cfg,p.ans,p.plazo);const rm=roadmap[p.id]||{};
+    const start=(rm.start!=null)?rm.start:null;const dur=plazoToSprints(p.plazo,weeks);
+    const finEstDef=start!=null?Math.min(total-1,start+dur-1):null;
+    const finEst=(rm.finEst!=null)?Math.max(start||0,Math.min(total-1,rm.finEst)):finEstDef;
+    const finReal=(rm.finReal!=null)?Math.min(total-1,rm.finReal):null;
+    return {p,R,start,dur,finEst,finReal};});
+  const placed=rows.filter(r=>r.start!=null).length;
+  const [showCal,setShowCal]=useState(false);
+  return (
+   <div className="fade">
+    <div className="head" style={{marginBottom:10}}><div className="kick">Roadmap de iniciativas</div></div>
+    <div style={{display:"flex",gap:12,alignItems:"stretch",marginBottom:16,flexWrap:"wrap"}}>
+      <div className="statstrip" style={{flex:1,marginBottom:0,minWidth:280}}>
+        <div className="ss-item"><div className="ss-n">{portfolio.length}</div><div className="ss-l">Iniciativas</div></div>
+        <div className="ss-item"><div className="ss-n">{placed}</div><div className="ss-l">Ubicadas</div></div>
+        <div className="ss-item"><div className="ss-n">{spq*4}</div><div className="ss-l">Sprints/año</div></div>
+        <div className="ss-item"><div className="ss-n">{showToday?lbl(curIdx):"—"}</div><div className="ss-l">Sprint actual</div></div>
+      </div>
+      <button className="btn gh" style={{flexShrink:0}} onClick={()=>setShowCal(s=>!s)}><Ico d={icons.parametros} width="14" height="14"/>{showCal?"Ocultar calendario":"Calendario"}</button>
+    </div>
+    {showCal&&<div className="card fade" style={{marginBottom:12}}><div className="bd">
+      <div className="grid g4">
+        <div><label className="lab">Año</label><input type="number" value={calendar.year} onChange={e=>cal("year",parseInt(e.target.value)||2026)}/></div>
+        <div><label className="lab">Inicio (Q1)</label><input type="date" value={calendar.start} onChange={e=>cal("start",e.target.value)}/></div>
+        <div><label className="lab">Sprints por trimestre</label><input type="number" min="1" max="12" value={calendar.spq} onChange={e=>cal("spq",parseInt(e.target.value)||1)}/></div>
+        <div><label className="lab">Semanas por sprint</label><input type="number" min="1" max="6" step="0.5" value={calendar.weeks} onChange={e=>cal("weeks",parseFloat(e.target.value)||1)}/></div>
+      </div>
+    </div></div>}
+    {!portfolio.length? <div className="card"><div className="bd"><div className="empty">No hay iniciativas. Crea y guarda iniciativas en <b>Evaluar</b> / <b>Portafolio</b> primero.</div></div></div> :
+    <div className="gantt-wrap">
+      <div className="gantt" style={{minWidth:sideW+total*colW}}>
+        <div className="gantt-hd">
+          <div className="gantt-side">Iniciativa</div>
+          <div className="gantt-cols" style={{width:total*colW}}>
+            <div className="gantt-qrow" style={{gridTemplateColumns:"repeat(4,"+(spq*colW)+"px)"}}>
+              {[0,1,2,3].map(q=>(<div className="gantt-q" key={q}>Q{q+1} {calendar.year}</div>))}
+            </div>
+            <div className="gantt-srow" style={{gridTemplateColumns:"repeat("+total+","+colW+"px)"}}>
+              {opts.map(i=>(<div className={"gantt-s"+(i%spq===0?" qstart":"")} key={i}>{i%spq+1}</div>))}
+            </div>
+          </div>
+        </div>
+        {rows.map(({p,R,start,dur,finEst,finReal})=>(
+          <div className="gantt-row" key={p.id}>
+            <div className="gantt-side">
+              <div className="gantt-nm"><span className="badgeT" style={{background:TALLA_COL[R.t.n],marginRight:6}}>{R.t.n}</span>{p.nombre}</div>
+              <div className="gantt-ctrl">
+                <label>Inicio<select value={start==null?"":start} onChange={e=>setRM(p.id,{start:e.target.value===""?null:parseInt(e.target.value)})}><option value="">—</option>{opts.map(i=>(<option key={i} value={i}>{lbl(i)}</option>))}</select></label>
+                <label>Fin est.<select value={finEst==null?"":finEst} disabled={start==null} onChange={e=>setRM(p.id,{finEst:e.target.value===""?null:parseInt(e.target.value)})}><option value="">auto</option>{opts.map(i=>(<option key={i} value={i}>{lbl(i)}</option>))}</select></label>
+                <label>Fin real<select value={finReal==null?"":finReal} disabled={start==null} onChange={e=>setRM(p.id,{finReal:e.target.value===""?null:parseInt(e.target.value)})}><option value="">—</option>{opts.map(i=>(<option key={i} value={i}>{lbl(i)}</option>))}</select></label>
+              </div>
+            </div>
+            <div className="gantt-track" style={{width:total*colW,backgroundSize:colW+"px 100%,"+(spq*colW)+"px 100%"}}>
+              {showToday&&<div className="gantt-today" style={{left:(curIdx+0.5)*colW}}/>}
+              {start!=null&&<div className="gbar est" style={{left:start*colW+3,width:Math.max(colW-6,(finEst-start+1)*colW-6)}} title={"Estimado: "+lbl(start)+" → "+lbl(finEst)}>{dur} spr</div>}
+              {start!=null&&finReal!=null&&<div className="gbar real" style={{left:start*colW+3,width:Math.max(colW-6,(finReal-start+1)*colW-6)}} title={"Real: "+lbl(start)+" → "+lbl(finReal)}/>}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>}
+    <div className="note cyan" style={{marginTop:12}}><b>Cómo leer</b>La barra superior (color marca) es el rango <b>estimado</b> (inicio + duración derivada del plazo, ajustable en "Fin est."). La barra verde inferior es el <b>fin real</b> cuando lo registras. La línea roja vertical marca el <b>sprint actual</b> ({showToday?lbl(curIdx):"fuera del año configurado"}).</div>
+   </div>
+  );
+}
+
+/* ================= CAPACIDAD ================= */
+function Capacidad({cfg,portfolio,people,assign}){
+  const demand={};
+  portfolio.filter(p=>p.estado==="Activa").forEach(p=>{compute(cfg,p.ans,p.plazo).mix.forEach(m=>{demand[m.n]=(demand[m.n]||0)+m.fte;});});
+  const names=cfg.caps.map(c=>c.n);
+  const cap={};people.forEach(p=>{cap[p.rol]=(cap[p.rol]||0)+(p.fte||0);});
+  const assigned={};for(const k in assign){const a=assign[k];if(!a)continue;for(const pid in a){const per=people.find(x=>String(x.id)===String(pid));if(!per)continue;assigned[per.rol]=(assigned[per.rol]||0)+fteOf(per,a[pid]);}}
+  const maxV=Math.max(1,...names.map(n=>Math.max(demand[n]||0,cap[n]||0)));
+  const totD=Object.values(demand).reduce((a,b)=>a+b,0);
+  const totC=names.reduce((a,n)=>a+(cap[n]||0),0);
+  const totA=names.reduce((a,n)=>a+(assigned[n]||0),0);
+  return (
+   <div className="fade">
+    <div className="head"><div className="kick">Capacidad y demanda</div><p>El FTE disponible por capacidad se calcula automáticamente desde las <b>personas</b> registradas, y se compara con la demanda de las iniciativas <b>activas</b>.</p></div>
+    {!people.length&&<div className="note amber" style={{marginBottom:16}}><b>Sin personas</b>Aún no has registrado personas. Ve al módulo <b>Personas y asignación → Equipo</b> para construir tu capacidad.</div>}
+    <div className="statstrip">
+      <div className="ss-item"><div className="ss-n">{fmt(totD)}</div><div className="ss-l">FTE demandado</div></div>
+      <div className="ss-item"><div className="ss-n">{fmt(totC)}</div><div className="ss-l">FTE disponible (personas)</div></div>
+      <div className="ss-item"><div className="ss-n">{fmt(totA)}</div><div className="ss-l">FTE asignado</div></div>
+      <div className="ss-item"><div className="ss-n" style={{WebkitTextFillColor:(totC-totD>=0?"var(--ok)":"var(--bad)")}}>{totC-totD>=0?"+":""}{fmt(totC-totD)}</div><div className="ss-l">Balance</div></div>
+    </div>
+    <div className="card"><div className="hd">Demanda vs. capacidad por capacidad</div><div className="bd">
+      {names.map(n=>{const d=demand[n]||0,c=cap[n]||0,asg=assigned[n]||0,libre=c-asg,gap=c-d;const st=gap>=0?"ok":(d-c<=0.5?"warn":"bad");
+        return (<div className="barrow" key={n}>
+          <div className="nm">{n}</div>
+          <div className="tk"><div className="d" style={{width:(d/maxV*100)+"%"}}/><div className="cap" style={{left:Math.min(99.5,c/maxV*100)+"%"}}/></div>
+          <div style={{width:230,textAlign:"right",fontSize:12}}>dem {fmt(d)} · cap {fmt(c)} · libre {fmt(libre)} <span className={"pill "+st}>{gap>=0?"+":""}{fmt(gap)}</span></div>
+        </div>);})}
+      <div className="small muted" style={{marginTop:10}}>La barra muestra la demanda; la línea punteada blanca, la capacidad disponible (suma del FTE de las personas de ese rol). <b>Libre</b> = capacidad − lo ya asignado a iniciativas.</div>
+    </div></div>
+   </div>
+  );
+}
+
+/* ================= CALIBRACIÓN ================= */
+function Calibracion({cfg,portfolio,setPortfolio}){
+  const rows=portfolio.map(p=>({p,R:compute(cfg,p.ans,p.plazo)}));
+  let withReal=0,sumF=0;
+  rows.forEach(({p,R})=>{if(p.real&&p.real.fte&&R.fMed>0){withReal++;sumF+=p.real.fte/R.fMed;}});
+  const avgF=withReal?sumF/withReal:null;
+  const setReal=(id,k,v)=>setPortfolio(portfolio.map(p=>p.id===id?{...p,real:{...(p.real||{fte:null,dur:null}),[k]:v===""?null:parseFloat(v)}}:p));
+  return (
+   <div className="fade">
+    <div className="head"><div className="kick">Calibración con datos reales</div><p>Registra el FTE y la duración reales al cerrar cada iniciativa. La plataforma calcula la desviación y el factor de ajuste.</p></div>
+    <div className="statstrip">
+      <div className="ss-item"><div className="ss-n">{withReal}</div><div className="ss-l">Con datos reales</div></div>
+      <div className="ss-item"><div className="ss-n">{avgF?fmt(avgF)+"×":"—"}</div><div className="ss-l">Factor real/estimado</div></div>
+      <div className="ss-item"><div className="ss-n" style={{fontSize:18}}>{avgF?(avgF>1.1?"Subestima":avgF<0.9?"Sobreestima":"Ajustado"):"—"}</div><div className="ss-l">Tendencia</div></div>
+    </div>
+    <div className="card"><div className="hd">Estimado vs. real</div><div className="bd" style={{padding:0}}>
+      {!portfolio.length? <div className="empty">Guarda iniciativas en el portafolio para calibrar.</div> :
+      <table><thead><tr><th>Iniciativa</th><th className="c">Talla</th><th className="c">FTE estimado</th><th className="c">FTE real</th><th className="c">Duración real</th><th className="c">Desviación</th></tr></thead>
+        <tbody>{rows.map(({p,R})=>{const est=R.fMed;const real=(p.real&&p.real.fte)??"";const dur=(p.real&&p.real.dur)??"";
+          const dev=(real!==""&&real!==null&&est>0)?((real-est)/est*100):null;
+          return (<tr key={p.id}>
+            <td>{p.nombre}</td><td className="c"><span className="badgeT" style={{background:TALLA_COL[R.t.n]}}>{R.t.n}</span></td>
+            <td className="c">{fmt(est)}</td>
+            <td className="c"><input className="mini" type="number" min="0" step="0.1" value={real} onChange={e=>setReal(p.id,"fte",e.target.value)}/></td>
+            <td className="c"><input className="mini" type="number" min="0" step="0.1" value={dur} placeholder="m" onChange={e=>setReal(p.id,"dur",e.target.value)}/></td>
+            <td className="c">{dev===null?"—":<span className={"pill "+(Math.abs(dev)<=15?"ok":Math.abs(dev)<=35?"warn":"bad")}>{dev>=0?"+":""}{Math.round(dev)}%</span>}</td>
+          </tr>);})}</tbody>
+      </table>}
+    </div></div>
+   </div>
+  );
+}
+
+/* ================= PARÁMETROS ================= */
+function Parametros({cfg,setCfg,onReset}){
+  const [tab,setTab]=useState("pesos");
+  const upd=fn=>{const c=clone(cfg);fn(c);setCfg(c);};
+  const sums=cfg.tallas.map((_,ti)=>cfg.caps.reduce((a,c)=>a+c.mix[ti],0));
+  const tabs=[["pesos","Pesos por pregunta"],["tallas","Tallas y esfuerzo"],["mix","Mix y SFIA"],["escalas","Escalas"]];
+  return (
+   <div className="fade">
+    <div className="head" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",flexWrap:"wrap",gap:12}}>
+      <div><div className="kick">Parámetros del modelo</div><p>Recalibra cada grupo de parámetros desde su pestaña. Los cambios se guardan y recalculan al instante.</p></div>
+      <button className="btn" onClick={onReset}>↺ Restaurar por defecto</button>
+    </div>
+    <div className="subtabs">{tabs.map(([k,l])=>(<button key={k} className={tab===k?"on":""} onClick={()=>setTab(k)}>{l}</button>))}</div>
+
+    {tab==="pesos"&&<div className="card fade"><div className="hd">Pesos por pregunta · máximo {maxPts(cfg)} puntos</div><div className="bd"><div className="grid g2">
+      {cfg.questions.map((q,i)=>(<div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"1px solid var(--line)"}}>
+        <span className="small qlabel" title={q[2]}><b>{q[0]}</b> {q[2]}</span>
+        <input className="mini" type="number" min="0" max="5" value={q[3]} onChange={e=>upd(c=>c.questions[i][3]=parseInt(e.target.value)||0)}/></div>))}
+    </div></div></div>}
+
+    {tab==="tallas"&&<div className="card fade"><div className="hd">Tallas: complejidad y esfuerzo (PM)</div><div className="bd" style={{overflowX:"auto"}}>
+      <table><thead><tr><th>Talla</th><th className="c">% mín</th><th className="c">% máx</th><th className="c">PM mín</th><th className="c">PM máx</th><th>Lectura</th></tr></thead>
+        <tbody>{cfg.tallas.map((t,i)=>(<tr key={i}><td><b>{t.n}</b></td>
+          {["min","max","pmMin","pmMax"].map(k=>(<td className="c" key={k}><input className="mini" type="number" value={t[k]} onChange={e=>upd(c=>c.tallas[i][k]=parseFloat(e.target.value)||0)}/></td>))}
+          <td><input value={t.lec} onChange={e=>upd(c=>c.tallas[i].lec=e.target.value)}/></td></tr>))}</tbody>
+      </table>
+    </div></div>}
+
+    {tab==="mix"&&<div className="card fade"><div className="hd">Mix de capacidades (%) y nivel SFIA por talla</div><div className="bd" style={{overflowX:"auto"}}>
+      <table>
+        <thead>
+          <tr><th rowSpan="2">Capacidad</th>{cfg.tallas.map((t,i)=>(<th key={t.n} colSpan="2" className={"tgh"+(i%2?" tgalt":"")} style={{borderLeft:"3px solid "+(TALLA_COL[t.n]||"var(--line2)")}}><span className="badgeT" style={{background:TALLA_COL[t.n]}}>{t.n}</span></th>))}</tr>
+          <tr>{cfg.tallas.map((t,i)=>(<React.Fragment key={t.n}><th className={"c"+(i%2?" tgalt":"")} style={{borderLeft:"3px solid "+(TALLA_COL[t.n]||"var(--line2)")}}>% mix</th><th className={"c"+(i%2?" tgalt":"")}>SFIA</th></React.Fragment>))}</tr>
+        </thead>
+        <tbody>{cfg.caps.map((c,ci)=>(<tr key={ci}><td>{c.n}</td>
+          {c.mix.map((m,ti)=>(<React.Fragment key={ti}>
+            <td className={"c"+(ti%2?" tgalt":"")} style={{borderLeft:"3px solid "+(TALLA_COL[cfg.tallas[ti].n]||"var(--line2)")}}><input className="mini" type="number" value={m} onChange={e=>upd(cc=>cc.caps[ci].mix[ti]=parseFloat(e.target.value)||0)}/></td>
+            <td className={"c"+(ti%2?" tgalt":"")}><input className="mini" type="number" min="0" max="7" value={c.sfia[ti]} onChange={e=>upd(cc=>cc.caps[ci].sfia[ti]=parseInt(e.target.value)||0)}/></td>
+          </React.Fragment>))}</tr>))}
+          <tr style={{fontWeight:700}}><td>Suma %</td>{sums.map((sm,i)=>(<td className={"c"+(i%2?" tgalt":"")} colSpan="2" key={i} style={{borderLeft:"3px solid "+(TALLA_COL[cfg.tallas[i].n]||"var(--line2)")}}><span className={"sumtag pill "+(sm===100?"ok":"bad")}>{sm}%</span></td>))}</tr>
+        </tbody>
+      </table>
+      <div className="small muted" style={{marginTop:8}}>Cada talla agrupa dos columnas: <b>% mix</b> (cuánta gente de ese rol) y <b>SFIA</b> (su nivel). El % de cada talla debe sumar 100%. SFIA 0 = no se asigna de forma dedicada.</div>
+    </div></div>}
+
+    {tab==="escalas"&&<div className="card fade"><div className="hd">Opciones de respuesta del formulario</div><div className="bd">
+      <div style={{background:"var(--surf)",border:"1px solid var(--line)",borderRadius:11,padding:"11px 13px",fontSize:13,marginBottom:16,lineHeight:1.55}}>Estas son las opciones que verá quien responde el formulario. El recuadro numerado (<b>0–4</b>) es el <b>puntaje</b> que aporta esa opción; el texto a su lado es <b>lo que se muestra</b>. Puedes editar los textos sin cambiar el puntaje.</div>
+      <div className="sec-t">Escala cualitativa · preguntas de juicio</div>
+      <div className="small muted" style={{marginBottom:2}}>La usan todas las preguntas marcadas como “Cualitativa”.</div>
+      <div className="scalegrid">{cfg.qualLabels.map((l,i)=>(<div className="scalerow" key={i}><span className="scoreb">{i}</span><input value={l} onChange={e=>upd(c=>c.qualLabels[i]=e.target.value)}/></div>))}</div>
+      {Object.keys(cfg.quantRanges).map(key=>{const qs=cfg.questions.filter(q=>q[4]===key);return (<div key={key}>
+        <div className="sec-t" style={{marginTop:18}}>Conteo · {QKEY_LABEL[key]||key}</div>
+        <div className="small muted" style={{marginBottom:2}}>{qs.length?("La usa "+qs.map(q=>q[0]).join(", ")+": “"+qs[0][2]+"”"):"Sin preguntas asociadas."}</div>
+        <div className="scalegrid">{cfg.quantRanges[key].map((o,i)=>(<div className="scalerow" key={i}><span className="scoreb">{i}</span><input value={o} onChange={e=>upd(c=>c.quantRanges[key][i]=e.target.value)}/></div>))}</div>
+      </div>);})}
+    </div></div>}
+   </div>
+  );
+}
+
+/* ================= APP ================= */
+function Sfia(){
+  return (
+   <div className="fade">
+    <div className="head"><div className="kick">Niveles SFIA</div></div>
+    <div className="card" style={{marginBottom:16}}><div className="hd">Escala de niveles de responsabilidad</div><div className="bd" style={{overflowX:"auto"}}>
+      <table><thead><tr><th>Nivel</th><th>Guía</th><th>Qué implica</th><th>Uso en staffing</th></tr></thead>
+        <tbody>{SFIA_LEVELS.map(l=>(<tr key={l.n}><td className="c"><span className={"sfia s"+l.n}>{l.n}</span></td><td><b>{l.guia}</b></td><td>{l.implica}</td><td className="muted">{l.uso}</td></tr>))}</tbody>
+      </table>
+    </div></div>
+    <div className="card"><div className="hd">Qué cubre cada rol según su nivel</div><div className="bd">
+      <div className="grid g2">
+        {Object.keys(ROLE_LEVELS).map(role=>(<div className="rolecard" key={role}>
+          <div className="rolehd">{role}</div>
+          {Object.keys(ROLE_LEVELS[role]).map(lv=>(<div className="rolelv" key={lv}><span className={"sfia s"+lv}>{lv}</span><span>{ROLE_LEVELS[role][lv]}</span></div>))}
+        </div>))}
+      </div>
+    </div></div>
+   </div>
+  );
+}
+function App(){
+  const [cfg,setCfg]=useLS("mdtR_config",DEFAULTS);
+  const [portfolio,setPortfolio]=useLS("mdtR_portfolio",DEMO_PORTFOLIO);
+  const [capacity,setCapacity]=useLS("mdtR_capacity",{});
+  const [people,setPeople]=useLS("mdtR_people",DEMO_PEOPLE);
+  const [assign,setAssign]=useLS("mdtR_assign",DEMO_ASSIGN);
+  const [roadmap,setRoadmap]=useLS("mdtR_roadmap",DEMO_ROADMAP);
+  const [calendar,setCalendar]=useLS("mdtR_calendar",DEMO_CALENDAR);
+  const [view,setView]=useState("evaluar");
+  const [collapsed,setCollapsed]=useLS("mdtR_collapsed",false);
+  const [tip,setTip]=useState(null);
+  const [theme,setTheme]=useLS("mdtR_theme","azul");
+  useEffect(()=>{applyTheme(theme);},[theme]);
+  const [cur,setCur]=useState({id:null,nombre:"",plazo:6,estado:"Evaluación",ans:DEFAULTS.questions.map(()=>0),tri:DEFAULTS.triage.map(()=>false),real:{fte:null,dur:null}});
+  const fileRef=useRef();
+  const [resetKey,setResetKey]=useState(0);
+  const loadExample=(k)=>{const e=EXAMPLES[k];setCur({id:null,nombre:e.nombre,plazo:e.plazo,estado:"Evaluación",ans:e.ans.slice(),tri:e.tri.slice(),real:{fte:null,dur:null}});setResetKey(x=>x+1);setView("evaluar");};
+  const clearForm=()=>{setCur({id:null,nombre:"",plazo:6,estado:"Evaluación",ans:cfg.questions.map(()=>0),tri:cfg.triage.map(()=>false),real:{fte:null,dur:null}});setResetKey(x=>x+1);setView("evaluar");};
+
+  const saveToPf=(c)=>{
+    if(!c.nombre.trim()){alert("Ponle un nombre a la iniciativa antes de guardar.");return;}
+    const item={id:c.id||Date.now(),nombre:c.nombre,plazo:c.plazo,estado:c.estado,ans:c.ans.slice(),tri:c.tri.slice(),real:c.real||{fte:null,dur:null}};
+    setPortfolio(prev=>{const ix=prev.findIndex(p=>p.id===item.id);if(ix>=0){const n=prev.slice();n[ix]=item;return n;}return [...prev,item];});
+    setCur({...c,id:item.id});alert("Guardado en el portafolio.");
+  };
+  const editPf=p=>{setCur({id:p.id,nombre:p.nombre,plazo:p.plazo,estado:p.estado,ans:p.ans.slice(),tri:p.tri.slice(),real:p.real||{fte:null,dur:null}});setView("evaluar");};
+  const reset=()=>{if(confirm("¿Restaurar todos los parámetros a los valores por defecto? No borra iniciativas."))setCfg(clone(DEFAULTS));};
+  const exportAll=()=>{const data={config:cfg,portfolio,capacity,people,assign,roadmap,calendar,_meta:{app:"plataforma-dimensionamiento",fecha:new Date().toISOString()}};
+    const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="respaldo_dimensionamiento.json";a.click();};
+  const importAll=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.config)setCfg(d.config);if(d.portfolio)setPortfolio(d.portfolio);if(d.capacity)setCapacity(d.capacity);if(d.people)setPeople(d.people);if(d.assign)setAssign(d.assign);if(d.roadmap)setRoadmap(d.roadmap);if(d.calendar)setCalendar(d.calendar);alert("Respaldo importado.");}catch(err){alert("Archivo no válido.");}};
+    r.readAsText(f);e.target.value="";};
+  const cycleTheme=()=>{const ks=Object.keys(THEMES);setTheme(ks[(ks.indexOf(theme)+1)%ks.length]);};
+  const _tk=Object.keys(THEMES);const nextKey=_tk[(_tk.indexOf(theme)+1)%_tk.length];const nextColor=THEMES[nextKey].vars["--brand"];
+  const navItems=[["evaluar","Evaluar"],["portafolio","Portafolio"],["personas","Personas y asignación"],["capacidad","Capacidad y demanda"],["roadmap","Roadmap"],["calibracion","Calibración"],["sfia","Niveles SFIA"],["parametros","Parámetros"]];
+  return (
+   <div className={"app"+(collapsed?" collapsed":"")}>
+    {collapsed&&<button className="menuopen" onClick={()=>setCollapsed(false)} title="Mostrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>}
+    <button className="themebtn" onClick={cycleTheme} title={"Cambiar a tema "+THEMES[nextKey].label} style={{background:nextColor+"24",borderColor:nextColor+"7a"}}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
+    <aside className="side">
+      <div className="brandbox"><div className="logo-dot">◈</div><div className="nm">Dimensionamiento<small>CÉLULAS TI · TUYA</small></div><button className="collapsebtn" onClick={()=>setCollapsed(true)} title="Contraer menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button></div>
+      <div className="navi">
+        {navItems.map(([k,l])=>(<button key={k} className={view===k?"on":""} onClick={()=>setView(k)}><Ico d={icons[k]}/>{l}</button>))}
+      </div>
+      <div className="io">
+        <div className="demo-ex"><span className="small muted">Cargar ejemplo</span>
+          <button className="btn sm" onClick={()=>loadExample("pequena")}>Pequeña</button>
+          <button className="btn sm" onClick={()=>loadExample("mediana")}>Mediana</button>
+          <button className="btn sm" onClick={()=>loadExample("grande")}>Grande</button>
+          <button className="btn sm gh" onClick={clearForm}>Limpiar</button>
+        </div>
+        <button className="btn gh" onClick={exportAll}><Ico d={icons.down} width="15" height="15"/>Exportar respaldo</button>
+        <button className="btn gh" onClick={()=>fileRef.current.click()}><Ico d={icons.up} width="15" height="15"/>Importar respaldo</button>
+        <input ref={fileRef} type="file" accept="application/json" style={{display:"none"}} onChange={importAll}/>
+      </div>
+    </aside>
+    <main className="main">
+      {view==="evaluar"&&<Evaluar cfg={cfg} cur={cur} setCur={setCur} onSave={(c)=>saveToPf(c)} resetKey={resetKey} setTip={setTip}/>}
+      {view==="portafolio"&&<Portafolio cfg={cfg} portfolio={portfolio} setPortfolio={setPortfolio} onEdit={editPf}/>}
+      {view==="personas"&&<Personas cfg={cfg} portfolio={portfolio} people={people} setPeople={setPeople} assign={assign} setAssign={setAssign}/>}
+      {view==="capacidad"&&<Capacidad cfg={cfg} portfolio={portfolio} people={people} assign={assign}/>}
+      {view==="roadmap"&&<Roadmap cfg={cfg} portfolio={portfolio} roadmap={roadmap} setRoadmap={setRoadmap} calendar={calendar} setCalendar={setCalendar}/>}
+      {view==="calibracion"&&<Calibracion cfg={cfg} portfolio={portfolio} setPortfolio={setPortfolio}/>}
+      {view==="sfia"&&<Sfia/>}
+      {view==="parametros"&&<Parametros cfg={cfg} setCfg={setCfg} onReset={reset}/>}
+    </main>
+    {tip&&<div className="ctip" style={{left:Math.min(tip.x+16,window.innerWidth-280),top:Math.min(tip.y+18,window.innerHeight-160)}}>{tip.t}</div>}
+   </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

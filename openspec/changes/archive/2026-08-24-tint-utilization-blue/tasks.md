@@ -1,0 +1,4 @@
+- [x] 1.1 Reinstalar tuip con `add-accent-tone-to-progress` (`pnpm install --force`, limpiar `.vite`).
+- [x] 1.2 `PeopleList`: `Meter tone="blue"` sin `warningFrom`; comentario con el porqué.
+- [x] 1.3 `PeopleStatsCards`: tramos de stacks con `tone: "blue"` / `heat: "low"`.
+- [x] 1.4 Tests (`PeopleList.test`: clase de acento y sin advertencia al 100 %; `PeopleStatsCards.test`: clases de los tramos); suite, typecheck, lint; navegador.

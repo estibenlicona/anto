@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Dimensionamiento · v6 Formularios + Backend-driven · Tuya</title>
+<style>
+  :root{
+    --brand:#2F4BD8; --brand2:#5B6BE8; --cyan:#0EA5A4;
+    --ink:#1E293B; --muted:#5b6b80; --line:#e5e9f2;
+    --bg:#f4f6fb; --card:#ffffff; --seg:#eef2f8;
+    --ok:#16A34A; --ok-bg:#e7f6ec; --bad:#DC2626; --bad-bg:#fbe5e5;
+    --warn:#B45309; --warn-bg:#f9efdc; --amber:#f0b429; --green:#8bd7a7;
+    --radius:14px; --shadow:0 1px 3px rgba(20,40,90,.06),0 6px 24px rgba(20,40,90,.05);
+    --font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+  .app{display:flex;min-height:100vh}
+
+  .side{width:270px;flex-shrink:0;background:linear-gradient(180deg,#ffffff,#f4f6fb);border-right:1px solid var(--line);padding:18px 13px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 14px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;box-shadow:0 4px 12px rgba(47,75,216,.3)}
+  .brand b{font-size:14.5px;display:block;line-height:1.05}
+  .brand span{font-size:10px;color:var(--muted);letter-spacing:.07em}
+  .chapterbox{background:linear-gradient(135deg,#eef1fb,#f7f9ff);border:1px solid #d5dcf7;border-radius:11px;padding:10px 12px;margin:0 4px 10px}
+  .chapterbox .cl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--brand);font-weight:800}
+  .chapterbox .cn{font-size:13px;font-weight:800;margin:2px 0}
+  .chapterbox .cs{font-size:11px;color:var(--muted)}
+  .navlabel{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#9aa6be;padding:13px 10px 4px;font-weight:700}
+  .navitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;cursor:pointer;color:#42506a;font-weight:600;font-size:13px;border:none;background:none;width:100%;text-align:left;transition:.15s}
+  .navitem svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.9}
+  .navitem:hover{background:#eef1fb;color:var(--brand)}
+  .navitem.on{background:linear-gradient(90deg,#eef1fb,transparent);color:var(--brand)}
+  .navitem.on svg{stroke:var(--brand)}
+  .navitem .count{margin-left:auto;background:var(--bad);color:#fff;font-size:9.5px;font-weight:800;min-width:17px;height:17px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+  .navitem .count.ok{background:var(--ok)}
+  .navitem .count.br{background:var(--brand)}
+  .side-foot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--line);font-size:10.5px;color:var(--muted)}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  .crumb{font-size:12.5px;color:var(--muted)}.crumb b{color:var(--ink)}
+  .topbar .sp{flex:1}
+  .ctx{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .ctx select{font-family:var(--font);font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;color:var(--ink);font-weight:600}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .content{padding:24px 26px 60px;max-width:1280px}
+
+  .head{margin-bottom:18px}
+  .kick{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);font-weight:800;margin-bottom:5px}
+  .head h1{margin:0;font-size:23px;letter-spacing:-.01em}
+  .head p{margin:5px 0 0;color:var(--muted);max-width:84ch}
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--brand);font-weight:700;font-size:12.5px;cursor:pointer;margin-bottom:8px}
+
+  .view{display:none;animation:fade .35s}.view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .hd{padding:13px 17px;border-bottom:1px solid var(--line);font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:9px}
+  .card .hd .tag{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+  .card .bd{padding:17px}
+  .grid{display:grid;gap:15px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:980px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .mt{margin-top:15px}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.bad{background:var(--bad-bg);color:var(--bad)}
+  .pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.info{background:#e9edfc;color:var(--brand)}
+  .pill.gray{background:#eef1f6;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;padding:8px 11px;border-bottom:1px solid var(--line)}
+  td{padding:9px 11px;border-bottom:1px solid #f1f4fa;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fafbfe}
+  tbody tr.click{cursor:pointer}
+  td .b{font-weight:600}.sub{font-size:11px;color:var(--muted)}
+
+  .bar{height:8px;border-radius:6px;background:#eef1f6;overflow:hidden;display:flex}
+  .bar i{display:block;height:100%}
+
+  .lab{font-size:12px;font-weight:700;color:#42506a;margin-bottom:5px;display:block}
+  input,select.fld,textarea{width:100%;font-family:var(--font);font-size:13px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink)}
+  .prow{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+  .prow.three{grid-template-columns:1fr 1fr 1fr}
+  .btn{border:none;border-radius:10px;padding:9px 16px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
+  .btn.pri{background:var(--brand);color:#fff}.btn.gh{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn.ok{background:var(--ok);color:#fff}.btn.bad{background:#fff;border:1px solid var(--bad);color:var(--bad)}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .num{width:74px;text-align:center}
+  .totrow{font-weight:800}
+  .hidden{display:none!important}
+
+  /* Search & link */
+  .searchbox{position:relative}
+  .searchbox svg{position:absolute;left:11px;top:10px;width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2}
+  .searchbox input{padding-left:34px}
+  .results{border:1px solid var(--line);border-radius:11px;margin-top:8px;overflow:hidden;background:#fff}
+  .result{display:flex;align-items:center;gap:11px;padding:10px 13px;border-bottom:1px solid #f1f4fa;transition:.12s}
+  .result:last-child{border-bottom:none}
+  .result:hover{background:#fafbfe}
+  .result .ric{width:32px;height:32px;border-radius:9px;background:#e9edfc;color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0}
+  .result .ric.u{border-radius:50%;background:var(--cyan);color:#fff}
+  .result h5{margin:0;font-size:12.5px}
+  .result .rs{font-size:11px;color:var(--muted)}
+  .result .btn{margin-left:auto}
+  .linkedchip{display:inline-flex;align-items:center;gap:8px;background:var(--ok-bg);border:1px solid #c7e8d2;color:#136b36;border-radius:11px;padding:8px 13px;font-size:12.5px;font-weight:700;margin-top:8px}
+  .linkedchip .x{cursor:pointer;color:#136b36;opacity:.6;font-weight:800}
+  .linkedchip .x:hover{opacity:1}
+  .optional{font-size:10.5px;font-weight:700;color:var(--muted);background:#eef1f6;padding:2px 8px;border-radius:9px;margin-left:7px;letter-spacing:.03em}
+
+  .cellcard{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px;box-shadow:var(--shadow);cursor:pointer;transition:.15s;border-top:3px solid var(--line)}
+  .cellcard:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(20,40,90,.11)}
+  .cellcard.g{border-top-color:var(--ok)}.cellcard.y{border-top-color:var(--amber)}.cellcard.b{border-top-color:var(--brand)}
+  .cellcard h3{margin:0 0 2px;font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .cellcard .cs{font-size:11.5px;color:var(--muted);margin-bottom:10px}
+  .sema{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .sema.g{background:var(--ok)}.sema.y{background:var(--amber)}.sema.r{background:var(--bad)}
+  .pstat{display:flex;justify-content:space-between;font-size:11.5px;padding:5px 0;border-bottom:1px solid #f1f4fa}
+  .pstat:last-child{border-bottom:none}
+  .pstat b{font-weight:700}
+
+  .todo{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px;background:#fff;cursor:pointer;transition:.15s}
+  .todo:hover{border-color:var(--brand);background:#fbfcff}
+  .todo .big{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+  .todo .big.red{background:var(--bad-bg);color:var(--bad)}
+  .todo .big.amb{background:var(--warn-bg);color:var(--warn)}
+  .todo .big.blu{background:#e9edfc;color:var(--brand)}
+  .todo h4{margin:0;font-size:13.5px}
+  .todo p{margin:1px 0 0;font-size:11.5px;color:var(--muted)}
+  .todo .go{margin-left:auto;color:var(--brand);font-weight:800;font-size:18px}
+
+  .ringrow{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+  .ringbox{text-align:center}
+  .ring{width:118px;height:118px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;margin:0 auto 8px}
+  .ring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:#fff}
+  .ring .c{position:relative;z-index:1}
+  .ring .c b{font-size:21px;display:block;letter-spacing:-.02em}
+  .ring .c span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+  .ringbox .rl{font-size:12px;font-weight:700}
+  .ringbox .rs{font-size:11px;color:var(--muted)}
+
+  .pipe{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:6px 0 14px}
+  .pnode{background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:9px 14px;text-align:center;min-width:118px}
+  .pnode b{display:block;font-size:12px}
+  .pnode span{font-size:10.5px;color:var(--muted)}
+  .pnode.hot{border-color:var(--brand);background:#f7f9ff;box-shadow:0 0 0 4px #e9edfc}
+  .parr{padding:0 9px;color:#c3cbe0;font-size:17px;font-weight:800}
+
+  .inbox{border:1px solid var(--line);border-radius:13px;background:#fff;padding:14px 16px;margin-bottom:11px;display:flex;gap:13px;align-items:flex-start;transition:.3s}
+  .inbox.out{opacity:0;transform:translateX(30px)}
+  .inbox .wico{width:38px;height:38px;border-radius:11px;background:#e9edfc;color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0}
+  .inbox h4{margin:0 0 2px;font-size:13.5px}
+  .inbox .meta{font-size:11.5px;color:var(--muted)}
+  .inbox .acts{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+
+  .segbtn{display:inline-flex;background:var(--seg);border-radius:9px;padding:3px;flex-wrap:wrap}
+  .segbtn button{border:none;background:none;padding:6px 14px;border-radius:7px;font-family:var(--font);font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer}
+  .segbtn button.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:960px){.board{grid-template-columns:1fr 1fr}}
+  .col{background:#f6f8fc;border:1px solid var(--line);border-radius:12px;padding:10px}
+  .col h5{margin:2px 4px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:flex;justify-content:space-between}
+  .wi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:8px;box-shadow:0 1px 2px rgba(20,40,90,.05)}
+  .wi .id{font-size:10px;color:var(--muted);font-weight:700}
+  .wi .tt{font-size:12px;font-weight:600;margin:2px 0 6px;line-height:1.3}
+  .wi .ft{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted)}
+  .wi .pts{margin-left:auto;background:#eef1fb;color:var(--brand);font-weight:800;border-radius:8px;padding:1px 7px;font-size:10px}
+  .mini-av{width:19px;height:19px;border-radius:50%;background:var(--cyan);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800}
+  .mini-av.b{background:var(--brand2)}.mini-av.o{background:#d97706}.mini-av.p{background:#7c3aed}
+
+  .callout{display:flex;gap:11px;padding:13px 15px;border-radius:11px;background:#e9edfc;border:1px solid #d5dcf7;font-size:12.5px;color:#31418f;margin-bottom:15px;align-items:flex-start}
+  .callout.warn{background:var(--warn-bg);border-color:#eeddba;color:var(--warn)}
+  .callout.ok{background:var(--ok-bg);border-color:#c7e8d2;color:#136b36}
+  .callout.bad{background:var(--bad-bg);border-color:#f3c8c8;color:#a01f1f}
+  .callout svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;margin-top:1px}
+
+  .chk{display:flex;align-items:center;gap:11px;padding:10px 4px;border-bottom:1px solid #f1f4fa}
+  .chk:last-child{border-bottom:none}
+  .chk .ic{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+  .chk.done .ic{background:var(--ok-bg);color:var(--ok)}
+  .chk.pend .ic{background:var(--warn-bg);color:var(--warn)}
+  .chk .t{font-size:13px;font-weight:600}
+  .chk .s{font-size:11px;color:var(--muted)}
+  .chk .go{margin-left:auto}
+
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(10px);transition:.3s;z-index:99;max-width:440px}
+  .toast.show{opacity:1;transform:none}
+  /* Clasificación inline — sin modales */
+  .clswrap{position:relative;display:inline-block}
+  .clsdrop{display:none;position:absolute;top:calc(100% + 4px);left:0;z-index:30;background:#fff;border:1.5px solid var(--brand);border-radius:11px;box-shadow:0 8px 24px rgba(20,40,90,.14);min-width:190px;padding:5px 0}
+  .clswrap.open .clsdrop{display:block}
+  .clsdrop .opt{display:flex;align-items:center;gap:9px;padding:8px 13px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--ink);transition:.1s;white-space:nowrap}
+  .clsdrop .opt:hover{background:#f4f6fb;color:var(--brand)}
+  .clsdrop .sep{height:1px;background:var(--line);margin:3px 0}
+
+  /* Acordeones — secciones sin navegación anidada */
+  .accordion{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+  .accordion summary{padding:13px 17px;font-weight:700;font-size:13.5px;cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none;background:#fff;user-select:none}
+  .accordion summary::-webkit-details-marker{display:none}
+  .accordion summary .arr{font-size:11px;color:var(--muted);transition:.2s;flex-shrink:0}
+  .accordion[open] summary .arr{transform:rotate(90deg)}
+  .accordion summary .stag{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+  .accordion .sbd{border-top:1px solid var(--line)}
+
+  /* Hints colapsables — reemplazan callouts informativos visibles por defecto */
+  .hint{margin-bottom:12px}
+  .hint summary{font-size:11.5px;color:var(--brand);font-weight:700;cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:5px;padding:4px 11px;background:#e9edfc;border-radius:20px;user-select:none}
+  .hint summary::-webkit-details-marker{display:none}
+  .hint .hbd{margin-top:7px;padding:10px 14px;background:#e9edfc;border:1px solid #d5dcf7;border-radius:10px;font-size:12px;color:#31418f;line-height:1.5}
+
+  /* Backlog estilo Linear: lista agrupada, el pill de estado es el control */
+  .bl-toolbar{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+  .bl-group{margin-bottom:18px}
+  .bl-ghead{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:0 4px 7px;display:flex;align-items:center;gap:8px}
+  .bl-ghead .gdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .bl-list{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  .bitem{display:flex;align-items:center;gap:12px;padding:11px 15px;border-bottom:1px solid #f1f4fa;transition:.12s;position:relative}
+  .bitem:last-child{border-bottom:none}
+  .bitem:hover{background:#fafbfe}
+  .bitem .tico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;flex-shrink:0}
+  .tico.Epic{background:#f3e8ff;color:#7c3aed}.tico.US{background:#e9edfc;color:var(--brand)}.tico.Task{background:#e7f6ec;color:var(--ok)}.tico.Feature{background:#fef3c7;color:#b45309}.tico.Bug{background:var(--bad-bg);color:var(--bad)}
+  .bitem .bt{flex:1;min-width:0}
+  .bitem .bt h5{margin:0;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bitem .bt .bm{font-size:11px;color:var(--muted)}
+  .bitem .bpts{font-size:11px;font-weight:800;color:var(--brand);background:#eef1fb;border-radius:8px;padding:2px 8px;flex-shrink:0}
+  .clspill{border:none;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:700;transition:.15s;flex-shrink:0;white-space:nowrap}
+  .clspill.unc{background:#fff;color:var(--muted);border:1.5px dashed #c3cbe0}
+  .clspill.unc:hover{border-color:var(--brand);color:var(--brand)}
+  .clspill.ini{background:var(--ok-bg);color:var(--ok)}
+  .clspill.bau{background:var(--warn-bg);color:var(--warn)}
+  .clspill.dis{background:#eef1f6;color:var(--muted);text-decoration:line-through}
+  .clspill:hover{box-shadow:0 1px 5px rgba(20,40,90,.16)}
+  .clspill .caret{font-size:9px;opacity:.6}
+  .toast.show{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">◳</div>
+      <div><b>Dimensionamiento TI</b><span>MVP v6 · BACKEND-DRIVEN</span></div>
+    </div>
+
+    <div class="chapterbox">
+      <div class="cl">Tu chapter</div>
+      <div class="cn">Backend Development &amp; AS-400</div>
+      <div class="cs">3 células · 24 capacidades · Sprint 16</div>
+    </div>
+
+    <button class="navitem on" data-v="home"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Inicio · Torre de control</button>
+
+    <div class="navlabel">1 · Gestión de Capacidad</div>
+    <button class="navitem" data-v="celulas"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>Gestionar Células <span class="count br" id="navCur">2</span></button>
+    <button class="navitem" data-v="iniciativas"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>Gestionar Iniciativas</button>
+    <button class="navitem" data-v="capacidades"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Gestionar Capacidades<span class="count" id="navCap">1</span></button>
+    <button class="navitem" data-v="reporte"><svg viewBox="0 0 24 24"><path d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>Reporte de Horas<span class="count br">S16</span></button>
+
+    <div class="navlabel">2 · Administración</div>
+    <button class="navitem" data-v="admin"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configuraciones de la Plataforma</button>
+
+    <div class="side-foot">MVP v6 · datos moqueados<br>El front <b>nunca</b> llama a DevOps:<br>consume la base local del backend<br>(job de ingesta diario)</div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Plataforma / <b id="crumbTxt">Inicio</b></div>
+      <div class="sp"></div>
+      <div class="ctx">
+        Sprint:
+        <select><option>Sprint 16 · 2026 (28 jul – 8 ago)</option><option>Sprint 15 · 2026</option></select>
+      </div>
+      <div class="avatar">CL</div>
+    </div>
+
+    <div class="content">
+
+      <!-- ================= INICIO ================= -->
+      <section class="view on" id="v-home">
+        <div class="head">
+          <div class="kick">Chapter Backend Development · Sprint 16</div>
+          <h1>Torre de control de tus células</h1>
+          <p>Visión transversal de tus <b>3 células</b> para gestionar el día a día: capacidad, asignaciones y rebalanceos desde un solo lugar.</p>
+        </div>
+
+        <div class="grid g4" style="margin-bottom:15px">
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800">24.0</div><div class="sub">FTE total del chapter</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--brand)">8.8 <span style="font-size:13px">(37%)</span></div><div class="sub">en transformación</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--warn)">9.2 <span style="font-size:13px">(38%)</span></div><div class="sub">en BAU</div></div></div>
+          <div class="card"><div class="bd" style="text-align:center"><div style="font-size:26px;font-weight:800;color:var(--ok)">6.0 <span style="font-size:13px">(25%)</span></div><div class="sub">FTE libre del chapter</div></div></div>
+        </div>
+
+        <div class="grid g3">
+          <div class="cellcard y" onclick="go('celula-det')">
+            <h3><span class="sema y"></span>Backend Platform</h3>
+            <div class="cs">10 capacidades · Kafka Migration (M)</div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:32%;background:var(--brand)"></i><i style="width:44%;background:var(--amber)"></i><i style="width:24%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Transformación</span><b>3.2 / est 3.5</b></div>
+            <div class="pstat"><span>BAU</span><b style="color:var(--warn)">4.4 / est 4.2 ▲</b></div>
+            <div class="pstat"><span>Libre</span><b>2.4</b></div>
+          </div>
+          <div class="cellcard g" onclick="toast('Demo: solo Backend Platform tiene detalle completo')">
+            <h3><span class="sema g"></span>Fraude Tarjetas</h3>
+            <div class="cs">8 capacidades · Motor scoring v2 (L)</div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:51%;background:var(--brand)"></i><i style="width:33%;background:var(--amber)"></i><i style="width:16%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Transformación</span><b>4.1 / est 4.0</b></div>
+            <div class="pstat"><span>BAU</span><b>2.6 / est 2.6</b></div>
+            <div class="pstat"><span>Libre</span><b>1.3</b></div>
+          </div>
+          <div class="cellcard b" onclick="toast('Demo: solo Backend Platform tiene detalle completo')">
+            <h3><span class="sema g"></span>Canales Digitales</h3>
+            <div class="cs">6 capacidades · Onboarding digital (S)</div>
+            <div class="bar" style="margin-bottom:9px"><i style="width:25%;background:var(--brand)"></i><i style="width:37%;background:var(--amber)"></i><i style="width:38%;background:var(--green)"></i></div>
+            <div class="pstat"><span>Transformación</span><b>1.5 / est 1.6</b></div>
+            <div class="pstat"><span>BAU</span><b>2.2 / est 2.3</b></div>
+            <div class="pstat"><span>Libre</span><b style="color:var(--ok)">2.3 ★</b></div>
+          </div>
+        </div>
+
+        <div class="grid g2 mt">
+          <div class="card">
+            <div class="hd">Pendientes para ti<span class="tag">requieren tu decisión</span></div>
+            <div class="bd">
+              <div class="todo" onclick="go('capacidades')">
+                <div class="big red">1</div>
+                <div><h4>Sobreasignación: María González al 110%</h4><p>Backend Platform · sugerencia de rebalanceo</p></div>
+                <div class="go">→</div>
+              </div>
+              <div class="todo" onclick="go('celulas');setTimeout(function(){detTab(document.querySelectorAll('#detTabs button')[1],'dt2')},50)">
+                <div class="big amb" id="homeCurCount">4</div>
+                <div><h4>Reportes de horas sin enviar</h4><p>2 en Backend Platform · 1 en Fraude · 1 en Canales</p></div>
+                <div class="go">→</div>
+              </div>
+              <div class="todo" onclick="go('capacidades');document.getElementById('linkUserCard').scrollIntoView()">
+                <div class="big amb" id="homeUnlinked">1</div>
+                <div><h4>Capacidad sin usuario DevOps vinculado</h4><p>Laura Ruiz: sus items no cuentan hasta vincularla</p></div>
+                <div class="go">→</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hd">Alertas transversales del chapter</div>
+            <div class="bd">
+              <div class="callout bad" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Sobreasignación:</b> María González (Backend Platform) al 110%.</div></div>
+              <div class="callout warn" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>BAU creciendo</b> en Backend Platform: 44% real vs 42% plan.</div></div>
+              <div class="callout warn" style="margin-bottom:10px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Concentración:</b> AS-400 depende solo de Julián Pérez (bus factor = 1).</div></div>
+              <div class="callout ok" style="margin-bottom:0"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div><b>Ingesta de datos al día:</b> job nocturno OK (hoy 02:00 · 1.240 items espejados).</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= GESTIONAR CÉLULAS ================= -->
+      <section class="view" id="v-celulas">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Células</h1>
+          <p>Crea células con su tablero de DevOps <b>opcionalmente vinculado desde el inicio</b>, o vincúlalo después desde el detalle.</p>
+        </div>
+
+        <div class="card">
+          <div class="hd">Células del chapter<span class="tag">4 células</span></div>
+          <div class="bd" style="padding:0">
+            <table id="cellTable">
+              <thead><tr><th></th><th>Célula</th><th>Tribu</th><th>Criticidad</th><th>Cap.</th><th>Iniciativa activa</th><th>Tablero DevOps</th><th></th></tr></thead>
+              <tbody>
+                <tr class="click" onclick="go('celula-det')"><td><span class="sema y"></span></td><td class="b">Backend Platform</td><td>Payments</td><td><span class="pill bad">Crítica</span></td><td>10</td><td>Kafka Migration <span class="pill gray">M</span></td><td><span class="pill ok">Backend Core ✓</span></td><td><button class="btn gh sm" onclick="event.stopPropagation();go('celula-det');setTimeout(function(){detTab(document.querySelectorAll('#detTabs button')[1],'dt2')},50)">Backlog <span class="pill bad" style="margin-left:3px">2</span></button></td></tr>
+                <tr class="click" onclick="toast('Demo: detalle completo solo en Backend Platform')"><td><span class="sema g"></span></td><td class="b">Fraude Tarjetas</td><td>Risk &amp; Fraud</td><td><span class="pill bad">Crítica</span></td><td>8</td><td>Motor scoring v2 <span class="pill gray">L</span></td><td><span class="pill ok">Fraude ✓</span></td><td></td></tr>
+                <tr class="click" onclick="toast('Demo: detalle completo solo en Backend Platform')"><td><span class="sema g"></span></td><td class="b">Canales Digitales</td><td>Customer</td><td><span class="pill warn">Alta</span></td><td>6</td><td>Onboarding digital <span class="pill gray">S</span></td><td><span class="pill ok">Canales Web ✓</span></td><td></td></tr>
+                <tr id="rowPagos"><td><span class="sema g"></span></td><td class="b">Pagos Instantáneos</td><td>Payments</td><td><span class="pill warn">Alta</span></td><td>0</td><td class="sub">sin iniciativas</td><td><span class="pill gray" id="pagosLink">sin tablero</span></td><td><button class="btn gh sm" onclick="document.getElementById('linkBoardCard').scrollIntoView({behavior:'smooth'})">Vincular tablero</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- FORM: NUEVA CÉLULA -->
+        <div class="card mt">
+          <div class="hd">＋ Nueva célula<span class="tag">POST /api/squads · el tablero es opcional</span></div>
+          <div class="bd">
+            <div class="prow three">
+              <div><label class="lab">Nombre de la célula <span style="color:var(--bad)">*</span></label><input id="ncName" placeholder="Ej: Motor de Recaudos"></div>
+              <div><label class="lab">Tribu <span style="color:var(--bad)">*</span></label><select class="fld" id="ncTribe"><option>Payments</option><option>Risk &amp; Fraud</option><option>Customer</option></select></div>
+              <div><label class="lab">Criticidad <span style="color:var(--bad)">*</span></label><select class="fld" id="ncCrit"><option>Crítica</option><option selected>Alta</option><option>Media</option><option>Baja</option></select></div>
+            </div>
+            <div style="margin-bottom:13px"><label class="lab">Descripción</label><textarea rows="2" placeholder="Propósito y alcance de la célula"></textarea></div>
+
+            <div style="border-top:1px dashed var(--line);padding-top:13px">
+              <label class="lab">Tablero de Azure DevOps <span class="optional">OPCIONAL · puedes vincularlo después</span></label>
+          <details class="hint" style="margin-bottom:13px"><summary>ℹ ¿Cómo funciona la búsqueda?</summary><div class="hbd">Busca en la <b>base local de la plataforma</b> (espejo del job diario · el front nunca llama a DevOps)</div></details>
+              <div class="searchbox">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input id="ncBoardSearch" placeholder="Escribe el nombre del tablero… (prueba: 'pag' o 'core')" oninput="searchBoards(this.value,'ncBoardResults','nc')">
+              </div>
+              <div class="results hidden" id="ncBoardResults"></div>
+              <div id="ncLinked"></div>
+            </div>
+
+            <div style="margin-top:15px;display:flex;gap:9px">
+              <button class="btn pri" onclick="createCell()">Crear célula</button>
+              <button class="btn gh" onclick="toast('Formulario limpiado')">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORM: VINCULAR TABLERO A CÉLULA EXISTENTE -->
+        <div class="card mt" id="linkBoardCard">
+          <div class="hd">Vincular tablero a célula existente<span class="tag">PUT /api/squads/{id}/devops-board-link</span></div>
+          <div class="bd">
+            <div class="prow">
+              <div>
+                <label class="lab">Célula</label>
+                <select class="fld" id="lbCell"><option selected>Pagos Instantáneos (sin tablero)</option><option>Backend Platform (Backend Core ✓)</option></select>
+              </div>
+              <div>
+                <label class="lab">Buscar tablero por nombre</label>
+                <div class="searchbox">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                  <input id="lbBoardSearch" placeholder="Prueba: 'pag'…" oninput="searchBoards(this.value,'lbBoardResults','lb')">
+                </div>
+              </div>
+            </div>
+            <div class="results hidden" id="lbBoardResults"></div>
+            <div id="lbLinked"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= DETALLE CÉLULA ================= -->
+      <section class="view" id="v-celula-det">
+        <div class="head">
+          <div class="back" onclick="go('celulas')">← Volver a células</div>
+          <div class="kick">Gestión de Capacidad · Células</div>
+          <h1>Backend Platform <span class="pill warn" style="vertical-align:middle">BAU creciendo</span></h1>
+          <p>Payments · Crítica · 10 capacidades · Iniciativa activa: Kafka Migration</p>
+        </div>
+
+        <!-- Tabs del detalle del squad: UN solo nivel, sin sub-navegación -->
+        <div class="segbtn" style="margin-bottom:16px" id="detTabs">
+          <button class="on" onclick="detTab(this,'dt1')">Resumen</button>
+          <button onclick="detTab(this,'dt2')">Backlog <span class="pill bad" style="margin-left:3px" id="blUnclPill">2</span></button>
+          <button onclick="detTab(this,'dt5')">Board</button>
+          <button onclick="detTab(this,'dt3')">Equipo</button>
+        </div>
+
+        <!-- ---- TAB 1: Resumen ---- -->
+        <div id="dt1">
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Capacidad · sprint 16</div>
+            <div class="bd">
+              <div class="ringrow" style="justify-content:space-around">
+                <div class="ringbox">
+                  <div class="ring" style="width:100px;height:100px;background:conic-gradient(var(--brand) 0 32%,#e8ebf5 32% 100%)"><div class="c"><b>3.2</b><span>de 3.5</span></div></div>
+                  <div class="rl" style="color:var(--brand)">Transformación</div>
+                </div>
+                <div class="ringbox">
+                  <div class="ring" style="width:100px;height:100px;background:conic-gradient(var(--amber) 0 44%,#e8ebf5 44% 100%)"><div class="c"><b>4.4</b><span>de 4.2</span></div></div>
+                  <div class="rl" style="color:var(--warn)">BAU</div>
+                </div>
+                <div class="ringbox">
+                  <div class="ring" style="width:100px;height:100px;background:conic-gradient(var(--green) 0 24%,#e8ebf5 24% 100%)"><div class="c"><b>2.4</b><span>libre</span></div></div>
+                  <div class="rl" style="color:var(--ok)">Libre</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TABLERO VINCULADO (detalle) -->
+          <div class="card">
+            <div class="hd">Tablero de Azure DevOps<span class="tag">vinculación editable desde el detalle</span></div>
+            <div class="bd" id="detBoardBox">
+              <div class="linkedchip" style="margin:0 0 11px">
+                <span>📋 Backend Core · Payments\Backend</span>
+                <span class="pill ok" style="font-size:10px">Active</span>
+                <span class="x" onclick="unlinkDetail()" title="Desvincular">✕</span>
+              </div>
+              <div class="pstat"><span>Vinculado por</span><b>Chapter Lead · 25-jul</b></div>
+              <div class="pstat"><span>Epics/Features espejados</span><b>4 epics · 11 features</b></div>
+              <div class="pstat"><span>Última ingesta del job</span><b>hoy 02:00 · OK</b></div>
+              <div class="pstat"><span>US sin clasificar</span><b><a href="#" onclick="detTab(document.querySelectorAll('#detTabs button')[1],'dt2');return false" style="color:var(--brand)">2 pendientes →</a></b></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid g2 mt">
+          <div class="card">
+            <div class="hd">Tareas BAU<span class="tag">42% plan · 44% real</span></div>
+            <div class="bd" style="padding:0">
+              <table>
+                <tbody>
+                  <tr><td class="b">Soporte y operación en producción</td><td>20% → 22%</td><td><span class="pill warn">▲</span></td></tr>
+                  <tr><td class="b">Ceremonias y reuniones de equipo</td><td>10% → 10%</td><td><span class="pill ok">—</span></td></tr>
+                  <tr><td class="b">Mantenimiento correctivo</td><td>7% → 8%</td><td><span class="pill warn">▲</span></td></tr>
+                  <tr><td class="b">Gestión de conocimiento / onboarding</td><td>5% → 4%</td><td><span class="pill ok">▼</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Equipo<span class="tag">10 capacidades · vista rápida</span></div>
+            <div class="bd" style="padding:0 0 6px">
+              <table>
+                <tbody>
+                  <tr><td class="b">Carlos López</td><td>Backend Dev</td><td><span class="pill ok">100%</span></td></tr>
+                  <tr><td class="b">María González</td><td>Backend Dev</td><td><span class="pill bad">110%</span></td></tr>
+                  <tr><td class="b">Julián Pérez</td><td>Arquitecto</td><td><span class="pill ok">100%</span></td></tr>
+                  <tr><td colspan="3" class="sub" style="text-align:center;padding:9px"><a href="#" onclick="detTab(document.querySelectorAll('#detTabs button')[2],'dt3');return false" style="color:var(--brand);font-weight:700">ver equipo completo →</a></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        </div><!-- /dt1 -->
+
+        <!-- ---- TAB Backlog: lista agrupada estilo Linear, el pill es el control ---- -->
+        <div id="dt2" class="hidden">
+          <div class="bl-toolbar">
+            <div class="searchbox" style="flex:1;max-width:320px">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input placeholder="Buscar item…" oninput="blSearch(this.value)">
+            </div>
+            <details class="hint" style="margin:0;margin-left:auto"><summary>ℹ ¿Cómo funciona?</summary><div class="hbd">Los items llegan del tablero vinculado (job diario). Solo las US necesitan clasificación: ¿pertenece a la Iniciativa, es BAU, o se descarta?</div></details>
+          </div>
+          <div class="segbtn" style="margin-bottom:12px" id="blFiltTabs">
+            <button class="on" data-blf="all" onclick="setBlFilter(this,'all')">Todos <span class="pill gray" style="margin-left:3px" id="fc-all">8</span></button>
+            <button data-blf="unc" onclick="setBlFilter(this,'unc')">Sin clasificar <span class="pill bad" style="margin-left:3px" id="fc-unc">2</span></button>
+            <button data-blf="ini" onclick="setBlFilter(this,'ini')">Iniciativa <span class="pill ok" style="margin-left:3px" id="fc-ini">5</span></button>
+            <button data-blf="bau" onclick="setBlFilter(this,'bau')">BAU <span class="pill warn" style="margin-left:3px" id="fc-bau">1</span></button>
+            <button data-blf="dis" onclick="setBlFilter(this,'dis')">Descartados <span class="pill gray" style="margin-left:3px" id="fc-dis">1</span></button>
+          </div>
+          <div id="blGroups"></div>
+        </div><!-- /dt2 -->
+
+        <!-- ---- TAB Board ---- -->
+        <div id="dt5" class="hidden">
+          <div class="sub" style="margin-bottom:11px">Board · items de la iniciativa activa y clasificados</div>
+          <div class="board">
+            <div class="col">
+              <h5>Nuevo <span>3</span></h5>
+              <div class="wi"><div class="id">#12401 · US</div><div class="tt">Consumer group rebalanceo</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+              <div class="wi"><div class="id">#12402 · US</div><div class="tt">Retry policy DLQ</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+              <div class="wi"><div class="id">#12405 · Task</div><div class="tt">Test de carga tópicos</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">2</span></div></div>
+            </div>
+            <div class="col">
+              <h5>Activo <span>4</span></h5>
+              <div class="wi"><div class="id">#12350 · US</div><div class="tt">Esquemas Avro registry</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+              <div class="wi"><div class="id">#12344 · US</div><div class="tt">Productor idempotente</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+              <div class="wi"><div class="id">#12351 · US</div><div class="tt">Migración consumidores</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">8</span></div></div>
+              <div class="wi"><div class="id">#12360 · Task</div><div class="tt">Runbook operación</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">3</span></div></div>
+            </div>
+            <div class="col">
+              <h5>Resuelto <span>2</span></h5>
+              <div class="wi"><div class="id">#12388 · Feature</div><div class="tt">Conectores AS-400</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">38</span></div></div>
+              <div class="wi"><div class="id">#12331 · US</div><div class="tt">Config TLS brokers</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">5</span></div></div>
+            </div>
+            <div class="col">
+              <h5>Cerrado <span>3</span></h5>
+              <div class="wi"><div class="id">#12322 · US</div><div class="tt">Migración tópico transacciones</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+              <div class="wi"><div class="id">#12310 · US</div><div class="tt">Spike particionamiento</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+              <div class="wi"><div class="id">#12290 · Task</div><div class="tt">Hotfix reproceso</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">2</span></div></div>
+            </div>
+          </div>
+        </div><!-- /dt5 -->
+
+        <!-- ---- TAB Equipo ---- -->
+        <div id="dt3" class="hidden">
+          <div class="card">
+            <div class="hd">Equipo · 10 capacidades<span class="tag">Backend Platform</span></div>
+            <div class="bd" style="padding:0 0 6px">
+              <table>
+                <thead><tr><th>Capacidad</th><th>Rol</th><th>Utilización</th><th>Usuario DevOps</th><th>Reporte S16</th></tr></thead>
+                <tbody>
+                  <tr><td class="b">Carlos López</td><td>Backend Dev · Senior</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓</span></td><td><span class="pill ok">80 h ✓</span></td></tr>
+                  <tr style="background:#fff8f8"><td class="b">María González</td><td>Backend Dev · Semi-sr</td><td><span class="pill bad">110%</span></td><td><span class="pill ok">✓</span></td><td><span class="pill ok">82 h ✓</span></td></tr>
+                  <tr><td class="b">Ana Gómez</td><td>QA · Senior</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓</span></td><td><span class="pill gray">por validar</span></td></tr>
+                  <tr><td class="b">Julián Pérez</td><td>Arquitecto · Senior</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓</span></td><td><span class="pill ok">78 h ✓</span></td></tr>
+                  <tr style="background:#fffdf8"><td class="b">Laura Ruiz</td><td>QA · Junior</td><td><span class="pill gray">—</span></td><td><span class="pill warn">sin vincular</span></td><td><span class="pill bad">sin reportar</span></td></tr>
+                  <tr><td colspan="5" class="sub" style="text-align:center;padding:9px">+ 5 más · <a href="#" onclick="go('capacidades');return false" style="color:var(--brand);font-weight:700">gestionar todas →</a></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><!-- /dt3 -->
+
+      </section><!-- /celula-det -->
+
+      <!-- ================= GESTIONAR INICIATIVAS ================= -->
+      <section class="view" id="v-iniciativas">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Iniciativas</h1>
+          <p>Todas las iniciativas de tus células. <b>Una sola Active por célula</b>. Estimar es opcional.</p>
+        </div>
+
+        <div class="card">
+          <div class="hd">Iniciativas del chapter<span class="tag">5 iniciativas</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <thead><tr><th>Iniciativa</th><th>Célula</th><th>Estado</th><th>Estimación</th><th>FTE est / real</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="b">Kafka Migration</td><td>Backend Platform</td><td><span class="pill info">ACTIVE</span></td><td><span class="pill ok">Etapa 1 · M</span></td><td>3.5 / <b style="color:var(--ok)">3.2</b></td><td><button class="btn gh sm" onclick="document.getElementById('estimDetail').scrollIntoView({behavior:'smooth'})">Estimación ↓</button></td></tr>
+                <tr><td class="b">API Open Finance</td><td>Backend Platform</td><td><span class="pill gray">EVALUATION</span></td><td><span class="pill ok">Etapa 1 · S</span></td><td>1.2 / —</td><td><button class="btn gh sm" onclick="toast('Solo 1 Active por célula')">Activar</button></td></tr>
+                <tr><td class="b">Motor reglas AML</td><td>Backend Platform</td><td><span class="pill gray">EVALUATION</span></td><td><span class="pill warn">Sin estimar</span></td><td class="sub">sin estimar</td><td><button class="btn pri sm" onclick="toast('Abriría el scoring de Etapa 1')">Estimar</button></td></tr>
+                <tr><td class="b">Motor scoring v2</td><td>Fraude Tarjetas</td><td><span class="pill info">ACTIVE</span></td><td><span class="pill ok">Etapa 1 · L</span></td><td>4.0 / 4.1</td><td></td></tr>
+                <tr><td class="b">Onboarding digital</td><td>Canales Digitales</td><td><span class="pill info">ACTIVE</span></td><td><span class="pill ok">Etapa 1 · S</span></td><td>1.6 / 1.5</td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- FORM: NUEVA INICIATIVA -->
+        <div class="card mt">
+          <div class="hd">＋ Nueva iniciativa<span class="tag">POST /api/squads/{id}/initiatives · estimar es opcional</span></div>
+          <div class="bd">
+            <div class="prow three">
+              <div><label class="lab">Nombre <span style="color:var(--bad)">*</span></label><input id="niName" placeholder="Ej: Tokenización de tarjetas"></div>
+              <div><label class="lab">Célula <span style="color:var(--bad)">*</span></label><select class="fld"><option>Backend Platform</option><option>Fraude Tarjetas</option><option>Canales Digitales</option><option>Pagos Instantáneos</option></select></div>
+              <div><label class="lab">Tipo</label><select class="fld"><option>Transformación</option><option>BAU</option><option>Mixta</option></select></div>
+            </div>
+            <div class="prow">
+              <div><label class="lab">Deadline (meses)</label><input type="number" value="6" min="1" max="24"></div>
+              <div><label class="lab">Mapear Epic del backlog <span class="optional">OPCIONAL</span></label><select class="fld"><option>Sin mapear (puedes hacerlo después)</option><option>#12290 · Observabilidad plataforma</option><option disabled>#12345 · Migración Kafka (409: ya mapeado)</option></select></div>
+            </div>
+            <div style="display:flex;gap:9px">
+              <button class="btn pri" onclick="var n=document.getElementById('niName').value.trim();if(!n){toast('El nombre es obligatorio');return;}toast('Iniciativa \''+n+'\' creada en estado Evaluation · sin estimación (opcional)');document.getElementById('niName').value=''">Crear iniciativa</button>
+              <button class="btn gh" onclick="toast('Crearía y abriría directo el formulario de scoring de Etapa 1')">Crear y estimar ahora</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt" id="estimDetail">
+          <div class="hd">Estimación por etapas · Kafka Migration</div>
+          <div class="bd">
+            <div class="pipe">
+              <div class="pnode hot"><b>Etapa 1 · Temprana</b><span>✓ completada · ±50-100%</span></div>
+              <div class="parr">→</div>
+              <div class="pnode"><b>Etapa 2 · Refinada</b><span>🔒 2/3 prerequisitos · ±25%</span></div>
+              <div class="parr">→</div>
+              <div class="pnode"><b>Real</b><span>calibración al cierre</span></div>
+            </div>
+            <div class="grid g2">
+              <div>
+                <label class="lab">Resultado vigente (Etapa 1 · v2)</label>
+                <table>
+                  <tbody>
+                    <tr><td class="sub">Talla / complejidad</td><td class="b">M · 45.2%</td></tr>
+                    <tr><td class="sub">FTE (opt / medio / pes)</td><td class="b">1.33 / <span style="color:var(--brand)">2.67</span> / 3.50</td></tr>
+                    <tr><td class="sub">Duración</td><td class="b">8–16 PM</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <label class="lab">Prerequisitos Etapa 2</label>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Etapa 1 completada</div></div></div>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Backlog definido</div><div class="s">automático desde espejo local</div></div></div>
+                <div class="chk pend"><div class="ic">!</div><div><div class="t">Arquitectura definida</div></div><button class="btn gh sm go" onclick="toast('PUT /estimations/prerequisites')">Marcar lista</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= GESTIONAR CAPACIDADES ================= -->
+      <section class="view" id="v-capacidades">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Capacidades</h1>
+          <p>Crea personas con su usuario de DevOps <b>vinculado desde el registro</b> (búsqueda por nombre en la base local), o vincúlalo después.</p>
+        </div>
+
+        <div class="callout bad"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <div><b>1 sobreasignación:</b> María González al 110%. <b>1 sin vincular:</b> Laura Ruiz no tiene usuario DevOps (sus items no cuentan).</div>
+        </div>
+
+        <div class="card">
+          <div class="hd">Capacidades del chapter<span class="tag">24 personas</span></div>
+          <div class="bd" style="padding:0">
+            <table id="capTable">
+              <thead><tr><th>Capacidad</th><th>Rol · Seniority</th><th>Célula</th><th>Utilización</th><th>Usuario DevOps</th><th></th></tr></thead>
+              <tbody>
+                <tr style="background:#fff8f8"><td class="b">María González</td><td>Backend Dev · Semi-sr</td><td>Backend Platform</td><td><span class="pill bad">110%</span></td><td><span class="pill ok">✓ maria.gonzalez</span></td><td><button class="btn bad sm" onclick="document.getElementById('rebal').scrollIntoView({behavior:'smooth'})">Rebalancear</button></td></tr>
+                <tr><td class="b">Carlos López</td><td>Backend Dev · Senior</td><td>Backend Platform</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓ carlos.lopez</span></td><td></td></tr>
+                <tr><td class="b">Julián Pérez</td><td>Arquitecto · Senior</td><td>Backend Platform</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓ julian.perez</span></td><td></td></tr>
+                <tr><td class="b">Sofía Torres</td><td>Backend Dev · Senior</td><td>Canales Digitales</td><td><span class="pill info">60%</span></td><td><span class="pill ok">✓ sofia.torres</span></td><td></td></tr>
+                <tr id="rowLaura" style="background:#fffdf8"><td class="b">Laura Ruiz</td><td>QA · Junior</td><td>Backend Platform</td><td><span class="pill gray">—</span></td><td><span class="pill warn" id="lauraLink">sin vincular</span></td><td><button class="btn pri sm" id="lauraBtn" onclick="prefillLaura()">Vincular usuario</button></td></tr>
+                <tr><td colspan="6" class="sub" style="text-align:center;padding:9px">+ 19 capacidades más</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- FORM: NUEVA CAPACIDAD -->
+        <div class="card mt">
+          <div class="hd">＋ Nueva capacidad<span class="tag">POST /api/people · usuario DevOps opcional</span></div>
+          <div class="bd">
+            <div class="prow three">
+              <div><label class="lab">Nombre completo <span style="color:var(--bad)">*</span></label><input id="npName" placeholder="Ej: Andrea Salazar"></div>
+              <div><label class="lab">Documento <span style="color:var(--bad)">*</span></label><input placeholder="1036884221"></div>
+              <div><label class="lab">Célula</label><select class="fld"><option>Backend Platform</option><option>Fraude Tarjetas</option><option>Canales Digitales</option><option>Pagos Instantáneos</option></select></div>
+            </div>
+            <div class="prow three">
+              <div><label class="lab">Rol</label><select class="fld"><option>Backend Dev</option><option>QA Engineer</option><option>Arquitecto</option><option>Data Engineer</option></select></div>
+              <div><label class="lab">Seniority</label><select class="fld"><option>Junior</option><option selected>Semi-senior</option><option>Senior</option></select></div>
+              <div><label class="lab">Nivel SFIA</label><select class="fld"><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+            </div>
+            <div class="prow three">
+              <div><label class="lab">Modalidad</label><select class="fld" id="npModality" onchange="toggleProvider(this.value)"><option value="Interno">Interno</option><option value="Externo">Externo</option></select></div>
+              <div><label class="lab">FTE disponible</label><input type="number" value="1.0" step="0.1" min="0.1" max="1"></div>
+              <div><label class="lab">Costo mensual</label><input placeholder="$ 7.900.000"></div>
+            </div>
+            <!-- provider selector only for Externo; list from backend GET /api/providers -->
+            <div id="providerRow" class="hidden" style="margin-bottom:13px">
+              <label class="lab">Tercero / Proveedor <span style="color:var(--bad)">*</span><span class="optional" style="margin-left:7px">lista del backend · GET /api/providers</span></label>
+              <select class="fld" id="npProvider">
+                <option value="">Selecciona el proveedor…</option>
+                <option>GFT</option>
+                <option>TATA Consultancy Services</option>
+                <option>QVision</option>
+                <option>Indra</option>
+                <option>Softtek</option>
+                <option>Stefanini</option>
+              </select>
+            </div>
+
+            <div style="border-top:1px dashed var(--line);padding-top:13px">
+              <label class="lab">Usuario de Azure DevOps <span class="optional">OPCIONAL · puedes vincularlo después</span></label>
+              <details class="hint" style="margin-bottom:13px"><summary>ℹ ¿Qué es el reporte de horas?</summary><div class="hbd">Flujo: <b>1)</b> busca por nombre → <b>2)</b> revisa la lista → <b>3)</b> vincula. Datos de la base local (Entra ID espejado por el job diario)</div></details>
+              <div class="searchbox">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <input id="npUserSearch" placeholder="Escribe el nombre… (prueba: 'and' o 'ruiz')" oninput="searchUsers(this.value,'npUserResults','np')">
+              </div>
+              <div class="results hidden" id="npUserResults"></div>
+              <div id="npLinked"></div>
+            </div>
+
+            <div style="margin-top:15px;display:flex;gap:9px">
+              <button class="btn pri" onclick="createPerson()">Crear capacidad</button>
+              <button class="btn gh">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORM: VINCULAR USUARIO A CAPACIDAD EXISTENTE -->
+        <div class="card mt" id="linkUserCard">
+          <div class="hd">Vincular usuario DevOps a capacidad existente<span class="tag">PUT /api/people/{id}/devops-identity</span></div>
+          <div class="bd">
+            <div class="prow">
+              <div>
+                <label class="lab">Capacidad</label>
+                <select class="fld" id="luCap"><option selected>Laura Ruiz (sin vincular)</option><option>Carlos López (✓ vinculado)</option></select>
+              </div>
+              <div>
+                <label class="lab">Buscar usuario por nombre</label>
+                <div class="searchbox">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                  <input id="luUserSearch" placeholder="Prueba: 'ruiz'…" oninput="searchUsers(this.value,'luUserResults','lu')">
+                </div>
+              </div>
+            </div>
+            <div class="results hidden" id="luUserResults"></div>
+            <div id="luLinked"></div>
+          </div>
+        </div>
+
+        <!-- REBALANCEO -->
+        <div class="card mt" id="rebal">
+          <div class="hd">Rebalanceo sugerido<span class="tag">transversal entre células</span></div>
+          <div class="bd">
+            <div class="pipe" style="margin-bottom:12px">
+              <div class="pnode"><b>María González</b><span>Backend Platform · 110% ⚠</span></div>
+              <div class="parr">→</div>
+              <div class="pnode hot"><b>mover 10% BAU soporte</b><span>≈ 0.1 FTE</span></div>
+              <div class="parr">→</div>
+              <div class="pnode"><b>Sofía Torres</b><span>Canales Digitales · 60%</span></div>
+            </div>
+            <div id="rebalResult" class="hidden callout ok" style="margin-bottom:12px"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div><b>Simulación:</b> María 100% · Sofía 70% · sin sobreasignaciones.</div></div>
+            <div style="display:flex;gap:9px">
+              <button class="btn gh" onclick="document.getElementById('rebalResult').classList.remove('hidden');toast('Simulación · nada aplicado')">Simular</button>
+              <button class="btn pri" onclick="toast('PUT /api/allocations · rebalanceo aplicado')">Aplicar rebalanceo</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= REPORTE DE HORAS ================= -->
+      <section class="view" id="v-reporte">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad · al cierre de cada sprint</div>
+          <h1>Reporte de Horas · Sprint 16</h1>
+          <p>Sprint de <b id="repTotalLbl">80 horas</b> (2 semanas · configurable en <a href="#" onclick="go('admin');return false" style="color:var(--brand);font-weight:700">Administración</a>).</p>
+        </div>
+
+        <div class="grid g3" style="margin-bottom:15px">
+          <div class="card"><div class="bd"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>Backend Platform</b><span class="pill warn">8/10</span></div><div class="bar"><i style="width:80%;background:var(--ok)"></i></div></div></div>
+          <div class="card"><div class="bd"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>Fraude Tarjetas</b><span class="pill warn">7/8</span></div><div class="bar"><i style="width:87%;background:var(--ok)"></i></div></div></div>
+          <div class="card"><div class="bd"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><b>Canales Digitales</b><span class="pill warn">5/6</span></div><div class="bar"><i style="width:83%;background:var(--ok)"></i></div></div></div>
+        </div>
+
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Captura individual<span class="tag">Carlos López</span></div>
+            <div class="bd">
+              <table>
+                <thead><tr><th>Destino</th><th>Tipo</th><th style="width:90px">Horas</th><th style="width:70px">FTE</th></tr></thead>
+                <tbody>
+                  <tr><td class="b">Kafka Migration</td><td><span class="pill info">Iniciativa</span></td><td><input class="num fteh" type="number" value="32" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.40</td></tr>
+                  <tr><td class="b">Soporte producción</td><td><span class="pill warn">BAU</span></td><td><input class="num fteh" type="number" value="24" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.30</td></tr>
+                  <tr><td class="b">Transferencia conocimiento</td><td><span class="pill warn">BAU</span></td><td><input class="num fteh" type="number" value="8" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.10</td></tr>
+                  <tr><td class="b">Libre / reuniones</td><td><span class="pill gray">Libre</span></td><td><input class="num fteh" type="number" value="16" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.20</td></tr>
+                  <tr class="totrow"><td colspan="2">Total sprint</td><td id="fteTotH" style="padding-left:22px">80</td><td id="fteTotF">1.00</td></tr>
+                </tbody>
+              </table>
+              <div id="fteMsg" class="callout ok" style="margin:11px 0 0"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div>Total dentro del rango (76–84 h). Listo para enviar.</div></div>
+              <div style="margin-top:12px;display:flex;gap:9px"><button class="btn pri" onclick="toast('Reporte del sprint 16 enviado')">Enviar reporte</button><button class="btn gh">Borrador</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Pendientes<span class="tag">todas las células</span></div>
+            <div class="bd" style="padding:0 0 6px">
+              <table>
+                <tbody>
+                  <tr><td class="b">Ana Gómez</td><td>Backend Platform</td><td><span class="pill gray">por validar</span></td><td><button class="btn ok sm" onclick="toast('Validado')">Validar</button></td></tr>
+                  <tr><td class="b">Laura Ruiz</td><td>Backend Platform</td><td><span class="pill bad">sin reportar</span></td><td><button class="btn gh sm" onclick="toast('Recordatorio enviado')">Recordar</button></td></tr>
+                  <tr><td class="b">Pedro Sanín</td><td>Backend Platform</td><td><span class="pill bad">sin reportar</span></td><td><button class="btn gh sm" onclick="toast('Recordatorio enviado')">Recordar</button></td></tr>
+                  <tr><td class="b">Andrés Mora</td><td>Fraude Tarjetas</td><td><span class="pill bad">sin reportar</span></td><td><button class="btn gh sm" onclick="toast('Recordatorio enviado')">Recordar</button></td></tr>
+                  <tr><td class="b">Camila Osorio</td><td>Canales Digitales</td><td><span class="pill bad">sin reportar</span></td><td><button class="btn gh sm" onclick="toast('Recordatorio enviado')">Recordar</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- legacy markup inerte dentro de template: no se renderiza ni se parsea al DOM principal -->
+      <template id="legacyBackup">
+                  <tr data-cls="Unclassified">
+                    <td><div class="b">#12290 · Observabilidad plataforma</div><div class="sub">Epic · 9 items · Active</div></td>
+                    <td><span class="pill info">Epic</span></td><td>21</td><td>Active</td>
+                    <td><span class="pill gray">Sin clasificar</span></td>
+                    <td><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                      <div class="clswrap" id="cw-12290">
+                        <button class="btn pri sm" onclick="toggleDrop('cw-12290')">→ Clasificar ▾</button>
+                        <div class="clsdrop">
+                          <div class="opt" onclick="quickCls('12290','Initiative','Kafka Migration')">🚀 Kafka Migration <span class="pill info" style="font-size:10px">ACTIVE</span></div>
+                          <div class="opt" onclick="quickCls('12290','Initiative','API Open Finance')">🚀 API Open Finance <span class="pill gray" style="font-size:10px">EVAL</span></div>
+                          <div class="opt" onclick="quickCls('12290','Initiative','Motor reglas AML')">🚀 Motor reglas AML <span class="pill gray" style="font-size:10px">EVAL</span></div>
+                          <div class="sep"></div>
+                          <div class="opt" onclick="quickCls('12290','BAU','Soporte producción')">⚙️ BAU · Soporte producción</div>
+                          <div class="opt" onclick="quickCls('12290','BAU','Transferencia conocimiento')">⚙️ BAU · Transferencia conocimiento</div>
+                          <div class="opt" onclick="quickCls('12290','BAU','Ceremonias y reuniones')">⚙️ BAU · Ceremonias y reuniones</div>
+                          <div class="sep"></div>
+                          <div class="opt" style="color:var(--bad)" onclick="quickCls('12290','Discarded','')">🗑 Descartar (no aplica)</div>
+                        </div>
+                      </div>
+                    </div></td>
+                  </tr>
+                  <tr data-cls="Unclassified">
+                    <td><div class="b">#12401 · Consumer group rebalanceo</div><div class="sub">User Story · 5 pts · New</div></td>
+                    <td><span class="pill info">US</span></td><td>5</td><td>New</td>
+                    <td><span class="pill gray">Sin clasificar</span></td>
+                    <td><div style="display:flex;gap:6px;align-items:center">
+                      <div class="clswrap" id="cw-12401">
+                        <button class="btn pri sm" onclick="toggleDrop('cw-12401')">→ Clasificar ▾</button>
+                        <div class="clsdrop">
+                          <div class="opt" onclick="quickCls('12401','Initiative','Kafka Migration')">🚀 Kafka Migration <span class="pill info" style="font-size:10px">ACTIVE</span></div>
+                          <div class="opt" onclick="quickCls('12401','Initiative','API Open Finance')">🚀 API Open Finance <span class="pill gray" style="font-size:10px">EVAL</span></div>
+                          <div class="sep"></div>
+                          <div class="opt" onclick="quickCls('12401','BAU','Soporte producción')">⚙️ BAU · Soporte producción</div>
+                          <div class="opt" onclick="quickCls('12401','BAU','Ceremonias y reuniones')">⚙️ BAU · Ceremonias y reuniones</div>
+                          <div class="sep"></div>
+                          <div class="opt" style="color:var(--bad)" onclick="quickCls('12401','Discarded','')">🗑 Descartar (no aplica)</div>
+                        </div>
+                      </div>
+                    </div></td>
+                  </tr>
+                  <tr data-cls="Unclassified">
+                    <td><div class="b">#12405 · Test de carga tópicos</div><div class="sub">Task · 2 pts · New</div></td>
+                    <td><span class="pill info">Task</span></td><td>2</td><td>New</td>
+                    <td><span class="pill gray">Sin clasificar</span></td>
+                    <td><div class="clswrap" id="cw-12405">
+                        <button class="btn pri sm" onclick="toggleDrop('cw-12405')">→ Clasificar ▾</button>
+                        <div class="clsdrop">
+                          <div class="opt" onclick="quickCls('12405','Initiative','Kafka Migration')">🚀 Kafka Migration <span class="pill info" style="font-size:10px">ACTIVE</span></div>
+                          <div class="sep"></div>
+                          <div class="opt" onclick="quickCls('12405','BAU','Soporte producción')">⚙️ BAU · Soporte producción</div>
+                          <div class="sep"></div>
+                          <div class="opt" style="color:var(--bad)" onclick="quickCls('12405','Discarded','')">🗑 Descartar (no aplica)</div>
+                        </div>
+                      </div></td>
+                  </tr>
+                  <tr data-cls="Unclassified">
+                    <td><div class="b">#12318 · Ajuste reporte contable</div><div class="sub">Task · 3 pts · parece de otro equipo</div></td>
+                    <td><span class="pill info">Task</span></td><td>3</td><td>Active</td>
+                    <td><span class="pill gray">Sin clasificar</span></td>
+                    <td><div style="display:flex;gap:6px;align-items:center">
+                      <div class="clswrap" id="cw-12318">
+                        <button class="btn pri sm" onclick="toggleDrop('cw-12318')">→ Clasificar ▾</button>
+                        <div class="clsdrop">
+                          <div class="opt" onclick="quickCls('12318','Initiative','Kafka Migration')">🚀 Kafka Migration</div>
+                          <div class="sep"></div>
+                          <div class="opt" onclick="quickCls('12318','BAU','Soporte producción')">⚙️ BAU · Soporte producción</div>
+                          <div class="sep"></div>
+                          <div class="opt" style="color:var(--bad)" onclick="quickCls('12318','Discarded','')">🗑 Descartar (no aplica)</div>
+                        </div>
+                      </div>
+                    </div></td>
+                  </tr>
+                  <!-- Initiative -->
+                  <tr data-cls="Initiative">
+                    <td><div class="b">#12345 · Migración plataforma Kafka</div></td>
+                    <td><span class="pill info">Epic</span></td><td>55</td><td>Active</td>
+                    <td><span class="pill ok">Iniciativa · <i>Kafka Migration</i></span></td>
+                    <td><button class="btn gh sm" onclick="reclassify(this)">Reclasificar</button></td>
+                  </tr>
+                  <tr data-cls="Initiative">
+                    <td><div class="b">#12388 · Conectores legacy AS-400</div></td>
+                    <td><span class="pill info">Feature</span></td><td>34</td><td>Active</td>
+                    <td><span class="pill ok">Iniciativa · <i>Kafka Migration</i></span></td>
+                    <td><button class="btn gh sm" onclick="reclassify(this)">Reclasificar</button></td>
+                  </tr>
+                  <tr data-cls="Initiative">
+                    <td><div class="b">#12350 · Esquemas Avro registry</div></td>
+                    <td><span class="pill info">US</span></td><td>8</td><td>Active</td>
+                    <td><span class="pill ok">Iniciativa · <i>Kafka Migration</i></span></td>
+                    <td><button class="btn gh sm" onclick="reclassify(this)">Reclasificar</button></td>
+                  </tr>
+                  <tr data-cls="Initiative">
+                    <td><div class="b">#12344 · Productor idempotente pagos</div></td>
+                    <td><span class="pill info">US</span></td><td>5</td><td>Active</td>
+                    <td><span class="pill ok">Iniciativa · <i>Kafka Migration</i></span></td>
+                    <td><button class="btn gh sm" onclick="reclassify(this)">Reclasificar</button></td>
+                  </tr>
+                  <tr data-cls="Initiative">
+                    <td><div class="b">#12322 · Migración tópico transacciones</div></td>
+                    <td><span class="pill info">US</span></td><td>8</td><td>Closed</td>
+                    <td><span class="pill ok">Iniciativa · <i>Kafka Migration</i></span></td>
+                    <td><button class="btn gh sm" onclick="reclassify(this)">Reclasificar</button></td>
+                  </tr>
+                  <!-- BAU -->
+                  <tr data-cls="BAU">
+                    <td><div class="b">#12290 · Hotfix reproceso nocturno</div></td>
+                    <td><span class="pill info">Task</span></td><td>2</td><td>Closed</td>
+                    <td><span class="pill warn">BAU · <i>Soporte producción</i></span></td>
+                    <td><button class="btn gh sm" onclick="reclassify(this)">Reclasificar</button></td>
+                  </tr>
+                  <!-- Discarded -->
+                  <tr data-cls="Discarded" style="opacity:.55">
+                    <td><div class="b">#12299 · Spike compresión mensajes</div></td>
+                    <td><span class="pill info">Task</span></td><td>0</td><td>Closed</td>
+                    <td><span class="pill gray">🗑 Descartado</span></td>
+                    <td><button class="btn gh sm" onclick="reclassify(this)">Restaurar</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- modal inline eliminado: clasificación es ahora dropdown inline por fila -->
+            </div>
+          </details><!-- /Clasificar -->
+
+          <details class="accordion" open>
+            <summary><span class="arr">▶</span>Curación por capacidad <span class="count" id="blCurPill" style="background:var(--bad)">3</span><span class="stag">confirma si cada item realmente pertenece a esa persona</span></summary>
+            <div class="sbd" style="padding:14px 17px 6px" id="bl2">
+              <div id="inboxList">
+                <div class="inbox">
+                  <div class="wico">US</div>
+                  <div><h4>#12401 · Consumer group rebalanceo</h4><div class="meta">Para <b>Carlos López</b> · Kafka Migration · 5 pts · ingesta de hoy</div></div>
+                  <div class="acts"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button><button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></div>
+                </div>
+                <div class="inbox">
+                  <div class="wico">T</div>
+                  <div><h4>#12405 · Test de carga tópicos</h4><div class="meta">Para <b>Julián Pérez</b> · Kafka Migration · 2 pts · ingesta de hoy</div></div>
+                  <div class="acts"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button><button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></div>
+                </div>
+                <div class="inbox" style="border-color:#eeddba;background:#fffdf8">
+                  <div class="wico" style="background:var(--warn-bg);color:var(--warn)">!</div>
+                  <div><h4>#12318 · Ajuste reporte contable</h4><div class="meta">Para <b>Carlos López</b> · <b style="color:var(--warn)">de otro equipo</b> · posible error en DevOps</div></div>
+                  <div class="acts"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button><button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></div>
+                </div>
+              </div>
+              <div id="inboxEmpty" class="callout ok hidden" style="margin-bottom:6px"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div>Curación al día. Los confirmados ya alimentan el board.</div></div>
+            </div>
+          </details><!-- /Curación -->
+
+          <details class="accordion">
+            <summary><span class="arr">▶</span>Squad Board<span class="stag" id="boardPend">5 pendientes de curación no aparecen aún</span></summary>
+            <div class="sbd" style="padding:14px 17px" id="bl3">
+              <div class="board">
+                <div class="col">
+                  <h5>Nuevo <span>3</span></h5>
+                  <div class="wi"><div class="id">#12401 · US</div><div class="tt">Consumer group rebalanceo</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+                  <div class="wi"><div class="id">#12402 · US</div><div class="tt">Retry policy DLQ</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+                  <div class="wi"><div class="id">#12405 · Task</div><div class="tt">Test de carga tópicos</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">2</span></div></div>
+                </div>
+                <div class="col">
+                  <h5>Activo <span>4</span></h5>
+                  <div class="wi"><div class="id">#12350 · US</div><div class="tt">Esquemas Avro registry</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+                  <div class="wi"><div class="id">#12344 · US</div><div class="tt">Productor idempotente</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+                  <div class="wi"><div class="id">#12351 · US</div><div class="tt">Migración consumidores</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">8</span></div></div>
+                  <div class="wi"><div class="id">#12360 · Task</div><div class="tt">Runbook operación</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">3</span></div></div>
+                </div>
+                <div class="col">
+                  <h5>Resuelto <span>2</span></h5>
+                  <div class="wi"><div class="id">#12388 · Feature</div><div class="tt">Conectores AS-400</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">38</span></div></div>
+                  <div class="wi"><div class="id">#12331 · US</div><div class="tt">Config TLS brokers</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">5</span></div></div>
+                </div>
+                <div class="col">
+                  <h5>Cerrado <span>3</span></h5>
+                  <div class="wi"><div class="id">#12322 · US</div><div class="tt">Migración tópico transacciones</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+                  <div class="wi"><div class="id">#12310 · US</div><div class="tt">Spike particionamiento</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+                  <div class="wi"><div class="id">#12290 · Task</div><div class="tt">Hotfix reproceso</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">2</span></div></div>
+                </div>
+              </div>
+            </div>
+          </details><!-- /Board -->
+
+        </div><!-- /dt2 -->
+
+        <!-- ---- TAB 3: Equipo ---- -->
+        <div id="dt3" class="hidden">
+          <div class="card">
+            <div class="hd">Equipo · 10 capacidades<span class="tag">Backend Platform</span></div>
+            <div class="bd" style="padding:0 0 6px">
+              <table>
+                <thead><tr><th>Capacidad</th><th>Rol</th><th>Utilización</th><th>Usuario DevOps</th><th>Reporte S16</th></tr></thead>
+                <tbody>
+                  <tr><td class="b">Carlos López</td><td>Backend Dev · Senior</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓</span></td><td><span class="pill ok">80 h ✓</span></td></tr>
+                  <tr style="background:#fff8f8"><td class="b">María González</td><td>Backend Dev · Semi-sr</td><td><span class="pill bad">110%</span></td><td><span class="pill ok">✓</span></td><td><span class="pill ok">82 h ✓</span></td></tr>
+                  <tr><td class="b">Ana Gómez</td><td>QA · Senior</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓</span></td><td><span class="pill gray">por validar</span></td></tr>
+                  <tr><td class="b">Julián Pérez</td><td>Arquitecto · Senior</td><td><span class="pill ok">100%</span></td><td><span class="pill ok">✓</span></td><td><span class="pill ok">78 h ✓</span></td></tr>
+                  <tr style="background:#fffdf8"><td class="b">Laura Ruiz</td><td>QA · Junior</td><td><span class="pill gray">—</span></td><td><span class="pill warn">sin vincular</span></td><td><span class="pill bad">sin reportar</span></td></tr>
+                  <tr><td colspan="5" class="sub" style="text-align:center;padding:9px">+ 5 más · <a href="#" onclick="go('capacidades');return false" style="color:var(--brand);font-weight:700">gestionar todas →</a></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><!-- /dt3 -->
+
+      </template><!-- /legacy -->
+
+      <!-- ================= ADMINISTRACIÓN ================= -->
+      <section class="view" id="v-admin">
+        <div class="head">
+          <div class="kick">Administración</div>
+          <h1>Configuraciones de la Plataforma</h1>
+          <p>Parámetros globales, conexión con DevOps y el job de ingesta que mantiene la base local actualizada.</p>
+        </div>
+
+        <div class="segbtn" style="margin-bottom:15px" id="admTabs">
+          <button class="on" onclick="admTab(this,'adm1')">Calendario de sprints</button>
+          <button onclick="admTab(this,'adm2')">Parámetros del modelo</button>
+          <button onclick="admTab(this,'adm3')">Integración DevOps (backend)</button>
+        </div>
+
+        <div id="adm1">
+          <div class="grid g2">
+            <div class="card">
+              <div class="hd">Calendario de sprints<span class="tag">única fuente de verdad</span></div>
+              <div class="bd">
+                <div class="prow"><div><label class="lab">Semanas por sprint</label><input id="cfgWeeks" type="number" value="2" min="1" max="4" oninput="updCfgOut()"></div><div><label class="lab">Horas por semana</label><input id="cfgHours" type="number" value="40" min="20" max="48" oninput="updCfgOut()"></div></div>
+                <div class="prow"><div><label class="lab">Sprints por quarter</label><input type="number" value="6" min="4" max="8"></div><div><label class="lab">Tolerancia (± h)</label><input id="cfgTol" type="number" value="4" min="0" max="16" oninput="updCfgOut()"></div></div>
+                <div style="font-size:11.5px;color:var(--muted);margin-bottom:12px">Horas por sprint: <b id="cfgOut" style="color:var(--ink)">80 h</b> · rango de reporte aceptado: <b id="cfgRange" style="color:var(--ink)">76–84 h</b></div>
+                <button class="btn pri" onclick="saveCfg()">Guardar</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="hd">¿Qué usa este calendario?</div>
+              <div class="bd">
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Reporte de horas por sprint</div></div></div>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Dashboard de capacidad</div></div></div>
+                <div class="chk done"><div class="ic">✓</div><div><div class="t">Roadmap</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="adm2" class="hidden">
+          <div class="card">
+            <div class="hd">Parámetros del modelo de estimación</div>
+            <div class="bd" style="padding:0 0 10px">
+              <table>
+                <tbody>
+                  <tr><td class="b">Tallas (XS–XL)</td><td class="sub">rangos de complejidad y PM</td><td><span class="pill gray">default</span></td></tr>
+                  <tr><td class="b">Preguntas del scoring</td><td class="sub">30 preguntas · dimensión y peso</td><td><span class="pill gray">default</span></td></tr>
+                  <tr><td class="b">Mix de capacidades</td><td class="sub">roles y SFIA por talla</td><td><span class="pill gray">default</span></td></tr>
+                </tbody>
+              </table>
+              <div style="padding:0 15px"><button class="btn gh sm" onclick="toast('GET/PUT /api/model/parameters')">Editar</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="adm3" class="hidden">
+          <details class="hint" style="margin-bottom:13px"><summary>ℹ ¿Cómo funciona la arquitectura de integración?</summary><div class="hbd"><b>Arquitectura backend-driven:</b> el frontend nunca llama a Azure DevOps. Un <b>job diario</b> del backend baja tableros, work items e identidades a <b>tablas espejo locales</b>, y la plataforma expone endpoints que consumen esa base.</div></details>
+
+          <div class="pipe">
+            <div class="pnode"><b>Azure DevOps</b><span>fuente externa</span></div>
+            <div class="parr">→</div>
+            <div class="pnode hot"><b>Job de ingesta</b><span>backend · diario 02:00</span></div>
+            <div class="parr">→</div>
+            <div class="pnode"><b>Base local (espejo)</b><span>boards · items · identidades</span></div>
+            <div class="parr">→</div>
+            <div class="pnode"><b>API de la plataforma</b><span>lo único que ve el front</span></div>
+          </div>
+
+          <div class="grid g2">
+            <div class="card">
+              <div class="hd">Conexión (usada solo por el backend)</div>
+              <div class="bd">
+                <div class="prow"><div><label class="lab">Organización</label><input value="https://dev.azure.com/tuya" readonly></div><div><label class="lab">Proyecto</label><input value="Ecosistema-Digital" readonly></div></div>
+                <div class="prow"><div><label class="lab">Autenticación</label><select class="fld"><option>Service Principal (Entra ID)</option></select></div><div><label class="lab">Secreto</label><input type="password" value="••••••••••••" readonly></div></div>
+                <button class="btn pri sm" onclick="toast('Conexión verificada por el backend')">Probar conexión</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="hd">Job de ingesta diaria<span class="tag">GET /integrations/azure-devops/ingestion/status</span></div>
+              <div class="bd">
+                <div class="pstat"><span>Última ejecución</span><b id="jobLast">Hoy 02:00 · <span class="pill ok">OK</span></b></div>
+                <div class="pstat"><span>Próxima programada</span><b>Mañana 02:00</b></div>
+                <div class="pstat"><span>Tableros espejados</span><b>14</b></div>
+                <div class="pstat"><span>Work items espejados</span><b>1.240</b></div>
+                <div class="pstat"><span>Identidades espejadas</span><b>238</b></div>
+                <div class="pstat"><span>Novedades última corrida</span><b>+3 nuevos · 2 cambios → curación</b></div>
+                <button class="btn pri sm" style="margin-top:11px" onclick="runJob()">⟳ Ejecutar ingesta ahora</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== Navegación =====
+  var TITLES={home:'Inicio',celulas:'Gestionar Células','celula-det':'Células · Backend Platform',iniciativas:'Gestionar Iniciativas',capacidades:'Gestionar Capacidades',reporte:'Reporte de Horas',admin:'Configuraciones'};
+  function go(v){
+    var navV=(v==='celula-det')?'celulas':v;
+    document.querySelectorAll('.navitem').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===navV)});
+    document.querySelectorAll('.view').forEach(function(s){s.classList.remove('on')});
+    document.getElementById('v-'+v).classList.add('on');
+    document.getElementById('crumbTxt').textContent=TITLES[v]||v;
+    if(v==='celula-det')renderBacklog();  // garantiza que el tab Backlog tenga contenido aunque no se haya activado aún
+    window.scrollTo({top:0});
+  }
+  document.querySelectorAll('.navitem[data-v]').forEach(function(btn){btn.addEventListener('click',function(){go(btn.getAttribute('data-v'))});});
+
+  var tmr;
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tmr);tmr=setTimeout(function(){t.classList.remove('show')},3800);}
+
+  // ===== Datos espejo (base local · alimentada por el job del backend) =====
+  var BOARDS=[
+    {name:'Backend Core',path:'Payments\\Backend',epics:4,items:62,linked:'Backend Platform'},
+    {name:'Fraude',path:'Risk\\Fraude',epics:3,items:41,linked:'Fraude Tarjetas'},
+    {name:'Canales Web',path:'Customer\\Web',epics:2,items:28,linked:'Canales Digitales'},
+    {name:'Pagos Inmediatos',path:'Payments\\Instant',epics:2,items:19,linked:null},
+    {name:'Core Bancario',path:'Payments\\CoreBank',epics:5,items:77,linked:null}
+  ];
+  var USERS=[
+    {name:'Andrea Salazar',upn:'andrea.salazar@tuya.com',items:0,linked:false},
+    {name:'Andrés Mora',upn:'andres.mora@tuya.com',items:6,linked:true},
+    {name:'Laura Ruiz',upn:'l.ruiz@contractor-tuya.com',items:4,linked:false},
+    {name:'Laura Ruiz (interna)',upn:'laura.ruiz@tuya.com',items:0,linked:false},
+    {name:'Carlos López',upn:'carlos.lopez@tuya.com',items:9,linked:true}
+  ];
+
+  // ===== Búsqueda y vinculación de TABLEROS =====
+  var selBoard={nc:null,lb:null};
+  function searchBoards(q,resultId,ctx){
+    var box=document.getElementById(resultId);
+    q=q.trim().toLowerCase();
+    if(q.length<2){box.classList.add('hidden');box.innerHTML='';return;}
+    var hits=BOARDS.filter(function(b){return b.name.toLowerCase().indexOf(q)>=0||b.path.toLowerCase().indexOf(q)>=0;});
+    box.innerHTML=hits.length?'':'<div class="result"><div class="rs" style="padding:4px">Sin resultados en la base local. Verifica la ingesta del job en Administración.</div></div>';
+    hits.forEach(function(b){
+      var row=document.createElement('div');row.className='result';
+      var state=b.linked?'<span class="pill warn" style="margin-left:8px">ya vinculado a '+b.linked+'</span>':'<span class="pill ok" style="margin-left:8px">disponible</span>';
+      row.innerHTML='<div class="ric">📋</div><div><h5>'+b.name+state+'</h5><div class="rs">'+b.path+' · '+b.epics+' epics · '+b.items+' items activos</div></div>'+
+        '<button class="btn '+(b.linked?'gh':'pri')+' sm" '+(b.linked?'disabled':'')+' onclick="pickBoard(\''+b.name+'\',\''+ctx+'\')">Vincular</button>';
+      box.appendChild(row);
+    });
+    box.classList.remove('hidden');
+  }
+  function pickBoard(name,ctx){
+    selBoard[ctx]=name;
+    var b=BOARDS.find(function(x){return x.name===name});
+    var target=document.getElementById(ctx+'Linked');
+    target.innerHTML='<div class="linkedchip"><span>📋 '+b.name+' · '+b.path+'</span><span class="pill ok" style="font-size:10px">seleccionado</span><span class="x" onclick="unpickBoard(\''+ctx+'\')">✕</span></div>';
+    document.getElementById(ctx+'BoardResults').classList.add('hidden');
+    document.getElementById(ctx==='nc'?'ncBoardSearch':'lbBoardSearch').value='';
+    if(ctx==='lb'){
+      b.linked='Pagos Instantáneos';
+      document.getElementById('pagosLink').outerHTML='<span class="pill ok">'+b.name+' ✓</span>';
+      var btn=document.querySelector('#rowPagos button');if(btn)btn.remove();
+      toast('Tablero vinculado a Pagos Instantáneos · PUT /api/squads/{id}/devops-board-link');
+    }else{
+      toast('Tablero seleccionado · se vinculará al crear la célula');
+    }
+  }
+  function unpickBoard(ctx){selBoard[ctx]=null;document.getElementById(ctx+'Linked').innerHTML='';toast('Selección removida');}
+  function unlinkDetail(){
+    document.getElementById('detBoardBox').innerHTML=
+      '<div class="callout warn" style="margin-bottom:11px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01"/></svg><div><b>Sin tablero vinculado.</b> El backlog de esta célula dejará de actualizarse.</div></div>'+
+      '<label class="lab">Buscar tablero por nombre</label>'+
+      '<div class="searchbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input placeholder="Prueba: \'core\'…" oninput="searchBoards(this.value,\'detBoardResults\',\'det\')"></div>'+
+      '<div class="results hidden" id="detBoardResults"></div><div id="detLinked"></div>';
+    toast('Tablero desvinculado · DELETE /api/squads/{id}/devops-board-link');
+  }
+
+  function createCell(){
+    var n=document.getElementById('ncName').value.trim();
+    if(!n){toast('El nombre de la célula es obligatorio');return;}
+    var tribe=document.getElementById('ncTribe').value,crit=document.getElementById('ncCrit').value;
+    var linkTxt=selBoard.nc?'<span class="pill ok">'+selBoard.nc+' ✓</span>':'<span class="pill gray">sin tablero</span>';
+    var act=selBoard.nc?'':'<button class="btn gh sm" onclick="document.getElementById(\'linkBoardCard\').scrollIntoView({behavior:\'smooth\'})">Vincular tablero</button>';
+    var tb=document.querySelector('#cellTable tbody');
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td><span class="sema g"></span></td><td class="b">'+n+'</td><td>'+tribe+'</td><td><span class="pill warn">'+crit+'</span></td><td>0</td><td class="sub">sin iniciativas</td><td>'+linkTxt+'</td><td>'+act+'</td>';
+    tb.appendChild(tr);
+    toast(selBoard.nc?('Célula \''+n+'\' creada con tablero '+selBoard.nc+' vinculado'):('Célula \''+n+'\' creada sin tablero (puedes vincularlo después)'));
+    document.getElementById('ncName').value='';selBoard.nc=null;document.getElementById('ncLinked').innerHTML='';
+  }
+
+  // ===== Búsqueda y vinculación de USUARIOS =====
+  var selUser={np:null,lu:null};
+  function searchUsers(q,resultId,ctx){
+    var box=document.getElementById(resultId);
+    q=q.trim().toLowerCase();
+    if(q.length<2){box.classList.add('hidden');box.innerHTML='';return;}
+    var hits=USERS.filter(function(u){return u.name.toLowerCase().indexOf(q)>=0||u.upn.toLowerCase().indexOf(q)>=0;});
+    box.innerHTML=hits.length?'':'<div class="result"><div class="rs" style="padding:4px">Sin resultados. La base de identidades se actualiza con el job diario.</div></div>';
+    hits.forEach(function(u){
+      var ini=u.name.split(' ').map(function(p){return p[0]}).slice(0,2).join('');
+      var state=u.linked?'<span class="pill warn" style="margin-left:8px">ya vinculado a otra capacidad</span>':'<span class="pill ok" style="margin-left:8px">disponible</span>';
+      var row=document.createElement('div');row.className='result';
+      row.innerHTML='<div class="ric u">'+ini+'</div><div><h5>'+u.name+state+'</h5><div class="rs">'+u.upn+' · '+u.items+' items asignados en DevOps</div></div>'+
+        '<button class="btn '+(u.linked?'gh':'pri')+' sm" '+(u.linked?'disabled':'')+' onclick="pickUser(\''+u.upn+'\',\''+ctx+'\')">Vincular</button>';
+      box.appendChild(row);
+    });
+    box.classList.remove('hidden');
+  }
+  function pickUser(upn,ctx){
+    var u=USERS.find(function(x){return x.upn===upn});
+    selUser[ctx]=u;
+    document.getElementById(ctx+'Linked').innerHTML='<div class="linkedchip"><span>👤 '+u.name+' · '+u.upn+'</span><span class="pill ok" style="font-size:10px">Entra ID ✓</span><span class="x" onclick="unpickUser(\''+ctx+'\')">✕</span></div>';
+    document.getElementById(ctx+'UserResults').classList.add('hidden');
+    document.getElementById(ctx==='np'?'npUserSearch':'luUserSearch').value='';
+    if(ctx==='lu'){
+      u.linked=true;
+      document.getElementById('lauraLink').outerHTML='<span class="pill ok">✓ '+u.upn.split('@')[0]+'</span>';
+      var btn=document.getElementById('lauraBtn');if(btn)btn.remove();
+      document.getElementById('rowLaura').style.background='';
+      var nc=document.getElementById('navCap');nc.classList.add('ok');nc.textContent='✓';
+      document.getElementById('homeUnlinked').textContent='0';
+      toast('Usuario vinculado a Laura Ruiz · sus 4 items pasan a la bandeja de curación');
+    }else{
+      toast('Usuario seleccionado · se vinculará al crear la capacidad');
+    }
+  }
+  function unpickUser(ctx){selUser[ctx]=null;document.getElementById(ctx+'Linked').innerHTML='';toast('Selección removida');}
+
+  function toggleProvider(v){document.getElementById('providerRow').classList.toggle('hidden',v!=='Externo');}
+
+  function createPerson(){
+    var n=document.getElementById('npName').value.trim();
+    if(!n){toast('El nombre es obligatorio');return;}
+    var mod=document.getElementById('npModality').value;
+    var prov=mod==='Externo'?document.getElementById('npProvider').value:'';
+    if(mod==='Externo'&&!prov){toast('Selecciona el proveedor para una capacidad externa');return;}
+    var linkTxt=selUser.np?'<span class="pill ok">✓ '+selUser.np.upn.split('@')[0]+'</span>':'<span class="pill gray">sin vincular</span>';
+    var modTxt=mod==='Externo'?'<span class="pill warn">Externo · '+prov+'</span>':'<span class="pill gray">Interno</span>';
+    var tb=document.querySelector('#capTable tbody');
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td class="b">'+n+'</td><td>Backend Dev · Semi-sr <span style="margin-left:5px">'+modTxt+'</span></td><td>Backend Platform</td><td><span class="pill info">0%</span></td><td>'+linkTxt+'</td><td></td>';
+    tb.insertBefore(tr,tb.lastElementChild);
+    toast(selUser.np?('Capacidad \''+n+'\' ('+mod+(prov?' · '+prov:'')+') creada y vinculada a '+selUser.np.upn):('Capacidad \''+n+'\' ('+mod+(prov?' · '+prov:'')+') creada sin usuario DevOps'));
+    document.getElementById('npName').value='';
+    document.getElementById('npModality').value='Interno';
+    document.getElementById('npProvider').value='';
+    document.getElementById('providerRow').classList.add('hidden');
+    selUser.np=null;document.getElementById('npLinked').innerHTML='';
+  }
+
+  // ===== Config sprint =====
+  var CFG={weeksPerSprint:2,hoursPerWeek:40,toleranceHours:4};
+  function sprintHours(){return CFG.weeksPerSprint*CFG.hoursPerWeek;}
+  function updCfgOut(){
+    var w=parseInt(document.getElementById('cfgWeeks').value)||2;
+    var h=parseInt(document.getElementById('cfgHours').value)||40;
+    var t=parseInt(document.getElementById('cfgTol').value)||4;
+    document.getElementById('cfgOut').textContent=(w*h)+' h';
+    document.getElementById('cfgRange').textContent=(w*h-t)+'–'+(w*h+t)+' h';
+  }
+  function saveCfg(){
+    CFG.weeksPerSprint=parseInt(document.getElementById('cfgWeeks').value)||2;
+    CFG.hoursPerWeek=parseInt(document.getElementById('cfgHours').value)||40;
+    CFG.toleranceHours=parseInt(document.getElementById('cfgTol').value)||4;
+    document.getElementById('repTotalLbl').textContent=sprintHours()+' horas';
+    calcFte();
+    toast('Guardado · valida contra '+sprintHours()+' h por sprint');
+  }
+
+  // ===== FTE =====
+  function calcFte(){
+    var S=sprintHours(),T=CFG.toleranceHours;
+    var inputs=document.querySelectorAll('.fteh'),outs=document.querySelectorAll('.fte-out'),tot=0;
+    inputs.forEach(function(inp,i){var h=parseFloat(inp.value)||0;tot+=h;outs[i].textContent=(h/S).toFixed(2);});
+    document.getElementById('fteTotH').textContent=tot;
+    document.getElementById('fteTotF').textContent=(tot/S).toFixed(2);
+    var msg=document.getElementById('fteMsg');
+    if(tot>=S-T&&tot<=S+T){msg.className='callout ok';msg.innerHTML='<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div>Total dentro del rango ('+(S-T)+'–'+(S+T)+' h). Listo para enviar.</div>';}
+    else{msg.className='callout warn';msg.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Total '+tot+' h:</b> fuera del rango '+(S-T)+'–'+(S+T)+' h.</div>';}
+  }
+
+  // ===== Tabs del detalle de squad (un solo nivel) =====
+  function detTab(btn,id){
+    document.querySelectorAll('#detTabs button').forEach(function(b){b.classList.remove('on')});
+    if(btn)btn.classList.add('on');
+    ['dt1','dt2','dt5','dt3'].forEach(function(x){var el=document.getElementById(x);if(el)el.classList.toggle('hidden',x!==id)});
+    if(id==='dt2')renderBacklog();
+  }
+
+  // renderizar backlog al cargar por si el usuario aterriza directo en esa URL
+  document.addEventListener('DOMContentLoaded',function(){renderBacklog();});
+
+  // ===== Tabs del backlog (dentro de dt2) =====
+  function blTab(btn,id){
+    if(!btn){btn=document.querySelectorAll('#blTabs button')[id==='bl2'?1:(id==='bl3'?2:0)];}
+    btn.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('on')});
+    btn.classList.add('on');
+    ['bl1','bl2','bl3'].forEach(function(x){document.getElementById(x).classList.toggle('hidden',x!==id)});
+  }
+  function admTab(btn,id){
+    if(!btn){btn=document.querySelectorAll('#admTabs button')[id==='adm2'?1:(id==='adm3'?2:0)];}
+    btn.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('on')});
+    btn.classList.add('on');
+    ['adm1','adm2','adm3'].forEach(function(x){document.getElementById(x).classList.toggle('hidden',x!==id)});
+  }
+
+  // ===== Curación =====
+  var curCount=3,boardPendCount=5;
+  function refreshCur(){
+    document.getElementById('navCur').textContent=curCount;
+    var hc=document.getElementById('homeCurCount');if(hc)hc.textContent=curCount;
+    var tp=document.getElementById('curTabPill');
+    var bp=document.getElementById('boardPend');
+    if(bp)bp.textContent='Solo items confirmados · '+boardPendCount+' pendientes de curación no aparecen aún';
+    if(curCount<=0){
+      document.getElementById('inboxEmpty').classList.remove('hidden');
+      if(tp){tp.className='pill ok';tp.textContent='✓';}
+    }else if(tp){tp.className='pill bad';tp.textContent=curCount;}
+  }
+  function curate(btn,ok){
+    var card=btn.closest('.inbox');
+    if(!ok){
+      var reason=prompt('Motivo del rechazo:','Asignado por error en DevOps');
+      if(reason===null)return;
+      toast('Rechazado ("'+reason+'") · trazado, no cuenta en ninguna vista');
+    }else{
+      toast('Confirmado · cuenta en backlog individual, board y FTE real');
+    }
+    card.classList.add('out');
+    setTimeout(function(){card.remove();},280);
+    curCount--;boardPendCount--;refreshCur();
+  }
+
+  // ===== Backlog — lista única con filter tabs =====
+  var ACTIVE_INI='Kafka Migration';
+  var BAUS=[
+    'Soporte y operación en producción',
+    'Mantenimiento correctivo',
+    'Mantenimiento preventivo / mejoras',
+    'Documentación técnica',
+    'Gestión de conocimiento / onboarding',
+    'Ceremonias y reuniones de equipo',
+    'Soporte a otros equipos / consultoría interna',
+    'Seguridad y compliance',
+    'Otro BAU'
+  ];
+  var BL=[
+    {id:12401,t:'Consumer group rebalanceo',ty:'US',pts:5,st:'New',cls:'unc',tgt:null},
+    {id:12402,t:'Retry policy DLQ',ty:'US',pts:3,st:'New',cls:'unc',tgt:null},
+    {id:12350,t:'Esquemas Avro registry',ty:'US',pts:8,st:'Active',cls:'ini',tgt:ACTIVE_INI},
+    {id:12344,t:'Productor idempotente pagos',ty:'US',pts:5,st:'Active',cls:'ini',tgt:ACTIVE_INI},
+    {id:12322,t:'Migración tópico transacciones',ty:'US',pts:8,st:'Closed',cls:'ini',tgt:ACTIVE_INI},
+    {id:12351,t:'Migración consumidores fraude',ty:'US',pts:8,st:'Active',cls:'ini',tgt:ACTIVE_INI},
+    {id:12331,t:'Config TLS brokers',ty:'US',pts:5,st:'Closed',cls:'ini',tgt:ACTIVE_INI},
+    {id:12291,t:'Hotfix reproceso nocturno',ty:'US',pts:2,st:'Closed',cls:'bau',tgt:'Mantenimiento correctivo'},
+    {id:12299,t:'Spike compresión mensajes',ty:'US',pts:0,st:'Closed',cls:'dis',tgt:null},
+    {id:12318,t:'Ajuste reporte contable',ty:'US',pts:3,st:'Active',cls:'unc',tgt:null,warn:'parece de otro equipo'}
+  ];
+  var blQuery='';
+  var blFilter='all';
+  var CLR={unc:'#DC2626',ini:'#16A34A',bau:'#f0b429',dis:'#c3cbe0'};
+
+  function pillLabel(it){
+    if(it.cls==='unc')return 'Clasificar <span class="caret">▾</span>';
+    if(it.cls==='ini')return '● Iniciativa <span class="caret">▾</span>';
+    if(it.cls==='bau')return '● '+it.tgt+' <span class="caret">▾</span>';
+    return '✕ Descartado <span class="caret">▾</span>';
+  }
+
+  function setBlFilter(btn,f){
+    document.querySelectorAll('#blFiltTabs button').forEach(function(b){b.classList.remove('on')});
+    btn.classList.add('on');
+    blFilter=f;
+    renderBacklog();
+  }
+
+  function renderBacklog(){
+    var host=document.getElementById('blGroups');
+    if(!host)return;
+    var q=blQuery.toLowerCase();
+    var items=BL.filter(function(it){
+      return (blFilter==='all'||it.cls===blFilter)&&
+             (q===''||it.t.toLowerCase().indexOf(q)>=0||(''+it.id).indexOf(q)>=0);
+    });
+    host.innerHTML='';
+    if(!items.length){
+      host.innerHTML='<div class="sub" style="padding:16px;text-align:center">Sin items con este filtro</div>';
+      syncCounts();return;
+    }
+    var list=document.createElement('div');list.className='bl-list';
+    items.forEach(function(it){
+      var row=document.createElement('div');row.className='bitem';
+      row.style.borderLeft='3px solid '+(CLR[it.cls]||'#e5e9f2');
+      if(it.cls==='dis')row.style.opacity='.55';
+      var warnHtml=it.warn?'<span style="color:var(--warn);font-weight:700"> · '+it.warn+'</span>':'';
+      row.innerHTML='<div class="tico US">US</div>'+
+        '<div class="bt"><h5>#'+it.id+' · '+it.t+'</h5><div class="bm">'+it.st+warnHtml+'</div></div>'+
+        '<span class="bpts">'+it.pts+' pts</span>'+
+        '<div class="clswrap" id="cw'+it.id+'"><button class="clspill '+it.cls+'" data-blid="'+it.id+'">'+pillLabel(it)+'</button><div class="clsdrop" id="cd'+it.id+'"></div></div>';
+      list.appendChild(row);
+    });
+    host.appendChild(list);
+    syncCounts();
+  }
+
+  function pillMenu(e,rawId){
+    e.stopPropagation();
+    var id=parseInt(rawId,10);
+    var w=document.getElementById('cw'+id);
+    if(!w)return;
+    var wasOpen=w.classList.contains('open');
+    document.querySelectorAll('.clswrap.open').forEach(function(el){el.classList.remove('open')});
+    if(wasOpen)return;
+    var it=BL.find(function(x){return x.id===id});
+    if(!it)return;
+    var d=document.getElementById('cd'+id);
+    var s1=(it.cls==='ini')?' style="background:#f0fdf4"':'';
+    var h='<div class="opt"'+s1+' data-setcls="1" data-id="'+id+'" data-cls="ini" data-tgt="'+ACTIVE_INI+'">';
+    h+='<span style="color:var(--ok)">●</span> Iniciativa · <b>'+ACTIVE_INI+'</b> <span class="pill info" style="font-size:9.5px;margin-left:auto">ACTIVA</span></div>';
+    h+='<div class="sep"></div>';
+    BAUS.forEach(function(b){
+      var sb=(it.cls==='bau'&&it.tgt===b)?' style="background:#fffbeb"':'';
+      h+='<div class="opt"'+sb+' data-setcls="1" data-id="'+id+'" data-cls="bau" data-tgt="'+b+'">';
+      h+='<span style="color:var(--warn)">●</span> BAU · '+b+'</div>';
+    });
+    h+='<div class="sep"></div>';
+    if(it.cls!=='unc')h+='<div class="opt" data-setcls="1" data-id="'+id+'" data-cls="unc" data-tgt="" style="color:var(--muted)">↩ Quitar clasificación</div>';
+    if(it.cls!=='dis')h+='<div class="opt" data-setcls="1" data-id="'+id+'" data-cls="dis" data-tgt="" style="color:var(--bad)">✕ Descartar (no aplica)</div>';
+    else h+='<div class="opt" data-setcls="1" data-id="'+id+'" data-cls="unc" data-tgt="">↩ Restaurar</div>';
+    d.innerHTML=h;
+    w.classList.add('open');
+  }
+
+  function setCls(id,cls,tgt){
+    var it=BL.find(function(x){return x.id===id});
+    it.cls=cls;it.tgt=tgt;
+    document.querySelectorAll('.clswrap.open').forEach(function(el){el.classList.remove('open')});
+    renderBacklog();
+    var msgs={ini:'→ Iniciativa "'+ACTIVE_INI+'"',bau:'→ BAU "'+tgt+'"',dis:'Descartado · no cuenta en board',unc:'Clasificación removida'};
+    toast(msgs[cls]);
+  }
+
+  function blSearch(q){blQuery=q;renderBacklog();}
+
+  function syncCounts(){
+    var counts={all:0,unc:0,ini:0,bau:0,dis:0};
+    BL.forEach(function(x){counts.all++;if(counts[x.cls]!==undefined)counts[x.cls]++;});
+    ['all','unc','ini','bau','dis'].forEach(function(k){
+      var el=document.getElementById('fc-'+k);if(el)el.textContent=counts[k];
+    });
+    var unc=counts.unc;
+    ['blUnclPill','navCur'].forEach(function(id){
+      var el=document.getElementById(id);if(!el)return;
+      if(unc<=0){el.classList.add('ok');el.textContent='✓';}
+      else{el.classList.remove('ok');el.textContent=unc;}
+    });
+  }
+
+  document.addEventListener('click',function(e){
+    var btn=e.target.closest('[data-blid]');
+    if(btn){pillMenu(e,btn.getAttribute('data-blid'));return;}
+    var opt=e.target.closest('[data-setcls]');
+    if(opt){e.stopPropagation();setCls(parseInt(opt.dataset.id,10),opt.dataset.cls,opt.dataset.tgt||null);return;}
+    document.querySelectorAll('.clswrap.open').forEach(function(el){el.classList.remove('open')});
+  });
+
+  function toggleDrop(){}function quickCls(){}function undoCls(){}function filterCls(){}function reclassify(){}
+
+  // ===== Job de ingesta =====
+  function runJob(){
+    document.getElementById('jobLast').innerHTML='Ahora mismo · <span class="pill ok">OK</span>';
+    curCount+=2;boardPendCount+=2;
+    document.getElementById('inboxEmpty').classList.add('hidden');
+    refreshCur();
+    toast('Ingesta ejecutada · +2 novedades con asignación → bandeja de curación');
+  }
+</script>
+</body>
+</html>

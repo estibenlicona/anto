@@ -1,0 +1,85 @@
+{
+  "name": "gestion-capacidad",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./README.md": "./README.md"
+  },
+  "scripts": {
+    "dev": "vite --port 4300",
+    "dev:mock": "cross-env VITE_USE_MOCKS=true vite --port 4300",
+    "dev:auth": "cross-env VITE_USE_MOCKS=true VITE_AUTH_SIMULATOR=true vite --port 4300",
+    "build:dev": "npm run format && vite build --mode development",
+    "build:test": "npm run format && vite build --mode certification",
+    "build:prod": "npm run format && vite build --mode production",
+    "build-storybook": "storybook build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
+    "prettier": "npx prettier src --check",
+    "prettier:fix": "prettier --write ./src",
+    "format": "npm run prettier:fix && npm run lint:fix",
+    "preview": "vite preview --port 5360",
+    "test": "vitest --config vitest.config.ts --coverage",
+    "test:failure": "vitest --config vitest.config.ts --onlyFailures",
+    "storybook": "storybook dev -p 6006",
+    "prepare": "cd ../.. && husky Dev_Resources/gestion-capacidad/.husky"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "2.11.2",
+    "@tuya-ui/components": "file:../tuip/.local-packages/tuya-ui-components-0.1.6.tgz",
+    "@tuya-ui/tokens": "file:../tuip/.local-packages/tuya-ui-tokens-0.1.6.tgz",
+    "axios": "1.19.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-redux": "9.2.0",
+    "react-router-dom": "7.18.2",
+    "reflect-metadata": "0.2.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@module-federation/vite": "1.20.4",
+    "@storybook/addon-docs": "10.5.7",
+    "@storybook/react": "10.5.7",
+    "@storybook/react-vite": "10.5.7",
+    "@tailwindcss/postcss": "4.3.3",
+    "@tailwindcss/vite": "4.3.3",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/jest-dom": "7.0.0",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "26.1.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@types/react-router-dom": "5.3.3",
+    "@typescript-eslint/eslint-plugin": "8.66.0",
+    "@typescript-eslint/parser": "8.66.0",
+    "@vitejs/plugin-react": "6.0.5",
+    "@vitest/coverage-v8": "4.1.10",
+    "cross-env": "^10.1.0",
+    "eslint": "10.8.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.6",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.3",
+    "globals": "17.9.0",
+    "husky": "9.1.7",
+    "jsdom": "30.0.1",
+    "msw": "2.15.0",
+    "postcss": "8.5.26",
+    "prettier": "3.9.6",
+    "storybook": "10.5.7",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.66.0",
+    "vite": "8.2.1",
+    "vitest": "4.1.10"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}

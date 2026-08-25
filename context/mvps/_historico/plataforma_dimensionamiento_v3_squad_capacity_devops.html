@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Dimensionamiento · v3 Squad Capacity + DevOps · Tuya</title>
+<style>
+  :root{
+    --brand:#2F4BD8; --brand2:#5B6BE8; --cyan:#0EA5A4;
+    --ink:#1E293B; --muted:#5b6b80; --line:#e5e9f2;
+    --bg:#f4f6fb; --card:#ffffff; --seg:#eef2f8;
+    --ok:#16A34A; --ok-bg:#e7f6ec; --bad:#DC2626; --bad-bg:#fbe5e5;
+    --warn:#B45309; --warn-bg:#f9efdc;
+    --radius:14px; --shadow:0 1px 3px rgba(20,40,90,.06),0 6px 24px rgba(20,40,90,.05);
+    --font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+  .app{display:flex;min-height:100vh}
+
+  .side{width:256px;flex-shrink:0;background:linear-gradient(180deg,#ffffff,#f4f6fb);border-right:1px solid var(--line);padding:18px 13px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;box-shadow:0 4px 12px rgba(47,75,216,.3)}
+  .brand b{font-size:14.5px;display:block;line-height:1.05}
+  .brand span{font-size:10px;color:var(--muted);letter-spacing:.07em}
+  .navlabel{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#9aa6be;padding:13px 10px 4px;font-weight:700}
+  .navitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;cursor:pointer;color:#42506a;font-weight:600;font-size:13px;border:none;background:none;width:100%;text-align:left;transition:.15s}
+  .navitem svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.9}
+  .navitem:hover{background:#eef1fb;color:var(--brand)}
+  .navitem.on{background:linear-gradient(90deg,#eef1fb,transparent);color:var(--brand)}
+  .navitem.on svg{stroke:var(--brand)}
+  .navitem .badge{margin-left:auto;background:var(--cyan);color:#fff;font-size:8px;font-weight:800;padding:1px 5px;border-radius:8px}
+  .navitem .badge.new{background:var(--brand)}
+  .side-foot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--line);font-size:10.5px;color:var(--muted)}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  .crumb{font-size:12.5px;color:var(--muted)}.crumb b{color:var(--ink)}
+  .topbar .sp{flex:1}
+  .ctx{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .ctx select{font-family:var(--font);font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;color:var(--ink);font-weight:600}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .content{padding:24px 26px 60px;max-width:1240px}
+
+  .head{margin-bottom:20px}
+  .kick{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);font-weight:800;margin-bottom:5px}
+  .head h1{margin:0;font-size:23px;letter-spacing:-.01em}
+  .head p{margin:5px 0 0;color:var(--muted);max-width:80ch}
+
+  .view{display:none;animation:fade .35s}.view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .hd{padding:13px 17px;border-bottom:1px solid var(--line);font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:9px}
+  .card .hd .tag{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+  .card .bd{padding:17px}
+  .grid{display:grid;gap:15px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:960px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .mt{margin-top:15px}
+
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+  .kpi .v{font-size:27px;font-weight:800;letter-spacing:-.02em;margin-top:5px}
+  .kpi .s{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .kpi .ic{position:absolute;top:13px;right:13px;width:29px;height:29px;border-radius:9px;background:#eef1fb;display:flex;align-items:center;justify-content:center}
+  .kpi .ic svg{width:16px;height:16px;stroke:var(--brand);fill:none;stroke-width:2}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.bad{background:var(--bad-bg);color:var(--bad)}
+  .pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.info{background:#e9edfc;color:var(--brand)}
+  .pill.gray{background:#eef1f6;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;padding:8px 11px;border-bottom:1px solid var(--line)}
+  td{padding:9px 11px;border-bottom:1px solid #f1f4fa;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fafbfe}
+  td .b{font-weight:600}.sub{font-size:11px;color:var(--muted)}
+
+  .bar{height:8px;border-radius:6px;background:#eef1f6;overflow:hidden;display:flex}
+  .bar i{display:block;height:100%}
+  .barwrap{display:flex;align-items:center;gap:9px}
+  .barwrap .lbl{font-size:11px;color:var(--muted);min-width:64px;text-align:right}
+
+  .lab{font-size:12px;font-weight:700;color:#42506a;margin-bottom:5px;display:block}
+  input,select.fld,textarea{width:100%;font-family:var(--font);font-size:13px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink)}
+  .prow{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+  .prow.three{grid-template-columns:1fr 1fr 1fr}
+  .btn{border:none;border-radius:10px;padding:9px 16px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
+  .btn.pri{background:var(--brand);color:#fff}.btn.gh{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn.ok{background:var(--ok);color:#fff}.btn.bad{background:#fff;border:1px solid var(--bad);color:var(--bad)}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.pri:hover:not(:disabled){background:#2740b8}
+
+  /* Stepper estimación */
+  .stepper{display:flex;align-items:flex-start;gap:0;margin:6px 0 20px}
+  .step{flex:1;text-align:center;position:relative}
+  .step .ball{width:38px;height:38px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;border:2.5px solid var(--line);background:#fff;color:var(--muted);position:relative;z-index:2}
+  .step.done .ball{background:var(--ok);border-color:var(--ok);color:#fff}
+  .step.current .ball{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 0 0 5px #e9edfc}
+  .step.locked .ball{background:#f1f4fa;color:#9aa6be}
+  .step .t{font-size:13px;font-weight:700}
+  .step .st{font-size:11px;color:var(--muted)}
+  .step::after{content:"";position:absolute;top:19px;left:calc(50% + 26px);width:calc(100% - 52px);height:3px;background:var(--line);border-radius:2px}
+  .step:last-child::after{display:none}
+  .step.done::after{background:var(--ok)}
+  .preq{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+  .preq .it{display:flex;align-items:center;gap:9px;font-size:12.5px}
+  .preq .ck{width:19px;height:19px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+  .preq .ck.y{background:var(--ok-bg);color:var(--ok)}.preq .ck.n{background:#eef1f6;color:#9aa6be}
+
+  .callout{display:flex;gap:11px;padding:13px 15px;border-radius:11px;background:#e9edfc;border:1px solid #d5dcf7;font-size:12.5px;color:#31418f;margin-bottom:15px;align-items:flex-start}
+  .callout.warn{background:var(--warn-bg);border-color:#eeddba;color:var(--warn)}
+  .callout.ok{background:var(--ok-bg);border-color:#c7e8d2;color:#136b36}
+  .callout svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;margin-top:1px}
+
+  /* Diff sync */
+  .diff-row td:first-child{border-left:3px solid transparent}
+  .diff-add td:first-child{border-left-color:var(--ok)}
+  .diff-upd td:first-child{border-left-color:var(--warn)}
+  .diff-del td:first-child{border-left-color:var(--bad)}
+
+  /* Flujo sesiones DevOps */
+  .flowtag{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);background:#e9edfc;padding:4px 11px;border-radius:8px;margin-bottom:10px}
+  .flowtag.s2{color:#0d7d7c;background:#dcf3f3}
+
+  /* Kanban board */
+  .board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:960px){.board{grid-template-columns:1fr 1fr}}
+  .col{background:#f6f8fc;border:1px solid var(--line);border-radius:12px;padding:10px}
+  .col h5{margin:2px 4px 9px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:flex;justify-content:space-between}
+  .wi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:8px;box-shadow:0 1px 2px rgba(20,40,90,.05)}
+  .wi .id{font-size:10px;color:var(--muted);font-weight:700}
+  .wi .tt{font-size:12px;font-weight:600;margin:2px 0 6px;line-height:1.3}
+  .wi .ft{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted)}
+  .wi .pts{margin-left:auto;background:#eef1fb;color:var(--brand);font-weight:800;border-radius:8px;padding:1px 7px;font-size:10px}
+  .mini-av{width:19px;height:19px;border-radius:50%;background:var(--cyan);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800}
+  .mini-av.b{background:var(--brand2)}.mini-av.o{background:#d97706}.mini-av.p{background:#7c3aed}
+
+  .segbtn{display:inline-flex;background:var(--seg);border-radius:9px;padding:3px}
+  .segbtn button{border:none;background:none;padding:5px 12px;border-radius:7px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
+  .segbtn button.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .hidden{display:none!important}
+  .num{width:74px;text-align:center}
+  .totrow{font-weight:800}
+  .toast{position:fixed;bottom:22px;right:22px;background:var(--ink);color:#fff;padding:11px 18px;border-radius:11px;font-size:13px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(10px);transition:.3s;z-index:99}
+  .toast.show{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">◳</div>
+      <div><b>Dimensionamiento TI</b><span>MVP v3 · SQUAD CAPACITY</span></div>
+    </div>
+
+    <div class="navlabel">Capacidad</div>
+    <button class="navitem on" data-v="dash"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3zM13 21h8V8h-8zM13 3v3h8V3zM3 21h8v-4H3z"/></svg>Dashboard Squad<span class="badge">CLAVE</span></button>
+    <button class="navitem" data-v="bau"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>Tareas BAU</button>
+    <button class="navitem" data-v="fte"><svg viewBox="0 0 24 24"><path d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>Reporte FTE por sprint</button>
+
+    <div class="navlabel">Estimación</div>
+    <button class="navitem" data-v="estim"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Estimar iniciativa<span class="badge new">ETAPAS</span></button>
+
+    <div class="navlabel">Azure DevOps</div>
+    <button class="navitem" data-v="tablero"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>Vincular tablero<span class="badge new">2 SESIONES</span></button>
+    <button class="navitem" data-v="mapeo"><svg viewBox="0 0 24 24"><path d="M9 12h6M9 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM21 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>Mapear backlog</button>
+    <button class="navitem" data-v="sync"><svg viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg>Sincronizar</button>
+    <button class="navitem" data-v="identidades"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 11h-6M19 8v6"/></svg>Identidades Entra ID</button>
+
+    <div class="navlabel">Backlog</div>
+    <button class="navitem" data-v="curacion"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Curación por capacidad<span class="badge new">FTE REAL</span></button>
+    <button class="navitem" data-v="individual"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>Backlog individual</button>
+    <button class="navitem" data-v="board"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Squad Board</button>
+
+    <div class="navlabel">Administración</div>
+    <button class="navitem" data-v="admin"><svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Configuración<span class="badge new">SPRINT</span></button>
+    <button class="navitem" data-v="conexion"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>Conexiones</button>
+
+    <div class="side-foot">MVP v3 · datos moqueados<br>Squad: <b>Backend Platform</b></div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Plataforma / <b id="crumbTxt">Dashboard Squad</b></div>
+      <div class="sp"></div>
+      <div class="ctx">
+        Squad:
+        <select><option>Backend Platform</option><option>Fraude Tarjetas</option><option>Canales Digitales</option></select>
+        Sprint:
+        <select><option>Sprint 16 · 2026 (28 jul – 8 ago)</option><option>Sprint 15 · 2026 (14 – 25 jul)</option></select>
+      </div>
+      <div class="avatar">CL</div>
+    </div>
+
+    <div class="content">
+
+      <!-- ================= DASHBOARD SQUAD ================= -->
+      <section class="view on" id="v-dash">
+        <div class="head">
+          <div class="kick">Capacidad · Squad Backend Platform</div>
+          <h1>Dashboard de capacidad</h1>
+          <p>Balance de FTE de la squad: cuánto está destinado a la iniciativa activa (transformación), cuánto a BAU y cuánto queda libre. Compara <b>estimado vs real</b> (del reporte de horas por sprint).</p>
+        </div>
+
+        <div class="grid g4">
+          <div class="kpi"><div class="k">FTE total disponible</div><div class="v">10.0</div><div class="s">10 capacidades · squad completa</div><div class="ic"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></div></div>
+          <div class="kpi"><div class="k">Transformación (real)</div><div class="v" style="color:var(--brand)">3.2</div><div class="s">est. 3.5 · varianza <b style="color:var(--ok)">−0.3 (−8.6%)</b></div><div class="ic"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg></div></div>
+          <div class="kpi"><div class="k">BAU (real)</div><div class="v" style="color:var(--warn)">4.4</div><div class="s">est. 4.2 · varianza <b style="color:var(--warn)">+0.2 (+4.8%)</b></div><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg></div></div>
+          <div class="kpi"><div class="k">FTE libre (real)</div><div class="v" style="color:var(--ok)">2.4</div><div class="s">est. 2.3 · capacidad para nueva demanda</div><div class="ic"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg></div></div>
+        </div>
+
+        <div class="grid g2 mt">
+          <div class="card">
+            <div class="hd">Distribución de capacidad · estimado vs real<span class="tag">Sprint 16</span></div>
+            <div class="bd">
+              <div style="margin-bottom:13px">
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><b>Estimado</b><span class="sub">3.5 transf · 4.2 BAU · 2.3 libre</span></div>
+                <div class="bar" style="height:16px">
+                  <i style="width:35%;background:var(--brand)"></i><i style="width:42%;background:#f0b429"></i><i style="width:23%;background:#8bd7a7"></i>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><b>Real (horas reportadas)</b><span class="sub">3.2 transf · 4.4 BAU · 2.4 libre</span></div>
+                <div class="bar" style="height:16px">
+                  <i style="width:32%;background:var(--brand)"></i><i style="width:44%;background:#f0b429"></i><i style="width:24%;background:#8bd7a7"></i>
+                </div>
+              </div>
+              <div class="legend" style="margin-top:14px">
+                <span><span class="dot" style="background:var(--brand)"></span>Transformación (iniciativa activa)</span>
+                <span><span class="dot" style="background:#f0b429"></span>BAU</span>
+                <span><span class="dot" style="background:#8bd7a7"></span>Libre</span>
+              </div>
+              <div class="callout warn" style="margin:14px 0 0"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>BAU creciendo:</b> el real (44%) supera lo estimado (42%). Revisar tareas operativas con el Chapter Lead.</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hd">Iniciativa activa<span class="tag">1 activa · regla de negocio</span></div>
+            <div class="bd">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <span class="pill info">ACTIVE</span><b style="font-size:15px">Kafka Migration</b>
+                <span class="pill gray">Talla M</span>
+              </div>
+              <table>
+                <tbody>
+                  <tr><td class="sub">Estimación vigente</td><td class="b">Etapa 1 · Temprana (±50-100%)</td></tr>
+                  <tr><td class="sub">FTE estimado (medio)</td><td class="b">3.5 <span class="sub">(opt 1.8 · pes 4.6)</span></td></tr>
+                  <tr><td class="sub">FTE real sprint 16</td><td class="b" style="color:var(--ok)">3.2 (−8.6%)</td></tr>
+                  <tr><td class="sub">Backlog sincronizado</td><td><span class="pill ok">Sí · 34 items · 89 pts</span></td></tr>
+                  <tr><td class="sub">Duración estimada</td><td class="b">8 – 16 PM</td></tr>
+                </tbody>
+              </table>
+              <div class="callout" style="margin:13px 0 0"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg><div>Otras iniciativas de la squad: <b>2 en Evaluation</b> (no consumen FTE de transformación). La estimación no es obligatoria para activar ni asignar.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt">
+          <div class="hd">Detalle por capacidad · estimado vs real (sprint 16)<span class="tag">FTE por persona</span></div>
+          <div class="bd" style="padding:0 0 6px">
+            <table>
+              <thead><tr><th>Capacidad</th><th>Rol</th><th>Transf. est / real</th><th>BAU est / real</th><th>Libre est / real</th><th>Distribución real</th><th>Fuente</th></tr></thead>
+              <tbody>
+                <tr><td><div class="b">Carlos López</div><div class="sub">carlos.lopez@tuya.com</div></td><td>Backend Dev</td><td>0.50 / <b>0.40</b></td><td>0.35 / <b>0.40</b></td><td>0.15 / <b>0.20</b></td><td><div class="bar"><i style="width:40%;background:var(--brand)"></i><i style="width:40%;background:#f0b429"></i><i style="width:20%;background:#8bd7a7"></i></div></td><td><span class="pill gray">Manual</span></td></tr>
+                <tr><td><div class="b">María González</div><div class="sub">maria.gonzalez@tuya.com</div></td><td>Backend Dev</td><td>0.40 / <b>0.35</b></td><td>0.40 / <b>0.50</b></td><td>0.20 / <b>0.15</b></td><td><div class="bar"><i style="width:35%;background:var(--brand)"></i><i style="width:50%;background:#f0b429"></i><i style="width:15%;background:#8bd7a7"></i></div></td><td><span class="pill gray">Manual</span></td></tr>
+                <tr><td><div class="b">Ana Gómez</div><div class="sub">ana.gomez@tuya.com</div></td><td>QA Engineer</td><td>0.30 / <b>0.30</b></td><td>0.45 / <b>0.45</b></td><td>0.25 / <b>0.25</b></td><td><div class="bar"><i style="width:30%;background:var(--brand)"></i><i style="width:45%;background:#f0b429"></i><i style="width:25%;background:#8bd7a7"></i></div></td><td><span class="pill info">DevOps ✓</span></td></tr>
+                <tr><td><div class="b">Julián Pérez</div><div class="sub">julian.perez@tuya.com</div></td><td>Arquitecto</td><td>0.55 / <b>0.50</b></td><td>0.25 / <b>0.30</b></td><td>0.20 / <b>0.20</b></td><td><div class="bar"><i style="width:50%;background:var(--brand)"></i><i style="width:30%;background:#f0b429"></i><i style="width:20%;background:#8bd7a7"></i></div></td><td><span class="pill gray">Manual</span></td></tr>
+                <tr><td colspan="7" class="sub" style="text-align:center;padding:10px">+ 6 capacidades más · <a href="#" style="color:var(--brand);font-weight:700">ver todas</a> · 8/10 reportaron el sprint 16 <span class="pill warn">2 pendientes</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAREAS BAU ================= -->
+      <section class="view" id="v-bau">
+        <div class="head">
+          <div class="kick">Capacidad · Trabajo operativo</div>
+          <h1>Tareas BAU de la squad</h1>
+          <p>Tareas del día a día: soporte, actividades operativas que consumen tiempo pero no aportan a los KRs. Mapeo general: <b>nombre + % dedicación estimada</b>. El real viene del reporte por sprint.</p>
+        </div>
+
+        <div class="card">
+          <div class="hd">Tareas BAU registradas<span class="tag">Suma estimada: 42% <span class="pill ok" style="margin-left:6px">&lt; 100% OK</span></span></div>
+          <div class="bd" style="padding:0">
+            <table id="bauTable">
+              <thead><tr><th>Tarea</th><th>% dedicación estimada</th><th>FTE estimado</th><th>% real (sprint 16)</th><th>Varianza</th><th></th></tr></thead>
+              <tbody>
+                <tr><td><div class="b">Soporte producción</div><div class="sub">Incidentes, monitoreo, on-call</div></td><td>20%</td><td>2.0</td><td>22%</td><td><span class="pill warn">+2 pts</span></td><td><button class="btn gh sm">Editar</button></td></tr>
+                <tr><td><div class="b">Transferencia de conocimiento</div><div class="sub">Onboarding, documentación</div></td><td>15%</td><td>1.5</td><td>14%</td><td><span class="pill ok">−1 pt</span></td><td><button class="btn gh sm">Editar</button></td></tr>
+                <tr><td><div class="b">Ceremonias y reuniones</div><div class="sub">Dailys, refinamientos, comités</div></td><td>7%</td><td>0.7</td><td>8%</td><td><span class="pill warn">+1 pt</span></td><td><button class="btn gh sm">Editar</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card mt">
+          <div class="hd">Nueva tarea BAU</div>
+          <div class="bd">
+            <div class="prow three">
+              <div><label class="lab">Nombre de la tarea</label><input id="bauName" placeholder="Ej: Gestión de vulnerabilidades"></div>
+              <div><label class="lab">% dedicación estimada de la squad</label><input id="bauPct" type="number" placeholder="10" min="1" max="100"></div>
+              <div style="display:flex;align-items:flex-end"><button class="btn pri" onclick="addBau()">Agregar tarea</button></div>
+            </div>
+            <div class="sub">Regla: la suma de % de todas las tareas BAU no debe exceder 100% de la squad.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= FTE TRACKING ================= -->
+      <section class="view" id="v-fte">
+        <div class="head">
+          <div class="kick">Capacidad · FTE real</div>
+          <h1>Reporte de horas por sprint</h1>
+          <p>Cada capacidad reporta sus horas al cierre del sprint: iniciativa activa, tareas BAU y tiempo libre. La duración del sprint es <b>configurable en Administración</b> (actual: 2 semanas × 40 h = <b>80 h</b>). Conversión: <b>FTE = horas / 80</b>.</p>
+        </div>
+
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Mi reporte · Sprint 16 (28 jul – 8 ago 2026)<span class="tag">Carlos López</span></div>
+            <div class="bd">
+              <table>
+                <thead><tr><th>Destino</th><th>Tipo</th><th style="width:90px">Horas</th><th style="width:70px">FTE</th></tr></thead>
+                <tbody>
+                  <tr><td class="b">Kafka Migration</td><td><span class="pill info">Iniciativa</span></td><td><input class="num fteh" type="number" value="32" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.40</td></tr>
+                  <tr><td class="b">Soporte producción</td><td><span class="pill warn">BAU</span></td><td><input class="num fteh" type="number" value="24" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.30</td></tr>
+                  <tr><td class="b">Transferencia conocimiento</td><td><span class="pill warn">BAU</span></td><td><input class="num fteh" type="number" value="8" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.10</td></tr>
+                  <tr><td class="b">Libre / reuniones / otros</td><td><span class="pill gray">Libre</span></td><td><input class="num fteh" type="number" value="16" min="0" max="200" oninput="calcFte()"></td><td class="b fte-out">0.20</td></tr>
+                  <tr class="totrow"><td colspan="2">Total sprint</td><td id="fteTotH" style="padding-left:22px">80</td><td id="fteTotF">1.00</td></tr>
+                </tbody>
+              </table>
+              <div id="fteMsg" class="callout ok" style="margin:13px 0 0"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div>Total dentro del rango esperado (76–84 h por sprint). Listo para enviar.</div></div>
+              <div style="margin-top:13px;display:flex;gap:9px"><button class="btn pri" onclick="toast('Reporte del sprint 16 enviado · pendiente validación del Chapter Lead')">Enviar reporte</button><button class="btn gh">Guardar borrador</button></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hd">Estado de reportes de la squad<span class="tag">Sprint 16</span></div>
+            <div class="bd" style="padding:0 0 6px">
+              <table>
+                <thead><tr><th>Capacidad</th><th>Estado</th><th>Total h</th><th>Validado</th></tr></thead>
+                <tbody>
+                  <tr><td class="b">Carlos López</td><td><span class="pill ok">Enviado</span></td><td>80</td><td><span class="pill ok">Sí</span></td></tr>
+                  <tr><td class="b">María González</td><td><span class="pill ok">Enviado</span></td><td>82</td><td><span class="pill ok">Sí</span></td></tr>
+                  <tr><td class="b">Ana Gómez</td><td><span class="pill ok">Enviado</span></td><td>80</td><td><span class="pill gray">Pendiente</span></td></tr>
+                  <tr><td class="b">Julián Pérez</td><td><span class="pill ok">Enviado</span></td><td>78</td><td><span class="pill ok">Sí</span></td></tr>
+                  <tr><td class="b">Laura Ruiz</td><td><span class="pill bad">Sin reportar</span></td><td>—</td><td>—</td></tr>
+                  <tr><td class="b">Pedro Sanín</td><td><span class="pill bad">Sin reportar</span></td><td>—</td><td>—</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ESTIMACIÓN POR ETAPAS ================= -->
+      <section class="view" id="v-estim">
+        <div class="head">
+          <div class="kick">Estimación secuencial</div>
+          <h1>Estimar iniciativa · Kafka Migration</h1>
+          <p>La estimación se realiza <b>por etapas</b>. Cada etapa reduce la incertidumbre (cono de incertidumbre). La estimación vigente es la de la etapa más avanzada completada.</p>
+        </div>
+
+        <div class="card">
+          <div class="bd">
+            <div class="stepper">
+              <div class="step done">
+                <div class="ball">✓</div>
+                <div class="t">Etapa 1 · Estimación Temprana</div>
+                <div class="st">T-Shirt Sizing · completada 02-ago<br><b>Vigente</b> · rango ±50-100%</div>
+              </div>
+              <div class="step locked">
+                <div class="ball">🔒</div>
+                <div class="t">Etapa 2 · Estimación Refinada</div>
+                <div class="st">COCOMO II · fase futura<br>requiere backlog + arquitectura</div>
+              </div>
+            </div>
+
+            <div class="callout"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg>
+              <div><b>Estás viendo la ESTIMACIÓN TEMPRANA.</b> Este resultado es un rango preliminar basado en complejidad percibida. Se refinará en la Etapa 2 cuando exista backlog y arquitectura definida.</div>
+            </div>
+
+            <div class="grid g2">
+              <div class="card" style="box-shadow:none">
+                <div class="hd">Resultado Etapa 1 · vigente<span class="tag">v2 · re-estimada 02-ago</span></div>
+                <div class="bd">
+                  <div style="display:flex;gap:11px;align-items:center;margin-bottom:12px">
+                    <div style="width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;display:flex;align-items:center;justify-content:center;font-size:23px;font-weight:800">M</div>
+                    <div><b style="font-size:15px">Talla M · Complejidad 45.2%</b><div class="sub">8–16 PM · deadline 6 meses</div></div>
+                  </div>
+                  <table>
+                    <tbody>
+                      <tr><td class="sub">FTE optimista</td><td class="b">1.33</td></tr>
+                      <tr><td class="sub">FTE medio esperado</td><td class="b" style="color:var(--brand)">2.67</td></tr>
+                      <tr><td class="sub">FTE pesimista</td><td class="b">3.50</td></tr>
+                      <tr><td class="sub">Incertidumbre</td><td><span class="pill warn">±50-100%</span></td></tr>
+                    </tbody>
+                  </table>
+                  <div style="margin-top:12px;display:flex;gap:8px">
+                    <button class="btn gh sm" onclick="toast('Se abriría el formulario de scoring (30 preguntas + triaje)')">Re-estimar Etapa 1</button>
+                    <button class="btn gh sm" onclick="toast('Historial: v1 (28-jul, talla S) → v2 (02-ago, talla M)')">Ver historial</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card" style="box-shadow:none">
+                <div class="hd">Etapa 2 · prerequisitos<span class="tag">🔒 Bloqueada</span></div>
+                <div class="bd">
+                  <div class="preq">
+                    <div class="it"><span class="ck y">✓</span><div><b>Etapa 1 completada</b><div class="sub">Estimación temprana vigente (v2)</div></div></div>
+                    <div class="it"><span class="ck y">✓</span><div><b>Backlog definido</b><div class="sub">Marcado automáticamente: 34 items sincronizados desde Azure DevOps con estimación</div></div></div>
+                    <div class="it"><span class="ck n">✕</span><div><b>Arquitectura definida</b><div class="sub">Pendiente · lo marca el Chapter Lead cuando el diseño esté aprobado</div></div></div>
+                  </div>
+                  <div class="callout warn" style="margin:13px 0 0"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                    <div><b>1 de 3 prerequisitos pendiente.</b> Al cumplirse todos, la Etapa 2 (COCOMO II) quedará disponible. Al completarla, reemplazará a la Etapa 1 como estimación vigente y podrás <b>comparar ambas</b>.</div>
+                  </div>
+                  <button class="btn pri sm" style="margin-top:12px" disabled>Iniciar Etapa 2 · Refinada</button>
+                  <span class="sub" style="margin-left:8px">501 · reservado fase futura</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= DEVOPS: CONEXIÓN ================= -->
+      <section class="view" id="v-conexion">
+        <div class="head">
+          <div class="kick">Administración · Conexiones</div>
+          <h1>Conexión con Azure DevOps</h1>
+          <p>Configuración global de la organización (una sola vez, admin). La integración es <b>solo lectura</b>: la plataforma nunca escribe en DevOps.</p>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Configuración</div>
+            <div class="bd">
+              <div class="prow"><div><label class="lab">URL de organización</label><input value="https://dev.azure.com/tuya" readonly></div><div><label class="lab">Proyecto</label><input value="Ecosistema-Digital" readonly></div></div>
+              <div class="prow"><div><label class="lab">Autenticación</label><select class="fld"><option>Service Principal (Entra ID)</option><option>PAT</option></select></div><div><label class="lab">Secreto</label><input type="password" value="••••••••••••" readonly></div></div>
+              <div style="display:flex;gap:9px"><button class="btn pri" onclick="toast('Conexión verificada · acceso de lectura confirmado')">Probar conexión</button><button class="btn gh">Editar</button></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Estado</div>
+            <div class="bd">
+              <table>
+                <tbody>
+                  <tr><td class="sub">Estado</td><td><span class="pill ok"><span class="dot" style="background:var(--ok)"></span>Conectado</span></td></tr>
+                  <tr><td class="sub">Última verificación</td><td class="b">Hoy 09:12</td></tr>
+                  <tr><td class="sub">Permisos</td><td class="b">Work Items (Read) · Boards (Read)</td></tr>
+                  <tr><td class="sub">Dirección</td><td><span class="pill info">Solo lectura · DevOps → Plataforma</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= DEVOPS: VINCULAR TABLERO (2 SESIONES) ================= -->
+      <section class="view" id="v-tablero">
+        <div class="head">
+          <div class="kick">Azure DevOps · Nivel 1</div>
+          <h1>Vincular tablero a la squad</h1>
+          <p>La vinculación se hace en <b>dos sesiones separadas</b>: primero exploras y guardas candidatos (sin efectos); en otro momento decides, revisas el borrador y confirmas.</p>
+        </div>
+
+        <div class="segbtn" style="margin-bottom:15px">
+          <button class="on" onclick="sesTab(this,'ses1')">Sesión 1 · Exploración</button>
+          <button onclick="sesTab(this,'ses2')">Sesión 2 · Decisión</button>
+        </div>
+
+        <!-- SESIÓN 1 -->
+        <div id="ses1">
+          <div class="flowtag">Sesión 1 · Solo consulta · nada se vincula</div>
+          <div class="card">
+            <div class="hd">Tableros disponibles en Ecosistema-Digital<span class="tag">GET /boards</span></div>
+            <div class="bd" style="padding:0">
+              <table>
+                <thead><tr><th>Team / Board</th><th>Area path</th><th>Epics</th><th>Features</th><th>Items activos</th><th>Shortlist</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="b">Backend Core Team</div><div class="sub">Board: Backend Core</div></td><td>Payments\Backend</td><td>4</td><td>11</td><td>62</td><td><button class="btn gh sm" onclick="shortlist(this,'Backend Core Team')">+ Candidato</button></td></tr>
+                  <tr><td><div class="b">Fraude & Riesgo Team</div><div class="sub">Board: Fraude</div></td><td>Risk\Fraude</td><td>3</td><td>8</td><td>41</td><td><button class="btn gh sm" onclick="shortlist(this,'Fraude & Riesgo Team')">+ Candidato</button></td></tr>
+                  <tr><td><div class="b">Plataforma Integraciones</div><div class="sub">Board: Integraciones</div></td><td>Payments\Integra</td><td>2</td><td>6</td><td>28</td><td><button class="btn gh sm" onclick="shortlist(this,'Plataforma Integraciones')">+ Candidato</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card mt">
+            <div class="hd">Shortlist guardada para Backend Platform<span class="tag">se retoma en la Sesión 2</span></div>
+            <div class="bd">
+              <div class="chips" id="shortChips"><span class="sub">Aún no hay candidatos: explora e inspecciona los tableros y agrega los que parezcan corresponder.</span></div>
+              <div style="margin-top:12px"><label class="lab">Notas de exploración</label><textarea rows="2" placeholder="Ej: Backend Core parece el correcto, validar area path con el equipo"></textarea></div>
+              <button class="btn pri sm" style="margin-top:10px" onclick="toast('Shortlist guardada · podrás decidir en otra sesión')">Guardar shortlist</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SESIÓN 2 -->
+        <div id="ses2" class="hidden">
+          <div class="flowtag s2">Sesión 2 · Decisión · borrador → confirmación</div>
+          <div class="grid g2">
+            <div class="card">
+              <div class="hd">1 · Retomar shortlist y crear borrador</div>
+              <div class="bd">
+                <label class="lab">Candidato de la shortlist</label>
+                <select class="fld" id="draftSel"><option>Backend Core Team · Payments\Backend</option><option>Plataforma Integraciones · Payments\Integra</option></select>
+                <button class="btn pri" style="margin-top:12px" onclick="mkDraft()">Crear borrador de vínculo</button>
+                <div class="sub" style="margin-top:8px">El borrador no vincula: muestra qué implica antes de confirmar. Expira en 30 días.</div>
+              </div>
+            </div>
+            <div class="card" id="draftCard" style="opacity:.45">
+              <div class="hd">2 · Revisar y confirmar<span class="tag" id="draftState">sin borrador</span></div>
+              <div class="bd">
+                <div id="draftBody"><span class="sub">Crea un borrador para ver qué implica el vínculo.</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= DEVOPS: MAPEO BACKLOG ================= -->
+      <section class="view" id="v-mapeo">
+        <div class="head">
+          <div class="kick">Azure DevOps · Nivel 2 · Curación del Chapter Lead</div>
+          <h1>Mapear backlog a iniciativa</h1>
+          <p>Del tablero vinculado (<b>Backend Core Team</b>) se descubren Epics y Features. Selecciona manualmente cuáles corresponden a <b>Kafka Migration</b>. Los items hijos quedarán asociados automáticamente.</p>
+        </div>
+
+        <div class="card">
+          <div class="hd">Candidatos descubiertos<span class="tag">GET /backlog-mapping/candidates</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <thead><tr><th></th><th>Work item</th><th>Tipo</th><th>Estado</th><th>Items hijos</th><th>Story points</th><th>Mapeo</th></tr></thead>
+              <tbody>
+                <tr><td><input type="checkbox" checked style="width:16px"></td><td><div class="b">#12345 · Migración plataforma Kafka</div><div class="sub">Modernización mensajería core</div></td><td><span class="pill info">Epic</span></td><td>Active</td><td>22</td><td>55</td><td><span class="pill ok">Esta iniciativa</span></td></tr>
+                <tr><td><input type="checkbox" checked style="width:16px"></td><td><div class="b">#12388 · Conectores legacy AS-400</div><div class="sub">Feature de compatibilidad</div></td><td><span class="pill info">Feature</span></td><td>Active</td><td>12</td><td>34</td><td><span class="pill ok">Esta iniciativa</span></td></tr>
+                <tr><td><input type="checkbox" style="width:16px"></td><td><div class="b">#12290 · Observabilidad plataforma</div><div class="sub">Dashboards y alertas</div></td><td><span class="pill info">Epic</span></td><td>Active</td><td>9</td><td>21</td><td><span class="pill gray">Sin mapear</span></td></tr>
+                <tr><td><input type="checkbox" disabled style="width:16px"></td><td><div class="b">#12101 · Rediseño motor de pagos</div><div class="sub">Ya pertenece a otra iniciativa</div></td><td><span class="pill info">Epic</span></td><td>Active</td><td>18</td><td>44</td><td><span class="pill bad">409 · Payment Engine v2</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div style="margin-top:13px;display:flex;gap:9px;align-items:center">
+          <button class="btn pri" onclick="toast('Mapeo guardado: 2 work items → Kafka Migration · backlogDefined = true (automático)')">Guardar mapeo</button>
+          <span class="sub">Regla: un Epic/Feature solo puede pertenecer a UNA iniciativa. El mapeo marca automáticamente el prerequisito <b>backlogDefined</b> de la Etapa 2.</span>
+        </div>
+      </section>
+
+      <!-- ================= DEVOPS: SYNC ================= -->
+      <section class="view" id="v-sync">
+        <div class="head">
+          <div class="kick">Azure DevOps · Sincronización manual y controlada</div>
+          <h1>Sincronizar backlog · Kafka Migration</h1>
+          <p>Patrón <b>preview → apply</b>: primero calculas el diff contra el snapshot local (no modifica nada), lo revisas y decides aplicar o descartar. Todo queda trazado.</p>
+        </div>
+
+        <div style="display:flex;gap:9px;margin-bottom:15px">
+          <button class="btn pri" id="btnPrev" onclick="doPreview()">Calcular previsualización</button>
+          <button class="btn ok" id="btnApply" onclick="doApply()" disabled>Aplicar cambios</button>
+          <button class="btn bad" id="btnDisc" onclick="doDiscard()" disabled>Descartar</button>
+        </div>
+
+        <div class="card" id="diffCard" style="display:none">
+          <div class="hd">Previsualización del diff<span class="tag" id="diffSummary"></span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <thead><tr><th>Cambio</th><th>Work item</th><th>Tipo</th><th>Detalle</th><th>Pts</th></tr></thead>
+              <tbody>
+                <tr class="diff-row diff-add"><td><span class="pill ok">Nuevo</span></td><td class="b">#12401 · Consumer group rebalanceo</td><td>User Story</td><td>No existe en snapshot local</td><td>5</td></tr>
+                <tr class="diff-row diff-add"><td><span class="pill ok">Nuevo</span></td><td class="b">#12402 · Retry policy DLQ</td><td>User Story</td><td>No existe en snapshot local</td><td>3</td></tr>
+                <tr class="diff-row diff-add"><td><span class="pill ok">Nuevo</span></td><td class="b">#12405 · Test de carga tópicos</td><td>Task</td><td>No existe en snapshot local</td><td>2</td></tr>
+                <tr class="diff-row diff-upd"><td><span class="pill warn">Cambia</span></td><td class="b">#12388 · Conectores legacy AS-400</td><td>Feature</td><td>storyPoints: 34 → <b>38</b> · state: Active → <b>Resolved</b></td><td>38</td></tr>
+                <tr class="diff-row diff-upd"><td><span class="pill warn">Cambia</span></td><td class="b">#12350 · Esquemas Avro registry</td><td>User Story</td><td>assignedTo: María → <b>Laura</b> (volverá a curación)</td><td>8</td></tr>
+                <tr class="diff-row diff-del"><td><span class="pill bad">Eliminado</span></td><td class="b">#12102 · Spike inicial mensajería</td><td>Task</td><td>Ya no existe en DevOps</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card mt">
+          <div class="hd">Historial de sincronizaciones<span class="tag">trazabilidad completa</span></div>
+          <div class="bd" style="padding:0">
+            <table id="syncHist">
+              <thead><tr><th>Fecha</th><th>Solicitó</th><th>Resultado</th><th>Diff aplicado</th></tr></thead>
+              <tbody>
+                <tr><td>29-jul 15:40</td><td>Chapter Lead (CL)</td><td><span class="pill ok">Applied</span></td><td>+8 nuevos · 3 actualizados · 0 eliminados</td></tr>
+                <tr><td>22-jul 10:05</td><td>Chapter Lead (CL)</td><td><span class="pill gray">Discarded</span></td><td>preview descartado (datos de sprint incompleto)</td></tr>
+                <tr><td>15-jul 09:30</td><td>Chapter Lead (CL)</td><td><span class="pill ok">Applied</span></td><td>carga inicial · 26 items · 76 pts</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= DEVOPS: IDENTIDADES ================= -->
+      <section class="view" id="v-identidades">
+        <div class="head">
+          <div class="kick">Azure DevOps · Entra ID</div>
+          <h1>Resolución de identidades</h1>
+          <p>El <b>assignedTo</b> de cada work item se resuelve contra el <b>Entra Object ID</b> de las capacidades (fallback: UPN). Las identidades sin match requieren vinculación manual — el match queda persistido para futuros syncs.</p>
+        </div>
+
+        <div class="grid g3">
+          <div class="kpi"><div class="k">Identidades resueltas</div><div class="v" style="color:var(--ok)">9</div><div class="s">match automático por Entra ID / UPN</div></div>
+          <div class="kpi"><div class="k">Sin match</div><div class="v" style="color:var(--bad)" id="unmatchedCount">2</div><div class="s">requieren vinculación manual</div></div>
+          <div class="kpi"><div class="k">Items afectados</div><div class="v">7</div><div class="s">no aparecen en ninguna capacidad hasta resolver</div></div>
+        </div>
+
+        <div class="card mt">
+          <div class="hd">Identidades sin match<span class="tag">GET /identities/unmatched</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <tbody id="unmatchedRows">
+                <tr><td><div class="b">l.ruiz@contractor-tuya.com</div><div class="sub">Laura Ruiz (DevOps) · sin entraObjectId coincidente</div></td><td>4 items</td><td><select class="fld" style="max-width:230px"><option>Vincular con capacidad…</option><option selected>Laura Ruiz · QA Engineer</option><option>Pedro Sanín · Backend Dev</option></select></td><td><button class="btn pri sm" onclick="matchId(this)">Vincular</button></td></tr>
+                <tr><td><div class="b">svc.integracion@tuya.com</div><div class="sub">Cuenta de servicio · probablemente no es una capacidad</div></td><td>3 items</td><td><select class="fld" style="max-width:230px"><option>Vincular con capacidad…</option><option>Ignorar (cuenta de servicio)</option></select></td><td><button class="btn gh sm" onclick="matchId(this)">Resolver</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CURACIÓN POR CAPACIDAD ================= -->
+      <section class="view" id="v-curacion">
+        <div class="head">
+          <div class="kick">Backlog · Asociación curada</div>
+          <h1>Curación de items por capacidad</h1>
+          <p>El match por Entra ID <b>no asocia automáticamente</b>: deja el item como candidato. Revisa con cada capacidad si el item aplica (¿es realmente su trabajo o un error de DevOps?). <b>Solo lo confirmado</b> cuenta como FTE real y alimenta el Squad Board.</p>
+        </div>
+
+        <div class="callout"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg>
+          <div><b>Flujo:</b> Sync aplica → items quedan <b>PendingReview</b> → revisas con la capacidad → Confirmar (cuenta y alimenta el board) o Rechazar con motivo (trazado, no cuenta). La agregación al Squad Board es automática, sin segunda curación.</div>
+        </div>
+
+        <div class="card">
+          <div class="hd">Pendientes de revisión · <span id="curName" style="color:var(--brand)">Carlos López</span><span class="tag"><span id="pendCount">3</span> candidatos</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <tbody id="pendRows">
+                <tr><td><div class="b">#12401 · Consumer group rebalanceo</div><div class="sub">User Story · Kafka Migration · 5 pts · asignado vía Entra ID</div></td><td><span class="pill gray">PendingReview</span></td><td style="white-space:nowrap"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button> <button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></td></tr>
+                <tr><td><div class="b">#12405 · Test de carga tópicos</div><div class="sub">Task · Kafka Migration · 2 pts · asignado vía Entra ID</div></td><td><span class="pill gray">PendingReview</span></td><td style="white-space:nowrap"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button> <button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></td></tr>
+                <tr><td><div class="b">#12318 · Ajuste reporte contable</div><div class="sub">Task · (otro equipo) · 3 pts · posible error de asignación en DevOps</div></td><td><span class="pill gray">PendingReview</span></td><td style="white-space:nowrap"><button class="btn ok sm" onclick="curate(this,true)">✓ Confirmar</button> <button class="btn bad sm" onclick="curate(this,false)">✕ Rechazar</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card mt">
+          <div class="hd">Confirmados de Carlos · evidencia de FTE real<span class="tag">alimentan Squad Board automáticamente</span></div>
+          <div class="bd" style="padding:0">
+            <table>
+              <tbody id="confRows">
+                <tr><td><div class="b">#12350 · Esquemas Avro registry</div><div class="sub">User Story · 8 pts · confirmado 30-jul por CL</div></td><td><span class="pill ok">Confirmed</span></td></tr>
+                <tr><td><div class="b">#12344 · Productor idempotente pagos</div><div class="sub">User Story · 5 pts · confirmado 30-jul por CL</div></td><td><span class="pill ok">Confirmed</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BACKLOG INDIVIDUAL ================= -->
+      <section class="view" id="v-individual">
+        <div class="head">
+          <div class="kick">Backlog · Visión individual por capacidad</div>
+          <h1>Backlog de Carlos López</h1>
+          <p>Solo items <b>confirmados</b> en la curación (match Entra ID + revisión). Es la evidencia de su trabajo real, cruzable con su reporte de horas por sprint.</p>
+        </div>
+
+        <div class="grid g3">
+          <div class="kpi"><div class="k">Items confirmados</div><div class="v">6</div><div class="s">en 1 iniciativa + BAU</div></div>
+          <div class="kpi"><div class="k">Story points activos</div><div class="v">23</div><div class="s">8 completados este sprint</div></div>
+          <div class="kpi"><div class="k">FTE real sprint 16</div><div class="v">1.00</div><div class="s">80 h reportadas · validadas</div></div>
+        </div>
+
+        <div class="card mt">
+          <div class="hd">Items confirmados por iniciativa</div>
+          <div class="bd" style="padding:0">
+            <table>
+              <thead><tr><th>Work item</th><th>Iniciativa</th><th>Estado DevOps</th><th>Pts</th><th>Curación</th></tr></thead>
+              <tbody>
+                <tr><td class="b">#12350 · Esquemas Avro registry</td><td>Kafka Migration</td><td><span class="pill info">Active</span></td><td>8</td><td><span class="pill ok">Confirmed</span></td></tr>
+                <tr><td class="b">#12344 · Productor idempotente pagos</td><td>Kafka Migration</td><td><span class="pill info">Active</span></td><td>5</td><td><span class="pill ok">Confirmed</span></td></tr>
+                <tr><td class="b">#12322 · Migración tópico transacciones</td><td>Kafka Migration</td><td><span class="pill ok">Closed</span></td><td>8</td><td><span class="pill ok">Confirmed</span></td></tr>
+                <tr><td class="b">#12290 · Hotfix reproceso nocturno</td><td><span class="pill warn">BAU · Soporte</span></td><td><span class="pill ok">Closed</span></td><td>2</td><td><span class="pill ok">Confirmed</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="callout ok mt"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+          <div><b>Cruce con FTE:</b> Carlos reportó 32 h (0.40 FTE) en Kafka Migration el sprint 16; sus items confirmados en DevOps son consistentes con ese reporte.</div>
+        </div>
+      </section>
+
+      <!-- ================= SQUAD BOARD ================= -->
+      <section class="view" id="v-board">
+        <div class="head">
+          <div class="kick">Backlog · Tablero del equipo</div>
+          <h1>Squad Board · Backend Platform</h1>
+          <p>Espejo del backlog sincronizado, alimentado <b>automáticamente</b> por los items curados/confirmados de cada capacidad. Sin segunda curación.</p>
+        </div>
+
+        <div class="board">
+          <div class="col">
+            <h5>Nuevo <span>3</span></h5>
+            <div class="wi"><div class="id">#12401 · US</div><div class="tt">Consumer group rebalanceo</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+            <div class="wi"><div class="id">#12402 · US</div><div class="tt">Retry policy DLQ</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+            <div class="wi"><div class="id">#12405 · Task</div><div class="tt">Test de carga tópicos</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">2</span></div></div>
+          </div>
+          <div class="col">
+            <h5>Activo <span>4</span></h5>
+            <div class="wi"><div class="id">#12350 · US</div><div class="tt">Esquemas Avro registry</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+            <div class="wi"><div class="id">#12344 · US</div><div class="tt">Productor idempotente pagos</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">5</span></div></div>
+            <div class="wi"><div class="id">#12351 · US</div><div class="tt">Migración consumidores fraude</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">8</span></div></div>
+            <div class="wi"><div class="id">#12360 · Task</div><div class="tt">Runbook operación clúster</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">3</span></div></div>
+          </div>
+          <div class="col">
+            <h5>Resuelto <span>2</span></h5>
+            <div class="wi"><div class="id">#12388 · Feature</div><div class="tt">Conectores legacy AS-400</div><div class="ft"><span class="mini-av o">JP</span>Julián<span class="pts">38</span></div></div>
+            <div class="wi"><div class="id">#12331 · US</div><div class="tt">Config TLS brokers</div><div class="ft"><span class="mini-av p">AG</span>Ana<span class="pts">5</span></div></div>
+          </div>
+          <div class="col">
+            <h5>Cerrado <span>3</span></h5>
+            <div class="wi"><div class="id">#12322 · US</div><div class="tt">Migración tópico transacciones</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">8</span></div></div>
+            <div class="wi"><div class="id">#12310 · US</div><div class="tt">Spike particionamiento</div><div class="ft"><span class="mini-av b">MG</span>María<span class="pts">3</span></div></div>
+            <div class="wi"><div class="id">#12290 · Task</div><div class="tt">Hotfix reproceso nocturno</div><div class="ft"><span class="mini-av">CL</span>Carlos<span class="pts">2</span></div></div>
+          </div>
+        </div>
+
+        <div class="grid g3 mt">
+          <div class="kpi"><div class="k">Items en board</div><div class="v">12</div><div class="s">solo curados/confirmados</div></div>
+          <div class="kpi"><div class="k">Story points totales</div><div class="v">90</div><div class="s">13 cerrados este sprint</div></div>
+          <div class="kpi"><div class="k">Pendientes de curación</div><div class="v" style="color:var(--warn)">5</div><div class="s">no aparecen aquí hasta confirmarse</div></div>
+        </div>
+      </section>
+
+      <!-- ================= ADMIN: CONFIGURACIÓN ================= -->
+      <section class="view" id="v-admin">
+        <div class="head">
+          <div class="kick">Administración</div>
+          <h1>Configuración de la plataforma</h1>
+          <p>Módulo de admin: centraliza <b>todas las conexiones y configuraciones</b>. El calendario de sprints es la única fuente de verdad para el reporte de FTE y el roadmap.</p>
+        </div>
+
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Calendario de sprints<span class="tag">PUT /api/admin/settings/sprint-calendar</span></div>
+            <div class="bd">
+              <div class="prow"><div><label class="lab">Semanas por sprint</label><input id="cfgWeeks" type="number" value="2" min="1" max="4" oninput="updCfgOut()"></div><div><label class="lab">Horas por semana</label><input id="cfgHours" type="number" value="40" min="20" max="48" oninput="updCfgOut()"></div></div>
+              <div class="prow"><div><label class="lab">Sprints por quarter</label><input id="cfgSprintsQ" type="number" value="6" min="4" max="8"></div><div><label class="lab">Tolerancia de reporte (± horas)</label><input id="cfgTol" type="number" value="4" min="0" max="16" oninput="updCfgOut()"></div></div>
+              <div class="callout" style="margin-bottom:13px"><svg viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0z"/></svg><div>Horas por sprint resultantes: <b id="cfgOut">80 h</b> · rango aceptado de reporte: <b id="cfgRange">76–84 h</b>. Cambiar la configuración no recalcula sprints ya reportados.</div></div>
+              <button class="btn pri" onclick="saveCfg()">Guardar configuración</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Alcance del módulo admin</div>
+            <div class="bd" style="padding:0">
+              <table>
+                <thead><tr><th>Configuración</th><th>Dónde</th><th>Estado</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="b">Calendario de sprints</div><div class="sub">Duración, horas, tolerancia de reporte</div></td><td>Esta vista</td><td><span class="pill ok">Configurado</span></td></tr>
+                  <tr><td><div class="b">Conexión Azure DevOps</div><div class="sub">Organización, proyecto, credenciales</div></td><td>Conexiones</td><td><span class="pill ok">Conectado</span></td></tr>
+                  <tr><td><div class="b">Parámetros del modelo</div><div class="sub">Tallas, pesos, mix de capacidades, SFIA</div></td><td>API · sección 8</td><td><span class="pill gray">Default</span></td></tr>
+                  <tr><td><div class="b">Identidades Entra ID</div><div class="sub">Matches manuales persistidos</div></td><td>Identidades</td><td><span class="pill warn">2 sin match</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== Navegación =====
+  var TITLES={dash:'Dashboard Squad',bau:'Tareas BAU',fte:'Reporte FTE por sprint',estim:'Estimar iniciativa',conexion:'Administración · Conexiones',tablero:'Vincular tablero',mapeo:'Mapear backlog',sync:'Sincronizar backlog',identidades:'Identidades Entra ID',curacion:'Curación por capacidad',individual:'Backlog individual',board:'Squad Board',admin:'Administración · Configuración'};
+  document.querySelectorAll('.navitem[data-v]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.navitem').forEach(function(b){b.classList.remove('on')});
+      btn.classList.add('on');
+      var v=btn.getAttribute('data-v');
+      document.querySelectorAll('.view').forEach(function(s){s.classList.remove('on')});
+      document.getElementById('v-'+v).classList.add('on');
+      document.getElementById('crumbTxt').textContent=TITLES[v]||v;
+      window.scrollTo({top:0});
+    });
+  });
+
+  // ===== Toast =====
+  var tmr;
+  function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(tmr);tmr=setTimeout(function(){t.classList.remove('show')},3600);}
+
+  // ===== Config sprint (módulo Admin) =====
+  var CFG={weeksPerSprint:2,hoursPerWeek:40,toleranceHours:4};
+  function sprintHours(){return CFG.weeksPerSprint*CFG.hoursPerWeek;}
+  function updCfgOut(){
+    var w=parseInt(document.getElementById('cfgWeeks').value)||2;
+    var h=parseInt(document.getElementById('cfgHours').value)||40;
+    var t=parseInt(document.getElementById('cfgTol').value)||4;
+    var s=w*h;
+    document.getElementById('cfgOut').textContent=s+' h';
+    document.getElementById('cfgRange').textContent=(s-t)+'–'+(s+t)+' h';
+  }
+  function saveCfg(){
+    CFG.weeksPerSprint=parseInt(document.getElementById('cfgWeeks').value)||2;
+    CFG.hoursPerWeek=parseInt(document.getElementById('cfgHours').value)||40;
+    CFG.toleranceHours=parseInt(document.getElementById('cfgTol').value)||4;
+    calcFte();
+    toast('Configuración guardada · el reporte FTE ahora valida contra '+sprintHours()+' h por sprint');
+  }
+
+  // ===== FTE tracking (por sprint, duración configurable) =====
+  function calcFte(){
+    var S=sprintHours(),T=CFG.toleranceHours;
+    var inputs=document.querySelectorAll('.fteh'),outs=document.querySelectorAll('.fte-out'),tot=0;
+    inputs.forEach(function(inp,i){var h=parseFloat(inp.value)||0;tot+=h;outs[i].textContent=(h/S).toFixed(2);});
+    document.getElementById('fteTotH').textContent=tot;
+    document.getElementById('fteTotF').textContent=(tot/S).toFixed(2);
+    var msg=document.getElementById('fteMsg');
+    if(tot>=S-T&&tot<=S+T){msg.className='callout ok';msg.innerHTML='<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div>Total dentro del rango esperado ('+(S-T)+'–'+(S+T)+' h por sprint). Listo para enviar.</div>';}
+    else{msg.className='callout warn';msg.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Total '+tot+' h:</b> fuera del rango '+(S-T)+'–'+(S+T)+' h del sprint. Revisa las horas antes de enviar.</div>';}
+  }
+
+  // ===== BAU =====
+  function addBau(){
+    var n=document.getElementById('bauName').value.trim(),p=document.getElementById('bauPct').value;
+    if(!n||!p){toast('Completa nombre y % de dedicación');return;}
+    var tb=document.querySelector('#bauTable tbody');
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td><div class="b">'+n+'</div><div class="sub">Nueva tarea BAU</div></td><td>'+p+'%</td><td>'+(p/10).toFixed(1)+'</td><td>—</td><td><span class="pill gray">sin datos</span></td><td><button class="btn gh sm">Editar</button></td>';
+    tb.appendChild(tr);
+    document.getElementById('bauName').value='';document.getElementById('bauPct').value='';
+    toast('Tarea BAU agregada · POST /api/squads/{id}/bau-tasks');
+  }
+
+  // ===== Vincular tablero (2 sesiones) =====
+  function sesTab(btn,id){
+    btn.parentElement.querySelectorAll('button').forEach(function(b){b.classList.remove('on')});
+    btn.classList.add('on');
+    document.getElementById('ses1').classList.toggle('hidden',id!=='ses1');
+    document.getElementById('ses2').classList.toggle('hidden',id!=='ses2');
+  }
+  function shortlist(btn,name){
+    var chips=document.getElementById('shortChips');
+    if(chips.querySelector('.sub'))chips.innerHTML='';
+    var c=document.createElement('span');c.className='chip';c.innerHTML=name+' <b>candidato</b>';
+    chips.appendChild(c);btn.disabled=true;btn.textContent='En shortlist';
+    toast('Agregado a shortlist · nada se vincula en la Sesión 1');
+  }
+  function mkDraft(){
+    var sel=document.getElementById('draftSel').value;
+    var card=document.getElementById('draftCard');card.style.opacity=1;
+    document.getElementById('draftState').textContent='Draft · expira en 30 días';
+    document.getElementById('draftBody').innerHTML=
+      '<table><tbody>'+
+      '<tr><td class="sub">Tablero</td><td class="b">'+sel.split(' · ')[0]+'</td></tr>'+
+      '<tr><td class="sub">Area path</td><td class="b">'+sel.split(' · ')[1]+'</td></tr>'+
+      '<tr><td class="sub">Se descubrirán</td><td class="b">4 Epics · 11 Features · 62 items activos</td></tr>'+
+      '<tr><td class="sub">Estado</td><td><span class="pill warn">Draft · aún NO vinculado</span></td></tr>'+
+      '</tbody></table>'+
+      '<div style="margin-top:12px;display:flex;gap:8px">'+
+      '<button class="btn ok sm" onclick="confirmDraft()">Confirmar vínculo</button>'+
+      '<button class="btn bad sm" onclick="toast(\'Borrador descartado\')">Descartar</button></div>';
+    toast('Borrador creado · revisa qué implica antes de confirmar');
+  }
+  function confirmDraft(){
+    document.getElementById('draftState').textContent='Active ✓';
+    document.getElementById('draftBody').innerHTML='<div class="callout ok" style="margin:0"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg><div><b>Vínculo Active.</b> Backend Core Team ↔ Squad Backend Platform. Ya puedes mapear backlog a las iniciativas (Nivel 2).</div></div>';
+    toast('Vínculo confirmado · POST /devops-board-link/confirm');
+  }
+
+  // ===== Sync preview/apply =====
+  function doPreview(){
+    document.getElementById('diffCard').style.display='block';
+    document.getElementById('diffSummary').textContent='3 nuevos · 2 actualizados · 1 eliminado · 89 pts totales';
+    document.getElementById('btnApply').disabled=false;
+    document.getElementById('btnDisc').disabled=false;
+    toast('Preview calculado · nada se ha modificado aún');
+  }
+  function doApply(){
+    var tb=document.querySelector('#syncHist tbody');
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>02-ago 11:20</td><td>Chapter Lead (CL)</td><td><span class="pill ok">Applied</span></td><td>+3 nuevos · 2 actualizados · 1 eliminado</td>';
+    tb.insertBefore(tr,tb.firstChild);
+    document.getElementById('diffCard').style.display='none';
+    document.getElementById('btnApply').disabled=true;document.getElementById('btnDisc').disabled=true;
+    toast('Cambios aplicados · los items con nueva asignación pasan a curación (PendingReview)');
+  }
+  function doDiscard(){
+    document.getElementById('diffCard').style.display='none';
+    document.getElementById('btnApply').disabled=true;document.getElementById('btnDisc').disabled=true;
+    toast('Preview descartado · el snapshot local no cambió');
+  }
+
+  // ===== Identidades =====
+  function matchId(btn){
+    var tr=btn.closest('tr');tr.remove();
+    var c=document.getElementById('unmatchedCount');c.textContent=parseInt(c.textContent)-1;
+    toast('Identidad resuelta · los items se re-resuelven y pasan a curación');
+  }
+
+  // ===== Curación =====
+  function curate(btn,ok){
+    var tr=btn.closest('tr');
+    var title=tr.querySelector('.b').textContent;
+    var pc=document.getElementById('pendCount');
+    if(ok){
+      var conf=document.getElementById('confRows');
+      var nr=document.createElement('tr');
+      nr.innerHTML='<td><div class="b">'+title+'</div><div class="sub">confirmado 02-ago por CL</div></td><td><span class="pill ok">Confirmed</span></td>';
+      conf.insertBefore(nr,conf.firstChild);
+      toast('Confirmado · cuenta como FTE real y alimenta el Squad Board automáticamente');
+    }else{
+      var reason=prompt('Motivo del rechazo:','Asignado por error en DevOps');
+      if(reason===null)return;
+      toast('Rechazado ("'+reason+'") · trazado, no cuenta en ninguna vista');
+    }
+    tr.remove();
+    pc.textContent=parseInt(pc.textContent)-1;
+  }
+</script>
+</body>
+</html>

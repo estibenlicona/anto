@@ -1,0 +1,6 @@
+@import "tailwindcss" source(none);
+@config "./tw.config.js";
+@source "../src/**/*.{ts,tsx}";
+@source "../node_modules/@tuya-ui/components/dist/index.js";
+@source inline("bg-neutral-canvas bg-attention-low-fill bg-attention-medium-fill bg-attention-high-fill text-display text-heading-lg text-heading-md text-body text-body-sm text-label text-metric");
+@import "./tuip-lean.css";

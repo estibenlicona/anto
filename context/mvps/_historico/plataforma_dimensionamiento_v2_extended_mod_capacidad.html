@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Dimensionamiento · TI · Tuya</title>
+<style>
+  :root{
+    --brand:#2F4BD8; --brand2:#5B6BE8; --cyan:#0EA5A4;
+    --ink:#1E293B; --muted:#5b6b80; --line:#e5e9f2;
+    --bg:#f4f6fb; --card:#ffffff; --seg:#eef2f8;
+    --ok:#16A34A; --ok-bg:#e7f6ec; --bad:#DC2626; --bad-bg:#fbe5e5;
+    --warn:#B45309; --warn-bg:#f9efdc;
+    --radius:14px; --shadow:0 1px 3px rgba(20,40,90,.06),0 6px 24px rgba(20,40,90,.05);
+    --font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+  .app{display:flex;min-height:100vh}
+
+  /* ===== Vertical sidebar (como TI) ===== */
+  .side{width:250px;flex-shrink:0;background:linear-gradient(180deg,#ffffff,#f4f6fb);border-right:1px solid var(--line);padding:18px 13px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 16px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;box-shadow:0 4px 12px rgba(47,75,216,.3)}
+  .brand b{font-size:14.5px;display:block;line-height:1.05}
+  .brand span{font-size:10px;color:var(--muted);letter-spacing:.07em}
+  .navlabel{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#9aa6be;padding:13px 10px 4px;font-weight:700}
+  .navitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;cursor:pointer;color:#42506a;font-weight:600;font-size:13px;border:none;background:none;width:100%;text-align:left;transition:.15s}
+  .navitem svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.9}
+  .navitem:hover{background:#eef1fb;color:var(--brand)}
+  .navitem.on{background:linear-gradient(90deg,#eef1fb,transparent);color:var(--brand)}
+  .navitem.on svg{stroke:var(--brand)}
+  .navitem .badge{margin-left:auto;background:var(--cyan);color:#fff;font-size:8px;font-weight:800;padding:1px 5px;border-radius:8px}
+  .subnav{display:flex;flex-direction:column;gap:1px;margin:2px 0 2px 12px;padding-left:10px;border-left:2px solid var(--line)}
+  .subnav .navitem{font-size:12.5px;padding:7px 10px}
+  .side-foot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--line);font-size:10.5px;color:var(--muted)}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{background:#fff;border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  .crumb{font-size:12.5px;color:var(--muted)}.crumb b{color:var(--ink)}
+  .topbar .sp{flex:1}
+  .ctx{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .ctx select{font-family:var(--font);font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;color:var(--ink);font-weight:600}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .content{padding:24px 26px 60px;max-width:1200px}
+
+  .head{margin-bottom:20px}
+  .kick{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);font-weight:800;margin-bottom:5px}
+  .head h1{margin:0;font-size:23px;letter-spacing:-.01em}
+  .head p{margin:5px 0 0;color:var(--muted);max-width:76ch}
+
+  .view{display:none;animation:fade .35s}.view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .hd{padding:13px 17px;border-bottom:1px solid var(--line);font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:9px}
+  .card .hd .tag{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+  .card .bd{padding:17px}
+  .grid{display:grid;gap:15px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:920px){.g2,.g3,.g4{grid-template-columns:1fr}}
+
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+  .kpi .v{font-size:27px;font-weight:800;letter-spacing:-.02em;margin-top:5px}
+  .kpi .s{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .kpi .ic{position:absolute;top:13px;right:13px;width:29px;height:29px;border-radius:9px;background:#eef1fb;display:flex;align-items:center;justify-content:center}
+  .kpi .ic svg{width:16px;height:16px;stroke:var(--brand);fill:none;stroke-width:2}
+
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.bad{background:var(--bad-bg);color:var(--bad)}
+  .pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.info{background:#e9edfc;color:var(--brand)}
+  .pill.gray{background:#eef1f6;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;padding:8px 11px;border-bottom:1px solid var(--line)}
+  td{padding:9px 11px;border-bottom:1px solid #f1f4fa}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fafbfe}
+  td .b{font-weight:600}.sub{font-size:11px;color:var(--muted)}
+
+  .bar{height:8px;border-radius:6px;background:#eef1f6;overflow:hidden;display:flex}
+  .bar i{display:block;height:100%}
+  .barwrap{display:flex;align-items:center;gap:9px}
+  .barwrap .lbl{font-size:11px;color:var(--muted);min-width:52px;text-align:right}
+
+  .segbtn{display:inline-flex;background:var(--seg);border-radius:9px;padding:3px}
+  .segbtn button{border:none;background:none;padding:5px 12px;border-radius:7px;font-family:var(--font);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
+  .segbtn button.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+  .lab{font-size:12px;font-weight:700;color:#42506a;margin-bottom:5px;display:block}
+  input,select.fld{width:100%;font-family:var(--font);font-size:13px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:#fff;color:var(--ink)}
+  .prow{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+  .prow.three{grid-template-columns:1fr 1fr 1fr}
+  .req{color:var(--bad)}
+  .btn{border:none;border-radius:10px;padding:9px 16px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer}
+  .btn.pri{background:var(--brand);color:#fff}.btn.gh{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:#eef1fb;color:var(--brand);border-radius:20px;padding:5px 11px;font-size:12px;font-weight:600}
+  .chip b{background:var(--brand);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px}
+
+  .drop{border:2px dashed #c7d0e6;border-radius:14px;padding:30px;text-align:center;color:var(--muted);background:#fbfcfe}
+  .drop svg{width:34px;height:34px;stroke:var(--brand);fill:none;stroke-width:1.7;margin-bottom:8px}
+
+  .heat .hc{aspect-ratio:1.7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+  .legend{display:flex;gap:14px;font-size:11.5px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .donut{width:110px;height:110px;border-radius:50%;flex-shrink:0}
+  .flag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+
+  .alert{display:flex;gap:11px;padding:12px 14px;border-radius:11px;border:1px solid var(--line);align-items:flex-start;margin-bottom:9px}
+  .alert .ab{width:32px;height:32px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .alert .ab svg{width:16px;height:16px;fill:none;stroke-width:2}
+  .alert h4{margin:0 0 2px;font-size:13px}.alert p{margin:0;font-size:12px;color:var(--muted)}
+  .alert.bad .ab{background:var(--bad-bg)}.alert.bad .ab svg{stroke:var(--bad)}
+  .alert.warn .ab{background:var(--warn-bg)}.alert.warn .ab svg{stroke:var(--warn)}
+  .alert.info .ab{background:#e9edfc}.alert.info .ab svg{stroke:var(--brand)}
+
+  .note{background:#eef1fb;border-radius:11px;padding:12px 14px;font-size:12.5px;color:#3a4a63;display:flex;gap:9px;align-items:flex-start;margin-bottom:18px}
+  .note svg{width:17px;height:17px;stroke:var(--brand);fill:none;stroke-width:2;flex-shrink:0;margin-top:1px}
+  .etabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+  .etab{padding:8px 15px;border-radius:10px;border:1px solid var(--line);background:#fff;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer}
+  .etab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .placeholder{color:var(--muted);padding:44px 20px;text-align:center;border:1px dashed var(--line);border-radius:12px;background:#fbfcfe}
+  .placeholder svg{width:32px;height:32px;stroke:#b6c1d8;fill:none;stroke-width:1.6;margin-bottom:8px}
+
+  /* flow steps for the relation view */
+  .flow{display:flex;align-items:stretch;gap:0;margin-bottom:20px;flex-wrap:wrap}
+  .step{flex:1;min-width:150px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;position:relative}
+  .step .n{width:24px;height:24px;border-radius:50%;background:var(--brand);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .step h4{margin:0 0 3px;font-size:13.5px}
+  .step p{margin:0;font-size:11.5px;color:var(--muted)}
+  .arrow{display:flex;align-items:center;justify-content:center;padding:0 6px;color:#b6c1d8;font-size:20px;flex-shrink:0}
+  @media(max-width:920px){.arrow{transform:rotate(90deg);padding:4px 0}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ===== VERTICAL SIDEBAR ===== -->
+  <aside class="side">
+    <div class="brand"><div class="logo">◈</div><div><b>Dimensionamiento</b><span>CÉLULAS TI · TUYA</span></div></div>
+
+    <div class="navlabel">Módulos de TI</div>
+    <button class="navitem" data-v="ti-evaluar"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Evaluar</button>
+    <button class="navitem" data-v="ti-portafolio"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>Portafolio</button>
+    <button class="navitem" data-v="ti-personas"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>Personas y asignación</button>
+    <button class="navitem" data-v="ti-capacidad"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 16l4-6 4 3 5-8"/></svg>Capacidad y demanda</button>
+    <button class="navitem" data-v="ti-roadmap"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg>Roadmap</button>
+    <button class="navitem" data-v="ti-sfia"><svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>Niveles SFIA</button>
+
+    <div class="navlabel">Capacidades · nuevo</div>
+    <button class="navitem on" data-v="crear"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Crear datos maestros</button>
+    <div class="subnav">
+      <button class="navitem" data-v="crear" data-e="e-persona"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>Personas</button>
+      <button class="navitem" data-v="crear" data-e="e-linea"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20"/></svg>Líneas de expertise</button>
+      <button class="navitem" data-v="crear" data-e="e-celula"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 21V9"/></svg>Células</button>
+      <button class="navitem" data-v="crear" data-e="e-inic"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>Iniciativas</button>
+    </div>
+    <button class="navitem" data-v="relacion"><svg viewBox="0 0 24 24"><path d="M9 12h6M9 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM21 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/></svg>Asignar / relacionar</button>
+    <button class="navitem" data-v="carga"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>Carga masiva</button>
+
+    <div class="navlabel">Asignación y capacidades</div>
+    <button class="navitem" data-v="dash"><svg viewBox="0 0 24 24"><path d="M3 13h8V3H3zM13 21h8V8h-8zM13 3v3h8V3zM3 21h8v-4H3z"/></svg>Dashboard del Experto<span class="badge">CLAVE</span></button>
+    <button class="navitem" data-v="conoc"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conocimientos</button>
+    <button class="navitem" data-v="acciones"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>Rebalanceo y alertas</button>
+
+    <div class="side-foot">Mockup navegable · v3<br>Diseño Organizacional × Tecnología</div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb" id="crumb"><b>Capacidades</b> · Crear datos maestros</div>
+      <div class="sp"></div>
+      <div class="ctx" id="ctxWrap" style="display:none">
+        <span>Contexto:</span>
+        <select id="ctxSel">
+          <option value="mine">Línea · Desarrollo Backend (yo)</option>
+          <option value="line2">Línea · Frontend &amp; Mobile</option>
+          <option value="line3">Línea · Calidad</option>
+          <option value="global">Vista global (solo admin)</option>
+        </select>
+      </div>
+      <div class="avatar">MO</div>
+    </div>
+
+    <div class="content">
+
+      <!-- ========== TI PLACEHOLDERS ========== -->
+      <section class="view" id="v-ti-evaluar"><div class="head"><div class="kick">Módulo de TI</div><h1>Evaluar iniciativa</h1><p>Módulo original de la propuesta de TI. Se conserva sin cambios.</p></div><div class="placeholder"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/></svg><div>Contenido existente de TI · sin cambios</div></div></section>
+      <section class="view" id="v-ti-portafolio"><div class="head"><div class="kick">Módulo de TI</div><h1>Portafolio de iniciativas</h1><p>Módulo original de TI. Se conserva sin cambios.</p></div><div class="placeholder"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3z"/></svg><div>Contenido existente de TI · sin cambios</div></div></section>
+      <section class="view" id="v-ti-personas"><div class="head"><div class="kick">Módulo de TI</div><h1>Personas y asignación</h1><p>Módulo original de TI (Equipo y Asignación, FTE, tallas). Se conserva; el módulo Capacidades lo complementa.</p></div><div class="placeholder"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg><div>Contenido existente de TI · sin cambios</div></div></section>
+      <section class="view" id="v-ti-capacidad"><div class="head"><div class="kick">Módulo de TI</div><h1>Capacidad y demanda</h1><p>Módulo original de TI. Se conserva sin cambios.</p></div><div class="placeholder"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/></svg><div>Contenido existente de TI · sin cambios</div></div></section>
+      <section class="view" id="v-ti-roadmap"><div class="head"><div class="kick">Módulo de TI</div><h1>Roadmap</h1><p>Módulo original de TI. Se conserva sin cambios.</p></div><div class="placeholder"><svg viewBox="0 0 24 24"><path d="M4 6h16"/></svg><div>Contenido existente de TI · sin cambios</div></div></section>
+      <section class="view" id="v-ti-sfia"><div class="head"><div class="kick">Módulo de TI</div><h1>Niveles SFIA</h1><p>Módulo original de TI. Se conserva sin cambios.</p></div><div class="placeholder"><svg viewBox="0 0 24 24"><path d="M12 2l3 7h7"/></svg><div>Contenido existente de TI · sin cambios</div></div></section>
+
+      <!-- ========== CREAR ========== -->
+      <section class="view on" id="v-crear">
+        <div class="head"><div class="kick">Capacidades · Creación de maestros</div><h1>Crear datos maestros</h1><p>Aquí se crean las cuatro entidades base. Cada una tiene su propia pestaña. Una vez creadas, se relacionan entre sí en la sección "Asignar / relacionar".</p></div>
+        <div class="etabs">
+          <button class="etab on" onclick="etab(this,'e-persona')">Personas</button>
+          <button class="etab" onclick="etab(this,'e-linea')">Líneas de expertise</button>
+          <button class="etab" onclick="etab(this,'e-celula')">Células</button>
+          <button class="etab" onclick="etab(this,'e-inic')">Iniciativas</button>
+        </div>
+
+        <div id="e-persona">
+          <div class="grid g2" style="align-items:start">
+            <div class="card"><div class="hd">Crear persona / capacidad</div><div class="bd">
+              <div class="prow"><div><label class="lab">Cédula <span class="req">*</span></label><input value="1.036.884.221"></div><div><label class="lab">Nombre <span class="req">*</span></label><input value="Ana Gómez"></div></div>
+              <div class="prow"><div><label class="lab">Cargo <span class="req">*</span></label><select class="fld"><option>Desarrollador</option><option>Ingeniero QA</option><option>Especialista TI</option></select></div><div><label class="lab">Rol <span class="req">*</span></label><select class="fld"><option>Software Developer</option><option>QA / Automatización</option></select></div></div>
+              <div class="prow three"><div><label class="lab">Seniority <span class="req">*</span></label><select class="fld"><option>Senior</option><option>Semi-senior</option><option>Junior</option></select></div><div><label class="lab">Modalidad</label><select class="fld"><option>Interno</option><option>Externo</option></select></div><div><label class="lab">Antigüedad</label><input value="2021-03-15"></div></div>
+              <div class="prow"><div><label class="lab">Línea de expertise <span class="req">*</span></label><select class="fld"><option>Desarrollo Backend</option><option>Frontend &amp; Mobile</option><option>Calidad</option></select></div><div><label class="lab">Costo mensual</label><input value="$7.900.000"></div></div>
+              <label class="lab">Conocimientos técnicos y nivel</label>
+              <div class="chips"><span class="chip">Java <b>4</b></span><span class="chip">Spring Boot <b>4</b></span><span class="chip">SQL <b>3</b></span><span class="chip">AWS <b>2</b></span><span class="chip" style="background:#fff;border:1px dashed #c7d0e6;color:var(--muted)">+ agregar</span></div>
+              <div style="margin-top:17px;display:flex;gap:10px"><button class="btn pri">Guardar persona</button><button class="btn gh">Cancelar</button></div>
+            </div></div>
+            <div>
+              <div class="note"><svg viewBox="0 0 24 24"><path d="M12 8v4M12 16h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg><div>La <b>cédula</b> es única. Conocimientos con nivel y costo alimentan el dashboard, los planes de desarrollo y el análisis salarial.</div></div>
+              <div class="card"><div class="hd">Personas de mi línea <span class="tag">18</span></div><div class="bd" style="padding:0"><table><thead><tr><th>Persona</th><th>Seniority</th><th>Dedic.</th></tr></thead><tbody>
+                <tr><td><div class="b">Ana Gómez</div><div class="sub">Software Developer · Interno</div></td><td><span class="pill info">Senior</span></td><td>100%</td></tr>
+                <tr><td><div class="b">Carlos Méndez</div><div class="sub">Software Developer · Interno</div></td><td><span class="pill info">Semi-senior</span></td><td>100%</td></tr>
+                <tr><td><div class="b">Julián Ríos</div><div class="sub">Software Developer · Externo</div></td><td><span class="pill gray">Senior</span></td><td><span class="pill warn">120%</span></td></tr>
+              </tbody></table></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="e-linea" style="display:none"><div class="grid g2" style="align-items:start">
+          <div class="card"><div class="hd">Crear línea de expertise</div><div class="bd">
+            <div class="prow" style="grid-template-columns:1fr"><div><label class="lab">Nombre de la línea <span class="req">*</span></label><input value="Desarrollo Backend &amp; AS-400"></div></div>
+            <div class="prow" style="grid-template-columns:1fr"><div><label class="lab">Experto de Línea responsable <span class="req">*</span></label><select class="fld"><option>Melissa Ortiz</option><option>Andrés Zuluaga</option><option>Beatriz Cano</option></select></div></div>
+            <div class="prow" style="grid-template-columns:1fr"><div><label class="lab">Descripción</label><input value="Servicios core, AS-400 y microservicios backend"></div></div>
+            <button class="btn pri" style="margin-top:6px">Guardar línea</button>
+          </div></div>
+          <div class="card"><div class="hd">Líneas creadas</div><div class="bd" style="padding:0"><table><thead><tr><th>Línea</th><th>Experto</th><th>Capac.</th></tr></thead><tbody>
+            <tr><td class="b">Desarrollo Backend &amp; AS-400</td><td>Melissa Ortiz</td><td>19</td></tr>
+            <tr><td class="b">Frontend, FullStack &amp; Moderno</td><td>Andrés Zuluaga</td><td>19</td></tr>
+            <tr><td class="b">Calidad</td><td>Beatriz Cano</td><td>21</td></tr>
+          </tbody></table></div></div>
+        </div></div>
+
+        <div id="e-celula" style="display:none"><div class="grid g2" style="align-items:start">
+          <div class="card"><div class="hd">Crear célula</div><div class="bd">
+            <div class="prow" style="grid-template-columns:1fr"><div><label class="lab">Nombre de la célula <span class="req">*</span></label><input value="Motor antifraude de tarjetas"></div></div>
+            <div class="prow"><div><label class="lab">Criticidad <span class="req">*</span></label><select class="fld"><option>Crítica / muy alta</option><option>Alta</option><option>Media</option><option>Baja</option></select></div><div><label class="lab">Tribu / dominio</label><input value="Riesgo &amp; Fraude"></div></div>
+            <div class="note" style="margin-top:6px"><svg viewBox="0 0 24 24"><path d="M12 8v4M12 16h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg><div>La <b>criticidad</b> es clave: el dashboard la cruza con el seniority y el costo para evaluar concordancia.</div></div>
+            <button class="btn pri">Guardar célula</button>
+          </div></div>
+          <div class="card"><div class="hd">Células creadas</div><div class="bd" style="padding:0"><table><thead><tr><th>Célula</th><th>Criticidad</th><th>Inic.</th></tr></thead><tbody>
+            <tr><td class="b">Motor antifraude de tarjetas</td><td><span class="pill bad">Crítica</span></td><td>3</td></tr>
+            <tr><td class="b">Originación digital de crédito</td><td><span class="pill warn">Alta</span></td><td>2</td></tr>
+            <tr><td class="b">Pago con QR en App</td><td><span class="pill info">Media</span></td><td>2</td></tr>
+            <tr><td class="b">Reportes regulatorios</td><td><span class="pill gray">Baja</span></td><td>1</td></tr>
+          </tbody></table></div></div>
+        </div></div>
+
+        <div id="e-inic" style="display:none"><div class="grid g2" style="align-items:start">
+          <div class="card"><div class="hd">Crear iniciativa</div><div class="bd">
+            <div class="prow" style="grid-template-columns:1fr"><div><label class="lab">Nombre de la iniciativa <span class="req">*</span></label><input value="Reentrenamiento del modelo antifraude"></div></div>
+            <div class="prow"><div><label class="lab">Célula <span class="req">*</span></label><select class="fld"><option>Motor antifraude de tarjetas</option><option>Originación digital de crédito</option><option>Pago con QR en App</option></select></div><div><label class="lab">Tipo</label><select class="fld"><option>Transformación</option><option>BAU / Operación</option><option>Mixta</option></select></div></div>
+            <div class="note" style="margin-top:6px"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg><div>La iniciativa <b>siempre pertenece a una célula</b>. Aquí es donde luego se asignan las personas con su % de dedicación.</div></div>
+            <button class="btn pri">Guardar iniciativa</button>
+          </div></div>
+          <div class="card"><div class="hd">Iniciativas por célula</div><div class="bd" style="padding:0"><table><thead><tr><th>Iniciativa</th><th>Célula</th><th>Tipo</th></tr></thead><tbody>
+            <tr><td class="b">Reentrenamiento del modelo</td><td>Motor antifraude</td><td><span class="pill info">Transf.</span></td></tr>
+            <tr><td class="b">Nuevo flujo de pagos</td><td>Pago con QR</td><td><span class="pill info">Transf.</span></td></tr>
+            <tr><td class="b">Mantenimiento core AS-400</td><td>Reportes regulatorios</td><td><span class="pill warn">BAU</span></td></tr>
+          </tbody></table></div></div>
+        </div></div>
+      </section>
+
+      <!-- ========== RELACIONAR ========== -->
+      <section class="view" id="v-relacion">
+        <div class="head"><div class="kick">Capacidades · Creación de maestros</div><h1>Asignar y relacionar</h1><p>Aquí se conectan las entidades: se asigna una persona a una o varias iniciativas (dentro de una o varias células) con su % de dedicación, y se reparte ese % entre BAU y transformación.</p></div>
+
+        <div class="flow">
+          <div class="step"><div class="n">1</div><h4>Persona</h4><p>Ana Gómez · Senior · Backend</p></div>
+          <div class="arrow">→</div>
+          <div class="step"><div class="n">2</div><h4>Iniciativa</h4><p>Se elige la iniciativa (que ya pertenece a una célula)</p></div>
+          <div class="arrow">→</div>
+          <div class="step"><div class="n">3</div><h4>% Dedicación</h4><p>Cuánto de su tiempo, repartido en BAU / transformación</p></div>
+          <div class="arrow">→</div>
+          <div class="step"><div class="n">4</div><h4>Queda relacionada</h4><p>Persona ↔ iniciativa ↔ célula ↔ línea</p></div>
+        </div>
+
+        <div class="grid g2" style="align-items:start">
+          <div class="card"><div class="hd">Nueva asignación</div><div class="bd">
+            <div class="prow" style="grid-template-columns:1fr"><div><label class="lab">Persona <span class="req">*</span></label><select class="fld"><option>Ana Gómez</option><option>Carlos Méndez</option><option>Julián Ríos</option></select></div></div>
+            <div class="prow"><div><label class="lab">Célula <span class="req">*</span></label><select class="fld" id="relCel"><option>Motor antifraude</option><option>Pago con QR</option></select></div><div><label class="lab">Iniciativa <span class="req">*</span></label><select class="fld"><option>Reentrenamiento del modelo</option><option>Detección en tiempo real</option></select></div></div>
+            <label class="lab">% de dedicación en esta iniciativa <span class="req">*</span></label>
+            <input value="60%" style="margin-bottom:13px">
+            <label class="lab">Reparto de ese 60%</label>
+            <div style="display:flex;gap:12px">
+              <div style="flex:1"><div class="sub" style="margin-bottom:4px">BAU · operación</div><input value="10%"></div>
+              <div style="flex:1"><div class="sub" style="margin-bottom:4px">Transformación</div><input value="50%"></div>
+            </div>
+            <div class="note" style="margin-top:14px"><svg viewBox="0 0 24 24"><path d="M12 8v4M12 16h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg><div>La suma BAU + Transformación debe igualar el % de dedicación de la asignación (aquí, 60%).</div></div>
+            <button class="btn pri">Guardar asignación</button>
+          </div></div>
+          <div class="card"><div class="hd">Asignaciones de Ana Gómez <span class="tag">total 100%</span></div><div class="bd" style="padding:0"><table><thead><tr><th>Iniciativa · Célula</th><th>Dedic.</th><th>BAU / Transf.</th></tr></thead><tbody>
+            <tr><td><div class="b">Reentrenamiento del modelo</div><div class="sub">Motor antifraude · Crítica</div></td><td>60%</td><td><span class="pill info">10 / 50</span></td></tr>
+            <tr><td><div class="b">Detección en tiempo real</div><div class="sub">Motor antifraude · Crítica</div></td><td>40%</td><td><span class="pill info">5 / 35</span></td></tr>
+            <tr><td colspan="3" style="text-align:right;color:var(--muted);font-size:11.5px">Dedicación total: <b style="color:var(--ink)">100%</b> · sin sobreasignación</td></tr>
+          </tbody></table></div></div>
+        </div>
+      </section>
+
+      <!-- ========== CARGA MASIVA ========== -->
+      <section class="view" id="v-carga">
+        <div class="head"><div class="kick">Capacidades · Creación de maestros</div><h1>Carga masiva</h1><p>Pobla la plataforma con la base de capacidades que ya existe. Descarga la plantilla, cárgala y revisa la validación antes de confirmar.</p></div>
+        <div class="grid g2" style="align-items:start">
+          <div class="card"><div class="hd">Cargar archivo</div><div class="bd">
+            <div class="segbtn" style="margin-bottom:16px"><button class="on">Personas</button><button>Células</button><button>Iniciativas</button><button>Asignaciones</button></div>
+            <div class="drop"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg><div style="font-weight:700;color:var(--ink)">Arrastra tu Excel o archivo plano</div><div style="font-size:12px;margin-top:3px">.xlsx, .csv</div></div>
+            <div style="display:flex;gap:10px;margin-top:16px"><button class="btn pri">Validar carga</button><button class="btn gh">Descargar plantilla</button></div>
+          </div></div>
+          <div class="card"><div class="hd">Resultado de validación <span class="tag">base_capacidades.xlsx</span></div><div class="bd">
+            <div class="grid g3" style="margin-bottom:16px"><div style="text-align:center"><div style="font-size:24px;font-weight:800;color:var(--ok)">124</div><div class="sub">válidas</div></div><div style="text-align:center"><div style="font-size:24px;font-weight:800;color:var(--warn)">5</div><div class="sub">a actualizar</div></div><div style="text-align:center"><div style="font-size:24px;font-weight:800;color:var(--bad)">3</div><div class="sub">con error</div></div></div>
+            <table><thead><tr><th>Fila</th><th>Motivo</th></tr></thead><tbody>
+              <tr><td>14</td><td><span class="flag" style="color:var(--bad)">Cédula duplicada</span></td></tr>
+              <tr><td>28</td><td><span class="flag" style="color:var(--bad)">Falta seniority (obligatorio)</span></td></tr>
+              <tr><td>63</td><td><span class="flag" style="color:var(--bad)">Línea inexistente en catálogo</span></td></tr>
+            </tbody></table>
+            <div style="display:flex;gap:10px;margin-top:16px"><button class="btn pri">Confirmar 124</button><button class="btn gh">Descargar errores</button></div>
+          </div></div>
+        </div>
+      </section>
+
+      <!-- ========== DASHBOARD DEL EXPERTO ========== -->
+      <section class="view" id="v-dash">
+        <div class="head"><div class="kick">Asignación y capacidades</div><h1>Dashboard del Experto de Línea</h1><p>La vista completa para tomar decisiones: indicadores clave, costo y dedicación por célula, BAU/transformación, capacidades por seniority, costo vs. seniority, costo por proveedor y alertas.</p></div>
+
+        <!-- KPIs -->
+        <div class="grid g4" style="margin-bottom:15px">
+          <div class="kpi"><div class="k">Capacidades</div><div class="v">18</div><div class="s">15 internas · 3 externas</div><div class="ic"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></div></div>
+          <div class="kpi"><div class="k">Costo mensual</div><div class="v" style="font-size:22px">$142M</div><div class="s">$1.704M anual</div><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
+          <div class="kpi"><div class="k">Transformación</div><div class="v">62<span style="font-size:15px;color:var(--muted)">%</span></div><div class="s">38% en BAU</div><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 16l4-6 4 3 5-8"/></svg></div></div>
+          <div class="kpi"><div class="k">Capacidad disponible</div><div class="v" style="color:var(--ok)">2.4</div><div class="s">FTE libre para asignar</div><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg></div></div>
+        </div>
+
+        <!-- costo y dedicación por célula + BAU/transf -->
+        <div class="grid g2" style="align-items:start;margin-bottom:15px">
+          <div class="card"><div class="hd">Costo y dedicación por célula</div><div class="bd" style="padding:0"><table><thead><tr><th>Célula</th><th>Dedicación (FTE)</th><th>Costo/mes</th></tr></thead><tbody>
+            <tr><td><div class="b">Motor antifraude</div><div class="sub"><span class="pill bad" style="padding:1px 7px">Crítica</span></div></td><td><div class="barwrap"><div class="bar" style="width:90px"><i style="width:100%;background:var(--brand)"></i></div><span class="lbl">6.0</span></div></td><td class="b">$58M</td></tr>
+            <tr><td><div class="b">Originación de crédito</div><div class="sub"><span class="pill warn" style="padding:1px 7px">Alta</span></div></td><td><div class="barwrap"><div class="bar" style="width:90px"><i style="width:83%;background:var(--brand)"></i></div><span class="lbl">5.0</span></div></td><td class="b">$41M</td></tr>
+            <tr><td><div class="b">Pago con QR</div><div class="sub"><span class="pill info" style="padding:1px 7px">Media</span></div></td><td><div class="barwrap"><div class="bar" style="width:90px"><i style="width:67%;background:var(--brand)"></i></div><span class="lbl">4.0</span></div></td><td class="b">$33M</td></tr>
+            <tr><td><div class="b">Reportes regulatorios</div><div class="sub"><span class="pill gray" style="padding:1px 7px">Baja</span></div></td><td><div class="barwrap"><div class="bar" style="width:90px"><i style="width:50%;background:var(--brand)"></i></div><span class="lbl">3.0</span></div></td><td class="b">$29M</td></tr>
+          </tbody></table></div></div>
+          <div class="card"><div class="hd">BAU vs. Transformación</div><div class="bd">
+            <div style="display:flex;gap:20px;align-items:center">
+              <div class="donut" id="donut1"></div>
+              <div style="flex:1">
+                <div class="barwrap" style="margin-bottom:12px"><div style="flex:1"><div class="sub" style="margin-bottom:3px">Transformación · valor nuevo</div><div class="bar"><i style="width:62%;background:var(--brand)"></i></div></div><div class="lbl">62%</div></div>
+                <div class="barwrap"><div style="flex:1"><div class="sub" style="margin-bottom:3px">BAU · sostiene operación</div><div class="bar"><i style="width:38%;background:var(--warn)"></i></div></div><div class="lbl">38%</div></div>
+                <p class="sub" style="margin-top:14px">Meta del área: transformación &gt; 65%. Esta línea está cerca.</p>
+              </div>
+            </div>
+          </div></div>
+        </div>
+
+        <!-- seniority + costo vs seniority -->
+        <div class="grid g2" style="align-items:start;margin-bottom:15px">
+          <div class="card"><div class="hd">Capacidades por seniority</div><div class="bd">
+            <div class="barwrap" style="margin-bottom:11px"><div style="flex:1"><div class="sub" style="margin-bottom:3px">Senior</div><div class="bar"><i style="width:44%;background:var(--brand)"></i></div></div><div class="lbl">8</div></div>
+            <div class="barwrap" style="margin-bottom:11px"><div style="flex:1"><div class="sub" style="margin-bottom:3px">Semi-senior</div><div class="bar"><i style="width:33%;background:var(--brand2)"></i></div></div><div class="lbl">6</div></div>
+            <div class="barwrap"><div style="flex:1"><div class="sub" style="margin-bottom:3px">Junior</div><div class="bar"><i style="width:22%;background:var(--cyan)"></i></div></div><div class="lbl">4</div></div>
+          </div></div>
+          <div class="card"><div class="hd">Costo vs. seniority</div><div class="bd"><div id="scatter"></div><div class="legend"><span><span class="dot" style="background:var(--ok)"></span>En rango de referencia</span><span><span class="dot" style="background:var(--bad)"></span>Sobrecosto para su nivel</span></div></div></div>
+        </div>
+
+        <!-- proveedor + concordancia -->
+        <div class="grid g2" style="align-items:start;margin-bottom:15px">
+          <div class="card"><div class="hd">Costo promedio por proveedor y seniority</div><div class="bd" style="padding:0"><table><thead><tr><th>Proveedor</th><th>Seniority</th><th>Costo prom./mes</th></tr></thead><tbody>
+            <tr><td class="b">Interno Tuya</td><td>Senior</td><td>$8.1M</td></tr>
+            <tr><td class="b">Interno Tuya</td><td>Semi-senior</td><td>$5.9M</td></tr>
+            <tr><td class="b">Proveedor Alfa</td><td>Senior</td><td><span style="color:var(--bad);font-weight:700">$12.4M</span></td></tr>
+            <tr><td class="b">Proveedor Beta</td><td>Semi-senior</td><td>$7.2M</td></tr>
+          </tbody></table></div></div>
+          <div class="card"><div class="hd">Concordancia seniority · costo · criticidad</div><div class="bd" style="padding:0"><table><thead><tr><th>Célula</th><th>Criticidad</th><th>Concordancia</th></tr></thead><tbody>
+            <tr><td class="b">Motor antifraude</td><td><span class="pill bad">Crítica</span></td><td><span class="flag" style="color:var(--ok)"><span class="dot" style="background:var(--ok)"></span>Concordante</span></td></tr>
+            <tr><td class="b">Originación de crédito</td><td><span class="pill warn">Alta</span></td><td><span class="flag" style="color:var(--bad)"><span class="dot" style="background:var(--bad)"></span>Perfil insuficiente</span></td></tr>
+            <tr><td class="b">Reportes regulatorios</td><td><span class="pill gray">Baja</span></td><td><span class="flag" style="color:var(--warn)"><span class="dot" style="background:var(--warn)"></span>Sobredimensionada</span></td></tr>
+          </tbody></table></div></div>
+        </div>
+
+        <!-- composicion + span -->
+        <div class="grid g2" style="align-items:start">
+          <div class="card"><div class="hd">Composición por cargo y modalidad</div><div class="bd">
+            <div class="barwrap" style="margin-bottom:11px"><div style="flex:1"><div class="sub" style="margin-bottom:3px">Interno · 15 capacidades</div><div class="bar"><i style="width:83%;background:var(--brand)"></i></div></div><div class="lbl">83%</div></div>
+            <div class="barwrap"><div style="flex:1"><div class="sub" style="margin-bottom:3px">Externo / terceros · 3</div><div class="bar"><i style="width:17%;background:var(--cyan)"></i></div></div><div class="lbl">17%</div></div>
+            <div class="note" style="margin-top:16px;margin-bottom:0"><svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg><div>El Motor antifraude (crítica) depende de 1 externo clave. Riesgo de continuidad.</div></div>
+          </div></div>
+          <div class="card"><div class="hd">Span de control por línea de expertise</div><div class="bd" style="padding:0"><table><thead><tr><th>Línea</th><th>Experto</th><th>Span</th></tr></thead><tbody>
+            <tr><td class="b">Backend &amp; AS-400</td><td>Melissa Ortiz</td><td><span class="pill ok">19 · en rango</span></td></tr>
+            <tr><td class="b">Frontend &amp; Moderno</td><td>Andrés Zuluaga</td><td><span class="pill ok">19 · en rango</span></td></tr>
+            <tr><td class="b">Calidad</td><td>Beatriz Cano</td><td><span class="pill warn">21 · cerca límite</span></td></tr>
+          </tbody></table></div></div>
+        </div>
+      </section>
+
+      <!-- ========== CONOCIMIENTOS ========== -->
+      <section class="view" id="v-conoc">
+        <div class="head"><div class="kick">Asignación y capacidades</div><h1>Mapa de conocimientos</h1><p>Qué conocimientos abundan, cuáles son escasos y dónde están concentrados en una sola persona. Insumo de los planes de desarrollo y de la asignación por necesidad técnica.</p></div>
+        <div class="card"><div class="hd">Conocimientos por célula · intensidad = capacidades que lo dominan</div><div class="bd">
+          <div style="display:grid;grid-template-columns:120px 1fr;gap:4px;align-items:center"><div></div><div class="heat" id="heatHead" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px"></div></div>
+          <div id="heatBody" style="margin-top:4px"></div>
+          <div class="legend"><span><span class="dot" style="background:#eef1f6"></span>Escaso (0-1)</span><span><span class="dot" style="background:#8ea8ea"></span>Medio (2-3)</span><span><span class="dot" style="background:var(--brand)"></span>Abundante (4+)</span><span style="margin-left:8px;color:var(--bad)">◆ concentrado = riesgo</span></div>
+        </div></div>
+      </section>
+
+      <!-- ========== ACCIONES ========== -->
+      <section class="view" id="v-acciones">
+        <div class="head"><div class="kick">Asignación y capacidades</div><h1>Rebalanceo y alertas</h1><p>El objetivo: que el Experto actúe. Simula un rebalanceo y mira el impacto antes de confirmar; atiende primero las desviaciones prioritarias.</p></div>
+        <div class="grid g2" style="align-items:start">
+          <div class="card"><div class="hd">Simulador de rebalanceo <span class="tag">no afecta datos reales</span></div><div class="bd">
+            <label class="lab">Mover a Julián Ríos (hoy 120%)</label>
+            <div class="prow" style="margin-bottom:10px"><div><label class="lab" style="font-weight:400">De la iniciativa</label><select class="fld"><option>Motor antifraude (80%)</option></select></div><div><label class="lab" style="font-weight:400">Nueva dedicación</label><select class="fld" id="simSel" onchange="sim()"><option value="80">80%</option><option value="60">60%</option><option value="40">40%</option></select></div></div>
+            <div style="background:#fbfcfe;border:1px solid var(--line);border-radius:11px;padding:14px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:9px"><span class="sub">Dedicación total de Julián</span><b id="simTot" style="color:var(--warn)">120%</b></div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:9px"><span class="sub">Costo célula Motor antifraude</span><b id="simCost">$58M</b></div>
+              <div style="display:flex;justify-content:space-between"><span class="sub">Estado</span><span id="simFlag" class="pill warn">Sobreasignado</span></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:16px"><button class="btn pri">Confirmar rebalanceo</button><button class="btn gh">Descartar</button></div>
+          </div></div>
+          <div>
+            <div class="card" style="margin-bottom:15px"><div class="hd">Alertas priorizadas <span class="tag">4 activas</span></div><div class="bd">
+              <div class="alert bad"><div class="ab"><svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg></div><div><h4>Célula crítica con perfil insuficiente</h4><p>Originación de crédito (alta) tiene perfil promedio semi-senior.</p></div></div>
+              <div class="alert warn"><div class="ab"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2M21 12a9 9 0 1 1-18 0"/></svg></div><div><h4>Capacidad sobreasignada</h4><p>Julián Ríos al 120% entre Motor antifraude y QR App.</p></div></div>
+              <div class="alert warn"><div class="ab"><svg viewBox="0 0 24 24"><path d="M20 7h-9M14 17H5M17 3l3 4-3 4M7 21l-3-4 3-4"/></svg></div><div><h4>Costo de proveedor elevado</h4><p>Proveedor Alfa cuesta $12.4M/mes por un senior (ref. $8.1M).</p></div></div>
+              <div class="alert info"><div class="ab"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></div><div><h4>Conocimiento concentrado</h4><p>Solo Ana Gómez domina "reglas antifraude" a nivel experto.</p></div></div>
+            </div></div>
+            <div class="card"><div class="hd">Brechas para plan de desarrollo</div><div class="bd" style="padding:0"><table><thead><tr><th>Conocimiento</th><th>Requerido</th><th>Candidato</th></tr></thead><tbody>
+              <tr><td class="b">Kafka</td><td><span class="pill warn">Nivel 3</span></td><td>Carlos Méndez (2)</td></tr>
+              <tr><td class="b">AWS</td><td><span class="pill warn">Nivel 3</span></td><td>Paola Henao (1)</td></tr>
+            </tbody></table></div></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  var ctxViews=['dash','conoc','acciones'];
+  var titles={
+    'ti-evaluar':['Módulos de TI','Evaluar'],'ti-portafolio':['Módulos de TI','Portafolio'],
+    'ti-personas':['Módulos de TI','Personas y asignación'],'ti-capacidad':['Módulos de TI','Capacidad y demanda'],
+    'ti-roadmap':['Módulos de TI','Roadmap'],'ti-sfia':['Módulos de TI','Niveles SFIA'],
+    'crear':['Capacidades','Crear datos maestros'],'relacion':['Capacidades','Asignar / relacionar'],
+    'carga':['Capacidades','Carga masiva'],'dash':['Asignación y capacidades','Dashboard del Experto'],
+    'conoc':['Asignación y capacidades','Conocimientos'],'acciones':['Asignación y capacidades','Rebalanceo y alertas']
+  };
+  document.querySelectorAll('.navitem[data-v]').forEach(function(btn){
+    btn.onclick=function(){
+      var v=btn.dataset.v;
+      document.querySelectorAll('.navitem').forEach(b=>b.classList.remove('on'));
+      // mark main nav item active (match first nav with same data-v and no data-e, else itself)
+      btn.classList.add('on');
+      document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
+      document.getElementById('v-'+v).classList.add('on');
+      document.getElementById('crumb').innerHTML='<b>'+titles[v][0]+'</b> · '+titles[v][1];
+      document.getElementById('ctxWrap').style.display=ctxViews.includes(v)?'flex':'none';
+      if(btn.dataset.e){etabById(btn.dataset.e);}
+      window.scrollTo(0,0);
+    };
+  });
+  function etab(el,id){el.parentElement.querySelectorAll('.etab').forEach(b=>b.classList.remove('on'));el.classList.add('on');showEnt(id);}
+  function etabById(id){document.querySelectorAll('#v-crear .etab').forEach(function(b,i){var ids=['e-persona','e-linea','e-celula','e-inic'];b.classList.toggle('on',ids[i]===id);});showEnt(id);}
+  function showEnt(id){['e-persona','e-linea','e-celula','e-inic'].forEach(x=>document.getElementById(x).style.display='none');document.getElementById(id).style.display='block';}
+  function sim(){var v=document.getElementById('simSel').value;var m={'80':['120%','$58M','warn','Sobreasignado'],'60':['100%','$54M','ok','En balance'],'40':['80%','$50M','ok','Con capacidad libre']}[v];var t=document.getElementById('simTot');t.textContent=m[0];t.style.color=(m[2]==='ok')?'var(--ok)':'var(--warn)';document.getElementById('simCost').textContent=m[1];var f=document.getElementById('simFlag');f.textContent=m[3];f.className='pill '+m[2];}
+
+  (function(){var d=document.getElementById('donut1');d.style.background='conic-gradient(var(--brand) 0 62%, var(--warn) 62% 100%)';var i=document.createElement('div');i.style.cssText='width:60px;height:60px;background:#fff;border-radius:50%;position:relative;top:25px;left:25px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:var(--brand)';i.textContent='62%';d.appendChild(i);})();
+  (function(){var pts=[[20,70,'ok'],[35,55,'ok'],[50,40,'ok'],[62,58,'bad'],[75,25,'ok'],[80,60,'bad'],[45,68,'ok'],[30,50,'ok']];var s='<div style="position:relative;height:150px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);margin:6px 4px 22px">';pts.forEach(function(p){s+='<div style="position:absolute;left:'+p[0]+'%;bottom:'+p[1]+'%;width:11px;height:11px;border-radius:50%;background:var(--'+p[2]+');transform:translate(-50%,50%)"></div>';});s+='<div style="position:absolute;left:0;bottom:-18px;font-size:10px;color:var(--muted)">Junior</div><div style="position:absolute;right:0;bottom:-18px;font-size:10px;color:var(--muted)">Senior</div></div>';document.getElementById('scatter').innerHTML=s;})();
+  (function(){var cols=['Antifr.','Originac.','QR App','Reportes','Frontend'];var rows=[['Java',[4,3,2,1,0]],['Spring',[4,2,2,0,0]],['SQL',[3,3,2,2,1]],['Kafka',[2,1,0,0,0]],['AWS',[1,1,1,0,2]],['React',[0,0,1,0,4]],['Antifraude',[4,0,0,0,0]]];function col(v){return v>=4?'var(--brand)':v>=2?'#8ea8ea':v>=1?'#c3d0ee':'#eef1f6';}var hh='';cols.forEach(function(c){hh+='<div style="text-align:center;font-size:10px;color:var(--muted);font-weight:700">'+c+'</div>';});document.getElementById('heatHead').innerHTML=hh;var hb='';rows.forEach(function(r){hb+='<div style="display:grid;grid-template-columns:120px 1fr;gap:4px;align-items:center;margin-bottom:4px"><div style="font-size:12px;font-weight:600">'+r[0]+'</div><div class="heat" style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">';r[1].forEach(function(v){var risk=(v===4&&r[0]==='Antifraude')?'<span style="position:absolute;top:2px;right:4px;color:#fff;font-size:9px">◆</span>':'';hb+='<div class="hc" style="background:'+col(v)+';color:'+(v>=2?'#fff':'#5b6b80')+';position:relative">'+(v||'')+risk+'</div>';});hb+='</div></div>';});document.getElementById('heatBody').innerHTML=hb;})();
+</script>
+</body>
+</html>

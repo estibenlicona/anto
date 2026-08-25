@@ -1,0 +1,19 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/GestionCapacidad.Core/" />
+  <Folder Name="/GestionCapacidad.Core/RabbitMQ/">
+    <Project Path="src/GestionCapacidad.Core/RabbitMQ/GestionCapacidad.RabbitMQ.csproj" />
+  </Folder>
+  <Folder Name="/GestionCapacidad.Core/RestClient/">
+    <Project Path="src/GestionCapacidad.Core/RestClient/GestionCapacidad.RestClient.csproj" />
+  </Folder>
+  <Project Path="src/GestionCapacidad.Application/GestionCapacidad.Application.csproj" />
+  <Project Path="src/GestionCapacidad.Domain/GestionCapacidad.Domain.csproj" />
+  <Project Path="src/GestionCapacidad.Infrastructure/GestionCapacidad.Infrastructure.csproj" />
+  <Project Path="src/GestionCapacidad.WebApi/GestionCapacidad.WebApi.csproj" />
+  <Project Path="tests/GestionCapacidad.WebApi.Tests/GestionCapacidad.WebApi.Tests.csproj" />
+</Solution>

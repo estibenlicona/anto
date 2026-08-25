@@ -1,0 +1,3 @@
+namespace GestionCapacidad.Application.UseCases.CompanyRegistry.GetExternalCompany;
+
+public sealed record GetExternalCompanyRequest(string IdentificationNumber);

@@ -1,0 +1,4 @@
+- [x] 1.1 Reinstalar tuip con `extend-distribution-card`.
+- [x] 1.2 `PeopleStatsCards`: tres cards nuevas sobre `Card`/`DistributionCard`.
+- [x] 1.3 `PeopleContainer`: `assignment` desde `useCapacityOverview`.
+- [x] 1.4 Tests de card y container; suite, typecheck, lint; navegador.

@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Dimensionamiento y Capacidad · v7 Unificado · Tuya</title>
+<style>
+  /* ============================================================
+     TOKENS · paleta compartida por v1 y v6 (tema azul por defecto)
+     ============================================================ */
+  :root{
+    --brand:#2F4BD8; --brand2:#5B6BE8; --cyan:#0EA5A4;
+    --ink:#1E293B; --muted:#5b6b80; --faint:#9aa6be; --line:#e5e9f2;
+    --bg:#f4f6fb; --card:#ffffff; --seg:#eef2f8; --hover:#fafbfe;
+    --soft:#eef1fb; --soft2:#e9edfc;
+    --ok:#16A34A; --ok-bg:#e7f6ec; --bad:#DC2626; --bad-bg:#fbe5e5;
+    --warn:#B45309; --warn-bg:#f9efdc; --amber:#f0b429; --green:#8bd7a7;
+    /* tallas · de v1 */
+    --xs:#7c8aa0; --s:#22c55e; --m:#eab308; --l:#fb923c; --xl:#f43f5e;
+    --radius:14px; --shadow:0 1px 3px rgba(20,40,90,.06),0 6px 24px rgba(20,40,90,.05);
+    --font:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+  .app{display:flex;min-height:100vh}
+  a{color:var(--brand)}
+
+  /* ============================ SIDEBAR ============================ */
+  .side{width:272px;flex-shrink:0;background:linear-gradient(180deg,#ffffff,var(--bg));border-right:1px solid var(--line);
+        padding:18px 13px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 14px}
+  .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand2));
+        display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;box-shadow:0 4px 12px rgba(47,75,216,.3)}
+  .brand b{font-size:14.5px;display:block;line-height:1.05}
+  .brand span{font-size:10px;color:var(--muted);letter-spacing:.07em}
+  .chapterbox{background:linear-gradient(135deg,var(--soft),#f7f9ff);border:1px solid #d5dcf7;border-radius:11px;padding:10px 12px;margin:0 4px 10px}
+  .chapterbox .cl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--brand);font-weight:800}
+  .chapterbox .cn{font-size:13px;font-weight:800;margin:2px 0}
+  .chapterbox .cs{font-size:11px;color:var(--muted)}
+  .navlabel{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);padding:13px 10px 4px;font-weight:700}
+  .navitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;cursor:pointer;color:#42506a;
+           font-weight:600;font-size:13px;border:none;background:none;width:100%;text-align:left;transition:.15s;font-family:var(--font)}
+  .navitem svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.9}
+  .navitem:hover{background:var(--soft);color:var(--brand)}
+  .navitem.on{background:linear-gradient(90deg,var(--soft),transparent);color:var(--brand)}
+  .navitem.on svg{stroke:var(--brand)}
+  .navitem .count{margin-left:auto;background:var(--bad);color:#fff;font-size:9.5px;font-weight:800;min-width:17px;height:17px;
+                  border-radius:9px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px}
+  .navitem .count.ok{background:var(--ok)}
+  .navitem .count.br{background:var(--brand)}
+  .navitem .count.am{background:var(--warn)}
+  .side-foot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--line);font-size:10.5px;color:var(--muted)}
+
+  /* ============================ TOPBAR ============================ */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{background:var(--card);border-bottom:1px solid var(--line);padding:12px 26px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  .crumb{font-size:12.5px;color:var(--muted)}.crumb b{color:var(--ink)}
+  .topbar .sp{flex:1}
+  .ctx{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+  .ctx select{font-family:var(--font);font-size:12.5px;border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--card);color:var(--ink);font-weight:600}
+  .rolesel select{border-color:var(--brand);color:var(--brand)}
+  .themebtn{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--seg);color:var(--ink);
+            cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;padding:0}
+  .themebtn:hover{transform:rotate(20deg)}
+  .themebtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.9}
+  .avatar{width:32px;height:32px;border-radius:50%;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+  .content{padding:24px 26px 60px;max-width:1320px}
+
+  .head{margin-bottom:18px}
+  .kick{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);font-weight:800;margin-bottom:5px}
+  .head h1{margin:0;font-size:23px;letter-spacing:-.01em}
+  .head p{margin:5px 0 0;color:var(--muted);max-width:88ch}
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--brand);font-weight:700;font-size:12.5px;cursor:pointer;margin-bottom:8px;background:none;border:none;font-family:var(--font);padding:0}
+
+  .view{display:none;animation:fade .35s}.view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ============================ CARDS / GRID ============================ */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .card .hd{padding:13px 17px;border-bottom:1px solid var(--line);font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:9px}
+  .card .hd .tag{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted)}
+  .card .bd{padding:17px}
+  .grid{display:grid;gap:15px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  .g21{grid-template-columns:2fr 1fr}.g12{grid-template-columns:1fr 2fr}
+  @media(max-width:1000px){.g2,.g3,.g4,.g21,.g12{grid-template-columns:1fr}}
+  .mt{margin-top:15px}
+
+  /* ============================ PILLS / TAGS ============================ */
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.bad{background:var(--bad-bg);color:var(--bad)}
+  .pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.info{background:var(--soft2);color:var(--brand)}
+  .pill.gray{background:#eef1f6;color:var(--muted)}
+  .dot{width:7px;height:7px;border-radius:50%}
+  .optional{font-size:10.5px;font-weight:700;color:var(--muted);background:#eef1f6;padding:2px 8px;border-radius:9px;margin-left:7px;letter-spacing:.03em}
+  /* badge de talla · de v1 */
+  .talla{display:inline-flex;align-items:center;justify-content:center;min-width:28px;color:#fff;font-weight:800;border-radius:8px;padding:2px 9px;font-size:12.5px}
+  .talla.XS{background:var(--xs)}.talla.S{background:var(--s)}.talla.M{background:var(--m)}
+  .talla.L{background:var(--l)}.talla.XL{background:var(--xl)}
+  /* chip SFIA · escala Tuya 1-4 */
+  .sfia{display:inline-flex;align-items:center;justify-content:center;min-width:21px;color:#fff;border-radius:7px;font-weight:800;font-size:11.5px;padding:2px 6px}
+  .sfia.s1{background:#8b9ae6}.sfia.s2{background:#6f7fd8}.sfia.s3{background:#8a6fd0}.sfia.s4{background:#b05fc0}
+  .sfia.s0{background:#c3cbe0}
+  .sfialow{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--bad);background:var(--bad-bg);padding:1px 6px;border-radius:20px;margin-left:5px}
+
+  /* ============================ TABLAS ============================ */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;padding:8px 11px;border-bottom:1px solid var(--line)}
+  td{padding:9px 11px;border-bottom:1px solid #f1f4fa;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--hover)}
+  tbody tr.click{cursor:pointer}
+  td .b{font-weight:600}.sub{font-size:11px;color:var(--muted)}
+  .c{text-align:center}
+
+  /* ============================ BARRAS ============================ */
+  .bar{height:8px;border-radius:6px;background:#eef1f6;overflow:hidden;display:flex}
+  .bar i{display:block;height:100%}
+  .dbar{margin-bottom:9px}
+  .dbar .lab{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px}
+  .dbar .track{height:8px;background:#eef1f6;border-radius:6px;overflow:hidden}
+  .dbar .fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--cyan),var(--brand2),var(--brand));transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .ubar{display:inline-flex;align-items:center;gap:8px;min-width:128px}
+  .ubar .trk{flex:1;height:8px;border-radius:6px;background:#eef1f6;overflow:hidden;min-width:60px}
+  .ubar .fl{height:100%;border-radius:6px;transition:width .4s}
+  .ubar .pc{font-size:12px;font-weight:800;width:40px;text-align:right}
+
+  /* ============================ FORMULARIOS ============================ */
+  .lab{font-size:12px;font-weight:700;color:#42506a;margin-bottom:5px;display:block}
+  .req::after{content:" *";color:var(--bad)}
+  input,select.fld,textarea{width:100%;font-family:var(--font);font-size:13px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--card);color:var(--ink)}
+  input:focus,select.fld:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(47,75,216,.13)}
+  textarea{min-height:64px;resize:vertical}
+  .prow{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+  .prow.three{grid-template-columns:1fr 1fr 1fr}
+  .btn{border:none;border-radius:10px;padding:9px 16px;font-family:var(--font);font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
+  .btn.pri{background:var(--brand);color:#fff}
+  .btn.pri:hover{filter:brightness(1.08)}
+  .btn.gh{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+  .btn.gh:hover{border-color:var(--brand);color:var(--brand)}
+  .btn.ok{background:var(--ok);color:#fff}
+  .btn.bad{background:var(--card);border:1px solid var(--bad);color:var(--bad)}
+  .btn.sm{padding:6px 12px;font-size:12px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .num{width:74px;text-align:center}
+  .totrow{font-weight:800}
+  .hidden{display:none!important}
+
+  /* ============================ CALLOUTS ============================ */
+  .callout{display:flex;gap:10px;align-items:flex-start;border-radius:11px;padding:11px 13px;font-size:12.5px;border:1px solid}
+  .callout svg{width:17px;height:17px;flex-shrink:0;margin-top:1px;stroke:currentColor;fill:none;stroke-width:2}
+  .callout.ok{background:var(--ok-bg);border-color:#c7e8d2;color:#136b36}
+  .callout.warn{background:var(--warn-bg);border-color:#eddcb8;color:var(--warn)}
+  .callout.bad{background:var(--bad-bg);border-color:#f3cccc;color:var(--bad)}
+  .callout.info{background:var(--soft2);border-color:#d5dcf7;color:var(--brand)}
+  .hint{border:1px solid var(--line);border-radius:10px;background:var(--seg);font-size:12px;margin-bottom:12px}
+  .hint summary{cursor:pointer;padding:8px 12px;font-weight:700;color:var(--muted)}
+  .hint .hbd{padding:0 12px 11px;color:var(--muted);line-height:1.55}
+
+  /* ============================ KPIs ============================ */
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px 17px;box-shadow:var(--shadow)}
+  .kpi .n{font-size:26px;font-weight:820;line-height:1}
+  .kpi .l{font-size:11.5px;color:var(--muted);margin-top:4px}
+
+  /* ============================ TARJETA DE CÉLULA ============================ */
+  .cellcard{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px;box-shadow:var(--shadow);cursor:pointer;transition:.15s;border-top:3px solid var(--line)}
+  .cellcard:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(20,40,90,.11)}
+  .cellcard.g{border-top-color:var(--ok)}.cellcard.y{border-top-color:var(--amber)}.cellcard.r{border-top-color:var(--bad)}
+  .cellcard h3{margin:0 0 2px;font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .cellcard .cs{font-size:11.5px;color:var(--muted);margin-bottom:10px}
+  .cellcard .st{display:flex;justify-content:space-between;font-size:11.5px;padding:3px 0}
+  .sema{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .sema.g{background:var(--ok)}.sema.y{background:var(--amber)}.sema.r{background:var(--bad)}
+
+  /* ============================ ANILLO / GAUGE ============================ */
+  .ring{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+  .ring::after{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--card)}
+  .ring .rv{position:relative;z-index:1;text-align:center;line-height:1.1}
+  .ring .rv b{font-size:19px;font-weight:820;display:block}
+  .ring .rv span{font-size:9.5px;color:var(--muted)}
+  .ringwrap{display:flex;flex-direction:column;align-items:center;gap:7px}
+  .ringwrap .rl{font-size:12px;font-weight:700}
+  .gauge{position:relative;width:132px;height:132px;flex-shrink:0}
+  .gauge .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gauge .ctr .tl{font-size:30px;font-weight:850;line-height:1}
+  .gauge .ctr .pc{font-size:13px;font-weight:750;line-height:1;margin-top:3px}
+  .gauge .ctr .lb{font-size:7.5px;letter-spacing:.1em;color:var(--muted);margin-top:2px}
+
+  /* ============================ PENDIENTES / TODO ============================ */
+  .todo{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f4fa;cursor:pointer}
+  .todo:last-child{border-bottom:none}
+  .todo:hover{background:var(--hover)}
+  .todo .tn{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0}
+  .todo .tn.bad{background:var(--bad)}.todo .tn.warn{background:var(--amber);color:#4a3407}.todo .tn.info{background:var(--brand)}
+  .todo .tt{font-size:12.5px;font-weight:650}
+  .todo .ts{font-size:11px;color:var(--muted)}
+
+  /* ============================ TABS / SEGMENTOS ============================ */
+  .tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+  .tabs button{padding:8px 15px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--muted);
+               cursor:pointer;font-size:12.5px;font-weight:650;transition:.15s;font-family:var(--font)}
+  .tabs button:hover{color:var(--ink)}
+  .tabs button.on{color:#fff;background:var(--brand);border-color:transparent}
+  .tabpane{display:none}.tabpane.on{display:block}
+
+  /* ============================ BÚSQUEDA / VINCULACIÓN ============================ */
+  .searchbox{position:relative}
+  .searchbox svg{position:absolute;left:11px;top:10px;width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2}
+  .searchbox input{padding-left:34px}
+  .results{border:1px solid var(--line);border-radius:11px;margin-top:8px;overflow:hidden;background:var(--card)}
+  .result{display:flex;align-items:center;gap:11px;padding:10px 13px;border-bottom:1px solid #f1f4fa;transition:.12s}
+  .result:last-child{border-bottom:none}
+  .result:hover{background:var(--hover)}
+  .result .ric{width:32px;height:32px;border-radius:9px;background:var(--soft2);color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;flex-shrink:0}
+  .result .ric.u{border-radius:50%;background:var(--cyan);color:#fff}
+  .result h5{margin:0;font-size:12.5px}
+  .result .rs{font-size:11px;color:var(--muted)}
+  .result .btn{margin-left:auto}
+  .linkedchip{display:inline-flex;align-items:center;gap:8px;background:var(--ok-bg);border:1px solid #c7e8d2;color:#136b36;
+              border-radius:11px;padding:8px 13px;font-size:12.5px;font-weight:700;margin-top:8px}
+  .linkedchip .x{cursor:pointer;color:#136b36;opacity:.6;font-weight:800}
+  .linkedchip .x:hover{opacity:1}
+
+  /* ============================ BACKLOG / KANBAN ============================ */
+  .blrow{display:flex;align-items:center;gap:11px;padding:10px 12px;border-bottom:1px solid #f1f4fa}
+  .blrow:last-child{border-bottom:none}
+  .blrow:hover{background:var(--hover)}
+  .tico{width:26px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:800;color:#fff;flex-shrink:0}
+  .tico.US{background:var(--brand)}.tico.Task{background:var(--cyan)}.tico.Bug{background:var(--bad)}
+  .tico.Epic{background:#8a6fd0}.tico.Feature{background:var(--amber);color:#4a3407}
+  .clswrap{margin-left:auto;position:relative;flex-shrink:0}
+  .clspill{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:4px 11px;font-size:11px;
+           font-weight:700;cursor:pointer;font-family:var(--font);color:var(--ink)}
+  .clsmenu{position:absolute;right:0;top:calc(100% + 5px);background:var(--card);border:1px solid var(--line);border-radius:11px;
+           box-shadow:0 12px 34px rgba(20,40,90,.18);min-width:262px;z-index:40;padding:5px;text-align:left}
+  .clsmenu button{display:flex;align-items:center;gap:8px;width:100%;border:none;background:none;padding:7px 10px;border-radius:8px;
+                  cursor:pointer;font-size:12px;font-family:var(--font);color:var(--ink);text-align:left}
+  .clsmenu button:hover{background:var(--seg)}
+  .clsmenu .sep{height:1px;background:var(--line);margin:4px 2px}
+  .kan{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:1000px){.kan{grid-template-columns:1fr 1fr}}
+  .kcol{background:var(--seg);border-radius:12px;padding:10px;min-height:100px}
+  .kcol h4{margin:0 0 9px;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:flex;gap:6px}
+  .kcard{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-bottom:8px;font-size:12px}
+  .kcard .kt{font-weight:600;margin:3px 0 5px;line-height:1.3}
+  .kcard .kf{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted)}
+  .kav{width:19px;height:19px;border-radius:50%;background:var(--cyan);color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800}
+
+  /* ============================ PIPELINE / STEPPER ============================ */
+  .pipe{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+  .pnode{background:var(--seg);border:1px solid var(--line);border-radius:11px;padding:9px 13px;font-size:12px;flex:1;min-width:135px}
+  .pnode b{display:block;font-size:12.5px}
+  .pnode span{font-size:10.5px;color:var(--muted)}
+  .pnode.on{background:var(--soft2);border-color:#c3cdf5;color:var(--brand)}
+  .pnode.hot{background:var(--warn-bg);border-color:#eddcb8;color:var(--warn)}
+  .parrow{color:var(--faint);font-weight:800;flex-shrink:0}
+  .chk{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f1f4fa;font-size:12.5px}
+  .chk:last-child{border-bottom:none}
+  .chk .ci{width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+  .chk .ci.y{background:var(--ok)}.chk .ci.n{background:var(--amber);color:#4a3407}
+
+  /* ============================ SCORING (de v1) ============================ */
+  .dimh{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
+  .dimh:first-child{margin-top:0}
+  .dimh::before{content:"";width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--brand),var(--brand2))}
+  .q{padding:11px 2px;border-bottom:1px solid var(--line)}
+  .q:last-child{border-bottom:none}
+  .q .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .q .txt{font-size:13px}
+  .chip{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:30px;border:1px solid var(--line);flex-shrink:0}
+  .chip.cuant{color:var(--cyan)}.chip.cual{color:var(--muted)}
+  .opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+  .opt{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink);background:var(--seg);border:1px solid var(--line);
+       border-radius:9px;padding:6px 11px 6px 7px;cursor:pointer;transition:.14s;font-family:var(--font);line-height:1.2}
+  .opt:hover{border-color:var(--brand)}
+  .opt b{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:6px;background:#e6eaf2;color:var(--muted);font-size:11px;font-weight:800;flex-shrink:0}
+  .opt.on{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent}
+  .opt.on b{background:rgba(255,255,255,.26);color:#fff}
+  .tgl{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--seg)}
+  .tgl button{border:none;background:transparent;color:var(--muted);padding:6px 14px;cursor:pointer;font-size:12.5px;font-weight:700;border-left:1px solid var(--line);font-family:var(--font)}
+  .tgl button:first-child{border-left:none}
+  .tgl button.on.si{background:linear-gradient(135deg,#f43f5e,#be123c);color:#fff}
+  .tgl button.on.no{background:linear-gradient(135deg,#22c55e,#15803d);color:#fff}
+  .tq{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:12.5px}
+  .tq:last-child{border-bottom:none}
+  .crit{font-size:9px;font-weight:800;color:var(--bad);background:var(--bad-bg);padding:2px 6px;border-radius:20px;margin-left:6px}
+  .resbar{display:flex;align-items:center;gap:20px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:13px;
+          padding:12px 17px;margin-bottom:16px;box-shadow:var(--shadow);position:sticky;top:57px;z-index:15}
+  .rb{display:flex;flex-direction:column;line-height:1.15}
+  .rb .k{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);font-weight:700}
+  .rb .v{font-size:16px;font-weight:780}
+  .rb .v small{font-size:10.5px;color:var(--muted);font-weight:600}
+  .stat{background:var(--seg);border:1px solid var(--line);border-radius:11px;padding:10px 12px}
+  .stat .k{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .stat .v{font-size:17px;font-weight:750;margin-top:2px}
+  .stat .v small{font-size:11px;color:var(--muted);font-weight:500}
+
+  /* ============================ TOAST ============================ */
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(120px);background:#1f2430;color:#f4f6fb;
+         padding:11px 19px;border-radius:11px;font-size:12.5px;font-weight:600;box-shadow:0 12px 34px rgba(0,0,0,.34);
+         transition:transform .3s cubic-bezier(.2,.8,.2,1);z-index:200;max-width:min(560px,90vw);text-align:center}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+
+  .empty{padding:34px;text-align:center;color:var(--muted);font-size:12.5px}
+  hr.sep{border:none;border-top:1px solid var(--line);margin:16px 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="side">
+    <div class="brand">
+      <div class="logo">◳</div>
+      <div><b>Dimensionamiento TI</b><span>MVP v7 · UNIFICADO</span></div>
+    </div>
+    <div class="chapterbox" id="ctxBox">
+      <div class="cl" id="ctxLabel">Tu chapter</div>
+      <div class="cn" id="ctxName">Backend Development &amp; AS-400</div>
+      <div class="cs" id="ctxSub">3 células · 24 capacidades · Sprint 16</div>
+    </div>
+    <nav id="nav"></nav>
+    <div class="side-foot">
+      MVP v7 · datos moqueados<br>
+      Unifica v1–v6 · el front <b>nunca</b> llama a DevOps:<br>
+      consume la base local del backend (job de ingesta).
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN ==================== -->
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Plataforma / <b id="crumbTxt">Inicio</b></div>
+      <div class="sp"></div>
+      <div class="ctx rolesel">Rol:
+        <select id="roleSel" onchange="setRole(this.value)">
+          <option value="lead">Chapter Lead</option>
+          <option value="colab">Colaborador (capacidad)</option>
+          <option value="admin">Admin de plataforma</option>
+        </select>
+      </div>
+      <div class="ctx">Sprint:
+        <select id="sprintSel">
+          <option>Sprint 16 · 2026 (28 jul – 8 ago)</option>
+          <option>Sprint 15 · 2026 (14 – 25 jul)</option>
+        </select>
+      </div>
+      <button class="themebtn" onclick="toggleTheme()" title="Cambiar tema" id="themeBtn">
+        <svg viewBox="0 0 24 24"><path d="M12 3v2m0 14v2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M3 12h2m14 0h2M5.6 18.4L7 17m10-10l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
+      </button>
+      <div class="avatar" id="avatar">CL</div>
+    </div>
+
+    <div class="content" id="content">
+      <!-- ==================== TORRE DE CONTROL ==================== -->
+      <section class="view on" id="v-home">
+        <div class="head">
+          <div class="kick">Chapter Backend Development · Sprint 16</div>
+          <h1>Torre de control de tus células</h1>
+          <p>Visión transversal de tus 3 células para gestionar el día a día: capacidad, asignaciones y rebalanceos desde un solo lugar.</p>
+        </div>
+        <div class="grid g4" style="margin-bottom:16px">
+          <div class="kpi"><div class="n">24.0</div><div class="l">FTE total del chapter</div></div>
+          <div class="kpi"><div class="n" style="color:var(--brand)">8.8 <span style="font-size:14px">(37%)</span></div><div class="l">en transformación</div></div>
+          <div class="kpi"><div class="n" style="color:var(--warn)">9.2 <span style="font-size:14px">(38%)</span></div><div class="l">en BAU</div></div>
+          <div class="kpi"><div class="n" style="color:var(--ok)">6.0 <span style="font-size:14px">(25%)</span></div><div class="l">FTE libre del chapter</div></div>
+        </div>
+        <div class="grid g3" id="homeCells" style="margin-bottom:16px"></div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Pendientes para ti<span class="tag">requieren tu decisión</span></div>
+            <div class="bd" id="homeTodos"></div>
+          </div>
+          <div class="card">
+            <div class="hd">Alertas transversales del chapter</div>
+            <div class="bd" style="display:flex;flex-direction:column;gap:9px">
+              <div class="callout bad"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                <div><b>Sobreasignación:</b> María González (Backend Platform) al <b>110%</b>.</div></div>
+              <div class="callout warn"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                <div><b>BAU creciendo</b> en Backend Platform: <b>44% real vs 42% plan</b>. Tendencia de 2 sprints.</div></div>
+              <div class="callout warn"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                <div><b>Concentración de conocimiento:</b> AS-400 depende solo de Julián Pérez (<b>bus factor = 1</b>).</div></div>
+              <div class="callout ok"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+                <div><b>Ingesta de datos al día:</b> job nocturno OK (hoy 02:00 · 1.240 items espejados).</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== GESTIONAR CÉLULAS ==================== -->
+      <section class="view" id="v-celulas">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Células</h1>
+          <p>Crea células con su tablero de DevOps <b>opcionalmente vinculado desde el inicio</b>, o vincúlalo después desde el detalle.</p>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="hd">Células del chapter<span class="tag" id="cellCount">4 células</span></div>
+          <table>
+            <thead><tr><th style="width:26px"></th><th>Célula</th><th>Tribu</th><th>Criticidad</th><th class="c">Cap.</th>
+              <th>Iniciativa activa</th><th>Tablero DevOps</th><th></th></tr></thead>
+            <tbody id="cellTable"></tbody>
+          </table>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">＋ Nueva célula<span class="tag">POST /api/squads · el tablero es opcional</span></div>
+            <div class="bd">
+              <div class="prow">
+                <div><label class="lab req">Nombre de la célula</label><input id="ncName" placeholder="Ej: Motor de Recaudos"></div>
+                <div><label class="lab req">Tribu</label><select class="fld" id="ncTribe"><option>Payments</option><option>Risk &amp; Fraud</option><option>Customer</option></select></div>
+              </div>
+              <div class="prow">
+                <div><label class="lab req">Criticidad</label><select class="fld" id="ncCrit"><option>Crítica</option><option selected>Alta</option><option>Media</option><option>Baja</option></select></div>
+                <div><label class="lab">Descripción</label><input id="ncDesc" placeholder="Propósito y alcance de la célula"></div>
+              </div>
+              <label class="lab">Tablero de Azure DevOps <span class="optional">OPCIONAL · puedes vincularlo después</span></label>
+              <details class="hint"><summary>ℹ ¿Cómo funciona la búsqueda?</summary>
+                <div class="hbd">Busca en la <b>base local de la plataforma</b> (espejo del job diario). El front nunca llama a Azure DevOps.</div></details>
+              <div class="searchbox">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input id="ncBoard" placeholder="Escribe el nombre del tablero… (prueba: 'pag' o 'core')" oninput="searchBoards('ncBoard','ncBoardRes','nc')">
+              </div>
+              <div id="ncBoardRes"></div>
+              <div style="display:flex;gap:9px;margin-top:14px">
+                <button class="btn pri" onclick="createCell()">Crear célula</button>
+                <button class="btn gh" onclick="resetCellForm()">Cancelar</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="linkBoardCard">
+            <div class="hd">Vincular tablero a célula existente<span class="tag">PUT /api/squads/{id}/devops-board-link</span></div>
+            <div class="bd">
+              <label class="lab">Célula</label>
+              <select class="fld" id="lbCell" style="margin-bottom:13px">
+                <option>Pagos Instantáneos (sin tablero)</option>
+                <option>Backend Platform (Backend Core ✓)</option>
+              </select>
+              <label class="lab">Buscar tablero por nombre</label>
+              <div class="searchbox">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input id="lbBoard" placeholder="Prueba: 'pag'…" oninput="searchBoards('lbBoard','lbBoardRes','lb')">
+              </div>
+              <div id="lbBoardRes"></div>
+              <div class="callout info" style="margin-top:13px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>
+                <div>Un tablero solo puede estar vinculado a <b>una</b> célula. Al desvincular, el backlog de esa célula deja de actualizarse.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== DETALLE DE CÉLULA ==================== -->
+      <section class="view" id="v-celula-det">
+        <button class="back" onclick="go('celulas')">← Volver a células</button>
+        <div class="head">
+          <div class="kick">Gestión de Capacidad · Células</div>
+          <h1>Backend Platform <span class="pill warn" style="vertical-align:middle">BAU creciendo</span></h1>
+          <p>Payments · Crítica · 10 capacidades · Iniciativa activa: Kafka Migration</p>
+        </div>
+        <div class="tabs" id="detTabs">
+          <button class="on" onclick="detTab(this,'dt1')">Resumen</button>
+          <button onclick="detTab(this,'dt2')">Backlog <span class="pill bad" id="blUnclPill" style="margin-left:5px">0</span></button>
+          <button onclick="detTab(this,'dt3')">Board</button>
+          <button onclick="detTab(this,'dt4')">Equipo</button>
+        </div>
+
+        <div class="tabpane on" id="dt1">
+          <div class="grid g2" style="margin-bottom:15px">
+            <div class="card">
+              <div class="hd">Capacidad · sprint 16<span class="tag">estimado vs real</span></div>
+              <div class="bd" style="display:flex;justify-content:space-around;gap:12px" id="detRings"></div>
+            </div>
+            <div class="card">
+              <div class="hd">Tablero de Azure DevOps<span class="tag">vinculación editable</span></div>
+              <div class="bd">
+                <div class="linkedchip" style="margin-top:0">📋 Backend Core · Payments\Backend <span class="pill ok">Active</span>
+                  <span class="x" onclick="unlinkBoard()" title="Desvincular">✕</span></div>
+                <table style="margin-top:11px">
+                  <tr><td class="sub">Vinculado por</td><td class="b">Chapter Lead · 25-jul</td></tr>
+                  <tr><td class="sub">Epics/Features espejados</td><td class="b">4 epics · 11 features</td></tr>
+                  <tr><td class="sub">Última ingesta del job</td><td class="b">hoy 02:00 · OK</td></tr>
+                  <tr><td class="sub">US sin clasificar</td><td><a href="#" onclick="detTab(document.querySelectorAll('#detTabs button')[1],'dt2');return false"><b id="detUncl">0</b> pendientes →</a></td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="grid g2">
+            <div class="card">
+              <div class="hd">Tareas BAU<span class="tag">42% plan · 44% real</span></div>
+              <table id="detBau"></table>
+            </div>
+            <div class="card">
+              <div class="hd">Equipo<span class="tag">10 capacidades · vista rápida</span></div>
+              <table id="detTeamQuick"></table>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabpane" id="dt2">
+          <div class="card">
+            <div class="hd">Backlog espejado<span class="tag">tablero: Backend Core · job diario</span></div>
+            <div class="bd" style="padding-bottom:0">
+              <details class="hint"><summary>ℹ ¿Cómo funciona?</summary>
+                <div class="hbd">Los items llegan del tablero vinculado (job diario). Solo las <b>User Stories</b> necesitan clasificación:
+                  ¿pertenece a la <b>Iniciativa</b> activa, es <b>BAU</b>, o se <b>descarta</b>? La clasificación es reversible.</div></details>
+              <div class="tabs" id="blFilters"></div>
+            </div>
+            <div id="blList"></div>
+          </div>
+        </div>
+
+        <div class="tabpane" id="dt3">
+          <div class="callout info" style="margin-bottom:14px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>
+            <div>Solo items <b>confirmados en curación</b> y clasificados como Iniciativa. <b id="boardPend">5</b> pendientes no aparecen aún.</div></div>
+          <div class="kan" id="kanban"></div>
+        </div>
+
+        <div class="tabpane" id="dt4">
+          <div class="card">
+            <div class="hd">Equipo asignado<span class="tag">10 capacidades</span></div>
+            <table>
+              <thead><tr><th>Capacidad</th><th>Rol</th><th>SFIA</th><th>Utilización</th><th>Usuario DevOps</th><th>Reporte S16</th></tr></thead>
+              <tbody id="detTeam"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== GESTIONAR INICIATIVAS ==================== -->
+      <section class="view" id="v-iniciativas">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Iniciativas</h1>
+          <p>Todas las iniciativas de tus células. <b>Una sola Active por célula</b>. Estimar es opcional: agrega valor pero nunca bloquea crear, activar ni asignar.</p>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="hd">Iniciativas del chapter<span class="tag">5 iniciativas</span></div>
+          <table>
+            <thead><tr><th>Iniciativa</th><th>Célula</th><th>Estado</th><th>Estimación</th><th>FTE est / real</th><th></th></tr></thead>
+            <tbody id="iniTable"></tbody>
+          </table>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">＋ Nueva iniciativa<span class="tag">POST /api/squads/{id}/initiatives</span></div>
+            <div class="bd">
+              <div class="prow">
+                <div><label class="lab req">Nombre</label><input id="niName" placeholder="Ej: Tokenización de tarjetas"></div>
+                <div><label class="lab req">Célula</label><select class="fld" id="niCell"><option>Backend Platform</option><option>Fraude Tarjetas</option><option>Canales Digitales</option><option>Pagos Instantáneos</option></select></div>
+              </div>
+              <div class="prow">
+                <div><label class="lab">Tipo</label><select class="fld" id="niType"><option>Transformación</option><option>BAU</option><option>Mixta</option></select></div>
+                <div><label class="lab">Deadline (meses)</label><input type="number" id="niDeadline" value="6" min="1" max="24"></div>
+              </div>
+              <label class="lab">Mapear Epic del backlog <span class="optional">OPCIONAL</span></label>
+              <select class="fld" id="niEpic">
+                <option>Sin mapear (puedes hacerlo después)</option>
+                <option>#12290 · Observabilidad plataforma</option>
+                <option disabled>#12345 · Migración Kafka (409: ya mapeado)</option>
+              </select>
+              <div class="callout info" style="margin-top:12px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>
+                <div>Un Epic solo puede pertenecer a <b>una</b> iniciativa (conflicto → HTTP 409). El mapeo marca automáticamente el prerequisito <code>backlogDefined</code>.</div></div>
+              <div style="display:flex;gap:9px;margin-top:14px">
+                <button class="btn pri" onclick="createIni(false)">Crear iniciativa</button>
+                <button class="btn gh" onclick="createIni(true)">Crear y estimar ahora</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="estimDetail">
+            <div class="hd">Estimación por etapas · Kafka Migration<span class="tag">Backend Platform</span></div>
+            <div class="bd">
+              <div class="pipe">
+                <div class="pnode on"><b>Etapa 1 · Temprana</b><span>T-Shirt Sizing · ✓ completada · ±50-100%</span></div>
+                <span class="parrow">→</span>
+                <div class="pnode"><b>Etapa 2 · Refinada</b><span>COCOMO II · 🔒 2/3 prerequisitos · ±25%</span></div>
+                <span class="parrow">→</span>
+                <div class="pnode"><b>Real</b><span>calibración al cierre</span></div>
+              </div>
+              <table style="margin-bottom:13px">
+                <tr><td class="sub">Talla / complejidad</td><td><span class="talla M">M</span> <b>45.2%</b></td></tr>
+                <tr><td class="sub">FTE (opt / medio / pes)</td><td class="b">1.33 / 2.67 / 3.50</td></tr>
+                <tr><td class="sub">Duración</td><td class="b">8–16 PM</td></tr>
+                <tr><td class="sub">Historial</td><td class="b">v1 (28-jul · S) → v2 (02-ago · M)</td></tr>
+              </table>
+              <div class="lab">Prerequisitos de la Etapa 2</div>
+              <div class="chk"><span class="ci y">✓</span><div><b>Etapa 1 completada</b><div class="sub">Estimación temprana vigente (v2)</div></div></div>
+              <div class="chk"><span class="ci y">✓</span><div><b>Backlog definido</b><div class="sub">Automático: 34 items espejados desde el tablero vinculado</div></div></div>
+              <div class="chk" id="chkArch"><span class="ci n">!</span><div style="flex:1"><b>Arquitectura definida</b>
+                <div class="sub">Pendiente de aprobación del diseño</div></div>
+                <button class="btn gh sm" onclick="markArch()">Marcar lista</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== GESTIONAR CAPACIDADES ==================== -->
+      <section class="view" id="v-capacidades">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad</div>
+          <h1>Gestionar Capacidades</h1>
+          <p>Las 24 personas de tu chapter, <b>transversal a células</b>. Detecta sobreasignaciones y rebalancea hacia células con capacidad libre.</p>
+        </div>
+        <div class="callout bad" style="margin-bottom:15px" id="capAlert"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <div><b>1 sobreasignación:</b> María González al 110%. <b>1 sin vincular:</b> Laura Ruiz no tiene usuario DevOps (sus items no cuentan).</div></div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="hd">Capacidades del chapter<span class="tag">24 personas</span></div>
+          <table>
+            <thead><tr><th>Capacidad</th><th>Rol · Seniority</th><th>SFIA</th><th>Célula</th><th>Asignaciones</th><th>Utilización</th><th>Usuario DevOps</th><th></th></tr></thead>
+            <tbody id="capTable"></tbody>
+          </table>
+          <div class="bd sub" style="border-top:1px solid var(--line)">+ 19 capacidades más · filtros por célula, rol y utilización</div>
+        </div>
+        <div class="grid g2" style="margin-bottom:16px">
+          <div class="card">
+            <div class="hd">＋ Nueva capacidad<span class="tag">POST /api/people</span></div>
+            <div class="bd">
+              <div class="prow three">
+                <div><label class="lab req">Nombre completo</label><input id="npName" placeholder="Ej: Andrea Salazar"></div>
+                <div><label class="lab req">Documento</label><input id="npDoc" placeholder="1036884221"></div>
+                <div><label class="lab">Célula</label><select class="fld" id="npCell"><option>Backend Platform</option><option>Fraude Tarjetas</option><option>Canales Digitales</option><option>Pagos Instantáneos</option></select></div>
+              </div>
+              <div class="prow three">
+                <div><label class="lab">Rol</label><select class="fld" id="npRole"><option>Backend Dev</option><option>QA Engineer</option><option>Arquitecto</option><option>Data Engineer</option></select></div>
+                <div><label class="lab">Seniority</label><select class="fld" id="npSen"><option>Junior</option><option selected>Semi-senior</option><option>Senior</option><option>Staff Engineer</option><option>Principal</option></select></div>
+                <div><label class="lab">Nivel SFIA <span class="optional">escala Tuya</span></label>
+                  <select class="fld" id="npSfia"><option value="1">1 · Principiante</option><option value="2" selected>2 · Competente</option><option value="3">3 · Avanzado</option><option value="4">4 · Experto</option></select></div>
+              </div>
+              <div class="prow three">
+                <div><label class="lab">Modalidad</label><select class="fld" id="npMod" onchange="toggleProvider()"><option>Interno</option><option>Externo</option></select></div>
+                <div><label class="lab">FTE disponible</label><input type="number" id="npFte" value="1.0" step="0.1" min="0.1" max="1"></div>
+                <div><label class="lab">Costo mensual</label><input id="npCost" placeholder="$ 7.900.000"></div>
+              </div>
+              <div class="prow hidden" id="providerRow">
+                <div style="grid-column:1/-1"><label class="lab req">Tercero / Proveedor <span class="optional">lista del backend · GET /api/providers</span></label>
+                  <select class="fld" id="npProvider"><option value="">Selecciona el proveedor…</option><option>GFT</option><option>TATA Consultancy Services</option><option>QVision</option><option>Indra</option><option>Softtek</option><option>Stefanini</option></select></div>
+              </div>
+              <label class="lab">Usuario de Azure DevOps <span class="optional">OPCIONAL · puedes vincularlo después</span></label>
+              <div class="searchbox">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input id="npUser" placeholder="Escribe el nombre… (prueba: 'and' o 'ruiz')" oninput="searchUsers('npUser','npUserRes','np')">
+              </div>
+              <div id="npUserRes"></div>
+              <div style="display:flex;gap:9px;margin-top:14px">
+                <button class="btn pri" onclick="createPerson()">Crear capacidad</button>
+                <button class="btn gh" onclick="resetPersonForm()">Cancelar</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="linkUserCard">
+            <div class="hd">Vincular usuario DevOps a capacidad<span class="tag">PUT /api/people/{id}/devops-identity</span></div>
+            <div class="bd">
+              <label class="lab">Capacidad</label>
+              <select class="fld" id="luPerson" style="margin-bottom:13px">
+                <option>Laura Ruiz (sin vincular)</option>
+                <option>Carlos López (✓ vinculado)</option>
+              </select>
+              <label class="lab">Buscar usuario por nombre</label>
+              <div class="searchbox">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                <input id="luUser" placeholder="Prueba: 'ruiz'…" oninput="searchUsers('luUser','luUserRes','lu')">
+              </div>
+              <div id="luUserRes"></div>
+              <div class="callout warn" style="margin-top:13px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                <div>Sin identidad vinculada, los work items de esa persona <b>no cuentan</b> en ninguna vista. Una identidad solo puede vincularse a una capacidad.</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" id="rebal">
+          <div class="hd">Rebalanceo sugerido<span class="tag">transversal entre células</span></div>
+          <div class="bd">
+            <div class="pipe">
+              <div class="pnode hot"><b>María González</b><span>Backend Platform · 110% ⚠</span></div>
+              <span class="parrow">→</span>
+              <div class="pnode on"><b>mover 10% BAU soporte</b><span>≈ 0.1 FTE del sprint</span></div>
+              <span class="parrow">→</span>
+              <div class="pnode"><b>Sofía Torres</b><span>Canales Digitales · 60%</span></div>
+            </div>
+            <div id="rebalResult" class="hidden"></div>
+            <div style="display:flex;gap:9px">
+              <button class="btn gh" onclick="simulateRebal()">Simular</button>
+              <button class="btn pri" onclick="applyRebal()">Aplicar rebalanceo</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== GESTIONAR BACKLOGS ==================== -->
+      <section class="view" id="v-backlogs">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad · Backlog</div>
+          <h1>Gestionar Backlogs</h1>
+          <p>Del tablero vinculado llegan los work items. Primero se <b>clasifican</b> (Iniciativa / BAU / Descartado) y luego se <b>curan</b> por capacidad. Solo lo confirmado cuenta como FTE real.</p>
+        </div>
+        <div class="pipe" style="margin-bottom:16px">
+          <div class="pnode"><b>Job de ingesta</b><span>backend · diario 02:00</span></div>
+          <span class="parrow">→</span>
+          <div class="pnode"><b>Match Entra ID</b><span>automático · no asocia solo</span></div>
+          <span class="parrow">→</span>
+          <div class="pnode hot"><b>Tu revisión</b><span><b id="curPipeCount">3</b> pendientes de curación</span></div>
+          <span class="parrow">→</span>
+          <div class="pnode on"><b>Confirmado</b><span>board + FTE real</span></div>
+        </div>
+        <div class="tabs" id="blTabs">
+          <button class="on" onclick="blTab(this,'bl1')">Curación de items <span class="pill bad" id="curTabPill" style="margin-left:5px">3</span></button>
+          <button onclick="blTab(this,'bl2')">Mapeo Epic ↔ Iniciativa</button>
+          <button onclick="blTab(this,'bl3')">Curados recientemente</button>
+        </div>
+        <div class="tabpane on" id="bl1">
+          <div class="card">
+            <div class="hd">Bandeja de curación<span class="tag">confirma si cada item pertenece a esa persona</span></div>
+            <div id="curInbox"></div>
+          </div>
+        </div>
+        <div class="tabpane" id="bl2">
+          <div class="card">
+            <div class="hd">Mapeo de Epics y Features<span class="tag">célula: Backend Platform · tablero: Backend Core</span></div>
+            <table>
+              <thead><tr><th>Work item</th><th>Tipo</th><th>Iniciativa</th><th>Estado</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="b">#12345 · Migración plataforma Kafka</td><td><span class="pill info">Epic</span></td><td>Kafka Migration</td><td><span class="pill ok">mapeado</span></td><td></td></tr>
+                <tr><td class="b">#12388 · Conectores legacy AS-400</td><td><span class="pill warn">Feature</span></td><td>Kafka Migration</td><td><span class="pill ok">mapeado</span></td><td></td></tr>
+                <tr><td class="b">#12290 · Observabilidad plataforma</td><td><span class="pill info">Epic</span></td><td class="sub">sin mapear</td><td><span class="pill gray">disponible</span></td>
+                    <td><button class="btn gh sm" onclick="toast('PUT /api/initiatives/{id}/backlog-mapping · un Epic solo puede pertenecer a UNA iniciativa (409 si ya está)')">Mapear</button></td></tr>
+                <tr><td class="b">#12101 · Rediseño motor de pagos</td><td><span class="pill info">Epic</span></td><td class="sub">de otra iniciativa</td><td><span class="pill bad">409 · Payment Engine v2</span></td><td></td></tr>
+              </tbody>
+            </table>
+            <div class="bd" style="border-top:1px solid var(--line)">
+              <div class="callout info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>
+                <div>El mapeo marca automáticamente el prerequisito <b>backlogDefined</b> de la Etapa 2 de estimación.</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="tabpane" id="bl3">
+          <div class="card">
+            <div class="hd">Curados recientemente<span class="tag">trazabilidad completa</span></div>
+            <table>
+              <thead><tr><th>Work item</th><th>Capacidad</th><th>Resultado</th><th>Fecha</th></tr></thead>
+              <tbody id="curatedTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== REPORTE DE HORAS (lead) ==================== -->
+      <section class="view" id="v-reporte">
+        <div class="head">
+          <div class="kick">Gestión de Capacidad · al cierre de cada sprint</div>
+          <h1>Reporte de Horas · Sprint 16</h1>
+          <p>Estado de reportes en tus 3 células. Sprint de <b id="repTotalLbl">80 horas</b> (configurable por el Admin de plataforma).</p>
+        </div>
+        <div class="grid g3" style="margin-bottom:16px" id="repCoverage"></div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Captura individual<span class="tag">Carlos López</span></div>
+            <table>
+              <thead><tr><th>Destino</th><th>Tipo</th><th class="c">Horas</th><th class="c">FTE</th></tr></thead>
+              <tbody id="repTable"></tbody>
+            </table>
+            <div class="bd" style="border-top:1px solid var(--line)">
+              <div id="repMsg" style="margin-bottom:12px"></div>
+              <div style="display:flex;gap:9px">
+                <button class="btn pri" onclick="toast('Reporte del sprint 16 enviado · pendiente validación del Chapter Lead')">Enviar reporte</button>
+                <button class="btn gh" onclick="toast('Borrador guardado')">Guardar borrador</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Pendientes de validar / reportar<span class="tag">todas las células</span></div>
+            <table id="pendRepTable"></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== INTEGRACIONES (lead · solo lectura) ==================== -->
+      <section class="view" id="v-integraciones">
+        <div class="head">
+          <div class="kick">Integraciones</div>
+          <h1>Estado de integraciones</h1>
+          <p>Vista de solo lectura. La configuración de la conexión y del job de ingesta pertenece al <b>Admin de plataforma</b>.</p>
+        </div>
+        <div class="pipe" style="margin-bottom:16px">
+          <div class="pnode"><b>Azure DevOps</b><span>fuente externa · solo lectura</span></div>
+          <span class="parrow">→</span>
+          <div class="pnode"><b>Job de ingesta</b><span>backend · diario 02:00</span></div>
+          <span class="parrow">→</span>
+          <div class="pnode"><b>Base local (espejo)</b><span>boards · items · identidades</span></div>
+          <span class="parrow">→</span>
+          <div class="pnode on"><b>API de la plataforma</b><span>lo único que ve el front</span></div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Vínculos tablero ↔ célula</div>
+            <table>
+              <thead><tr><th>Célula</th><th>Tablero</th><th>Estado</th></tr></thead>
+              <tbody id="linksTable"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="hd">Identidades Entra ID</div>
+            <div class="bd">
+              <div class="grid g3" style="margin-bottom:14px">
+                <div class="stat"><div class="k">Resueltas</div><div class="v">22</div></div>
+                <div class="stat"><div class="k">Sin match</div><div class="v" style="color:var(--bad)" id="unmCount">1</div></div>
+                <div class="stat"><div class="k">Items afectados</div><div class="v">4</div></div>
+              </div>
+              <div class="callout warn"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                <div>El match se hace por <b>entraObjectId</b> con fallback a UPN. Los matches manuales quedan persistidos para futuros syncs.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== EVALUAR INICIATIVA (motor de scoring) ==================== -->
+      <section class="view" id="v-evaluar">
+        <div class="head">
+          <div class="kick">Dimensionamiento · Etapa 1 · Estimación temprana</div>
+          <h1>Evaluar iniciativa</h1>
+          <p>T-Shirt Sizing con incertidumbre <b>±50-100%</b>. El puntaje genera una talla, la talla genera un rango de esfuerzo (PM),
+             y el plazo objetivo convierte ese esfuerzo en FTE. <b>El plazo no modifica la talla</b>: cambia la capacidad necesaria.</p>
+        </div>
+
+        <div class="resbar">
+          <span class="talla M" id="rbTalla" style="font-size:15px;padding:4px 11px">—</span>
+          <div class="rb"><span class="k">Complejidad</span><span class="v" id="rbPct">0%</span></div>
+          <div class="rb"><span class="k">Esfuerzo</span><span class="v" id="rbPm">— <small>PM</small></span></div>
+          <div class="rb"><span class="k">FTE medio</span><span class="v" id="rbFte">—</span></div>
+          <div class="rb"><span class="k">Rango FTE</span><span class="v" id="rbFteRange"><small>—</small></span></div>
+          <div style="flex:1"></div>
+          <button class="btn pri sm" onclick="saveToPortfolio()">Guardar en portafolio</button>
+        </div>
+
+        <div class="grid g21">
+          <div>
+            <div class="card" style="margin-bottom:15px">
+              <div class="hd">Datos de la iniciativa</div>
+              <div class="bd">
+                <div class="prow">
+                  <div><label class="lab req">Nombre</label><input id="evName" placeholder="Ej: Pago con QR en App" oninput="recalc()"></div>
+                  <div><label class="lab req">Plazo objetivo (meses)</label><input type="number" id="evPlazo" value="6" min="1" max="36" oninput="recalc()"></div>
+                </div>
+                <div class="sub" style="margin-bottom:6px">Precargar un ejemplo de referencia:</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn gh sm" onclick="loadExample('pequena')">Ejemplo pequeño</button>
+                  <button class="btn gh sm" onclick="loadExample('mediana')">Ejemplo mediano</button>
+                  <button class="btn gh sm" onclick="loadExample('grande')">Ejemplo grande</button>
+                  <button class="btn gh sm" onclick="resetEval()">Limpiar</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:15px">
+              <div class="hd">Tamizaje previo<span class="tag">6 preguntas · define si hace falta la evaluación completa</span></div>
+              <div class="bd">
+                <div id="triageList"></div>
+                <div id="triageVerdict" class="callout ok" style="margin-top:12px"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="hd">Formulario de complejidad<span class="tag">30 preguntas · 7 dimensiones</span></div>
+              <div class="bd">
+                <details class="hint"><summary>ℹ ¿Cómo se calcula?</summary>
+                  <div class="hbd">Cada respuesta (0–4) se multiplica por el <b>peso</b> de su pregunta. El puntaje total se expresa como
+                    porcentaje del máximo posible y cae en una banda de talla. Las preguntas <span class="chip cuant">cuantitativa</span>
+                    se responden con <b>rangos numéricos</b>; las <span class="chip cual">evaluativa</span> con juicio experto.
+                    El pool de preguntas, los pesos y las bandas los sirve el backend y son parametrizables.</div></details>
+                <div id="questionList"></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="position:sticky;top:130px">
+              <div class="hd">Resultado en vivo</div>
+              <div class="bd">
+                <div style="display:flex;justify-content:center;margin-bottom:14px">
+                  <div class="gauge" id="gauge"></div>
+                </div>
+                <div id="tallaLectura" class="callout info" style="margin-bottom:13px"></div>
+                <div class="grid g2" style="gap:10px;margin-bottom:14px">
+                  <div class="stat"><div class="k">Esfuerzo</div><div class="v" id="stPm">—</div></div>
+                  <div class="stat"><div class="k">FTE medio</div><div class="v" id="stFte">—</div></div>
+                  <div class="stat"><div class="k">FTE optimista</div><div class="v" id="stFteMin">—</div></div>
+                  <div class="stat"><div class="k">FTE pesimista</div><div class="v" id="stFteMax">—</div></div>
+                </div>
+                <div class="lab">Complejidad por dimensión</div>
+                <div id="dimBars" style="margin-bottom:14px"></div>
+                <div class="lab">Mix de capacidades sugerido <span class="optional">SFIA escala Tuya 1–4</span></div>
+                <table id="mixTable"></table>
+                <div class="callout warn" style="margin-top:12px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                  <div>Banda temprana con incertidumbre <b>±50-100%</b>. No es una promesa: se refina en la Etapa 2 (COCOMO II, ±25%).</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== PORTAFOLIO ==================== -->
+      <section class="view" id="v-portafolio">
+        <div class="head">
+          <div class="kick">Dimensionamiento</div>
+          <h1>Portafolio de iniciativas</h1>
+          <p>Todas las iniciativas evaluadas con su talla, esfuerzo y FTE. Solo las iniciativas <b>activas</b> generan demanda de capacidad.</p>
+        </div>
+        <div class="grid g4" style="margin-bottom:16px" id="pfKpis"></div>
+        <div class="grid g21">
+          <div class="card">
+            <div class="hd">Iniciativas evaluadas<span class="tag" id="pfCount"></span></div>
+            <table>
+              <thead><tr><th>Iniciativa</th><th>Célula</th><th class="c">Talla</th><th class="c">Complej.</th><th class="c">PM</th><th class="c">FTE est</th><th class="c">Plazo</th><th>Estado</th></tr></thead>
+              <tbody id="pfTable"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="hd">Distribución por talla</div>
+            <div class="bd" id="pfDist"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== CAPACIDAD VS DEMANDA ==================== -->
+      <section class="view" id="v-demanda">
+        <div class="head">
+          <div class="kick">Dimensionamiento</div>
+          <h1>Capacidad vs Demanda</h1>
+          <p>Compara el FTE que exigen las iniciativas <b>activas</b> contra la capacidad disponible del chapter, por cada capacidad/rol.
+             La capacidad disponible se deriva de las personas registradas: no se mantiene en dos lugares.</p>
+        </div>
+        <div class="grid g4" style="margin-bottom:16px" id="dmKpis"></div>
+        <div class="card">
+          <div class="hd">Demanda vs capacidad por capacidad<span class="tag">solo iniciativas Active</span></div>
+          <table>
+            <thead><tr><th>Capacidad / rol</th><th class="c">SFIA req.</th><th style="width:34%">Demanda vs disponible</th>
+              <th class="c">Demanda</th><th class="c">Disponible</th><th class="c">Asignado</th><th class="c">Brecha</th><th class="c">Cobertura</th></tr></thead>
+            <tbody id="dmTable"></tbody>
+          </table>
+          <div class="bd" style="border-top:1px solid var(--line)">
+            <div class="callout info"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>
+              <div><b>Cobertura</b> = asignado ÷ demandado. Verde ≥100% · ámbar 50–99% · rojo &lt;50%.
+                   <b>Brecha</b> = disponible − demanda.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== CALIBRACIÓN ==================== -->
+      <section class="view" id="v-calibracion">
+        <div class="head">
+          <div class="kick">Dimensionamiento</div>
+          <h1>Calibración estimado vs real</h1>
+          <p>Al cierre de cada iniciativa se compara lo estimado contra lo real. La desviación acumulada sugiere un factor de ajuste
+             para las bandas de talla — el paso de <i>opinión experta</i> a <i>modelo basado en evidencia</i>.</p>
+        </div>
+        <div class="callout warn" style="margin-bottom:16px"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <div><b>Algoritmo de calibración pendiente de definir</b> (punto abierto A-02 del documento maestro).
+               Lo que se muestra aquí es la <b>captura de datos</b> y una desviación simple; la fórmula de ajuste de parámetros aún no está acordada.</div></div>
+        <div class="grid g21">
+          <div class="card">
+            <div class="hd">Iniciativas cerradas<span class="tag">estimado vs real</span></div>
+            <table>
+              <thead><tr><th>Iniciativa</th><th class="c">Talla</th><th class="c">FTE est</th><th class="c">FTE real</th><th class="c">Desviación</th><th class="c">Duración real</th></tr></thead>
+              <tbody id="calTable"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="hd">Factor de ajuste sugerido</div>
+            <div class="bd" id="calFactor"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== COLABORADOR · MI TRABAJO ==================== -->
+      <section class="view" id="v-mi-trabajo">
+        <div class="head">
+          <div class="kick">Backend Platform · Sprint 16</div>
+          <h1>Hola, Carlos 👋</h1>
+          <p>Tu sprint en un vistazo: qué te falta reportar, qué items esperan tu revisión y cómo va tu utilización.</p>
+        </div>
+        <div class="grid g4" style="margin-bottom:16px">
+          <div class="kpi"><div class="n">1.0</div><div class="l">Tu FTE disponible</div></div>
+          <div class="kpi"><div class="n" style="color:var(--brand)">0.40</div><div class="l">en transformación</div></div>
+          <div class="kpi"><div class="n" style="color:var(--warn)">0.40</div><div class="l">en BAU</div></div>
+          <div class="kpi"><div class="n" style="color:var(--ok)">0.20</div><div class="l">libre</div></div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Pendientes para ti<span class="tag">tu sprint</span></div>
+            <div class="bd">
+              <div class="todo" onclick="go('mi-reporte')"><span class="tn info">1</span>
+                <div><div class="tt">Enviar tu reporte de horas</div><div class="ts">Sprint 16 cierra el 8 de agosto</div></div></div>
+              <div class="todo" onclick="go('mi-backlog')"><span class="tn bad">2</span>
+                <div><div class="tt">Items esperando tu revisión</div><div class="ts">Confirma si realmente te corresponden</div></div></div>
+              <div class="todo" onclick="go('mi-capacidad')"><span class="tn warn">1</span>
+                <div><div class="tt">Revisa tu utilización</div><div class="ts">Estás al 100% — sin margen para demanda nueva</div></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Tu asignación actual<span class="tag">Backend Platform</span></div>
+            <div class="bd">
+              <div class="dbar"><div class="lab"><span>Kafka Migration · transformación</span><b>40%</b></div>
+                <div class="track"><div class="fill" style="width:40%"></div></div></div>
+              <div class="dbar"><div class="lab"><span>BAU · soporte y operación</span><b>40%</b></div>
+                <div class="track"><div class="fill" style="width:40%;background:var(--amber)"></div></div></div>
+              <div class="dbar"><div class="lab"><span>Libre</span><b>20%</b></div>
+                <div class="track"><div class="fill" style="width:20%;background:var(--green)"></div></div></div>
+              <div class="callout ok" style="margin-top:13px"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+                <div>BAU + Transformación = 80% de dedicación. La suma cuadra con tu asignación registrada.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== COLABORADOR · MI REPORTE ==================== -->
+      <section class="view" id="v-mi-reporte">
+        <div class="head">
+          <div class="kick">Mi sprint · al cierre</div>
+          <h1>Mi reporte de horas · Sprint 16</h1>
+          <p>28 jul – 8 ago. Reparte tus <b id="miRepLbl">80 horas</b> entre la iniciativa, las tareas BAU y el tiempo libre.
+             Tu reporte pasa a validación del Chapter Lead.</p>
+        </div>
+        <div class="grid g21">
+          <div class="card">
+            <div class="hd">Reparte tus horas<span class="tag">Carlos López</span></div>
+            <table>
+              <thead><tr><th>Destino</th><th>Tipo</th><th class="c">Horas</th><th class="c">FTE</th></tr></thead>
+              <tbody id="miRepTable"></tbody>
+            </table>
+            <div class="bd" style="border-top:1px solid var(--line)">
+              <div id="miRepMsg" style="margin-bottom:12px"></div>
+              <div style="display:flex;gap:9px">
+                <button class="btn pri" onclick="toast('Reporte del sprint 16 enviado · pendiente validación del Chapter Lead')">Enviar reporte</button>
+                <button class="btn gh" onclick="toast('Borrador guardado')">Guardar borrador</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Cadena de aprobación</div>
+            <div class="bd">
+              <div class="chk"><span class="ci y">✓</span><div><b>Borrador</b><div class="sub">Guardado localmente, editable</div></div></div>
+              <div class="chk"><span class="ci n">2</span><div><b>Enviado</b><div class="sub">Requiere total en 76–84 h</div></div></div>
+              <div class="chk"><span class="ci n">3</span><div><b>Por validar</b><div class="sub">Visible para el Chapter Lead</div></div></div>
+              <div class="chk"><span class="ci n">4</span><div><b>Validado</b><div class="sub">Consolida el FTE real del sprint</div></div></div>
+              <div class="callout info" style="margin-top:13px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>
+                <div><b>FTE = horas ÷ horas del sprint.</b> Con la configuración vigente, 80 h = 1.00 FTE.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== COLABORADOR · MI BACKLOG ==================== -->
+      <section class="view" id="v-mi-backlog">
+        <div class="head">
+          <div class="kick">Mi sprint</div>
+          <h1>Mi backlog</h1>
+          <p>Items que Azure DevOps te asignó. El match automático por Entra ID <b>no asocia solo</b>: confirma los que realmente te
+             corresponden y rechaza (con motivo) los que llegaron por error.</p>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Esperando tu confirmación<span class="tag"><b id="miCurCount">2</b> pendientes</span></div>
+            <div id="miCurInbox"></div>
+          </div>
+          <div class="card">
+            <div class="hd">Items confirmados<span class="tag">evidencia de tu FTE real</span></div>
+            <table>
+              <thead><tr><th>Work item</th><th>Iniciativa</th><th class="c">Pts</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td class="b">#12350 · Esquemas Avro registry</td><td>Kafka Migration</td><td class="c">8</td><td><span class="pill ok">Confirmed</span></td></tr>
+                <tr><td class="b">#12344 · Productor idempotente pagos</td><td>Kafka Migration</td><td class="c">5</td><td><span class="pill ok">Confirmed</span></td></tr>
+                <tr><td class="b">#12322 · Migración tópico transacciones</td><td>Kafka Migration</td><td class="c">8</td><td><span class="pill ok">Confirmed</span></td></tr>
+                <tr><td class="b">#12291 · Hotfix reproceso nocturno</td><td class="sub">BAU · Mantenimiento correctivo</td><td class="c">2</td><td><span class="pill ok">Confirmed</span></td></tr>
+              </tbody>
+            </table>
+            <div class="bd" style="border-top:1px solid var(--line)">
+              <div class="callout ok"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>
+                <div>Reportaste 32 h (0.40 FTE) en Kafka Migration; tus items confirmados son consistentes con ese reporte.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== COLABORADOR · MI CAPACIDAD ==================== -->
+      <section class="view" id="v-mi-capacidad">
+        <div class="head">
+          <div class="kick">Mi perfil</div>
+          <h1>Mi capacidad</h1>
+          <p>Tu ficha como capacidad del chapter. Los datos los mantiene tu Chapter Lead.</p>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Ficha de capacidad</div>
+            <table>
+              <tr><td class="sub">Nombre</td><td class="b">Carlos López</td></tr>
+              <tr><td class="sub">Rol</td><td class="b">Backend Dev</td></tr>
+              <tr><td class="sub">Seniority</td><td class="b">Senior</td></tr>
+              <tr><td class="sub">Nivel SFIA</td><td><span class="sfia s3">3</span> <b>Avanzado</b> <span class="sub">· escala Tuya (1–4)</span></td></tr>
+              <tr><td class="sub">Modalidad</td><td class="b">Interno</td></tr>
+              <tr><td class="sub">FTE disponible</td><td class="b">1.0</td></tr>
+              <tr><td class="sub">Célula</td><td class="b">Backend Platform</td></tr>
+              <tr><td class="sub">Chapter</td><td class="b">Backend Development &amp; AS-400</td></tr>
+              <tr><td class="sub">Usuario DevOps</td><td><span class="pill ok">✓ carlos.lopez@tuya.com</span></td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <div class="hd">Utilización histórica<span class="tag">últimos 4 sprints</span></div>
+            <div class="bd">
+              <div class="dbar"><div class="lab"><span>Sprint 13</span><b>95%</b></div><div class="track"><div class="fill" style="width:95%"></div></div></div>
+              <div class="dbar"><div class="lab"><span>Sprint 14</span><b>100%</b></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="dbar"><div class="lab"><span>Sprint 15</span><b>105%</b></div><div class="track"><div class="fill" style="width:100%;background:var(--bad)"></div></div></div>
+              <div class="dbar"><div class="lab"><span>Sprint 16</span><b>100%</b></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+              <div class="callout info" style="margin-top:13px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>
+                <div>Tu chapter es tu línea de gestión: además de capacidad y asignación, gestiona tu trayectoria de carrera y permisos.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ADMIN · ESTADO DE LA PLATAFORMA ==================== -->
+      <section class="view" id="v-admin-home">
+        <div class="head">
+          <div class="kick">Administración</div>
+          <h1>Estado de la plataforma</h1>
+          <p>Parámetros globales que gobiernan el comportamiento de todos los módulos, y el estado de la ingesta que mantiene la base local actualizada.</p>
+        </div>
+        <div class="grid g4" style="margin-bottom:16px">
+          <div class="kpi"><div class="n">14</div><div class="l">Tableros espejados</div></div>
+          <div class="kpi"><div class="n">1.240</div><div class="l">Work items espejados</div></div>
+          <div class="kpi"><div class="n">238</div><div class="l">Identidades espejadas</div></div>
+          <div class="kpi"><div class="n" style="color:var(--ok)">OK</div><div class="l">Última ingesta · hoy 02:00</div></div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Configuración vigente</div>
+            <table>
+              <thead><tr><th>Parámetro</th><th>Dónde</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td class="b">Calendario de sprints<div class="sub">Duración, horas, tolerancia</div></td><td class="sub">Calendario de sprints</td><td><span class="pill ok">Configurado</span></td></tr>
+                <tr><td class="b">Conexión Azure DevOps<div class="sub">Organización, proyecto, credenciales</div></td><td class="sub">Integración DevOps</td><td><span class="pill ok">Conectado</span></td></tr>
+                <tr><td class="b">Parámetros del modelo<div class="sub">Tallas, preguntas, mix, SFIA</div></td><td class="sub">Parámetros del modelo</td><td><span class="pill gray">Default</span></td></tr>
+                <tr><td class="b">Identidades Entra ID<div class="sub">Matches manuales persistidos</div></td><td class="sub">Integración DevOps</td><td><span class="pill warn">1 sin match</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="hd">Autenticación y autorización<span class="tag">pendiente de definir</span></div>
+            <div class="bd">
+              <div class="pipe">
+                <div class="pnode"><b>Frontend</b><span>OAuth 2.0 / OIDC</span></div>
+                <span class="parrow">→</span>
+                <div class="pnode"><b>APIM</b><span>expone servicios de AKS</span></div>
+                <span class="parrow">→</span>
+                <div class="pnode"><b>Entra ID</b><span>identidades federadas</span></div>
+              </div>
+              <div class="callout warn"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                <div>La <b>autenticación</b> es externa al backend por diseño. La <b>autorización de negocio</b> (qué puede hacer un
+                     Chapter Lead) sí es del dominio, pero está pendiente decidir si viene como claims desde APIM/Entra ID o como
+                     tabla de roles local (punto abierto A-03).</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ADMIN · CALENDARIO DE SPRINTS ==================== -->
+      <section class="view" id="v-admin-sprints">
+        <div class="head">
+          <div class="kick">Administración</div>
+          <h1>Calendario de sprints</h1>
+          <p>Única fuente de verdad para convertir horas en FTE y para validar los reportes. Cambiarlo <b>no recalcula</b> los sprints ya reportados.</p>
+        </div>
+        <div class="grid g21">
+          <div class="card">
+            <div class="hd">Parámetros del sprint<span class="tag">única fuente de verdad</span></div>
+            <div class="bd">
+              <div class="prow">
+                <div><label class="lab">Semanas por sprint</label><input type="number" id="cfgWeeks" value="2" min="1" max="4" oninput="saveCfgLive()"></div>
+                <div><label class="lab">Horas por semana</label><input type="number" id="cfgHours" value="40" min="20" max="48" oninput="saveCfgLive()"></div>
+              </div>
+              <div class="prow">
+                <div><label class="lab">Sprints por quarter</label><input type="number" id="cfgQuarter" value="6" min="4" max="8" oninput="saveCfgLive()"></div>
+                <div><label class="lab">Tolerancia de reporte (± h)</label><input type="number" id="cfgTol" value="4" min="0" max="16" oninput="saveCfgLive()"></div>
+              </div>
+              <div class="callout info" id="cfgOut"></div>
+              <button class="btn pri" style="margin-top:13px" onclick="saveCfg()">Guardar configuración</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">¿Qué usa este calendario?</div>
+            <div class="bd">
+              <div class="chk"><span class="ci y">✓</span><div><b>Reporte de horas por sprint</b><div class="sub">Valida el total contra horas ± tolerancia</div></div></div>
+              <div class="chk"><span class="ci y">✓</span><div><b>Dashboard de capacidad</b><div class="sub">Convierte horas → FTE con la duración vigente</div></div></div>
+              <div class="chk"><span class="ci y">✓</span><div><b>Roadmap</b><div class="sub">Posiciona iniciativas por sprint y quarter</div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ADMIN · PARÁMETROS DEL MODELO ==================== -->
+      <section class="view" id="v-admin-parametros">
+        <div class="head">
+          <div class="kick">Administración</div>
+          <h1>Parámetros del modelo de estimación</h1>
+          <p>El pool de preguntas, los pesos y las bandas de talla los <b>sirve el backend</b>, no el cliente. Aquí se recalibran.</p>
+        </div>
+        <div class="grid g2" style="margin-bottom:16px">
+          <div class="card">
+            <div class="hd">Bandas de talla<span class="tag">puntaje → talla → esfuerzo</span></div>
+            <table>
+              <thead><tr><th class="c">Talla</th><th class="c">Puntaje %</th><th class="c">PM mín</th><th class="c">PM máx</th><th>Lectura</th></tr></thead>
+              <tbody id="admTallas"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="hd">Mix de capacidades y SFIA<span class="tag">por talla · escala Tuya 1–4</span></div>
+            <table>
+              <thead><tr><th>Capacidad</th><th class="c">XS</th><th class="c">S</th><th class="c">M</th><th class="c">L</th><th class="c">XL</th></tr></thead>
+              <tbody id="admMix"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Pool de preguntas<span class="tag">30 preguntas · 7 dimensiones</span></div>
+            <table>
+              <thead><tr><th>Dimensión</th><th class="c">Preguntas</th><th class="c">Peso total</th><th class="c">Máx. puntos</th></tr></thead>
+              <tbody id="admQuestions"></tbody>
+            </table>
+          </div>
+          <div class="card">
+            <div class="hd">Versionado y auditoría<span class="tag">propuesta</span></div>
+            <div class="bd">
+              <div class="callout warn"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                <div><b>Propuesta, no acordada aún</b> (punto abierto A-09): versionar los parámetros con autor, fecha y nota de cambio.
+                     Las evaluaciones ya hechas conservarían la versión con la que fueron calculadas, igual que el calendario de sprints
+                     no recalcula lo ya reportado.</div></div>
+              <table style="margin-top:12px">
+                <thead><tr><th>Versión</th><th>Autor</th><th>Fecha</th><th>Nota</th></tr></thead>
+                <tbody>
+                  <tr><td class="b">v1 · vigente</td><td>Sistema</td><td class="sub">carga inicial</td><td class="sub">Valores por defecto de criterio experto</td></tr>
+                </tbody>
+              </table>
+              <button class="btn gh" style="margin-top:13px" onclick="toast('GET/PUT /api/model/parameters · edición de parámetros')">Editar parámetros</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== ADMIN · INTEGRACIÓN DEVOPS ==================== -->
+      <section class="view" id="v-admin-devops">
+        <div class="head">
+          <div class="kick">Administración · Integraciones</div>
+          <h1>Integración con Azure DevOps</h1>
+          <p><b>Arquitectura backend-driven:</b> el frontend nunca llama a Azure DevOps. Un job del backend baja tableros, work items
+             e identidades a tablas espejo locales, y la plataforma expone endpoints que consumen esa base. La integración es <b>solo lectura</b>.</p>
+        </div>
+        <div class="pipe" style="margin-bottom:16px">
+          <div class="pnode"><b>Azure DevOps</b><span>fuente externa</span></div>
+          <span class="parrow">→</span>
+          <div class="pnode"><b>Job de ingesta</b><span>backend · diario 02:00</span></div>
+          <span class="parrow">→</span>
+          <div class="pnode"><b>Base local (espejo)</b><span>boards · items · identidades</span></div>
+          <span class="parrow">→</span>
+          <div class="pnode on"><b>API de la plataforma</b><span>lo único que ve el front</span></div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <div class="hd">Conexión<span class="tag">usada solo por el backend</span></div>
+            <div class="bd">
+              <div class="prow">
+                <div><label class="lab">Organización</label><input value="https://dev.azure.com/tuya" readonly></div>
+                <div><label class="lab">Proyecto</label><input value="Ecosistema-Digital" readonly></div>
+              </div>
+              <div class="prow">
+                <div><label class="lab">Autenticación</label><select class="fld"><option>Service Principal (Entra ID)</option></select></div>
+                <div><label class="lab">Secreto</label><input type="password" value="••••••••••••" readonly></div>
+              </div>
+              <table>
+                <tr><td class="sub">Estado</td><td><span class="pill ok">Conectado</span></td></tr>
+                <tr><td class="sub">Permisos</td><td class="b">Work Items (Read) · Boards (Read)</td></tr>
+                <tr><td class="sub">Dirección</td><td class="b">Solo lectura · DevOps → Plataforma</td></tr>
+              </table>
+              <button class="btn gh" style="margin-top:13px" onclick="toast('Conexión verificada por el backend · acceso de lectura confirmado')">Probar conexión</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="hd">Job de ingesta diaria<span class="tag">GET /integrations/azure-devops/ingestion/status</span></div>
+            <div class="bd">
+              <table style="margin-bottom:13px">
+                <tr><td class="sub">Última ejecución</td><td class="b" id="jobLast">Hoy 02:00 · OK</td></tr>
+                <tr><td class="sub">Próxima programada</td><td class="b">Mañana 02:00</td></tr>
+                <tr><td class="sub">Tableros espejados</td><td class="b">14</td></tr>
+                <tr><td class="sub">Work items espejados</td><td class="b">1.240</td></tr>
+                <tr><td class="sub">Identidades espejadas</td><td class="b">238</td></tr>
+                <tr><td class="sub">Novedades última corrida</td><td class="b" id="jobNews">+3 nuevos · 2 cambios → curación</td></tr>
+              </table>
+              <button class="btn pri" onclick="runJob()">⟳ Ejecutar ingesta ahora</button>
+              <div class="callout info" style="margin-top:13px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>
+                <div>Las novedades <b>con asignación</b> entran a la bandeja de curación. Un cambio de <code>assignedTo</code> en un
+                     item ya curado lo devuelve a curación.</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ==========================================================================
+   TEMAS · azul corporativo (v1+v6) y Tuya (v1)
+   ========================================================================== */
+var THEMES={
+  azul:{label:'Azul corporativo',vars:{
+    '--brand':'#2F4BD8','--brand2':'#5B6BE8','--cyan':'#0EA5A4',
+    '--ink':'#1E293B','--muted':'#5b6b80','--faint':'#9aa6be','--line':'#e5e9f2',
+    '--bg':'#f4f6fb','--card':'#ffffff','--seg':'#eef2f8','--hover':'#fafbfe',
+    '--soft':'#eef1fb','--soft2':'#e9edfc'}},
+  tuya:{label:'Tuya',vars:{
+    '--brand':'#ff545d','--brand2':'#e23b45','--cyan':'#F2784B',
+    '--ink':'#20242b','--muted':'#5b626d','--faint':'#9aa0aa','--line':'#e2e2e5',
+    '--bg':'#f4f4f5','--card':'#ffffff','--seg':'#eeeef0','--hover':'#f6f6f7',
+    '--soft':'#fdeaea','--soft2':'#fde2e3'}}
+};
+var theme='azul';
+function applyTheme(k){
+  var t=THEMES[k]||THEMES.azul, r=document.documentElement;
+  for(var v in t.vars){ r.style.setProperty(v,t.vars[v]); }
+  theme=k;
+  try{ localStorage.setItem('v7theme',k); }catch(e){}
+}
+function toggleTheme(){
+  applyTheme(theme==='azul'?'tuya':'azul');
+  toast('Tema: '+THEMES[theme].label);
+}
+
+/* ==========================================================================
+   DATOS MOQUEADOS
+   ========================================================================== */
+var CHAPTER={name:'Backend Development & AS-400',cells:3,caps:24};
+
+var CELLS=[
+ {id:1,name:'Backend Platform',tribe:'Payments',crit:'Crítica',caps:10,ini:'Kafka Migration',talla:'M',
+  board:'Backend Core',boardPath:'Payments\\Backend',sema:'y',alert:'BAU creciendo',
+  transf:3.2,transfEst:3.5,bau:4.4,bauEst:4.2,libre:2.4,libreEst:2.3,det:true},
+ {id:2,name:'Fraude Tarjetas',tribe:'Risk & Fraud',crit:'Crítica',caps:8,ini:'Motor scoring v2',talla:'L',
+  board:'Fraude',boardPath:'Risk\\Fraude',sema:'g',alert:null,
+  transf:4.1,transfEst:4.0,bau:2.6,bauEst:2.6,libre:1.3,libreEst:1.4,det:false},
+ {id:3,name:'Canales Digitales',tribe:'Customer',crit:'Alta',caps:6,ini:'Onboarding digital',talla:'S',
+  board:'Canales Web',boardPath:'Customer\\Web',sema:'g',alert:null,
+  transf:1.5,transfEst:1.6,bau:2.2,bauEst:2.3,libre:2.3,libreEst:2.1,det:false},
+ {id:4,name:'Pagos Instantáneos',tribe:'Payments',crit:'Alta',caps:0,ini:null,talla:null,
+  board:null,boardPath:null,sema:'g',alert:null,
+  transf:0,transfEst:0,bau:0,bauEst:0,libre:0,libreEst:0,det:false}
+];
+
+var PEOPLE=[
+ {id:1,name:'María González',role:'Backend Dev',sen:'Semi-senior',sfia:2,cell:'Backend Platform',
+  util:110,devops:'maria.gonzalez',alloc:'Kafka 60% · BAU 50%',report:'82 h',val:true},
+ {id:2,name:'Carlos López',role:'Backend Dev',sen:'Senior',sfia:3,cell:'Backend Platform',
+  util:100,devops:'carlos.lopez',alloc:'Kafka 40% · BAU 40% · libre 20%',report:'80 h',val:true},
+ {id:3,name:'Julián Pérez',role:'Arquitecto',sen:'Senior',sfia:4,cell:'Backend Platform',
+  util:100,devops:'julian.perez',alloc:'Kafka 50% · BAU 30% · libre 20%',report:'78 h',val:true},
+ {id:4,name:'Ana Gómez',role:'QA Engineer',sen:'Senior',sfia:3,cell:'Backend Platform',
+  util:100,devops:'ana.gomez',alloc:'Kafka 30% · BAU 45% · libre 25%',report:'80 h',val:false},
+ {id:5,name:'Sofía Torres',role:'Backend Dev',sen:'Senior',sfia:3,cell:'Canales Digitales',
+  util:60,devops:'sofia.torres',alloc:'Onboarding 35% · BAU 25% · libre 40%',report:'80 h',val:true},
+ {id:6,name:'Laura Ruiz',role:'QA Engineer',sen:'Junior',sfia:1,cell:'Backend Platform',
+  util:null,devops:null,alloc:'sin reporte S16',report:null,val:false}
+];
+
+var INIS=[
+ {id:1,name:'Kafka Migration',cell:'Backend Platform',status:'ACTIVE',stage:'Etapa 1 · M',talla:'M',
+  fteEst:3.5,fteReal:3.2,backlog:'34 items · 89 pts'},
+ {id:2,name:'API Open Finance',cell:'Backend Platform',status:'EVALUATION',stage:'Etapa 1 · S',talla:'S',
+  fteEst:1.2,fteReal:null,backlog:'sin mapear'},
+ {id:3,name:'Motor reglas AML',cell:'Backend Platform',status:'EVALUATION',stage:'Sin estimar',talla:null,
+  fteEst:null,fteReal:null,backlog:null},
+ {id:4,name:'Motor scoring v2',cell:'Fraude Tarjetas',status:'ACTIVE',stage:'Etapa 1 · L',talla:'L',
+  fteEst:4.0,fteReal:4.1,backlog:'28 items · 71 pts'},
+ {id:5,name:'Onboarding digital',cell:'Canales Digitales',status:'ACTIVE',stage:'Etapa 1 · S',talla:'S',
+  fteEst:1.6,fteReal:1.5,backlog:'12 items · 30 pts'}
+];
+
+/* Tareas BAU de Backend Platform · plan vs real */
+var BAUTASKS=[
+ {name:'Soporte y operación en producción',plan:20,real:22},
+ {name:'Ceremonias y reuniones de equipo',plan:10,real:10},
+ {name:'Mantenimiento correctivo',plan:7,real:8},
+ {name:'Gestión de conocimiento / onboarding',plan:5,real:4}
+];
+
+/* Catálogo de categorías BAU (RN · 9 categorías) */
+var BAUCATS=['Soporte y operación en producción','Mantenimiento correctivo','Mantenimiento preventivo / mejoras',
+ 'Documentación técnica','Gestión de conocimiento / onboarding','Ceremonias y reuniones de equipo',
+ 'Soporte a otros equipos / consultoría interna','Seguridad y compliance','Otro BAU'];
+
+/* Espejo local de tableros (job de ingesta) */
+var BOARDS=[
+ {name:'Backend Core',path:'Payments\\Backend',epics:4,items:62,linked:'Backend Platform'},
+ {name:'Fraude',path:'Risk\\Fraude',epics:3,items:41,linked:'Fraude Tarjetas'},
+ {name:'Canales Web',path:'Customer\\Web',epics:2,items:28,linked:'Canales Digitales'},
+ {name:'Pagos Inmediatos',path:'Payments\\Instant',epics:2,items:19,linked:null},
+ {name:'Core Bancario',path:'Payments\\CoreBank',epics:5,items:77,linked:null}
+];
+
+/* Espejo local de identidades Entra ID */
+var USERS=[
+ {name:'Andrea Salazar',upn:'andrea.salazar@tuya.com',items:0,linked:false},
+ {name:'Andrés Mora',upn:'andres.mora@tuya.com',items:6,linked:true},
+ {name:'Laura Ruiz',upn:'l.ruiz@contractor-tuya.com',items:4,linked:false},
+ {name:'Laura Ruiz (interna)',upn:'laura.ruiz@tuya.com',items:0,linked:false},
+ {name:'Carlos López',upn:'carlos.lopez@tuya.com',items:9,linked:true}
+];
+
+/* Backlog espejado · clasificación: unc | ini | bau | dis */
+var BL=[
+ {id:12401,t:'Consumer group rebalanceo',ty:'US',pts:5,st:'New',cls:'unc',tgt:null},
+ {id:12402,t:'Retry policy DLQ',ty:'US',pts:3,st:'New',cls:'unc',tgt:null},
+ {id:12350,t:'Esquemas Avro registry',ty:'US',pts:8,st:'Active',cls:'ini',tgt:'Kafka Migration'},
+ {id:12344,t:'Productor idempotente pagos',ty:'US',pts:5,st:'Active',cls:'ini',tgt:'Kafka Migration'},
+ {id:12351,t:'Migración consumidores fraude',ty:'US',pts:8,st:'Active',cls:'ini',tgt:'Kafka Migration'},
+ {id:12360,t:'Runbook operación clúster',ty:'Task',pts:3,st:'Active',cls:'ini',tgt:'Kafka Migration'},
+ {id:12388,t:'Conectores legacy AS-400',ty:'Feature',pts:38,st:'Resolved',cls:'ini',tgt:'Kafka Migration'},
+ {id:12331,t:'Config TLS brokers',ty:'US',pts:5,st:'Closed',cls:'ini',tgt:'Kafka Migration'},
+ {id:12322,t:'Migración tópico transacciones',ty:'US',pts:8,st:'Closed',cls:'ini',tgt:'Kafka Migration'},
+ {id:12291,t:'Hotfix reproceso nocturno',ty:'US',pts:2,st:'Closed',cls:'bau',tgt:'Mantenimiento correctivo'},
+ {id:12299,t:'Spike compresión mensajes',ty:'US',pts:0,st:'Closed',cls:'dis',tgt:null},
+ {id:12318,t:'Ajuste reporte contable',ty:'US',pts:3,st:'Active',cls:'unc',tgt:null,warn:'parece de otro equipo'}
+];
+var CLR={unc:'#DC2626',ini:'#16A34A',bau:'#f0b429',dis:'#c3cbe0'};
+var CLSLBL={unc:'Clasificar',ini:'Iniciativa',bau:'BAU',dis:'Descartado'};
+var ACTIVE_INI='Kafka Migration';
+
+/* Bandeja de curación · PendingReview */
+var CURATION=[
+ {id:12401,t:'Consumer group rebalanceo',who:'Carlos López',ini:'Kafka Migration',pts:5,note:'ingesta de hoy'},
+ {id:12405,t:'Test de carga tópicos',who:'Julián Pérez',ini:'Kafka Migration',pts:2,note:'ingesta de hoy'},
+ {id:12318,t:'Ajuste reporte contable',who:'Carlos López',ini:'de otro equipo',pts:3,note:'posible error en DevOps',warn:true}
+];
+var CURATED=[
+ {id:12350,t:'Esquemas Avro registry',who:'Carlos López',state:'Confirmed',when:'30-jul'},
+ {id:12344,t:'Productor idempotente pagos',who:'Carlos López',state:'Confirmed',when:'30-jul'},
+ {id:12299,t:'Spike compresión mensajes',who:'María González',state:'Rejected',when:'30-jul',reason:'duplicado'}
+];
+
+/* Reporte de horas · captura individual */
+var REPORT=[
+ {dest:'Kafka Migration',type:'Iniciativa',hours:32},
+ {dest:'Soporte producción',type:'BAU',hours:24},
+ {dest:'Transferencia conocimiento',type:'BAU',hours:8},
+ {dest:'Libre / reuniones',type:'Libre',hours:16}
+];
+var PENDREP=[
+ {who:'Ana Gómez',cell:'Backend Platform',state:'por validar'},
+ {who:'Laura Ruiz',cell:'Backend Platform',state:'sin reportar'},
+ {who:'Pedro Sanín',cell:'Backend Platform',state:'sin reportar'},
+ {who:'Andrés Mora',cell:'Fraude Tarjetas',state:'sin reportar'},
+ {who:'Camila Osorio',cell:'Canales Digitales',state:'sin reportar'}
+];
+
+/* Calendario de sprints · fuente única de verdad (RN-42/43/46) */
+var CFG={weeksPerSprint:2,hoursPerWeek:40,sprintsPerQuarter:6,toleranceHours:4};
+function sprintHours(){ return CFG.weeksPerSprint*CFG.hoursPerWeek; }
+
+/* Contadores vivos · cada uno con UN solo dueño (evita la colisión de v6) */
+var COUNT={curation:3, unclassified:0, unlinkedUsers:1, pendingReports:4, boardPending:5};
+
+/* ==========================================================================
+   MODELO DE SCORING · portado de v1
+   Escala SFIA remapeada 0-7 -> Tuya 1-4 (ver punto A-10 del documento maestro)
+     0     -> 0  (no dedicado, se filtra)
+     1,2   -> 1  Principiante
+     3     -> 2  Competente
+     4     -> 3  Avanzado
+     5,6,7 -> 4  Experto
+   ========================================================================== */
+var DIMS=['Negocio y cliente','Alcance funcional','Integraciones','Datos, seguridad y cumplimiento',
+          'Tecnología y arquitectura','Operación y soporte','Incertidumbre y dependencias'];
+var DIM_SHORT=['Negocio','Alcance','Integr.','Seguridad','Tecnología','Operación','Incert.'];
+
+var QUAL=['Sin impacto / no aplica','Bajo','Medio','Alto','Crítico / muy alto'];
+var RANGES={
+  areas:['Ninguna / solo la célula','1 área','2 áreas','3–4 áreas','5 o más áreas'],
+  canales:['Ninguno','1 canal','2 canales','3 canales','4 o más canales'],
+  sistemas:['Ninguno','1–2 sistemas','3–5 sistemas','6–10 sistemas','Más de 10'],
+  terceros:['Ninguno','1 tercero','2 terceros','3–4 terceros','5 o más'],
+  apis:['Ninguna','1–2','3–5','6–10','Más de 10'],
+  equipos:['Ninguno','1 equipo','2 equipos','3 equipos','4 o más']
+};
+/* [código, dimensión, texto, peso, tipo] */
+var QUESTIONS=[
+ ['N1',0,'¿Impacta directamente clientes, comercios aliados o canales digitales?',2,'cual'],
+ ['N2',0,'¿Soporta una capacidad crítica del negocio (originación, pagos, tarjetas, crédito, cartera o recaudo)?',3,'cual'],
+ ['N3',0,'¿Tiene fecha comprometida por negocio, campaña, aliado, regulador o auditoría?',2,'cual'],
+ ['N4',0,'¿Cuántas áreas de negocio u operación deben coordinarse?',1,'areas'],
+ ['F1',1,'¿Crea una capacidad nueva y no solo modifica una existente?',3,'cual'],
+ ['F2',1,'¿Cuántos canales o frontales impacta (App, web, portal, contact center, backoffice)?',2,'canales'],
+ ['F3',1,'¿Incluye reglas de negocio complejas, parametrización o flujos de aprobación?',2,'cual'],
+ ['F4',1,'¿Requiere trazabilidad, reversos, conciliación o auditoría funcional?',3,'cual'],
+ ['I1',2,'¿Cuántos sistemas internos deben integrarse o modificarse?',3,'sistemas'],
+ ['I2',2,'¿Cuántos terceros externos involucra (aliados, bureaus, pasarelas, core, antifraude)?',3,'terceros'],
+ ['I3',2,'¿Cuántas APIs o integraciones nuevas/cambios requiere (APIM, eventos, mensajería)?',2,'apis'],
+ ['I4',2,'¿De cuántos equipos externos a la célula depende?',2,'equipos'],
+ ['S1',3,'¿Procesa datos personales, financieros, transaccionales o sensibles?',3,'cual'],
+ ['S2',3,'¿Está expuesta a internet o a canales de cliente/aliado?',3,'cual'],
+ ['S3',3,'¿Requiere controles de identidad, autorización, roles, MFA o segregación?',2,'cual'],
+ ['S4',3,'¿Puede generar impacto de fraude, pérdida económica, reputacional o sanción?',3,'cual'],
+ ['S5',3,'¿Requiere evidencia para auditoría, cumplimiento o trazabilidad regulatoria?',2,'cual'],
+ ['T1',4,'¿Introduce tecnología, patrón o componente nuevo para TI?',3,'cual'],
+ ['T2',4,'¿Modifica arquitectura transversal, APIs comunes, plataforma o capacidades compartidas?',3,'cual'],
+ ['T3',4,'¿Exige alta disponibilidad, resiliencia, performance o escalabilidad relevante?',3,'cual'],
+ ['T4',4,'¿Requiere diseño de datos complejo, migración, sincronización o consistencia?',2,'cual'],
+ ['T5',4,'¿Requiere automatización CI/CD, cloud, Kubernetes, APIM, colas o IaC?',2,'cual'],
+ ['O1',5,'¿Impacta operación 7x24, mesa de servicio, backoffice o soporte?',2,'cual'],
+ ['O2',5,'¿Requiere observabilidad, alertas, métricas, SLI/SLO o trazabilidad técnica nueva?',2,'cual'],
+ ['O3',5,'¿Un error en producción afecta continuidad, recaudo, pagos, crédito o atención?',3,'cual'],
+ ['O4',5,'¿Requiere despliegue gradual, rollback, feature flags o migración controlada?',2,'cual'],
+ ['D1',6,'¿El requerimiento aún es ambiguo o requiere discovery funcional/técnico?',2,'cual'],
+ ['D2',6,'¿Hay dependencias con proveedores, áreas internas o decisiones no confirmadas?',2,'cual'],
+ ['D3',6,'¿Cambia procesos, roles operativos o requiere gestión del cambio?',1,'cual'],
+ ['D4',6,'¿Hay restricciones fuertes de tiempo, capacidad o coexistencia con otros proyectos?',2,'cual']
+];
+var TALLAS=[
+ {n:'XS',min:0,max:20,pmMin:1,pmMax:3,lec:'Cambio menor o ajuste acotado.',acc:'Resolver con capacidad existente o célula ligera.'},
+ {n:'S',min:21,max:35,pmMin:3,pmMax:8,lec:'Iniciativa pequeña con alcance conocido.',acc:'Célula reducida y apoyo puntual de arquitectura/seguridad.'},
+ {n:'M',min:36,max:50,pmMin:8,pmMax:16,lec:'Iniciativa media con varias piezas o integraciones.',acc:'Célula base y discovery corto para validar supuestos.'},
+ {n:'L',min:51,max:70,pmMin:16,pmMax:32,lec:'Iniciativa grande, transversal o con riesgo relevante.',acc:'Célula completa, arquitectura temprana y validación AppSec.'},
+ {n:'XL',min:71,max:100,pmMin:32,pmMax:64,lec:'Programa estratégico de alta incertidumbre.',acc:'Evaluar dividir en frentes/células y hacer discovery formal.'}
+];
+/* mix por talla [XS,S,M,L,XL] · sfia ya remapeado a escala Tuya 1-4 */
+var CAPS=[
+ {n:'Product Owner / Negocio',       sfia:[2,2,3,3,4], mix:[20,15,12,10,8]},
+ {n:'Analista negocio / funcional',  sfia:[1,2,2,3,3], mix:[20,15,14,12,10]},
+ {n:'Arquitectura de solución',      sfia:[0,3,3,4,4], mix:[10,8,8,8,8]},
+ {n:'Desarrollo Backend / API',      sfia:[1,2,2,3,3], mix:[25,30,30,28,25]},
+ {n:'Desarrollo Frontend / Mobile',  sfia:[0,2,2,3,3], mix:[0,10,12,14,15]},
+ {n:'QA / Automatización',           sfia:[1,2,2,3,3], mix:[15,12,12,13,14]},
+ {n:'Seguridad / AppSec',            sfia:[0,2,3,3,4], mix:[0,3,4,5,6]},
+ {n:'DevOps / Plataforma',           sfia:[1,2,2,3,3], mix:[5,5,4,4,5]},
+ {n:'Datos / Integración',           sfia:[0,0,2,3,3], mix:[0,0,2,3,4]},
+ {n:'UX/UI / Experiencia',           sfia:[0,1,2,2,3], mix:[0,2,2,2,3]},
+ {n:'Operación / SRE',               sfia:[0,0,0,2,3], mix:[5,0,0,1,2]}
+];
+var TRIAGE=[
+ {t:'¿Integra o modifica sistemas internos o terceros externos?',c:false},
+ {t:'¿Procesa datos personales, financieros o sensibles, o está expuesta a internet?',c:true},
+ {t:'¿Puede generar fraude, pérdida económica, impacto reputacional o sanción?',c:true},
+ {t:'¿Introduce tecnología nueva o cambia arquitectura transversal/compartida?',c:false},
+ {t:'¿Impacta una capacidad crítica (pagos, crédito, cartera, recaudo, originación)?',c:false},
+ {t:'¿El requerimiento aún es ambiguo o requiere discovery funcional o técnico?',c:false}
+];
+var SFIA_LABEL={0:'No dedicado',1:'Principiante',2:'Competente',3:'Avanzado',4:'Experto'};
+
+/* Ejemplos de v1 para precargar el formulario */
+var EXAMPLES={
+ pequena:{nombre:'Ajuste de mensajes informativos en App',plazo:3,
+   ans:[1,1,1,1,1,1,1,1,1,1,1,0,1,2,1,1,0,0,0,1,0,1,1,1,2,0,1,1,1,1],tri:[false,false,false,false,false,false]},
+ mediana:{nombre:'Pago con QR en App',plazo:6,
+   ans:[2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,1,2,1,2,2,1,2,2,2,1,2,2,1,1],tri:[true,false,false,true,false,false]},
+ grande:{nombre:'Originación digital de crédito con terceros',plazo:9,
+   ans:[3,3,2,2,3,2,2,3,3,3,2,2,4,3,2,3,2,3,2,3,2,2,2,2,4,2,2,3,2,2],tri:[true,true,true,true,true,false]}
+};
+
+/* Portafolio (iniciativas ya evaluadas) */
+var PORTFOLIO=[
+ {id:1,name:'Kafka Migration',cell:'Backend Platform',talla:'M',pct:45.2,pm:'8–16',fte:2.67,plazo:6,estado:'Activa',real:{fte:3.2,dur:null}},
+ {id:2,name:'Motor scoring v2',cell:'Fraude Tarjetas',talla:'L',pct:58.4,pm:'16–32',fte:4.00,plazo:6,estado:'Activa',real:{fte:4.1,dur:null}},
+ {id:3,name:'Onboarding digital',cell:'Canales Digitales',talla:'S',pct:29.1,pm:'3–8',fte:1.60,plazo:4,estado:'Activa',real:{fte:1.5,dur:null}},
+ {id:4,name:'API Open Finance',cell:'Backend Platform',talla:'S',pct:31.8,pm:'3–8',fte:1.20,plazo:5,estado:'Evaluación',real:null},
+ {id:5,name:'Reportes regulatorios cartera',cell:'Fraude Tarjetas',talla:'M',pct:38.6,pm:'8–16',fte:2.40,plazo:5,estado:'Cerrada',real:{fte:2.9,dur:7}},
+ {id:6,name:'Ajuste mensajes en App',cell:'Canales Digitales',talla:'XS',pct:14.2,pm:'1–3',fte:0.70,plazo:3,estado:'Cerrada',real:{fte:0.9,dur:4}}
+];
+
+/* ==========================================================================
+   MOTOR DE CÁLCULO · portado de v1
+   ========================================================================== */
+function maxPts(){ return QUESTIONS.reduce(function(a,q){return a+4*q[3];},0); }
+function compute(ans,plazo){
+  var MP=maxPts();
+  var pts=QUESTIONS.reduce(function(a,q,i){return a+(ans[i]||0)*q[3];},0);
+  var pct=MP?Math.round(pts/MP*1000)/10:0;
+  var idx=-1;
+  for(var k=0;k<TALLAS.length;k++){ if(pct<=TALLAS[k].max){ idx=k; break; } }
+  if(idx<0) idx=TALLAS.length-1;
+  var t=TALLAS[idx], pl=Math.max(0.1,plazo||1);
+  var fMin=t.pmMin/pl, fMax=t.pmMax/pl, fMed=((t.pmMin+t.pmMax)/2)/pl;
+  var dp=[0,0,0,0,0,0,0], dm=[0,0,0,0,0,0,0];
+  QUESTIONS.forEach(function(q,i){ dp[q[1]]+=(ans[i]||0)*q[3]; dm[q[1]]+=4*q[3]; });
+  var dims=DIMS.map(function(d,k){ return {d:d,short:DIM_SHORT[k],pct:dm[k]?Math.round(dp[k]/dm[k]*100):0}; });
+  var mix=CAPS.map(function(c){
+    return {n:c.n,sfia:c.sfia[idx],mixPct:c.mix[idx],fte:c.mix[idx]/100*fMed};
+  }).filter(function(x){ return x.mixPct>0 && x.sfia>0; });
+  return {pts:pts,MP:MP,pct:pct,idx:idx,t:t,fMin:fMin,fMax:fMax,fMed:fMed,dims:dims,mix:mix,plazo:pl};
+}
+function triageEval(tri){
+  var count=tri.filter(Boolean).length;
+  var crit=tri.some(function(v,i){ return v && TRIAGE[i].c; });
+  if(crit||count>=3) return {cls:'bad',txt:'Evaluación completa obligatoria — talla probable M o superior'};
+  if(count>=1)       return {cls:'warn',txt:'Evaluación completa recomendada — talla probable S–M'};
+  return {cls:'ok',txt:'Vía rápida (XS–S) — no requiere evaluación completa'};
+}
+var fmt=function(n){ return (Math.round(n*100)/100).toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+
+/* ==========================================================================
+   NAVEGACIÓN POR ROL
+   ========================================================================== */
+var ICONS={
+ home:'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+ check:'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
+ list:'M3 7h18M3 12h18M3 17h18',
+ chart:'M3 3v18h18M7 16l4-6 4 3 5-8',
+ clock:'M12 8v4l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z',
+ grid:'M3 3h18v18H3zM3 9h18M9 21V9',
+ bolt:'M13 2L3 14h9l-1 8 10-12h-9z',
+ users:'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+ stack:'M12 2l9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 17l9 5 9-5',
+ cal:'M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
+ plug:'M9 2v6m6-6v6M6 8h12v3a6 6 0 0 1-12 0zM12 17v5',
+ cog:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z',
+ user:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8'
+};
+
+var NAV={
+ lead:[
+  {v:'home',t:'Inicio · Torre de control',i:'home'},
+  {g:'1 · Dimensionamiento'},
+  {v:'evaluar',t:'Evaluar iniciativa',i:'check'},
+  {v:'portafolio',t:'Portafolio',i:'list'},
+  {v:'demanda',t:'Capacidad vs Demanda',i:'chart'},
+  {v:'calibracion',t:'Calibración est / real',i:'clock'},
+  {g:'2 · Gestión de Capacidad'},
+  {v:'celulas',t:'Gestionar Células',i:'grid'},
+  {v:'iniciativas',t:'Gestionar Iniciativas',i:'bolt'},
+  {v:'capacidades',t:'Gestionar Capacidades',i:'users',badge:'unlinkedUsers'},
+  {v:'backlogs',t:'Gestionar Backlogs',i:'stack',badge:'curation'},
+  {v:'reporte',t:'Reporte de Horas',i:'cal',badge:'sprintTag'},
+  {g:'3 · Integraciones'},
+  {v:'integraciones',t:'Estado de integraciones',i:'plug'}
+ ],
+ colab:[
+  {v:'mi-trabajo',t:'Inicio · Mi trabajo',i:'home'},
+  {g:'Mi sprint'},
+  {v:'mi-reporte',t:'Mi reporte de horas',i:'cal',badge:'sprintTag'},
+  {v:'mi-backlog',t:'Mi backlog',i:'stack'},
+  {g:'Mi perfil'},
+  {v:'mi-capacidad',t:'Mi capacidad',i:'user'}
+ ],
+ admin:[
+  {v:'admin-home',t:'Inicio · Estado plataforma',i:'home'},
+  {g:'Configuración'},
+  {v:'admin-sprints',t:'Calendario de sprints',i:'cal'},
+  {v:'admin-parametros',t:'Parámetros del modelo',i:'cog'},
+  {g:'Integración DevOps'},
+  {v:'admin-devops',t:'Conexión y job de ingesta',i:'plug'}
+ ]
+};
+
+var ROLE_META={
+ lead:{avatar:'CL',ctxLabel:'Tu chapter',ctxName:CHAPTER.name,ctxSub:'3 células · 24 capacidades · Sprint 16'},
+ colab:{avatar:'CA',ctxLabel:'Tu perfil',ctxName:'Carlos López',ctxSub:'Backend Dev · Senior · Backend Platform'},
+ admin:{avatar:'AD',ctxLabel:'Alcance',ctxName:'Configuración global',ctxSub:'Toda la organización · Sprint 16'}
+};
+
+var TITLES={
+ 'home':'Inicio','evaluar':'Evaluar iniciativa','portafolio':'Portafolio','demanda':'Capacidad vs Demanda',
+ 'calibracion':'Calibración','celulas':'Gestionar Células','celula-det':'Células · Backend Platform',
+ 'iniciativas':'Gestionar Iniciativas','capacidades':'Gestionar Capacidades','backlogs':'Gestionar Backlogs',
+ 'reporte':'Reporte de Horas','integraciones':'Integraciones',
+ 'mi-trabajo':'Mi trabajo','mi-reporte':'Mi reporte de horas','mi-backlog':'Mi backlog','mi-capacidad':'Mi capacidad',
+ 'admin-home':'Estado de la plataforma','admin-sprints':'Calendario de sprints',
+ 'admin-parametros':'Parámetros del modelo','admin-devops':'Integración DevOps'
+};
+
+var role='lead', currentView='home';
+
+function badgeHtml(key){
+  if(key==='sprintTag') return '<span class="count br">S16</span>';
+  var n=COUNT[key];
+  if(n===undefined) return '';
+  if(n<=0) return '<span class="count ok">✓</span>';
+  var cls=(key==='pendingReports')?'am':'';
+  return '<span class="count '+cls+'" data-count="'+key+'">'+n+'</span>';
+}
+
+function renderNav(){
+  var items=NAV[role]||NAV.lead, html='';
+  items.forEach(function(it){
+    if(it.g){ html+='<div class="navlabel">'+it.g+'</div>'; return; }
+    html+='<button class="navitem'+(it.v===currentView?' on':'')+'" data-v="'+it.v+'">'+
+          '<svg viewBox="0 0 24 24"><path d="'+ICONS[it.i]+'"/></svg>'+it.t+
+          (it.badge?badgeHtml(it.badge):'')+'</button>';
+  });
+  document.getElementById('nav').innerHTML=html;
+  document.querySelectorAll('.navitem[data-v]').forEach(function(b){
+    b.addEventListener('click',function(){ go(b.getAttribute('data-v')); });
+  });
+}
+
+function setRole(r){
+  role=r;
+  var m=ROLE_META[r];
+  document.getElementById('avatar').textContent=m.avatar;
+  document.getElementById('ctxLabel').textContent=m.ctxLabel;
+  document.getElementById('ctxName').textContent=m.ctxName;
+  document.getElementById('ctxSub').textContent=m.ctxSub;
+  document.getElementById('roleSel').value=r;
+  currentView=NAV[r][0].v;
+  renderNav();
+  showView(currentView);
+  toast('Rol: '+document.getElementById('roleSel').selectedOptions[0].textContent);
+}
+
+function showView(v){
+  document.querySelectorAll('.view').forEach(function(el){ el.classList.remove('on'); });
+  var el=document.getElementById('v-'+v);
+  if(el) el.classList.add('on');
+  document.getElementById('crumbTxt').textContent=TITLES[v]||v;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function go(v){
+  currentView=v;
+  document.querySelectorAll('.navitem').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-v')===v);
+  });
+  showView(v);
+}
+
+/* refresca los badges de navegación desde COUNT */
+function refreshBadges(){
+  var items=NAV[role]||[];
+  items.forEach(function(it){
+    if(!it.badge || it.badge==='sprintTag') return;
+    var btn=document.querySelector('.navitem[data-v="'+it.v+'"]');
+    if(!btn) return;
+    var old=btn.querySelector('.count');
+    if(old) old.remove();
+    btn.insertAdjacentHTML('beforeend', badgeHtml(it.badge));
+  });
+}
+
+/* ==========================================================================
+   UTILIDADES
+   ========================================================================== */
+var toastTimer=null;
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.classList.remove('show'); },3200);
+}
+function utilPill(u){
+  if(u===null||u===undefined) return '<span class="pill gray">—</span>';
+  if(u>100) return '<span class="pill bad">'+u+'%</span>';
+  if(u>=85) return '<span class="pill ok">'+u+'%</span>';
+  return '<span class="pill info">'+u+'%</span>';
+}
+function ring(pct,color,val,sub,label){
+  var deg=Math.max(0,Math.min(100,pct))*3.6;
+  return '<div class="ringwrap">'+
+    '<div class="ring" style="background:conic-gradient('+color+' 0deg '+deg+'deg,#eef1f6 '+deg+'deg 360deg)">'+
+      '<div class="rv"><b>'+val+'</b><span>'+sub+'</span></div></div>'+
+    '<div class="rl">'+label+'</div></div>';
+}
+function critPill(c){
+  var m={'Crítica':'bad','Alta':'warn','Media':'info','Baja':'gray'};
+  return '<span class="pill '+(m[c]||'gray')+'">'+c+'</span>';
+}
+function tallaBadge(t){ return t?'<span class="talla '+t+'">'+t+'</span>':'<span class="pill gray">sin talla</span>'; }
+function sfiaChip(n){
+  if(!n) return '<span class="sfia s0">—</span>';
+  return '<span class="sfia s'+n+'" title="'+SFIA_LABEL[n]+'">'+n+'</span>';
+}
+
+/* ==========================================================================
+   ARRANQUE
+   ========================================================================== */
+function boot(){
+  try{
+    var saved=localStorage.getItem('v7theme');
+    if(saved && THEMES[saved]) applyTheme(saved);
+  }catch(e){}
+  COUNT.unclassified=BL.filter(function(i){ return i.cls==='unc'; }).length;
+  COUNT.curation=CURATION.length;
+  renderNav();
+  showView(currentView);
+  if(typeof initViews==='function') initViews();
+}
+document.addEventListener('DOMContentLoaded',boot);
+</script>
+
+<script>
+/* ==========================================================================
+   TORRE DE CONTROL
+   ========================================================================== */
+function renderHomeCells(){
+  var el=document.getElementById('homeCells');
+  el.innerHTML=CELLS.filter(function(c){ return c.caps>0; }).map(function(c){
+    var tot=c.transf+c.bau+c.libre||1;
+    var p=function(x){ return Math.round(x/tot*100); };
+    return '<div class="cellcard '+c.sema+'" onclick="openCell('+c.id+')">'+
+      '<h3><span class="sema '+c.sema+'"></span>'+c.name+'</h3>'+
+      '<div class="cs">'+c.caps+' capacidades · '+c.ini+' ('+c.talla+')</div>'+
+      '<div class="bar" style="margin-bottom:10px">'+
+        '<i style="width:'+p(c.transf)+'%;background:var(--brand)"></i>'+
+        '<i style="width:'+p(c.bau)+'%;background:var(--amber)"></i>'+
+        '<i style="width:'+p(c.libre)+'%;background:var(--green)"></i></div>'+
+      '<div class="st"><span class="sub">Transformación</span><b>'+c.transf.toFixed(1)+' <span class="sub">/ est '+c.transfEst.toFixed(1)+'</span></b></div>'+
+      '<div class="st"><span class="sub">BAU</span><b style="color:'+(c.bau>c.bauEst?'var(--warn)':'inherit')+'">'+
+        c.bau.toFixed(1)+' <span class="sub">/ est '+c.bauEst.toFixed(1)+'</span>'+(c.bau>c.bauEst?' ▲':'')+'</b></div>'+
+      '<div class="st"><span class="sub">Libre</span><b style="color:'+(c.libre>=2?'var(--ok)':'inherit')+'">'+c.libre.toFixed(1)+'</b></div>'+
+      (c.alert?'<div style="margin-top:9px"><span class="pill warn">'+c.alert+'</span></div>'
+              :'<div style="margin-top:9px"><span class="pill ok">en balance</span></div>')+
+    '</div>';
+  }).join('');
+}
+function openCell(id){
+  var c=CELLS.filter(function(x){ return x.id===id; })[0];
+  if(c && c.det){ go('celula-det'); }
+  else { toast('Demo: solo Backend Platform tiene detalle completo'); }
+}
+function renderHomeTodos(){
+  var el=document.getElementById('homeTodos');
+  var todos=[
+    {n:1,cls:'bad',t:'Sobreasignación: María González al 110%',s:'Backend Platform · sugerencia de rebalanceo hacia Canales Digitales',go:'capacidades'},
+    {n:COUNT.curation,cls:'bad',t:'Items esperando curación',s:'Confirma con cada capacidad si los items le corresponden',go:'backlogs'},
+    {n:COUNT.pendingReports,cls:'warn',t:'Reportes de horas sin enviar',s:'2 en Backend Platform · 1 en Fraude · 1 en Canales',go:'reporte'},
+    {n:COUNT.unlinkedUsers,cls:'warn',t:'Capacidad sin usuario DevOps vinculado',s:'Laura Ruiz: sus items no cuentan hasta vincularla',go:'capacidades'}
+  ].filter(function(t){ return t.n>0; });
+  if(!todos.length){ el.innerHTML='<div class="empty">Nada pendiente. Todo al día.</div>'; return; }
+  el.innerHTML=todos.map(function(t){
+    return '<div class="todo" onclick="go(\''+t.go+'\')"><span class="tn '+t.cls+'">'+t.n+'</span>'+
+      '<div><div class="tt">'+t.t+'</div><div class="ts">'+t.s+'</div></div></div>';
+  }).join('');
+}
+
+/* ==========================================================================
+   GESTIONAR CÉLULAS
+   ========================================================================== */
+function renderCellTable(){
+  document.getElementById('cellCount').textContent=CELLS.length+' células';
+  document.getElementById('cellTable').innerHTML=CELLS.map(function(c){
+    return '<tr'+(c.det?' class="click" onclick="go(\'celula-det\')"':'')+'>'+
+      '<td><span class="sema '+c.sema+'"></span></td>'+
+      '<td class="b">'+c.name+'</td><td class="sub">'+c.tribe+'</td><td>'+critPill(c.crit)+'</td>'+
+      '<td class="c">'+c.caps+'</td>'+
+      '<td>'+(c.ini?c.ini+' '+tallaBadge(c.talla):'<span class="sub">sin iniciativas</span>')+'</td>'+
+      '<td>'+(c.board?'<span class="pill ok">'+c.board+' ✓</span>':'<span class="pill gray">sin tablero</span>')+'</td>'+
+      '<td>'+(c.board?'':'<button class="btn gh sm" onclick="event.stopPropagation();focusLinkBoard()">Vincular tablero</button>')+'</td></tr>';
+  }).join('');
+}
+function focusLinkBoard(){
+  document.getElementById('linkBoardCard').scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('lbBoard').focus();
+}
+var selBoard={nc:null,lb:null};
+function searchBoards(inputId,resId,prefix){
+  var q=document.getElementById(inputId).value.trim().toLowerCase();
+  var res=document.getElementById(resId);
+  if(q.length<2){ res.innerHTML=''; return; }
+  var hits=BOARDS.filter(function(b){
+    return b.name.toLowerCase().indexOf(q)>=0 || b.path.toLowerCase().indexOf(q)>=0;
+  });
+  if(!hits.length){
+    res.innerHTML='<div class="results"><div class="result"><div class="rs">Sin resultados en la base local. Verifica la ingesta del job en Administración.</div></div></div>';
+    return;
+  }
+  res.innerHTML='<div class="results">'+hits.map(function(b){
+    var busy=!!b.linked;
+    return '<div class="result"><div class="ric">📋</div>'+
+      '<div><h5>'+b.name+' '+(busy?'<span class="pill warn">ya vinculado a '+b.linked+'</span>':'<span class="pill ok">disponible</span>')+'</h5>'+
+      '<div class="rs">'+b.path+' · '+b.epics+' epics · '+b.items+' items activos</div></div>'+
+      '<button class="btn '+(busy?'gh':'pri')+' sm"'+(busy?' disabled':'')+
+        ' onclick="pickBoard(\''+prefix+'\',\''+b.name+'\',\''+resId+'\')">Vincular</button></div>';
+  }).join('')+'</div>';
+}
+function pickBoard(prefix,name,resId){
+  selBoard[prefix]=name;
+  document.getElementById(resId).innerHTML=
+    '<div class="linkedchip">📋 '+name+' <span class="pill ok">seleccionado</span>'+
+    '<span class="x" onclick="clearBoard(\''+prefix+'\',\''+resId+'\')">✕</span></div>';
+  if(prefix==='lb'){
+    var cell=document.getElementById('lbCell').value.split(' (')[0];
+    toast('Tablero vinculado a '+cell+' · PUT /api/squads/{id}/devops-board-link');
+    var target=CELLS.filter(function(c){ return c.name===cell; })[0];
+    var b=BOARDS.filter(function(x){ return x.name===name; })[0];
+    if(target && b){ target.board=b.name; target.boardPath=b.path; b.linked=target.name; renderCellTable(); renderLinksTable(); }
+  }
+}
+function clearBoard(prefix,resId){
+  selBoard[prefix]=null;
+  document.getElementById(resId).innerHTML='';
+}
+function createCell(){
+  var name=document.getElementById('ncName').value.trim();
+  if(!name){ toast('El nombre de la célula es obligatorio'); return; }
+  var board=selBoard.nc;
+  CELLS.push({id:CELLS.length+1,name:name,tribe:document.getElementById('ncTribe').value,
+    crit:document.getElementById('ncCrit').value,caps:0,ini:null,talla:null,
+    board:board,boardPath:board?'—':null,sema:'g',alert:null,
+    transf:0,transfEst:0,bau:0,bauEst:0,libre:0,libreEst:0,det:false});
+  if(board){ var b=BOARDS.filter(function(x){return x.name===board;})[0]; if(b) b.linked=name; }
+  renderCellTable(); renderLinksTable();
+  toast(board?('Célula "'+name+'" creada con tablero '+board+' vinculado')
+             :('Célula "'+name+'" creada sin tablero (puedes vincularlo después)'));
+  resetCellForm();
+}
+function resetCellForm(){
+  ['ncName','ncDesc','ncBoard'].forEach(function(id){ document.getElementById(id).value=''; });
+  clearBoard('nc','ncBoardRes');
+}
+
+/* ==========================================================================
+   DETALLE DE CÉLULA
+   ========================================================================== */
+function detTab(btn,pane){
+  document.querySelectorAll('#detTabs button').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  ['dt1','dt2','dt3','dt4'].forEach(function(p){
+    document.getElementById(p).classList.toggle('on',p===pane);
+  });
+}
+function renderDetRings(){
+  document.getElementById('detRings').innerHTML=
+    ring(32,'var(--brand)','3.2','de 3.5 est','Transformación')+
+    ring(44,'var(--amber)','4.4','de 4.2 est','BAU')+
+    ring(24,'var(--ok)','2.4','disponible','Libre');
+}
+function renderDetBau(){
+  document.getElementById('detBau').innerHTML=
+    '<thead><tr><th>Tarea BAU</th><th class="c">Plan</th><th class="c">Real</th><th class="c">Tend.</th></tr></thead><tbody>'+
+    BAUTASKS.map(function(b){
+      var d=b.real-b.plan;
+      var arrow=d>0?'<span style="color:var(--warn)">▲</span>':(d<0?'<span style="color:var(--ok)">▼</span>':'<span style="color:var(--ok)">—</span>');
+      return '<tr><td class="b">'+b.name+'</td><td class="c">'+b.plan+'%</td><td class="c">'+b.real+'%</td><td class="c">'+arrow+'</td></tr>';
+    }).join('')+'</tbody>';
+}
+function renderDetTeamQuick(){
+  document.getElementById('detTeamQuick').innerHTML='<tbody>'+
+    PEOPLE.filter(function(p){ return p.cell==='Backend Platform'; }).slice(0,4).map(function(p){
+      return '<tr><td class="b">'+p.name+'</td><td class="sub">'+p.role+'</td><td class="c">'+utilPill(p.util)+'</td></tr>';
+    }).join('')+
+    '<tr><td colspan="3"><a href="#" onclick="detTab(document.querySelectorAll(\'#detTabs button\')[3],\'dt4\');return false">ver equipo completo →</a></td></tr></tbody>';
+}
+function renderDetTeam(){
+  document.getElementById('detTeam').innerHTML=
+    PEOPLE.filter(function(p){ return p.cell==='Backend Platform'; }).map(function(p){
+      return '<tr><td class="b">'+p.name+'</td><td class="sub">'+p.role+' · '+p.sen+'</td>'+
+        '<td>'+sfiaChip(p.sfia)+'</td><td>'+utilPill(p.util)+'</td>'+
+        '<td>'+(p.devops?'<span class="pill ok">✓ '+p.devops+'</span>':'<span class="pill warn">sin vincular</span>')+'</td>'+
+        '<td>'+(p.report?(p.val?'<span class="pill ok">'+p.report+' ✓</span>':'<span class="pill gray">por validar</span>')
+                       :'<span class="pill bad">sin reportar</span>')+'</td></tr>';
+    }).join('')+'<tr><td colspan="6" class="sub">+ 5 capacidades más</td></tr>';
+}
+function unlinkBoard(){
+  toast('Tablero desvinculado · DELETE /api/squads/{id}/devops-board-link · el backlog dejará de actualizarse');
+}
+
+/* ---------- Backlog: clasificación inline ---------- */
+var blFilter='all';
+function renderBlFilters(){
+  var counts={all:BL.length,unc:0,ini:0,bau:0,dis:0};
+  BL.forEach(function(i){ counts[i.cls]++; });
+  var defs=[['all','Todos','gray'],['unc','Sin clasificar','bad'],['ini','Iniciativa','ok'],['bau','BAU','warn'],['dis','Descartados','gray']];
+  document.getElementById('blFilters').innerHTML=defs.map(function(d){
+    return '<button class="'+(blFilter===d[0]?'on':'')+'" onclick="setBlFilter(\''+d[0]+'\')">'+d[1]+
+      ' <span class="pill '+d[2]+'" style="margin-left:5px">'+counts[d[0]]+'</span></button>';
+  }).join('');
+  COUNT.unclassified=counts.unc;
+  document.getElementById('blUnclPill').textContent=counts.unc;
+  document.getElementById('detUncl').textContent=counts.unc;
+}
+function setBlFilter(f){ blFilter=f; renderBlFilters(); renderBacklog(); }
+function renderBacklog(){
+  var items=BL.filter(function(i){ return blFilter==='all'||i.cls===blFilter; });
+  var el=document.getElementById('blList');
+  if(!items.length){ el.innerHTML='<div class="empty">Sin items en este filtro.</div>'; return; }
+  el.innerHTML=items.map(function(i){
+    var lbl=i.cls==='ini'?'● Iniciativa':(i.cls==='bau'?'● '+i.tgt:(i.cls==='dis'?'✕ Descartado':'Clasificar'));
+    return '<div class="blrow">'+
+      '<div class="tico '+i.ty+'">'+i.ty+'</div>'+
+      '<div style="min-width:0;flex:1"><div class="b">#'+i.id+' · '+i.t+'</div>'+
+        '<div class="sub">'+i.st+' · '+i.pts+' pts'+(i.warn?' · <span style="color:var(--warn)">'+i.warn+'</span>':'')+'</div></div>'+
+      '<div class="clswrap">'+
+        '<button class="clspill" style="color:'+CLR[i.cls]+';border-color:'+CLR[i.cls]+'" onclick="togglePillMenu(event,'+i.id+')">'+lbl+' ▾</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+function closeMenus(){ document.querySelectorAll('.clsmenu').forEach(function(m){ m.remove(); }); }
+function togglePillMenu(ev,id){
+  ev.stopPropagation();
+  /* el menú se inserta como HERMANO del botón, nunca dentro:
+     un <button> anidado en otro <button> es HTML inválido y rompe el DOM */
+  var wrap=ev.currentTarget.parentNode;
+  if(wrap.querySelector('.clsmenu')){ closeMenus(); return; }
+  closeMenus();
+  var it=BL.filter(function(x){ return x.id===id; })[0];
+  var html='<div class="clsmenu" onclick="event.stopPropagation()">'+
+    '<button onclick="setCls('+id+',\'ini\',\''+ACTIVE_INI+'\')"><span class="dot" style="background:'+CLR.ini+'"></span>Iniciativa · <b>'+ACTIVE_INI+'</b> <span class="pill info" style="margin-left:auto">ACTIVA</span></button>'+
+    '<div class="sep"></div>'+
+    BAUCATS.map(function(c){
+      return '<button onclick="setCls('+id+',\'bau\',\''+c.replace(/'/g,"\\'")+'\')"><span class="dot" style="background:'+CLR.bau+'"></span>BAU · '+c+'</button>';
+    }).join('')+
+    '<div class="sep"></div>'+
+    (it.cls!=='unc'?'<button onclick="setCls('+id+',\'unc\',null)">↩ Quitar clasificación</button>':'')+
+    (it.cls==='dis'?'<button onclick="setCls('+id+',\'unc\',null)">↩ Restaurar</button>'
+                   :'<button onclick="setCls('+id+',\'dis\',null)">✕ Descartar (no aplica)</button>')+
+    '</div>';
+  wrap.insertAdjacentHTML('beforeend',html);
+}
+function setCls(id,cls,tgt){
+  var it=BL.filter(function(x){ return x.id===id; })[0];
+  if(!it) return;
+  it.cls=cls; it.tgt=tgt;
+  closeMenus();
+  renderBlFilters(); renderBacklog(); renderKanban(); refreshBadges();
+  if(cls==='ini') toast('→ Iniciativa "'+tgt+'"');
+  else if(cls==='bau') toast('→ BAU "'+tgt+'"');
+  else if(cls==='dis') toast('Descartado · no cuenta en el board');
+  else toast('Clasificación removida');
+}
+document.addEventListener('click',closeMenus);
+
+function renderKanban(){
+  var cols=[['New','Nuevo'],['Active','Activo'],['Resolved','Resuelto'],['Closed','Cerrado']];
+  var items=BL.filter(function(i){ return i.cls==='ini'; });
+  document.getElementById('kanban').innerHTML=cols.map(function(c){
+    var list=items.filter(function(i){ return i.st===c[0]; });
+    return '<div class="kcol"><h4>'+c[1]+' <span class="pill gray">'+list.length+'</span></h4>'+
+      list.map(function(i){
+        return '<div class="kcard"><div class="tico '+i.ty+'" style="display:inline-flex">'+i.ty+'</div>'+
+          '<div class="kt">#'+i.id+' · '+i.t+'</div>'+
+          '<div class="kf"><span class="kav">'+initials(assignee(i.id))+'</span>'+assignee(i.id)+' · '+i.pts+' pts</div></div>';
+      }).join('')+'</div>';
+  }).join('');
+  document.getElementById('boardPend').textContent=COUNT.boardPending;
+}
+var ASSIGN={12401:'Carlos López',12402:'María González',12350:'Carlos López',12344:'Carlos López',
+            12351:'María González',12360:'Ana Gómez',12388:'Julián Pérez',12331:'Ana Gómez',
+            12322:'Carlos López',12291:'Carlos López',12299:'María González',12318:'Carlos López'};
+function assignee(id){ return ASSIGN[id]||'Sin asignar'; }
+function initials(n){ return n.split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase(); }
+
+/* ==========================================================================
+   INICIATIVAS
+   ========================================================================== */
+function renderIniTable(){
+  document.getElementById('iniTable').innerHTML=INIS.map(function(i){
+    var st=i.status==='ACTIVE'?'<span class="pill info">ACTIVE</span>':'<span class="pill gray">EVALUATION</span>';
+    var est=i.talla?'<span class="pill ok">'+i.stage+'</span>':'<span class="pill warn">Sin estimar</span>';
+    var fte=i.fteEst?(i.fteEst.toFixed(1)+' / '+(i.fteReal!==null?'<b style="color:var(--ok)">'+i.fteReal.toFixed(1)+'</b>':'—'))
+                    :'<span class="sub">sin estimar</span>';
+    var act='';
+    if(i.status==='EVALUATION' && i.talla) act='<button class="btn gh sm" onclick="activateIni('+i.id+')">Activar</button>';
+    else if(i.status==='EVALUATION') act='<button class="btn gh sm" onclick="go(\'evaluar\')">Estimar</button>';
+    else act='<button class="btn gh sm" onclick="document.getElementById(\'estimDetail\').scrollIntoView({behavior:\'smooth\'})">Estimación ↓</button>';
+    return '<tr><td class="b">'+i.name+'</td><td class="sub">'+i.cell+'</td><td>'+st+'</td><td>'+est+'</td><td>'+fte+'</td><td>'+act+'</td></tr>';
+  }).join('');
+}
+function activateIni(id){
+  var i=INIS.filter(function(x){ return x.id===id; })[0];
+  var busy=INIS.filter(function(x){ return x.cell===i.cell && x.status==='ACTIVE'; })[0];
+  if(busy){ toast('Solo 1 iniciativa Active por célula: cierra "'+busy.name+'" primero'); return; }
+  i.status='ACTIVE'; renderIniTable(); toast('Iniciativa "'+i.name+'" activada');
+}
+function createIni(estimateNow){
+  var name=document.getElementById('niName').value.trim();
+  if(!name){ toast('El nombre es obligatorio'); return; }
+  INIS.push({id:INIS.length+1,name:name,cell:document.getElementById('niCell').value,status:'EVALUATION',
+    stage:'Sin estimar',talla:null,fteEst:null,fteReal:null,backlog:null});
+  renderIniTable();
+  document.getElementById('niName').value='';
+  if(estimateNow){ toast('Iniciativa "'+name+'" creada · abriendo el formulario de scoring'); go('evaluar'); }
+  else toast('Iniciativa "'+name+'" creada en estado Evaluation · sin estimación (es opcional)');
+}
+function markArch(){
+  var c=document.getElementById('chkArch');
+  c.innerHTML='<span class="ci y">✓</span><div><b>Arquitectura definida</b><div class="sub">Marcada por Chapter Lead · hoy</div></div>';
+  toast('PUT /estimations/prerequisites · architectureDefined=true (queda registrado quién y cuándo)');
+}
+
+/* ==========================================================================
+   CAPACIDADES
+   ========================================================================== */
+function renderCapTable(){
+  document.getElementById('capTable').innerHTML=PEOPLE.map(function(p){
+    var act='';
+    if(p.util>100) act='<button class="btn bad sm" onclick="document.getElementById(\'rebal\').scrollIntoView({behavior:\'smooth\'})">Rebalancear</button>';
+    else if(!p.devops) act='<button class="btn gh sm" onclick="focusLinkUser()">Vincular usuario</button>';
+    return '<tr'+(p.util>100?' style="background:rgba(220,38,38,.04)"':'')+'>'+
+      '<td class="b">'+p.name+'</td><td class="sub">'+p.role+' · '+p.sen+'</td><td>'+sfiaChip(p.sfia)+'</td>'+
+      '<td class="sub">'+p.cell+'</td><td class="sub">'+p.alloc+'</td><td>'+utilPill(p.util)+'</td>'+
+      '<td>'+(p.devops?'<span class="pill ok">✓ '+p.devops+'</span>':'<span class="pill warn">sin vincular</span>')+'</td>'+
+      '<td>'+act+'</td></tr>';
+  }).join('');
+}
+function focusLinkUser(){
+  document.getElementById('linkUserCard').scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('luUser').focus();
+}
+function toggleProvider(){
+  var ext=document.getElementById('npMod').value==='Externo';
+  document.getElementById('providerRow').classList.toggle('hidden',!ext);
+}
+var selUser={np:null,lu:null};
+function searchUsers(inputId,resId,prefix){
+  var q=document.getElementById(inputId).value.trim().toLowerCase();
+  var res=document.getElementById(resId);
+  if(q.length<2){ res.innerHTML=''; return; }
+  var hits=USERS.filter(function(u){
+    return u.name.toLowerCase().indexOf(q)>=0 || u.upn.toLowerCase().indexOf(q)>=0;
+  });
+  if(!hits.length){
+    res.innerHTML='<div class="results"><div class="result"><div class="rs">Sin resultados. La base de identidades se actualiza con el job diario.</div></div></div>';
+    return;
+  }
+  res.innerHTML='<div class="results">'+hits.map(function(u){
+    var busy=u.linked;
+    return '<div class="result"><div class="ric u">'+initials(u.name)+'</div>'+
+      '<div><h5>'+u.name+' '+(busy?'<span class="pill warn">ya vinculado a otra capacidad</span>':'<span class="pill ok">disponible</span>')+'</h5>'+
+      '<div class="rs">'+u.upn+' · '+u.items+' items asignados en DevOps</div></div>'+
+      '<button class="btn '+(busy?'gh':'pri')+' sm"'+(busy?' disabled':'')+
+        ' onclick="pickUser(\''+prefix+'\',\''+u.upn+'\',\''+resId+'\')">Vincular</button></div>';
+  }).join('')+'</div>';
+}
+function pickUser(prefix,upn,resId){
+  var u=USERS.filter(function(x){ return x.upn===upn; })[0];
+  selUser[prefix]=upn;
+  document.getElementById(resId).innerHTML=
+    '<div class="linkedchip">👤 '+u.name+' · '+u.upn+' <span class="pill ok">Entra ID ✓</span>'+
+    '<span class="x" onclick="clearUser(\''+prefix+'\',\''+resId+'\')">✕</span></div>';
+  if(prefix==='lu'){
+    var who=document.getElementById('luPerson').value.split(' (')[0];
+    var p=PEOPLE.filter(function(x){ return x.name===who; })[0];
+    if(p){ p.devops=upn.split('@')[0]; u.linked=true; }
+    COUNT.unlinkedUsers=PEOPLE.filter(function(x){ return !x.devops; }).length;
+    CURATION.push({id:12406,t:'Alertas lag consumidores',who:who,ini:'Kafka Migration',pts:3,note:'re-resuelto tras vincular identidad'});
+    COUNT.curation=CURATION.length;
+    renderCapTable(); renderDetTeam(); renderCuration(); syncCurationCounts(); refreshBadges();
+    document.getElementById('capAlert').innerHTML=
+      '<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>'+
+      '<div><b>Identidades al día.</b> Los items de '+who+' pasaron a la bandeja de curación.</div>';
+    document.getElementById('capAlert').className='callout ok';
+    toast('Usuario vinculado a '+who+' · sus items pasan a la bandeja de curación');
+  }
+}
+function clearUser(prefix,resId){ selUser[prefix]=null; document.getElementById(resId).innerHTML=''; }
+function createPerson(){
+  var name=document.getElementById('npName').value.trim();
+  if(!name){ toast('El nombre es obligatorio'); return; }
+  if(document.getElementById('npMod').value==='Externo' && !document.getElementById('npProvider').value){
+    toast('Selecciona el proveedor para una capacidad externa'); return;
+  }
+  PEOPLE.push({id:PEOPLE.length+1,name:name,role:document.getElementById('npRole').value,
+    sen:document.getElementById('npSen').value,sfia:parseInt(document.getElementById('npSfia').value,10),
+    cell:document.getElementById('npCell').value,util:0,
+    devops:selUser.np?selUser.np.split('@')[0]:null,alloc:'sin asignaciones',report:null,val:false});
+  COUNT.unlinkedUsers=PEOPLE.filter(function(p){ return !p.devops; }).length;
+  renderCapTable(); refreshBadges();
+  toast('Capacidad "'+name+'" creada'+(selUser.np?' con usuario DevOps vinculado':' sin usuario DevOps (puedes vincularlo después)'));
+  resetPersonForm();
+}
+function resetPersonForm(){
+  ['npName','npDoc','npCost','npUser'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('npProvider').value='';
+  clearUser('np','npUserRes');
+}
+function simulateRebal(){
+  var r=document.getElementById('rebalResult');
+  r.className='callout ok';
+  r.style.marginBottom='13px';
+  r.innerHTML='<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3"/></svg>'+
+    '<div><b>Simulación:</b> María queda al <b>100%</b> · Sofía al <b>70%</b> · sin sobreasignaciones en el chapter. '+
+    'Aplicar creará la allocation en Canales Digitales y ajustará la de Backend Platform.</div>';
+  toast('Simulación calculada · nada se ha aplicado');
+}
+function applyRebal(){
+  var m=PEOPLE.filter(function(p){ return p.name==='María González'; })[0];
+  var s=PEOPLE.filter(function(p){ return p.name==='Sofía Torres'; })[0];
+  if(m){ m.util=100; m.alloc='Kafka 60% · BAU 40%'; }
+  if(s){ s.util=70; s.alloc='Onboarding 35% · BAU 35% · libre 30%'; }
+  renderCapTable(); renderDetTeam(); renderHomeTodos();
+  document.getElementById('rebalResult').classList.add('hidden');
+  toast('PUT /api/allocations · rebalanceo aplicado · María 100%, Sofía 70%');
+}
+
+/* ==========================================================================
+   BACKLOGS · curación
+   ========================================================================== */
+function blTab(btn,pane){
+  document.querySelectorAll('#blTabs button').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  ['bl1','bl2','bl3'].forEach(function(p){ document.getElementById(p).classList.toggle('on',p===pane); });
+}
+function renderCuration(){
+  var el=document.getElementById('curInbox');
+  if(!CURATION.length){
+    el.innerHTML='<div class="empty"><b>Curación al día.</b><br>Los confirmados ya alimentan el board y el FTE real.</div>';
+    return;
+  }
+  el.innerHTML=CURATION.map(function(c){
+    return '<div class="blrow"'+(c.warn?' style="background:var(--warn-bg)"':'')+'>'+
+      '<div class="tico US">US</div>'+
+      '<div style="min-width:0;flex:1"><div class="b">#'+c.id+' · '+c.t+'</div>'+
+      '<div class="sub">Para <b>'+c.who+'</b> · '+c.ini+' · '+c.pts+' pts · '+c.note+'</div></div>'+
+      '<div style="display:flex;gap:7px">'+
+        '<button class="btn ok sm" onclick="curate('+c.id+',true)">✓ Confirmar</button>'+
+        '<button class="btn bad sm" onclick="curate('+c.id+',false)">✕ Rechazar</button></div></div>';
+  }).join('');
+}
+function curate(id,ok){
+  var idx=-1;
+  for(var i=0;i<CURATION.length;i++){ if(CURATION[i].id===id){ idx=i; break; } }
+  if(idx<0) return;
+  var c=CURATION[idx];
+  if(ok){
+    CURATED.unshift({id:c.id,t:c.t,who:c.who,state:'Confirmed',when:'hoy'});
+    COUNT.boardPending=Math.max(0,COUNT.boardPending-1);
+    toast('Confirmado · cuenta en backlog individual, board y FTE real');
+  }else{
+    var reason=prompt('Motivo del rechazo:','Asignado por error en DevOps');
+    if(reason===null) return;
+    CURATED.unshift({id:c.id,t:c.t,who:c.who,state:'Rejected',when:'hoy',reason:reason});
+    toast('Rechazado ("'+reason+'") · trazado, no cuenta en ninguna vista');
+  }
+  CURATION.splice(idx,1);
+  COUNT.curation=CURATION.length;
+  renderCuration(); renderCurated(); renderMiCuration(); syncCurationCounts();
+  renderHomeTodos(); renderKanban(); refreshBadges();
+}
+function renderCurated(){
+  document.getElementById('curatedTable').innerHTML=CURATED.map(function(c){
+    return '<tr><td class="b">#'+c.id+' · '+c.t+'</td><td class="sub">'+c.who+'</td>'+
+      '<td>'+(c.state==='Confirmed'?'<span class="pill ok">Confirmed</span>'
+             :'<span class="pill bad">Rejected</span>'+(c.reason?' <span class="sub">'+c.reason+'</span>':''))+'</td>'+
+      '<td class="sub">'+c.when+'</td></tr>';
+  }).join('');
+}
+/* ÚNICO dueño de los contadores de curación (evita la colisión de v6) */
+function syncCurationCounts(){
+  var n=CURATION.length;
+  var pipe=document.getElementById('curPipeCount'); if(pipe) pipe.textContent=n;
+  var pill=document.getElementById('curTabPill');
+  if(pill){ pill.textContent=n; pill.className='pill '+(n>0?'bad':'ok'); }
+  var mi=document.getElementById('miCurCount');
+  if(mi) mi.textContent=CURATION.filter(function(c){ return c.who==='Carlos López'; }).length;
+}
+
+/* ==========================================================================
+   REPORTE DE HORAS
+   ========================================================================== */
+function renderRepCoverage(){
+  var cov=[['Backend Platform',8,10],['Fraude Tarjetas',7,8],['Canales Digitales',5,6]];
+  document.getElementById('repCoverage').innerHTML=cov.map(function(c){
+    var pct=Math.round(c[1]/c[2]*100);
+    return '<div class="card"><div class="bd">'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:8px">'+
+      '<b>'+c[0]+'</b><span class="pill '+(pct===100?'ok':'warn')+'">'+c[1]+'/'+c[2]+'</span></div>'+
+      '<div class="bar"><i style="width:'+pct+'%;background:var(--brand)"></i></div></div></div>';
+  }).join('');
+}
+function renderRepTable(prefix){
+  var tbodyId=prefix==='mi'?'miRepTable':'repTable';
+  var el=document.getElementById(tbodyId);
+  if(!el) return;
+  var typePill={'Iniciativa':'info','BAU':'warn','Libre':'gray'};
+  el.innerHTML=REPORT.map(function(r,i){
+    return '<tr><td class="b">'+r.dest+'</td><td><span class="pill '+typePill[r.type]+'">'+r.type+'</span></td>'+
+      '<td class="c"><input class="num" type="number" min="0" max="200" value="'+r.hours+'" '+
+        'oninput="setHours('+i+',this.value,\''+prefix+'\')"></td>'+
+      '<td class="c b" data-fte="'+i+'">'+(r.hours/sprintHours()).toFixed(2)+'</td></tr>';
+  }).join('')+
+  '<tr class="totrow"><td>Total sprint</td><td></td><td class="c" id="'+prefix+'RepTot">0</td><td class="c" id="'+prefix+'RepTotFte">0.00</td></tr>';
+  calcFte(prefix);
+}
+function setHours(i,v,prefix){
+  REPORT[i].hours=parseFloat(v)||0;
+  calcFte(prefix);
+  /* la otra vista comparte REPORT: se re-renderiza sin robar el foco al input activo */
+  renderRepTable(prefix==='mi'?'':'mi');
+}
+function calcFte(prefix){
+  var S=sprintHours(), T=CFG.toleranceHours, tot=0;
+  var tbodyId=prefix==='mi'?'miRepTable':'repTable';
+  var el=document.getElementById(tbodyId);
+  if(!el) return;
+  REPORT.forEach(function(r,i){
+    tot+=r.hours;
+    var cell=el.querySelector('[data-fte="'+i+'"]');
+    if(cell) cell.textContent=(r.hours/S).toFixed(2);
+  });
+  var t1=document.getElementById(prefix+'RepTot'), t2=document.getElementById(prefix+'RepTotFte');
+  if(t1) t1.textContent=tot;
+  if(t2) t2.textContent=(tot/S).toFixed(2);
+  var msg=document.getElementById(prefix==='mi'?'miRepMsg':'repMsg');
+  if(msg){
+    var ok=tot>=S-T && tot<=S+T;
+    msg.className='callout '+(ok?'ok':'warn');
+    msg.innerHTML='<svg viewBox="0 0 24 24"><path d="'+(ok?'M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4L12 14.01l-3-3':'M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z')+'"/></svg>'+
+      '<div>'+(ok?'Total dentro del rango esperado ('+(S-T)+'–'+(S+T)+' h por sprint). Listo para enviar.'
+                 :'<b>Total '+tot+' h:</b> fuera del rango '+(S-T)+'–'+(S+T)+' h del sprint. Revisa las horas antes de enviar.')+'</div>';
+  }
+  var lbl=document.getElementById(prefix==='mi'?'miRepLbl':'repTotalLbl');
+  if(lbl) lbl.textContent=S+' horas';
+}
+function renderPendRep(){
+  document.getElementById('pendRepTable').innerHTML='<tbody>'+PENDREP.map(function(p,i){
+    var act=p.state==='por validar'
+      ?'<button class="btn ok sm" onclick="validateRep('+i+')">Validar</button>'
+      :'<button class="btn gh sm" onclick="toast(\'Recordatorio enviado a '+p.who+'\')">Recordar</button>';
+    return '<tr id="pr'+i+'"><td class="b">'+p.who+'</td><td class="sub">'+p.cell+'</td>'+
+      '<td>'+(p.state==='por validar'?'<span class="pill gray">por validar</span>':'<span class="pill bad">sin reportar</span>')+'</td>'+
+      '<td>'+act+'</td></tr>';
+  }).join('')+'</tbody>';
+}
+function validateRep(i){
+  PENDREP[i].state='validado';
+  var row=document.getElementById('pr'+i);
+  row.children[2].innerHTML='<span class="pill ok">validado ✓</span>';
+  row.children[3].innerHTML='';
+  COUNT.pendingReports=Math.max(0,COUNT.pendingReports-1);
+  renderHomeTodos(); refreshBadges();
+  toast('Reporte de '+PENDREP[i].who+' validado · consolida su FTE real del sprint');
+}
+
+/* ==========================================================================
+   INTEGRACIONES
+   ========================================================================== */
+function renderLinksTable(){
+  var el=document.getElementById('linksTable');
+  if(!el) return;
+  el.innerHTML=CELLS.map(function(c){
+    return '<tr><td class="b">'+c.name+'</td>'+
+      '<td class="sub">'+(c.board?c.board+' · '+(c.boardPath||''):'—')+'</td>'+
+      '<td>'+(c.board?'<span class="pill ok">Active</span>':'<span class="pill gray">sin vincular</span>')+'</td></tr>';
+  }).join('');
+}
+
+/* ==========================================================================
+   EVALUAR INICIATIVA · motor de scoring
+   ========================================================================== */
+var TALLA_COL={XS:'#7c8aa0',S:'#22c55e',M:'#eab308',L:'#fb923c',XL:'#f43f5e'};
+var evAns=[], evTri=[];
+function initEval(){
+  evAns=QUESTIONS.map(function(){ return 0; });
+  evTri=TRIAGE.map(function(){ return false; });
+}
+function renderTriage(){
+  document.getElementById('triageList').innerHTML=TRIAGE.map(function(t,i){
+    return '<div class="tq"><div>'+t.t+(t.c?'<span class="crit">CRÍTICA</span>':'')+'</div>'+
+      '<div class="tgl">'+
+        '<button class="'+(evTri[i]?'on si':'')+'" onclick="setTri('+i+',true)">Sí</button>'+
+        '<button class="'+(!evTri[i]?'on no':'')+'" onclick="setTri('+i+',false)">No</button>'+
+      '</div></div>';
+  }).join('');
+  var v=triageEval(evTri);
+  var d=document.getElementById('triageVerdict');
+  d.className='callout '+v.cls;
+  d.innerHTML='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg><div>'+v.txt+'</div>';
+}
+function setTri(i,val){ evTri[i]=val; renderTriage(); }
+function renderQuestions(){
+  var html='', lastDim=-1;
+  QUESTIONS.forEach(function(q,i){
+    if(q[1]!==lastDim){ lastDim=q[1]; html+='<div class="dimh">'+DIMS[q[1]]+'</div>'; }
+    var opts=(q[4]==='cual')?QUAL:RANGES[q[4]];
+    html+='<div class="q"><div class="top"><div class="txt"><b>'+q[0]+'</b> · '+q[2]+'</div>'+
+      '<span class="chip '+(q[4]==='cual'?'cual':'cuant')+'">'+(q[4]==='cual'?'evaluativa':'cuantitativa')+' · peso '+q[3]+'</span></div>'+
+      '<div class="opts">'+opts.map(function(o,k){
+        return '<button class="opt'+(evAns[i]===k?' on':'')+'" onclick="setAns('+i+','+k+')"><b>'+k+'</b>'+o+'</button>';
+      }).join('')+'</div></div>';
+  });
+  document.getElementById('questionList').innerHTML=html;
+}
+function setAns(i,k){
+  evAns[i]=k;
+  var q=document.querySelectorAll('#questionList .q')[i];
+  if(q){ q.querySelectorAll('.opt').forEach(function(b,idx){ b.classList.toggle('on',idx===k); }); }
+  recalc();
+}
+function recalc(){
+  var plazo=parseFloat(document.getElementById('evPlazo').value)||1;
+  var r=compute(evAns,plazo);
+  var t=r.t.n;
+  document.getElementById('rbTalla').className='talla '+t;
+  document.getElementById('rbTalla').style.cssText='font-size:15px;padding:4px 11px';
+  document.getElementById('rbTalla').textContent=t;
+  document.getElementById('rbPct').textContent=r.pct.toFixed(1)+'%';
+  document.getElementById('rbPm').innerHTML=r.t.pmMin+'–'+r.t.pmMax+' <small>PM</small>';
+  document.getElementById('rbFte').textContent=fmt(r.fMed);
+  document.getElementById('rbFteRange').innerHTML='<small>'+fmt(r.fMin)+' – '+fmt(r.fMax)+'</small>';
+
+  document.getElementById('gauge').innerHTML=gaugeHtml(r.pct,t);
+  var lect=document.getElementById('tallaLectura');
+  lect.className='callout info';
+  lect.innerHTML='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>'+
+    '<div><b>'+r.t.lec+'</b><br>'+r.t.acc+'</div>';
+  document.getElementById('stPm').innerHTML=r.t.pmMin+'–'+r.t.pmMax+' <small>PM</small>';
+  document.getElementById('stFte').innerHTML=fmt(r.fMed)+' <small>FTE</small>';
+  document.getElementById('stFteMin').innerHTML=fmt(r.fMin)+' <small>FTE</small>';
+  document.getElementById('stFteMax').innerHTML=fmt(r.fMax)+' <small>FTE</small>';
+
+  document.getElementById('dimBars').innerHTML=r.dims.map(function(d){
+    return '<div class="dbar"><div class="lab"><span>'+d.d+'</span><b>'+d.pct+'%</b></div>'+
+      '<div class="track"><div class="fill" style="width:'+d.pct+'%"></div></div></div>';
+  }).join('');
+
+  document.getElementById('mixTable').innerHTML=
+    '<thead><tr><th>Capacidad</th><th class="c">SFIA</th><th class="c">Mix</th><th class="c">FTE</th></tr></thead><tbody>'+
+    r.mix.map(function(m){
+      return '<tr><td>'+m.n+'</td><td class="c">'+sfiaChip(m.sfia)+'</td>'+
+        '<td class="c">'+m.mixPct+'%</td><td class="c b">'+fmt(m.fte)+'</td></tr>';
+    }).join('')+'</tbody>';
+}
+function gaugeHtml(pct,talla){
+  var col=TALLA_COL[talla]||'#7c8aa0';
+  var r=54, c=2*Math.PI*r, off=c*(1-Math.max(0,Math.min(100,pct))/100);
+  return '<svg width="132" height="132" viewBox="0 0 132 132">'+
+    '<circle cx="66" cy="66" r="'+r+'" fill="none" stroke="#eef1f6" stroke-width="12"/>'+
+    '<circle cx="66" cy="66" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="12" stroke-linecap="round" '+
+      'stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 66 66)"/></svg>'+
+    '<div class="ctr"><div class="tl" style="color:'+col+'">'+talla+'</div>'+
+    '<div class="pc">'+pct.toFixed(1)+'%</div><div class="lb">COMPLEJIDAD</div></div>';
+}
+function loadExample(k){
+  var e=EXAMPLES[k];
+  evAns=e.ans.slice(); evTri=e.tri.slice();
+  document.getElementById('evName').value=e.nombre;
+  document.getElementById('evPlazo').value=e.plazo;
+  renderTriage(); renderQuestions(); recalc();
+  toast('Ejemplo cargado: '+e.nombre);
+}
+function resetEval(){
+  initEval();
+  document.getElementById('evName').value='';
+  document.getElementById('evPlazo').value=6;
+  renderTriage(); renderQuestions(); recalc();
+  toast('Formulario limpiado');
+}
+function saveToPortfolio(){
+  var name=document.getElementById('evName').value.trim();
+  if(!name){ toast('Escribe el nombre de la iniciativa antes de guardar'); return; }
+  var plazo=parseFloat(document.getElementById('evPlazo').value)||1;
+  var r=compute(evAns,plazo);
+  PORTFOLIO.unshift({id:PORTFOLIO.length+1,name:name,cell:'Backend Platform',talla:r.t.n,
+    pct:r.pct,pm:r.t.pmMin+'–'+r.t.pmMax,fte:r.fMed,plazo:plazo,estado:'Evaluación',real:null});
+  renderPortfolio();
+  toast('"'+name+'" guardada en el portafolio · talla '+r.t.n+' · '+fmt(r.fMed)+' FTE');
+}
+
+/* ==========================================================================
+   PORTAFOLIO
+   ========================================================================== */
+function renderPortfolio(){
+  document.getElementById('pfCount').textContent=PORTFOLIO.length+' iniciativas';
+  document.getElementById('pfTable').innerHTML=PORTFOLIO.map(function(p){
+    var estPill={'Activa':'info','Evaluación':'gray','Cerrada':'ok'};
+    return '<tr><td class="b">'+p.name+'</td><td class="sub">'+p.cell+'</td>'+
+      '<td class="c">'+tallaBadge(p.talla)+'</td><td class="c">'+p.pct.toFixed(1)+'%</td>'+
+      '<td class="c sub">'+p.pm+'</td><td class="c b">'+fmt(p.fte)+'</td><td class="c sub">'+p.plazo+' m</td>'+
+      '<td><span class="pill '+estPill[p.estado]+'">'+p.estado+'</span></td></tr>';
+  }).join('');
+  var act=PORTFOLIO.filter(function(p){ return p.estado==='Activa'; });
+  var demandFte=act.reduce(function(a,p){ return a+p.fte; },0);
+  document.getElementById('pfKpis').innerHTML=
+    '<div class="kpi"><div class="n">'+PORTFOLIO.length+'</div><div class="l">Iniciativas en portafolio</div></div>'+
+    '<div class="kpi"><div class="n" style="color:var(--brand)">'+act.length+'</div><div class="l">Activas (generan demanda)</div></div>'+
+    '<div class="kpi"><div class="n">'+fmt(demandFte)+'</div><div class="l">FTE demandado por las activas</div></div>'+
+    '<div class="kpi"><div class="n" style="color:var(--ok)">'+PORTFOLIO.filter(function(p){return p.estado==='Cerrada';}).length+
+      '</div><div class="l">Cerradas (calibrables)</div></div>';
+  var byTalla={XS:0,S:0,M:0,L:0,XL:0};
+  PORTFOLIO.forEach(function(p){ if(p.talla) byTalla[p.talla]++; });
+  var max=Math.max.apply(null,Object.keys(byTalla).map(function(k){ return byTalla[k]; }))||1;
+  document.getElementById('pfDist').innerHTML=Object.keys(byTalla).map(function(k){
+    return '<div class="dbar"><div class="lab"><span><span class="talla '+k+'">'+k+'</span></span><b>'+byTalla[k]+'</b></div>'+
+      '<div class="track"><div class="fill" style="width:'+(byTalla[k]/max*100)+'%;background:'+TALLA_COL[k]+'"></div></div></div>';
+  }).join('');
+}
+
+/* ==========================================================================
+   CAPACIDAD VS DEMANDA
+   ========================================================================== */
+function renderDemand(){
+  /* demanda = mix de la talla de cada iniciativa activa · disponible = personas del chapter por rol */
+  var active=PORTFOLIO.filter(function(p){ return p.estado==='Activa'; });
+  var demand={};
+  active.forEach(function(p){
+    var idx=TALLAS.map(function(t){ return t.n; }).indexOf(p.talla);
+    if(idx<0) return;
+    CAPS.forEach(function(c){
+      if(!c.mix[idx]||!c.sfia[idx]) return;
+      if(!demand[c.n]) demand[c.n]={dem:0,sfia:0};
+      demand[c.n].dem+=c.mix[idx]/100*p.fte;
+      demand[c.n].sfia=Math.max(demand[c.n].sfia,c.sfia[idx]);
+    });
+  });
+  /* capacidad disponible moqueada por familia de rol */
+  var AVAIL={'Product Owner / Negocio':1.5,'Analista negocio / funcional':2.0,'Arquitectura de solución':1.5,
+    'Desarrollo Backend / API':7.0,'Desarrollo Frontend / Mobile':3.0,'QA / Automatización':4.0,
+    'Seguridad / AppSec':1.0,'DevOps / Plataforma':2.0,'Datos / Integración':1.5,'UX/UI / Experiencia':0.5,'Operación / SRE':0.0};
+  var ASSIGNED={'Product Owner / Negocio':1.2,'Analista negocio / funcional':1.6,'Arquitectura de solución':1.2,
+    'Desarrollo Backend / API':5.4,'Desarrollo Frontend / Mobile':1.9,'QA / Automatización':2.8,
+    'Seguridad / AppSec':0.5,'DevOps / Plataforma':1.1,'Datos / Integración':0.7,'UX/UI / Experiencia':0.2,'Operación / SRE':0.0};
+
+  var rows=Object.keys(demand).map(function(n){
+    return {n:n,dem:demand[n].dem,sfia:demand[n].sfia,avail:AVAIL[n]||0,asg:ASSIGNED[n]||0};
+  });
+  var maxV=Math.max.apply(null,rows.map(function(r){ return Math.max(r.dem,r.avail); }))||1;
+
+  var totDem=0,totAvail=0,totAsg=0;
+  rows.forEach(function(r){ totDem+=r.dem; totAvail+=r.avail; totAsg+=r.asg; });
+  var bal=totAvail-totDem;
+  document.getElementById('dmKpis').innerHTML=
+    '<div class="kpi"><div class="n">'+fmt(totDem)+'</div><div class="l">FTE demandado (activas)</div></div>'+
+    '<div class="kpi"><div class="n">'+fmt(totAvail)+'</div><div class="l">FTE disponible (personas)</div></div>'+
+    '<div class="kpi"><div class="n">'+fmt(totAsg)+'</div><div class="l">FTE asignado</div></div>'+
+    '<div class="kpi"><div class="n" style="color:'+(bal>=0?'var(--ok)':'var(--bad)')+'">'+(bal>=0?'+':'')+fmt(bal)+
+      '</div><div class="l">Balance</div></div>';
+
+  document.getElementById('dmTable').innerHTML=rows.map(function(r){
+    var gap=r.avail-r.dem;
+    var gapCls=gap>=0?'ok':(gap>=-0.5?'warn':'bad');
+    var cov=r.dem>0?Math.round(r.asg/r.dem*100):100;
+    var covCls=cov>=100?'ok':(cov>=50?'warn':'bad');
+    return '<tr><td class="b">'+r.n+'</td><td class="c">'+sfiaChip(r.sfia)+'</td>'+
+      '<td><div style="position:relative"><div class="bar" style="height:12px">'+
+        '<i style="width:'+(r.dem/maxV*100)+'%;background:var(--brand)"></i></div>'+
+        '<div style="position:absolute;top:-2px;height:16px;border-right:2px dashed var(--ok);left:'+(r.avail/maxV*100)+'%"></div></div></td>'+
+      '<td class="c">'+fmt(r.dem)+'</td><td class="c">'+fmt(r.avail)+'</td><td class="c">'+fmt(r.asg)+'</td>'+
+      '<td class="c"><span class="pill '+gapCls+'">'+(gap>=0?'+':'')+fmt(gap)+'</span></td>'+
+      '<td class="c"><span class="pill '+covCls+'">'+cov+'%</span></td></tr>';
+  }).join('');
+}
+
+/* ==========================================================================
+   CALIBRACIÓN
+   ========================================================================== */
+function renderCalibration(){
+  var closed=PORTFOLIO.filter(function(p){ return p.estado==='Cerrada' && p.real; });
+  document.getElementById('calTable').innerHTML=closed.map(function(p){
+    var dev=(p.real.fte-p.fte)/p.fte*100;
+    var cls=Math.abs(dev)<=10?'ok':(Math.abs(dev)<=25?'warn':'bad');
+    return '<tr><td class="b">'+p.name+'</td><td class="c">'+tallaBadge(p.talla)+'</td>'+
+      '<td class="c">'+fmt(p.fte)+'</td><td class="c b">'+fmt(p.real.fte)+'</td>'+
+      '<td class="c"><span class="pill '+cls+'">'+(dev>=0?'+':'')+dev.toFixed(1)+'%</span></td>'+
+      '<td class="c sub">'+(p.real.dur?p.real.dur+' meses':'—')+'</td></tr>';
+  }).join('')||'<tr><td colspan="6" class="empty">Aún no hay iniciativas cerradas con datos reales.</td></tr>';
+
+  var devs=closed.map(function(p){ return (p.real.fte-p.fte)/p.fte; });
+  var avg=devs.length?devs.reduce(function(a,b){ return a+b; },0)/devs.length:0;
+  document.getElementById('calFactor').innerHTML=
+    '<div class="stat" style="margin-bottom:12px"><div class="k">Desviación media</div>'+
+      '<div class="v" style="color:'+(avg>0?'var(--warn)':'var(--ok)')+'">'+(avg>=0?'+':'')+(avg*100).toFixed(1)+'%</div></div>'+
+    '<div class="stat" style="margin-bottom:12px"><div class="k">Factor sugerido</div>'+
+      '<div class="v">×'+(1+avg).toFixed(2)+' <small>sobre el FTE estimado</small></div></div>'+
+    '<div class="stat" style="margin-bottom:12px"><div class="k">Muestra</div>'+
+      '<div class="v">'+closed.length+' <small>iniciativas cerradas</small></div></div>'+
+    '<div class="callout warn"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>'+
+      '<div>Muestra insuficiente para calibrar con evidencia. El <b>algoritmo definitivo está pendiente</b>: '+
+      'esto es una media simple, no el modelo acordado.</div></div>';
+}
+
+/* ==========================================================================
+   COLABORADOR
+   ========================================================================== */
+function renderMiCuration(){
+  var el=document.getElementById('miCurInbox');
+  if(!el) return;
+  var mine=CURATION.filter(function(c){ return c.who==='Carlos López'; });
+  if(!mine.length){
+    el.innerHTML='<div class="empty"><b>Bandeja vacía.</b><br>No tienes items esperando confirmación.</div>';
+    return;
+  }
+  el.innerHTML=mine.map(function(c){
+    return '<div class="blrow"'+(c.warn?' style="background:var(--warn-bg)"':'')+'>'+
+      '<div class="tico US">US</div>'+
+      '<div style="min-width:0;flex:1"><div class="b">#'+c.id+' · '+c.t+'</div>'+
+      '<div class="sub">'+c.ini+' · '+c.pts+' pts · '+c.note+'</div></div>'+
+      '<div style="display:flex;gap:7px">'+
+        '<button class="btn ok sm" onclick="curate('+c.id+',true)">✓ Es mío</button>'+
+        '<button class="btn bad sm" onclick="curate('+c.id+',false)">✕ No es mío</button></div></div>';
+  }).join('');
+}
+
+/* ==========================================================================
+   ADMIN
+   ========================================================================== */
+function saveCfgLive(){
+  CFG.weeksPerSprint=parseInt(document.getElementById('cfgWeeks').value,10)||2;
+  CFG.hoursPerWeek=parseInt(document.getElementById('cfgHours').value,10)||40;
+  CFG.sprintsPerQuarter=parseInt(document.getElementById('cfgQuarter').value,10)||6;
+  CFG.toleranceHours=parseInt(document.getElementById('cfgTol').value,10)||0;
+  var S=sprintHours(), T=CFG.toleranceHours;
+  document.getElementById('cfgOut').innerHTML=
+    '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4m0-4h.01"/></svg>'+
+    '<div>Horas por sprint: <b>'+S+' h</b> · rango de reporte aceptado: <b>'+(S-T)+'–'+(S+T)+' h</b>. '+
+    'Cambiarlo <b>no recalcula</b> los sprints ya reportados.</div>';
+  calcFte(''); calcFte('mi');
+}
+function saveCfg(){
+  saveCfgLive();
+  toast('Configuración guardada · el reporte ahora valida contra '+sprintHours()+' h por sprint');
+}
+function renderAdmTallas(){
+  document.getElementById('admTallas').innerHTML=TALLAS.map(function(t){
+    return '<tr><td class="c">'+tallaBadge(t.n)+'</td><td class="c b">'+t.min+'–'+t.max+'</td>'+
+      '<td class="c">'+t.pmMin+'</td><td class="c">'+t.pmMax+'</td><td class="sub">'+t.lec+'</td></tr>';
+  }).join('');
+}
+function renderAdmMix(){
+  document.getElementById('admMix').innerHTML=CAPS.map(function(c){
+    return '<tr><td class="b">'+c.n+'</td>'+c.sfia.map(function(s,i){
+      return '<td class="c">'+(c.mix[i]&&s?sfiaChip(s)+'<div class="sub">'+c.mix[i]+'%</div>':'<span class="sub">—</span>')+'</td>';
+    }).join('')+'</tr>';
+  }).join('');
+}
+function renderAdmQuestions(){
+  var byDim={};
+  QUESTIONS.forEach(function(q){
+    if(!byDim[q[1]]) byDim[q[1]]={n:0,w:0};
+    byDim[q[1]].n++; byDim[q[1]].w+=q[3];
+  });
+  document.getElementById('admQuestions').innerHTML=DIMS.map(function(d,i){
+    var b=byDim[i]||{n:0,w:0};
+    return '<tr><td class="b">'+d+'</td><td class="c">'+b.n+'</td><td class="c">'+b.w+'</td><td class="c">'+(b.w*4)+'</td></tr>';
+  }).join('')+'<tr class="totrow"><td>Total</td><td class="c">'+QUESTIONS.length+'</td>'+
+    '<td class="c">'+QUESTIONS.reduce(function(a,q){return a+q[3];},0)+'</td><td class="c">'+maxPts()+'</td></tr>';
+}
+function runJob(){
+  document.getElementById('jobLast').textContent='Ahora mismo · OK';
+  document.getElementById('jobNews').textContent='+2 nuevos con asignación → curación';
+  CURATION.push({id:12410,t:'Alertas lag consumidores',who:'Carlos López',ini:'Kafka Migration',pts:3,note:'ingesta manual'});
+  CURATION.push({id:12411,t:'Dashboard throughput brokers',who:'Ana Gómez',ini:'Kafka Migration',pts:2,note:'ingesta manual'});
+  COUNT.curation=CURATION.length;
+  COUNT.boardPending+=2;
+  renderCuration(); renderMiCuration(); syncCurationCounts(); renderHomeTodos(); refreshBadges();
+  toast('Ingesta ejecutada · +2 novedades con asignación → bandeja de curación');
+}
+
+/* ==========================================================================
+   INICIALIZACIÓN DE TODAS LAS VISTAS
+   ========================================================================== */
+function initViews(){
+  /* Chapter Lead */
+  renderHomeCells(); renderHomeTodos();
+  renderCellTable(); renderLinksTable();
+  renderDetRings(); renderDetBau(); renderDetTeamQuick(); renderDetTeam();
+  renderBlFilters(); renderBacklog(); renderKanban();
+  renderIniTable();
+  renderCapTable(); toggleProvider();
+  renderCuration(); renderCurated(); syncCurationCounts();
+  renderRepCoverage(); renderRepTable(''); renderPendRep();
+  /* Dimensionamiento */
+  initEval(); renderTriage(); renderQuestions(); recalc();
+  renderPortfolio(); renderDemand(); renderCalibration();
+  /* Colaborador */
+  renderRepTable('mi'); renderMiCuration();
+  /* Admin */
+  saveCfgLive(); renderAdmTallas(); renderAdmMix(); renderAdmQuestions();
+  refreshBadges();
+}
+</script>
+</body>
+</html>

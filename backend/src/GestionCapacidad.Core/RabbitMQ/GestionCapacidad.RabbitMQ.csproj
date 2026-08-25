@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="EventHandlers\**" />
+		<EmbeddedResource Remove="EventHandlers\**" />
+		<None Remove="EventHandlers\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.ObjectPool" />
+		<PackageReference Include="Microsoft.Extensions.Options" />
+		<PackageReference Include="RabbitMQ.Client" />
+	</ItemGroup>
+</Project>
