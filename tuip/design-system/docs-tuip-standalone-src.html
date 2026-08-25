@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail" data-bg-color="#17171B">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#17171B"/>
+    <rect x="360" y="300" width="480" height="200" rx="28" fill="#ED1C29"/>
+    <text x="600" y="440" font-family="'IBM Plex Sans',system-ui,sans-serif" font-size="150" font-weight="600" fill="#FFFFFF" text-anchor="middle">tuip</text>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#FFFFFF; }
+  a { color:#C9151F; text-decoration:none; }
+  a:hover { color:#ED1C29; }
+  ::selection { background:#FFD9DC; }
+</style>
+</helmet>
+
+<div style="font-family:'IBM Plex Sans',system-ui,sans-serif; color:#26262C; background:#FFFFFF; -webkit-font-smoothing:antialiased; min-height:100vh;">
+
+  <!-- TOPBAR -->
+  <div style="position:sticky; top:0; z-index:50; height:60px; background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-bottom:1px solid #E3E3E6; display:flex; align-items:center; gap:24px; padding:0 24px;">
+    <div style="display:flex; align-items:center; gap:10px; width:236px; flex-shrink:0;">
+      <div style="width:26px; height:26px; border-radius:5px; background:#ED1C29; display:flex; align-items:center; justify-content:center; color:#FFFFFF; font-weight:600; font-size:13px; letter-spacing:-.02em;">t</div>
+      <div style="font-size:16px; font-weight:600; letter-spacing:-.01em;">tuip</div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#74747E; border:1px solid #E3E3E6; border-radius:3px; padding:1px 6px;">v0.4.2</div>
+    </div>
+    <div style="flex:1; min-width:0; max-width:420px; height:34px; border:1px solid #E3E3E6; border-radius:4px; display:flex; align-items:center; gap:9px; padding:0 12px; color:#8B8B93; font-size:14px; background:#FAFAFA; cursor:text;" style-hover="border-color:#C9C9CE;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4 4"></path></svg>
+      <span style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">Buscar componentes, tokens, guías…</span>
+      <span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; border:1px solid #E3E3E6; border-radius:3px; padding:1px 5px; background:#FFFFFF;">⌘K</span>
+    </div>
+    <div style="margin-left:auto; display:flex; align-items:center; gap:20px; font-size:14px; color:#3C3C44;">
+      <span style="cursor:pointer;" style-hover="color:#ED1C29;">Fundamentos</span>
+      <span style="cursor:pointer;" style-hover="color:#ED1C29;">Componentes</span>
+      <span style="cursor:pointer;" style-hover="color:#ED1C29;">Iconos</span>
+      <span style="cursor:pointer;" style-hover="color:#ED1C29;">Changelog</span>
+      <div style="width:1px; height:20px; background:#E3E3E6;"></div>
+      <div style="display:flex; align-items:center; gap:7px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:#55555E; cursor:pointer;" style-hover="color:#26262C;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.3-3.4-1.3-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .3.3.7 1 .7 2v2.9c0 .3.2.6.7.5A10 10 0 0 0 12 2z"></path></svg>
+        tuya-ux/tuip
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:flex-start;">
+
+    <!-- SIDEBAR -->
+    <div style="width:260px; flex-shrink:0; border-right:1px solid #E3E3E6; padding:28px 16px 80px 24px; position:sticky; top:60px; max-height:calc(100vh - 60px); overflow-y:auto;">
+      <sc-for list="{{ navGroups }}" as="group" hint-placeholder-count="3">
+        <div style="margin-bottom:26px;">
+          <div style="font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:#8B8B93; font-weight:600; padding:0 10px; margin-bottom:8px;">{{ group.label }}</div>
+          <sc-for list="{{ group.items }}" as="item" hint-placeholder-count="4">
+            <div onClick="{{ item.go }}" style="display:flex; align-items:center; gap:8px; font-size:14px; padding:6px 10px; border-radius:4px; cursor:pointer; margin-bottom:1px; color:{{ item.color }}; background:{{ item.bg }}; font-weight:{{ item.weight }}; box-shadow:{{ item.rail }};" style-hover="background:#F4F4F5;">
+              <span>{{ item.label }}</span>
+              <sc-if value="{{ item.badge }}" hint-placeholder-val="{{ false }}">
+                <span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.04em; color:#8E0F18; background:#FDECEE; border-radius:3px; padding:1px 5px;">{{ item.badge }}</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- CONTENT -->
+    <div style="flex:1; min-width:0; display:flex; justify-content:center; padding:0 32px;">
+      <div style="width:100%; max-width:780px; padding:48px 0 120px;">
+
+        <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:#8B8B93; margin-bottom:18px;">
+          <span>{{ crumbSection }}</span>
+          <span>/</span>
+          <span style="color:#55555E;">{{ pageTitle }}</span>
+        </div>
+        <h1 style="font-size:42px; font-weight:600; letter-spacing:-.03em; margin:0 0 14px;">{{ pageTitle }}</h1>
+        <p style="font-size:19px; line-height:1.6; color:#55555E; margin:0; max-width:62ch; text-wrap:pretty;">{{ pageLede }}</p>
+
+        <sc-if value="{{ isComponent }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex; align-items:center; gap:10px; margin-top:22px;">
+            <div data-code style="font-family:'IBM Plex Mono',monospace; font-size:13px; background:#17171B; color:#FAFAFA; border-radius:4px; padding:7px 13px; display:flex; align-items:center; gap:10px;">
+              <span data-code-body style="white-space:pre;"><span style="color:#F8626C;">tuip</span> add {{ pkgName }}</span>
+              <span onClick="{{ copyCode }}" style="cursor:pointer; color:#8B8B93; border-left:1px solid #3C3C44; padding-left:10px;" style-hover="color:#FFFFFF;">copiar</span>
+            </div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#74747E; border:1px solid #E3E3E6; border-radius:3px; padding:5px 9px;">{{ pkgSize }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:{{ statusColor }}; background:{{ statusBg }}; border-radius:3px; padding:5px 9px;">{{ statusLabel }}</div>
+          </div>
+
+          <div style="display:flex; gap:26px; border-bottom:1px solid #E3E3E6; margin:30px 0 0;">
+            <sc-for list="{{ tabs }}" as="tab" hint-placeholder-count="4">
+              <div onClick="{{ tab.go }}" style="font-size:14px; font-weight:500; padding:0 0 11px; cursor:pointer; color:{{ tab.color }}; box-shadow:{{ tab.underline }};">{{ tab.label }}</div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- ══════════ INTRO ══════════ -->
+        <sc-if value="{{ isIntro }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Qué es tuip</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">tuip (Tuya UI Platform) es el sistema de diseño de las aplicaciones internas de Tuya y, a la vez, la herramienta de línea de comandos que lo reparte. No se instala como librería: cada componente se copia dentro de tu repositorio, con su código fuente legible y sus estilos ya alineados a los fundamentos.</p>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">terminal</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#6FD08C;">
+              <div>$ npx tuip@latest init</div>
+              <div>$ npx tuip add button text-field data-table</div>
+            </div>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Por qué copiar y no importar</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Las apps internas de TI viven años y se bifurcan. Una dependencia versionada obliga a esperar al equipo de diseño para cualquier ajuste; un archivo en tu repo lo puedes modificar hoy y seguir recibiendo avisos de cambios con <span style="font-family:'IBM Plex Mono',monospace; font-size:14px;">tuip diff</span>.</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:20px 0 8px;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; padding:20px 22px;">
+              <div style="font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:#1E6B3A; font-weight:600; margin-bottom:9px;">Tú controlas</div>
+              <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">El markup, los handlers, las clases extra y cualquier regla de negocio que metas dentro del componente.</div>
+            </div>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; padding:20px 22px;">
+              <div style="font-size:12px; letter-spacing:.09em; text-transform:uppercase; color:#8E0F18; font-weight:600; margin-bottom:9px;">El sistema controla</div>
+              <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">Los tokens: color, tipografía, espaciado, radios y sombras. Se actualizan solos y no se editan a mano.</div>
+            </div>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Los tres módulos</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Fundamentos define las decisiones. Iconografía provee las 72 piezas del set. Componentes las combina en piezas instalables. tuip es el puente entre los tres y tu repositorio.</p>
+          <div style="background:#FEF6E7; border-radius:5px; padding:16px 18px; margin:20px 0; max-width:68ch;">
+            <div style="font-size:13px; font-weight:600; color:#8A5A00; margin-bottom:5px;">Fase actual</div>
+            <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">Fase 2 en curso: 18 componentes documentados, 12 disponibles en el CLI. Data table y Alert siguen en beta hasta cerrar accesibilidad de teclado.</div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ INSTALACIÓN ══════════ -->
+        <sc-if value="{{ isInstalacion }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Requisitos</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Node 20 o superior, React 18 y un bundler que resuelva alias de TypeScript. El CLI detecta Vite, Next.js y el monorepo de TI; para cualquier otro setup pregunta las rutas al inicializar.</p>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Inicializar</div>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">terminal</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+              <div style="color:#6FD08C;">$ npx tuip@latest init</div>
+              <div> </div>
+              <div style="color:#8B8B93;">? ¿Dónde viven tus componentes?  src/components/ui</div>
+              <div style="color:#8B8B93;">? ¿Alias de importación?         @/components/ui</div>
+              <div style="color:#8B8B93;">? ¿Instalar la escala Plex?      Sí</div>
+              <div> </div>
+              <div style="color:#6FD08C;">✓ tuip.config.json creado</div>
+              <div style="color:#6FD08C;">✓ tokens escritos en src/styles/tuya-tokens.css</div>
+            </div>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">tuip.config.json</div>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">tuip.config.json</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+              <div>{</div>
+              <div style="color:#8B8B93;">  "$schema": "https://ds.tuya.co/tuip/schema.json",</div>
+              <div>  "framework": "vite",</div>
+              <div>  "paths": {</div>
+              <div>    "components": "src/components/ui",</div>
+              <div>    "tokens": "src/styles/tuya-tokens.css",</div>
+              <div>    "icons": "src/components/icons"</div>
+              <div>  },</div>
+              <div>  "density": "amplia",</div>
+              <div>  "aliases": { "ui": "@/components/ui" }</div>
+              <div>}</div>
+            </div>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Primer componente</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">add resuelve dependencias internas: pedir data-table trae también checkbox, badge y los iconos de orden que usa la cabecera.</p>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">terminal</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+              <div style="color:#6FD08C;">$ npx tuip add data-table</div>
+              <div> </div>
+              <div>  + src/components/ui/data-table.tsx</div>
+              <div style="color:#8B8B93;">  + src/components/ui/checkbox.tsx      (dependencia)</div>
+              <div style="color:#8B8B93;">  + src/components/ui/badge.tsx         (dependencia)</div>
+              <div style="color:#8B8B93;">  + src/components/icons/sort.tsx       (dependencia)</div>
+              <div> </div>
+              <div style="color:#6FD08C;">✓ 4 archivos escritos · 0 conflictos</div>
+            </div>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Fuentes</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">init no descarga tipografías. Añade el link de Google Fonts en tu HTML raíz, o apunta a la copia interna de TI si la app corre en red cerrada.</p>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">index.html</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+              <div>&lt;link href="…family=IBM+Plex+Sans:wght@300;400;500;600</div>
+              <div>      &amp;family=IBM+Plex+Mono:wght@400;500" rel="stylesheet"&gt;</div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ CLI ══════════ -->
+        <sc-if value="{{ isCli }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:32px 0 14px; max-width:68ch; text-wrap:pretty;">Todos los comandos aceptan <span style="font-family:'IBM Plex Mono',monospace; font-size:14px;">--cwd</span> para apuntar a otro proyecto y <span style="font-family:'IBM Plex Mono',monospace; font-size:14px;">--dry</span> para simular sin escribir archivos.</p>
+
+          <div style="display:flex; align-items:baseline; gap:14px; margin:40px 0 8px; border-top:1px solid #E3E3E6; padding-top:26px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:500; color:#17171B;">tuip init</div>
+            <div style="font-size:14.5px; color:#74747E;">prepara el proyecto</div>
+          </div>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">terminal</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#6FD08C;">
+              <div>$ tuip init [--framework vite|next|monorepo] [--yes]</div>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:baseline; gap:14px; margin:40px 0 8px; border-top:1px solid #E3E3E6; padding-top:26px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:500; color:#17171B;">tuip add</div>
+            <div style="font-size:14.5px; color:#74747E;">copia componentes y sus dependencias</div>
+          </div>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">terminal</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#6FD08C;">
+              <div>$ tuip add button</div>
+              <div>$ tuip add button text-field select --overwrite</div>
+              <div>$ tuip add --all      <span style="color:#8B8B93;"># los 12 estables</span></div>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:baseline; gap:14px; margin:40px 0 8px; border-top:1px solid #E3E3E6; padding-top:26px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:500; color:#17171B;">tuip list</div>
+            <div style="font-size:14.5px; color:#74747E;">inventario y estado</div>
+          </div>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">terminal</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+              <div style="color:#6FD08C;">$ tuip list</div>
+              <div> </div>
+              <div>  button        v0.4.2   instalado   sin cambios</div>
+              <div style="color:#F5C451;">  text-field    v0.4.2   instalado   modificado localmente</div>
+              <div style="color:#F8626C;">  data-table    v0.5.0   instalado   desactualizado</div>
+              <div style="color:#8B8B93;">  alert         v0.2.0   —           beta</div>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:baseline; gap:14px; margin:40px 0 8px; border-top:1px solid #E3E3E6; padding-top:26px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:500; color:#17171B;">tuip diff · tuip update</div>
+            <div style="font-size:14.5px; color:#74747E;">ver y aplicar cambios del sistema</div>
+          </div>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">terminal</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#6FD08C;">
+              <div>$ tuip diff data-table</div>
+              <div>$ tuip update data-table</div>
+              <div>$ tuip update --tokens-only   <span style="color:#8B8B93;"># solo refresca tokens</span></div>
+            </div>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Banderas globales</div>
+          <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; background:#FAFAFA; border-bottom:1px solid #E3E3E6; font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#74747E;">
+              <div style="padding:10px 14px;">Bandera</div><div style="padding:10px 14px;">Tipo</div><div style="padding:10px 14px;">Default</div><div style="padding:10px 14px;">Descripción</div>
+            </div>
+            <sc-for list="{{ flagRows }}" as="row" hint-placeholder-count="4">
+              <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+                <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.a }}</div>
+                <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.b }}</div>
+                <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.c }}</div>
+                <div style="padding:11px 14px;">{{ row.d }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ ESTRUCTURA ══════════ -->
+        <sc-if value="{{ isEstructura }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Árbol de carpetas</div>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">estructura</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+              <div>src/</div>
+              <div>├─ components/</div>
+              <div>│  ├─ ui/                 <span style="color:#8B8B93;">componentes tuip (editables)</span></div>
+              <div>│  │  ├─ button.tsx</div>
+              <div>│  │  └─ data-table.tsx</div>
+              <div>│  └─ icons/              <span style="color:#8B8B93;">set Tuya, 72 piezas</span></div>
+              <div>├─ styles/</div>
+              <div>│  └─ tuya-tokens.css     <span style="color:#F5C451;">gestionado por tuip ⚠</span></div>
+              <div>tuip.config.json</div>
+            </div>
+          </div>
+          <div style="background:#FDECEE; border-radius:5px; padding:16px 18px; margin:20px 0; max-width:68ch;">
+            <div style="font-size:13px; font-weight:600; color:#8E0F18; margin-bottom:5px;">No edites tokens a mano</div>
+            <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">tuya-tokens.css se sobrescribe en cada update. Si necesitas un valor que no existe, pídelo al equipo de diseño: probablemente le falta al sistema, no a tu app.</div>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Convención de overrides</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Para cambios locales que quieras conservar, envuelve el componente en lugar de editarlo. tuip update solo pisa archivos dentro de components/ui que no tengan modificaciones marcadas.</p>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">button-aprobar.tsx</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+              <div>import { Button } from "@/components/ui/button";</div>
+              <div> </div>
+              <div>export function ButtonAprobar(props) {</div>
+              <div>  return &lt;Button variant="primary" icon="check" {...props} /&gt;;</div>
+              <div>}</div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ TIPOGRAFÍA ══════════ -->
+        <sc-if value="{{ isTipografia }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Familias</div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0 8px;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; padding:24px 26px;">
+              <div style="font-size:44px; font-weight:500; letter-spacing:-.02em; margin-bottom:12px;">Aa</div>
+              <div style="font-size:16px; font-weight:600; margin-bottom:4px;">IBM Plex Sans</div>
+              <div style="font-size:14px; line-height:1.6; color:#55555E;">Toda la interfaz. Pesos 300 / 400 / 500 / 600.</div>
+            </div>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; padding:24px 26px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:44px; font-weight:400; letter-spacing:-.02em; margin-bottom:12px;">Aa</div>
+              <div style="font-size:16px; font-weight:600; margin-bottom:4px;">IBM Plex Mono</div>
+              <div style="font-size:14px; line-height:1.6; color:#55555E;">Solo IDs literales, códigos y rutas. Nunca párrafos.</div>
+            </div>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Escala</div>
+          <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <sc-for list="{{ scaleRows }}" as="row" hint-placeholder-count="9">
+              <div style="display:grid; grid-template-columns:1.2fr .8fr .5fr 2fr; align-items:center; gap:14px; padding:14px 18px; border-top:1px solid #EFEFF0;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#ED1C29;">{{ row.a }}</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#55555E;">{{ row.b }}</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#55555E;">{{ row.c }}</div>
+                <div style="font-size:14px; color:#3C3C44;">{{ row.d }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Cifras tabulares</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Toda cifra que se compare en columna usa font-variant-numeric: tabular-nums. Sin esto, los montos bailan y el ojo pierde la alineación decimal.</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; padding:20px;">
+              <div style="font-size:12px; text-transform:uppercase; letter-spacing:.09em; color:#8E0F18; font-weight:600; margin-bottom:12px;">Sin tabular</div>
+              <div style="font-size:18px; line-height:1.7; text-align:right;">
+                <div>1.180.400</div><div>94.011</div><div>7.309.885</div>
+              </div>
+            </div>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; padding:20px;">
+              <div style="font-size:12px; text-transform:uppercase; letter-spacing:.09em; color:#1E6B3A; font-weight:600; margin-bottom:12px;">Con tabular</div>
+              <div style="font-size:18px; line-height:1.7; text-align:right; font-variant-numeric:tabular-nums;">
+                <div>1.180.400</div><div>94.011</div><div>7.309.885</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Reglas de uso</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Máximo tres tamaños por pantalla. El peso 600 marca jerarquía; nunca uses mayúsculas sostenidas por encima de 13px. El texto largo no pasa de 68 caracteres por línea.</p>
+          <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">ejemplo.tsx</div>
+              <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+            </div>
+            <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+              <div>import "@/styles/tuya-tokens.css";</div>
+              <div> </div>
+              <div>&lt;p class<span>Name</span>="ty-body"&gt;Saldo disponible&lt;/p&gt;</div>
+              <div>&lt;span class<span>Name</span>="ty-label ty-num"&gt;1.180.400&lt;/span&gt;</div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ COLOR ══════════ -->
+        <sc-if value="{{ isColor }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Tokens base</div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:18px 0 22px;">
+            <sc-for list="{{ baseSwatches }}" as="sw" hint-placeholder-count="4">
+              <div style="border:1px solid #E3E3E6; border-radius:5px; overflow:hidden;">
+                <div style="height:64px; background:{{ sw.hex }};"></div>
+                <div style="padding:11px 13px;">
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; margin-bottom:3px;">{{ sw.name }}</div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8B8B93;">{{ sw.hex }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Semánticos</div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:18px 0 22px;">
+            <sc-for list="{{ semanticSwatches }}" as="sw" hint-placeholder-count="4">
+              <div style="border:1px solid #E3E3E6; border-radius:5px; overflow:hidden;">
+                <div style="height:64px; background:{{ sw.hex }};"></div>
+                <div style="padding:11px 13px;">
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; margin-bottom:3px;">{{ sw.name }}</div>
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8B8B93;">{{ sw.hex }}</div>
+                  <div style="font-size:12.5px; color:#55555E; margin-top:6px; line-height:1.45;">{{ sw.note }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Uso del rojo</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">El rojo de marca solo aparece en la acción primaria, el indicador de sección activa y el logotipo. Los errores usan danger (#8E0F18), más oscuro y sin competir con el botón principal.</p>
+          <div style="background:#FDECEE; border-radius:5px; padding:16px 18px; margin:20px 0; max-width:68ch;">
+            <div style="font-size:13px; font-weight:600; color:#8E0F18; margin-bottom:5px;">Regla dura</div>
+            <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">Un solo elemento rojo compitiendo por la mirada en cada vista. Si hay dos, ninguno funciona.</div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ ESPACIADO ══════════ -->
+        <sc-if value="{{ isEspaciado }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Alias</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Nombras la relación, no el número. Si mañana la densidad cambia, se recalibra el alias y toda la plataforma respira igual.</p>
+          <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:18px 0;">
+            <sc-for list="{{ spaceRows }}" as="row" hint-placeholder-count="7">
+              <div style="display:grid; grid-template-columns:1fr .5fr 1.6fr; align-items:center; gap:14px; padding:13px 18px; border-top:1px solid #EFEFF0;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#ED1C29;">{{ row.a }}</div>
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#55555E;">{{ row.b }}</div>
+                <div style="font-size:14px; color:#3C3C44;">{{ row.c }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin:52px 0 14px;">Proximidad</div>
+          <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Lo relacionado se toca, lo distinto respira. Si dos bloques necesitan una línea divisoria para leerse como separados, es que les falta espacio.</p>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ BUTTON ══════════ -->
+        <sc-if value="{{ isButton }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <sc-if value="{{ tabUso }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:36px 0 22px;">
+              <div style="padding:38px 28px; background-image:radial-gradient(#EDEDEF 1px, transparent 1px); background-size:16px 16px; display:flex; flex-wrap:wrap; gap:14px; align-items:center;">
+                <div style="height:40px; background:#ED1C29; color:#FFFFFF; border-radius:3px; padding:0 20px; display:flex; align-items:center; font-size:15px; font-weight:600; cursor:pointer;" style-hover="background:#C9151F;">Aprobar solicitud</div>
+                <div style="height:40px; background:#FFFFFF; color:#26262C; border:1px solid #C9C9CE; border-radius:3px; padding:0 20px; display:flex; align-items:center; font-size:15px; font-weight:500; cursor:pointer;" style-hover="background:#F4F4F5;">Cancelar</div>
+                <div style="height:40px; color:#3C3C44; border-radius:3px; padding:0 14px; display:flex; align-items:center; font-size:15px; font-weight:500; cursor:pointer;" style-hover="background:#F4F4F5;">Ver historial</div>
+                <div style="height:40px; background:#8E0F18; color:#FFFFFF; border-radius:3px; padding:0 20px; display:flex; align-items:center; font-size:15px; font-weight:600; cursor:pointer;" style-hover="background:#700C13;">Eliminar</div>
+              </div>
+              <div style="border-top:1px solid #E3E3E6; background:#FAFAFA; padding:9px 14px; font-size:12.5px; color:#74747E;">variant: primary · secondary · subtle · danger</div>
+            </div>
+            <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+              <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">aprobaciones.tsx</div>
+                <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+              </div>
+              <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+                <div>import { Button } from "@/components/ui/button";</div>
+                <div> </div>
+                <div>&lt;Button variant="primary" onClick={aprobar}&gt;</div>
+                <div>  Aprobar solicitud</div>
+                <div>&lt;/Button&gt;</div>
+              </div>
+            </div>
+            <div style="font-size:17px; font-weight:600; margin:32px 0 10px;">Cuándo NO usarlo</div>
+            <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Si la acción navega a otra pantalla sin efecto de escritura, es un enlace. Si hay más de cinco acciones juntas, es un menú.</p>
+            <div style="background:#FDECEE; border-radius:5px; padding:16px 18px; margin:20px 0; max-width:68ch;">
+              <div style="font-size:13px; font-weight:600; color:#8E0F18; margin-bottom:5px;">Un primario por vista</div>
+              <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">El rojo dirige la mirada al siguiente paso. Dos primarios en pantalla anulan la jerarquía y obligan al usuario a leer ambos.</div>
+            </div>
+            <div style="font-size:17px; font-weight:600; margin:32px 0 10px;">Tamaños</div>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+              <div style="padding:38px 28px; background-image:radial-gradient(#EDEDEF 1px, transparent 1px); background-size:16px 16px; display:flex; flex-wrap:wrap; gap:14px; align-items:center;">
+                <div style="height:32px; border:1px solid #C9C9CE; border-radius:3px; padding:0 14px; display:flex; align-items:center; font-size:14px; font-weight:500; background:#FFFFFF;">sm · 32</div>
+                <div style="height:40px; border:1px solid #C9C9CE; border-radius:3px; padding:0 18px; display:flex; align-items:center; font-size:15px; font-weight:500; background:#FFFFFF;">md · 40</div>
+                <div style="height:48px; border:1px solid #C9C9CE; border-radius:3px; padding:0 22px; display:flex; align-items:center; font-size:15px; font-weight:500; background:#FFFFFF;">lg · 48</div>
+              </div>
+              <div style="border-top:1px solid #E3E3E6; background:#FAFAFA; padding:9px 14px; font-size:12.5px; color:#74747E;">md es el default; sm solo dentro de tablas y toolbars</div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabAnatomia }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:36px 0 22px;">
+              <div style="padding:38px 28px; background-image:radial-gradient(#EDEDEF 1px, transparent 1px); background-size:16px 16px; display:flex; gap:14px; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px; height:40px; background:#ED1C29; color:#FFFFFF; border-radius:3px; padding:0 20px; font-size:15px; font-weight:600;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>
+                  <span>Aprobar</span>
+                </div>
+              </div>
+              <div style="border-top:1px solid #E3E3E6; background:#FAFAFA; padding:9px 14px; font-size:12.5px; color:#74747E;">padding 0/20 · gap 8 (space.hug) · icono 16 · radio 3</div>
+            </div>
+            <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">El icono siempre precede al texto y mide 16px en md. La altura es fija por tamaño; el ancho lo define el contenido con un mínimo de 88px para que dos botones cortos no queden desiguales.</p>
+            <div style="font-size:17px; font-weight:600; margin:32px 0 10px;">Estados</div>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+              <div style="padding:38px 28px; background-image:radial-gradient(#EDEDEF 1px, transparent 1px); background-size:16px 16px; display:flex; flex-wrap:wrap; gap:18px; align-items:center;">
+                <div style="height:40px; background:#ED1C29; color:#FFFFFF; border-radius:3px; padding:0 20px; display:flex; align-items:center; font-size:15px; font-weight:600;">Default</div>
+                <div style="height:40px; background:#C9151F; color:#FFFFFF; border-radius:3px; padding:0 20px; display:flex; align-items:center; font-size:15px; font-weight:600;">Hover</div>
+                <div style="height:40px; background:#ED1C29; color:#FFFFFF; border-radius:3px; padding:0 20px; display:flex; align-items:center; font-size:15px; font-weight:600; box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px #1F4E8C;">Focus</div>
+                <div style="height:40px; background:#EFEFF0; color:#A0A0A8; border-radius:3px; padding:0 20px; display:flex; align-items:center; font-size:15px; font-weight:600; cursor:not-allowed;">Disabled</div>
+              </div>
+              <div style="border-top:1px solid #E3E3E6; background:#FAFAFA; padding:9px 14px; font-size:12.5px; color:#74747E;">El focus ring es azul, nunca rojo: debe distinguirse del color de marca</div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabApi }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:36px;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:0 0 22px;">
+              <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; background:#FAFAFA; border-bottom:1px solid #E3E3E6; font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#74747E;">
+                <div style="padding:10px 14px;">Prop</div><div style="padding:10px 14px;">Tipo</div><div style="padding:10px 14px;">Default</div><div style="padding:10px 14px;">Descripción</div>
+              </div>
+              <sc-for list="{{ buttonApi }}" as="row" hint-placeholder-count="6">
+                <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.a }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">{{ row.b }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.c }}</div>
+                  <div style="padding:11px 14px;">{{ row.d }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+              <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">terminal</div>
+                <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+              </div>
+              <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#6FD08C;">
+                <div>$ tuip add button</div>
+                <div>$ tuip diff button    <span style="color:#8B8B93;"># ver cambios pendientes</span></div>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabA11y }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:36px;">
+            <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">El componente renderiza un button nativo. Si pasas href, renderiza un enlace con role="button" conservando el estilo.</p>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+              <sc-for list="{{ buttonA11y }}" as="row" hint-placeholder-count="4">
+                <div style="display:grid; grid-template-columns:1.1fr 1.1fr 2fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+                  <div style="padding:11px 14px; font-weight:500;">{{ row.a }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#55555E;">{{ row.b }}</div>
+                  <div style="padding:11px 14px;">{{ row.c }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="background:#FEF6E7; border-radius:5px; padding:16px 18px; margin:20px 0; max-width:68ch;">
+              <div style="font-size:13px; font-weight:600; color:#8A5A00; margin-bottom:5px;">Deshabilitado con motivo</div>
+              <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">Un botón deshabilitado sin explicación es un callejón sin salida. Envuélvelo en un tooltip que diga qué falta para habilitarlo.</div>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ TEXT FIELD ══════════ -->
+        <sc-if value="{{ isField }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <sc-if value="{{ tabUso }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:36px 0 22px;">
+              <div style="padding:38px 28px; background-image:radial-gradient(#EDEDEF 1px, transparent 1px); background-size:16px 16px; display:flex; flex-wrap:wrap; gap:24px;">
+                <div style="width:280px;">
+                  <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Número de célula</div>
+                  <div style="height:40px; border:1px solid #C9C9CE; border-radius:3px; padding:0 12px; display:flex; align-items:center; font-size:15px; background:#FFFFFF;">CEL-00841</div>
+                </div>
+                <div style="width:280px;">
+                  <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Responsable</div>
+                  <div style="height:40px; border:1px solid #C9C9CE; border-radius:3px; padding:0 12px; display:flex; align-items:center; font-size:15px; color:#8B8B93; background:#FFFFFF;">Selecciona un analista</div>
+                  <div style="font-size:12.5px; color:#74747E; margin-top:6px;">Solo analistas activos del área.</div>
+                </div>
+              </div>
+              <div style="border-top:1px solid #E3E3E6; background:#FAFAFA; padding:9px 14px; font-size:12.5px; color:#74747E;">Label arriba siempre: el placeholder no reemplaza la etiqueta</div>
+            </div>
+            <div style="font-size:17px; font-weight:600; margin:32px 0 10px;">Estados</div>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+              <div style="padding:38px 28px; background-image:radial-gradient(#EDEDEF 1px, transparent 1px); background-size:16px 16px; display:flex; flex-wrap:wrap; gap:24px;">
+                <div style="width:240px;">
+                  <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Focus</div>
+                  <div style="height:40px; border:1px solid #1F4E8C; border-radius:3px; padding:0 12px; display:flex; align-items:center; font-size:15px; background:#FFFFFF; box-shadow:0 0 0 3px rgba(31,78,140,.18);">CEL-008</div>
+                </div>
+                <div style="width:240px;">
+                  <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Error</div>
+                  <div style="height:40px; border:1px solid #8E0F18; border-radius:3px; padding:0 12px; display:flex; align-items:center; font-size:15px; background:#FFFFFF;">CEL-8</div>
+                  <div style="font-size:12.5px; color:#8E0F18; margin-top:6px;">El código debe tener 5 dígitos.</div>
+                </div>
+                <div style="width:240px;">
+                  <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Deshabilitado</div>
+                  <div style="height:40px; border:1px solid #E3E3E6; border-radius:3px; padding:0 12px; display:flex; align-items:center; font-size:15px; color:#8B8B93; background:#F4F4F5;">CEL-00841</div>
+                </div>
+              </div>
+            </div>
+            <div data-code style="background:#17171B; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+              <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">formulario.tsx</div>
+                <div onClick="{{ copyCode }}" style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8B8B93; cursor:pointer;" style-hover="color:#FFFFFF;">copiar</div>
+              </div>
+              <div data-code-body style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.75; padding:16px 18px; overflow-x:auto; white-space:pre; display:flex; flex-direction:column; color:#E3E3E6;">
+                <div>&lt;TextField</div>
+                <div>  label="Número de célula"</div>
+                <div>  value={celula}</div>
+                <div>  onChange={setCelula}</div>
+                <div>  error={errores.celula}</div>
+                <div>/&gt;</div>
+              </div>
+            </div>
+            <div style="background:#EEF3FB; border-radius:5px; padding:16px 18px; margin:20px 0; max-width:68ch;">
+              <div style="font-size:13px; font-weight:600; color:#1F4E8C; margin-bottom:5px;">El error explica, no regaña</div>
+              <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">Escribe qué falta y cómo arreglarlo: «El código debe tener 5 dígitos», no «Campo inválido».</div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabAnatomia }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:36px;">
+            <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Label (13/500) · space.tight 8px · control 40px · 6px · ayuda o error (12.5). El texto de ayuda y el de error ocupan el mismo lugar: nunca se muestran a la vez.</p>
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin:18px 0 22px;">
+              <div style="padding:38px 28px; background-image:radial-gradient(#EDEDEF 1px, transparent 1px); background-size:16px 16px;">
+                <div style="width:300px;">
+                  <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Etiqueta</div>
+                  <div style="height:40px; border:1px solid #C9C9CE; border-radius:3px; padding:0 12px; display:flex; align-items:center; font-size:15px; background:#FFFFFF;">Valor</div>
+                  <div style="font-size:12.5px; color:#74747E; margin-top:6px;">Texto de ayuda en el mismo slot que el error.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabApi }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:36px;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+              <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; background:#FAFAFA; border-bottom:1px solid #E3E3E6; font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#74747E;">
+                <div style="padding:10px 14px;">Prop</div><div style="padding:10px 14px;">Tipo</div><div style="padding:10px 14px;">Default</div><div style="padding:10px 14px;">Descripción</div>
+              </div>
+              <sc-for list="{{ fieldApi }}" as="row" hint-placeholder-count="7">
+                <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.a }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">{{ row.b }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.c }}</div>
+                  <div style="padding:11px 14px;">{{ row.d }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabA11y }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:36px;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+              <sc-for list="{{ fieldA11y }}" as="row" hint-placeholder-count="4">
+                <div style="display:grid; grid-template-columns:1.1fr 1.1fr 2fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+                  <div style="padding:11px 14px; font-weight:500;">{{ row.a }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#55555E;">{{ row.b }}</div>
+                  <div style="padding:11px 14px;">{{ row.c }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ DATA TABLE ══════════ -->
+        <sc-if value="{{ isTable }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <sc-if value="{{ tabUsoOrAnatomia }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:36px;">
+            <div style="border:1px solid #E3E3E6; border-radius:5px; overflow:hidden; background:#FFFFFF; margin-bottom:22px;">
+              <div style="display:grid; grid-template-columns:1.1fr 1.4fr .9fr .8fr; gap:12px; padding:10px 16px; background:#FAFAFA; border-bottom:1px solid #E3E3E6; font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#74747E;">
+                <div>Célula</div><div>Zona</div><div style="text-align:right;">Saldo</div><div>Estado</div>
+              </div>
+              <sc-for list="{{ tableRows }}" as="row" hint-placeholder-count="3">
+                <div style="display:grid; grid-template-columns:1.1fr 1.4fr .9fr .8fr; gap:12px; padding:12px 16px; border-top:1px solid #EFEFF0; font-size:14px; align-items:center;">
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.id }}</div>
+                  <div>{{ row.zona }}</div>
+                  <div style="text-align:right; font-variant-numeric:tabular-nums;">{{ row.saldo }}</div>
+                  <div><span style="font-size:12.5px; font-weight:500; border-radius:3px; padding:3px 8px; background:{{ row.bg }}; color:{{ row.color }};">{{ row.estado }}</span></div>
+                </div>
+              </sc-for>
+            </div>
+            <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Cifras a la derecha con tabular-nums, identificadores en mono, estado como badge. La cabecera mide 40px, la fila 44px en densidad amplia y 36px en compacta; el padding lateral es 16px.</p>
+            <div style="background:#EEF3FB; border-radius:5px; padding:16px 18px; margin:20px 0; max-width:68ch;">
+              <div style="font-size:13px; font-weight:600; color:#1F4E8C; margin-bottom:5px;">Cuándo NO usarla</div>
+              <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">Si son menos de cinco filas y tres columnas, una lista de definición lee mejor. La tabla justifica su peso cuando el usuario compara valores entre filas.</div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabApi }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:36px;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+              <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; background:#FAFAFA; border-bottom:1px solid #E3E3E6; font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#74747E;">
+                <div style="padding:10px 14px;">Prop</div><div style="padding:10px 14px;">Tipo</div><div style="padding:10px 14px;">Default</div><div style="padding:10px 14px;">Descripción</div>
+              </div>
+              <sc-for list="{{ tableApi }}" as="row" hint-placeholder-count="6">
+                <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.a }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">{{ row.b }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.c }}</div>
+                  <div style="padding:11px 14px;">{{ row.d }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabA11y }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:36px;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+              <sc-for list="{{ tableA11y }}" as="row" hint-placeholder-count="4">
+                <div style="display:grid; grid-template-columns:1.1fr 1.1fr 2fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+                  <div style="padding:11px 14px; font-weight:500;">{{ row.a }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#55555E;">{{ row.b }}</div>
+                  <div style="padding:11px 14px;">{{ row.c }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- ══════════ ALERT ══════════ -->
+        <sc-if value="{{ isAlert }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <sc-if value="{{ tabUsoOrAnatomia }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:36px;">
+            <div style="display:grid; gap:12px; margin-bottom:22px;">
+              <div style="display:flex; gap:12px; background:#EEF3FB; border-radius:5px; padding:14px 16px; border-left:3px solid #1F4E8C;">
+                <div style="flex:1;">
+                  <div style="font-size:14.5px; font-weight:600; color:#1F4E8C; margin-bottom:3px;">Cierre programado</div>
+                  <div style="font-size:14px; line-height:1.6; color:#3C3C44;">El módulo de cartera no estará disponible el sábado entre 2:00 y 6:00.</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:12px; background:#E9F6EE; border-radius:5px; padding:14px 16px; border-left:3px solid #1E6B3A;">
+                <div style="flex:1;">
+                  <div style="font-size:14.5px; font-weight:600; color:#1E6B3A; margin-bottom:3px;">Solicitud aprobada</div>
+                  <div style="font-size:14px; line-height:1.6; color:#3C3C44;">CEL-00841 quedó activa. El analista fue notificado.</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:12px; background:#FEF6E7; border-radius:5px; padding:14px 16px; border-left:3px solid #8A5A00;">
+                <div style="flex:1;">
+                  <div style="font-size:14.5px; font-weight:600; color:#8A5A00; margin-bottom:3px;">Datos incompletos</div>
+                  <div style="font-size:14px; line-height:1.6; color:#3C3C44;">Faltan 3 células por asignar zona antes de cerrar el periodo.</div>
+                </div>
+              </div>
+              <div style="display:flex; gap:12px; background:#FDECEE; border-radius:5px; padding:14px 16px; border-left:3px solid #8E0F18;">
+                <div style="flex:1;">
+                  <div style="font-size:14.5px; font-weight:600; color:#8E0F18; margin-bottom:3px;">No se pudo guardar</div>
+                  <div style="font-size:14px; line-height:1.6; color:#3C3C44;">El servicio de aprobaciones no responde. Reintenta en unos minutos.</div>
+                </div>
+              </div>
+            </div>
+            <p style="font-size:16px; line-height:1.72; color:#3C3C44; margin:0 0 14px; max-width:68ch; text-wrap:pretty;">Barra de 3px del color semántico, padding 14/16, título 14.5/600 y cuerpo 14/1.6. Sin icono decorativo: el color y el título ya comunican el tono.</p>
+            <div style="background:#EEF3FB; border-radius:5px; padding:16px 18px; margin:20px 0; max-width:68ch;">
+              <div style="font-size:13px; font-weight:600; color:#1F4E8C; margin-bottom:5px;">Alert vs Toast vs Modal</div>
+              <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">Alert vive en la página y persiste. Toast desaparece solo y no lleva información crítica. Modal bloquea porque exige una decisión.</div>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabApi }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:36px;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+              <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; background:#FAFAFA; border-bottom:1px solid #E3E3E6; font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#74747E;">
+                <div style="padding:10px 14px;">Prop</div><div style="padding:10px 14px;">Tipo</div><div style="padding:10px 14px;">Default</div><div style="padding:10px 14px;">Descripción</div>
+              </div>
+              <sc-for list="{{ alertApi }}" as="row" hint-placeholder-count="4">
+                <div style="display:grid; grid-template-columns:1.1fr .9fr .8fr 2fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.a }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:12.5px;">{{ row.b }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.c }}</div>
+                  <div style="padding:11px 14px;">{{ row.d }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ tabA11y }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:36px;">
+            <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+              <sc-for list="{{ alertA11y }}" as="row" hint-placeholder-count="3">
+                <div style="display:grid; grid-template-columns:1.1fr 1.1fr 2fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+                  <div style="padding:11px 14px; font-weight:500;">{{ row.a }}</div>
+                  <div style="padding:11px 14px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#55555E;">{{ row.b }}</div>
+                  <div style="padding:11px 14px;">{{ row.c }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- PREV / NEXT -->
+        <div style="display:flex; gap:16px; margin-top:72px; border-top:1px solid #E3E3E6; padding-top:26px;">
+          <div onClick="{{ goPrev }}" style="flex:1; border:1px solid #E3E3E6; border-radius:5px; padding:16px 18px; cursor:pointer;" style-hover="border-color:#C9C9CE; background:#FAFAFA;">
+            <div style="font-size:12px; color:#8B8B93; margin-bottom:5px;">Anterior</div>
+            <div style="font-size:15px; font-weight:500;">{{ prevLabel }}</div>
+          </div>
+          <div onClick="{{ goNext }}" style="flex:1; border:1px solid #E3E3E6; border-radius:5px; padding:16px 18px; cursor:pointer; text-align:right;" style-hover="border-color:#C9C9CE; background:#FAFAFA;">
+            <div style="font-size:12px; color:#8B8B93; margin-bottom:5px;">Siguiente</div>
+            <div style="font-size:15px; font-weight:500;">{{ nextLabel }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ON THIS PAGE -->
+    <sc-if value="{{ showRail }}" hint-placeholder-val="{{ true }}">
+    <div style="width:220px; flex-shrink:0; padding:60px 24px 80px 0; position:sticky; top:60px;">
+      <div style="font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:#8B8B93; font-weight:600; margin-bottom:12px;">En esta página</div>
+      <sc-for list="{{ toc }}" as="t" hint-placeholder-count="4">
+        <div style="font-size:13px; line-height:1.5; color:#55555E; padding:5px 0 5px 12px; border-left:2px solid #E3E3E6; cursor:pointer;" style-hover="color:#26262C; border-left-color:#C9C9CE;">{{ t }}</div>
+      </sc-for>
+      <div style="margin-top:28px; border-top:1px solid #E3E3E6; padding-top:16px; display:grid; gap:9px; font-size:13px; color:#55555E;">
+        <div style="cursor:pointer;" style-hover="color:#ED1C29;">Editar esta página</div>
+        <div style="cursor:pointer;" style-hover="color:#ED1C29;">Reportar un problema</div>
+        <div style="cursor:pointer;" style-hover="color:#ED1C29;">Ver en Figma</div>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:960}}">
+const RED = '#ED1C29';
+
+const NAV = [
+  { label: 'Empezar', items: [
+    { id: 'intro', label: 'Introducción' },
+    { id: 'instalacion', label: 'Instalación' },
+    { id: 'cli', label: 'CLI tuip', badge: 'core' },
+    { id: 'estructura', label: 'Anatomía de un proyecto' },
+  ]},
+  { label: 'Fundamentos', items: [
+    { id: 'tipografia', label: 'Tipografía' },
+    { id: 'color', label: 'Color y tokens' },
+    { id: 'espaciado', label: 'Espaciado' },
+  ]},
+  { label: 'Componentes', items: [
+    { id: 'button', label: 'Button' },
+    { id: 'field', label: 'Text field' },
+    { id: 'table', label: 'Data table' },
+    { id: 'alert', label: 'Alert', badge: 'beta' },
+  ]},
+];
+
+const ORDER = NAV.flatMap(g => g.items.map(i => ({ id: i.id, label: i.label, section: g.label })));
+
+const META = {
+  intro: { title: 'Tuya UI Platform', lede: 'La base compartida de las aplicaciones internas de Tuya: fundamentos, componentes y un CLI que los instala en tu repo como código tuyo, no como dependencia opaca.', toc: ['Qué es tuip', 'Por qué copiar y no importar', 'Los tres módulos'] },
+  instalacion: { title: 'Instalación', lede: 'Un comando de init, un archivo de configuración y ya puedes traer componentes. Soporta React + Vite, Next.js y el monorepo interno de TI.', toc: ['Requisitos', 'Inicializar', 'tuip.config.json', 'Primer componente', 'Fuentes'] },
+  cli: { title: 'CLI tuip', lede: 'Referencia de comandos. tuip copia el código fuente del componente dentro de tu proyecto y resuelve sus dependencias internas.', toc: ['tuip init', 'tuip add', 'tuip list', 'tuip diff · update', 'Banderas globales'] },
+  estructura: { title: 'Anatomía de un proyecto', lede: 'Dónde queda cada cosa después de instalar, y qué archivos puedes tocar sin que un update te los pise.', toc: ['Árbol de carpetas', 'Convención de overrides'] },
+  tipografia: { title: 'Tipografía', lede: 'IBM Plex Sans para toda la interfaz, IBM Plex Mono reservado a identificadores literales. Una sola escala de nueve pasos, sin excepciones por pantalla.', toc: ['Familias', 'Escala', 'Cifras tabulares', 'Reglas de uso'] },
+  color: { title: 'Color y tokens', lede: 'El rojo Tuya solo dirige la acción primaria. Todo lo demás vive en una escala neutra y cuatro paletas semánticas.', toc: ['Tokens base', 'Semánticos', 'Uso del rojo'] },
+  espaciado: { title: 'Espaciado', lede: 'Alias semánticos sobre una base de 4px: nombras la relación entre elementos, no el número de píxeles.', toc: ['Alias', 'Proximidad'] },
+  button: { title: 'Button', lede: 'Dispara una acción. Un solo botón primario por vista — es la regla que sostiene el rojo de marca.', pkg: 'button', size: '2.1 kB', estado: 'estable' },
+  field: { title: 'Text field', lede: 'Entrada de texto de una línea con label, ayuda y error. Base de casi todos los formularios operativos.', pkg: 'text-field', size: '3.4 kB', estado: 'estable' },
+  table: { title: 'Data table', lede: 'Tabla densa para inventarios y listados operativos: cifras tabulares, orden por columna y selección múltiple.', pkg: 'data-table', size: '9.8 kB', estado: 'beta' },
+  alert: { title: 'Alert', lede: 'Mensaje persistente dentro del flujo. Para lo efímero usa Toast; para lo bloqueante, Modal.', pkg: 'alert', size: '1.9 kB', estado: 'beta' },
+};
+
+const COMPONENTS = ['button', 'field', 'table', 'alert'];
+const TABS = ['Uso', 'Anatomía', 'API', 'Accesibilidad'];
+
+const r4 = a => a.map(x => ({ a: x[0], b: x[1], c: x[2], d: x[3] }));
+const r3 = a => a.map(x => ({ a: x[0], b: x[1], c: x[2] }));
+
+class Component extends DCLogic {
+  state = { route: 'intro', tab: 'Uso', wide: true };
+
+  componentDidMount() {
+    this.onResize = () => this.setState({ wide: window.innerWidth >= 1240 });
+    this.onResize();
+    window.addEventListener('resize', this.onResize);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this.onResize); }
+
+  go(id) { return () => { this.setState({ route: id, tab: 'Uso' }); try { window.scrollTo(0, 0); } catch (e) {} }; }
+
+  copyCode = (e) => {
+    const btn = e.currentTarget;
+    const wrap = btn.closest('[data-code]');
+    if (!wrap) return;
+    const body = wrap.querySelector('[data-code-body]');
+    const text = body ? body.innerText : '';
+    try { navigator.clipboard && navigator.clipboard.writeText(text); } catch (err) {}
+    const prev = btn.textContent;
+    btn.textContent = 'copiado ✓';
+    btn.style.color = '#6FD08C';
+    setTimeout(() => { btn.textContent = prev; btn.style.color = '#8B8B93'; }, 1400);
+  };
+
+  renderVals() {
+    const r = this.state.route, tab = this.state.tab;
+    const meta = META[r];
+    const idx = ORDER.findIndex(o => o.id === r);
+    const prev = ORDER[idx - 1], next = ORDER[idx + 1];
+    const isComponent = COMPONENTS.indexOf(r) >= 0;
+    const beta = meta.estado === 'beta';
+
+    return {
+      navGroups: NAV.map(g => ({
+        label: g.label,
+        items: g.items.map(i => ({
+          label: i.label, badge: i.badge || false, go: this.go(i.id),
+          color: i.id === r ? '#26262C' : '#55555E',
+          bg: i.id === r ? '#F4F4F5' : 'transparent',
+          weight: i.id === r ? 600 : 400,
+          rail: i.id === r ? 'inset 2px 0 0 ' + RED : 'none',
+        })),
+      })),
+      crumbSection: ORDER[idx] ? ORDER[idx].section : '',
+      pageTitle: meta.title,
+      pageLede: meta.lede,
+      isComponent,
+      pkgName: meta.pkg || '',
+      pkgSize: meta.size || '',
+      statusLabel: meta.estado || '',
+      statusColor: beta ? '#8A5A00' : '#1E6B3A',
+      statusBg: beta ? '#FEF6E7' : '#E9F6EE',
+      copyCode: this.copyCode,
+      tabs: TABS.map(t => ({
+        label: t, go: () => this.setState({ tab: t }),
+        color: tab === t ? '#26262C' : '#74747E',
+        underline: tab === t ? 'inset 0 -2px 0 ' + RED : 'none',
+      })),
+      toc: meta.toc || TABS,
+      showRail: this.state.wide,
+
+      isIntro: r === 'intro', isInstalacion: r === 'instalacion', isCli: r === 'cli',
+      isEstructura: r === 'estructura', isTipografia: r === 'tipografia', isColor: r === 'color',
+      isEspaciado: r === 'espaciado', isButton: r === 'button', isField: r === 'field',
+      isTable: r === 'table', isAlert: r === 'alert',
+      tabUso: tab === 'Uso', tabAnatomia: tab === 'Anatomía', tabApi: tab === 'API',
+      tabA11y: tab === 'Accesibilidad', tabUsoOrAnatomia: tab === 'Uso' || tab === 'Anatomía',
+
+      flagRows: r4([
+        ['--cwd', 'string', '.', 'Raíz del proyecto sobre la que opera el comando.'],
+        ['--dry', 'boolean', 'false', 'Muestra el plan de archivos sin escribir nada.'],
+        ['--yes', 'boolean', 'false', 'Acepta todas las preguntas con el valor por defecto.'],
+        ['--silent', 'boolean', 'false', 'Solo imprime errores. Útil en CI.'],
+      ]),
+      scaleRows: r4([
+        ['display', '42 / 46', '600', 'Título de página en documentación y portadas'],
+        ['h1', '32 / 38', '600', 'Título de pantalla'],
+        ['h2', '24 / 30', '600', 'Sección dentro de una pantalla'],
+        ['h3', '19 / 26', '600', 'Encabezado de tarjeta o grupo'],
+        ['body-lg', '17 / 27', '400', 'Lede, texto introductorio'],
+        ['body', '15 / 24', '400', 'Texto base de interfaz'],
+        ['body-sm', '14 / 21', '400', 'Texto de tabla y formularios densos'],
+        ['label', '13 / 18', '500', 'Etiquetas de campo y encabezados de tabla'],
+        ['caption', '12 / 16', '400', 'Ayudas, timestamps, metadatos'],
+      ]),
+      baseSwatches: [
+        { hex: '#ED1C29', name: 'brand.red' }, { hex: '#17171B', name: 'ink.900' },
+        { hex: '#55555E', name: 'ink.500' }, { hex: '#E3E3E6', name: 'line.default' },
+      ],
+      semanticSwatches: [
+        { hex: '#1E6B3A', name: 'success', note: 'Aprobado, en línea' },
+        { hex: '#8A5A00', name: 'warning', note: 'Requiere atención' },
+        { hex: '#8E0F18', name: 'danger', note: 'Destructivo, error' },
+        { hex: '#1F4E8C', name: 'info', note: 'Neutro informativo' },
+      ],
+      spaceRows: r3([
+        ['space.hug', '4px', 'Icono y su texto'],
+        ['space.tight', '8px', 'Label y su campo'],
+        ['space.snug', '12px', 'Campos de un mismo grupo'],
+        ['space.base', '16px', 'Elementos dentro de una tarjeta'],
+        ['space.group', '24px', 'Grupos de formulario'],
+        ['space.section', '40px', 'Secciones de una pantalla'],
+        ['space.page', '64px', 'Bloques mayores de página'],
+      ]),
+      buttonApi: r4([
+        ['variant', "'primary' | 'secondary' | 'subtle' | 'danger'", "'secondary'", 'Jerarquía visual de la acción.'],
+        ['size', "'sm' | 'md' | 'lg'", "'md'", 'Altura del control: 32, 40 o 48px.'],
+        ['icon', 'IconName', '—', 'Icono del set Tuya, siempre a la izquierda.'],
+        ['loading', 'boolean', 'false', 'Muestra spinner y bloquea el click sin cambiar el ancho.'],
+        ['disabled', 'boolean', 'false', 'Desactiva. Acompáñalo siempre de un tooltip con el motivo.'],
+        ['fullWidth', 'boolean', 'false', 'Ocupa el ancho del contenedor. Solo en móvil y drawers.'],
+      ]),
+      buttonA11y: r3([
+        ['Teclado', 'Enter · Space', 'Activan el botón. Tab entra y sale en orden de DOM.'],
+        ['Focus', 'ring 2px #1F4E8C', 'Visible siempre, nunca suprimido con outline:none.'],
+        ['Contraste', '5.8:1 · AA', 'Blanco sobre #ED1C29 en texto 15px semibold.'],
+        ['aria-busy', 'true', 'Se activa junto con loading para lectores de pantalla.'],
+      ]),
+      fieldApi: r4([
+        ['label', 'string', '—', 'Obligatorio. Sin label no hay campo.'],
+        ['value', 'string', "''", 'Valor controlado.'],
+        ['onChange', '(v: string) => void', '—', 'Recibe el valor, no el evento.'],
+        ['error', 'string', '—', 'Mensaje de error; reemplaza al texto de ayuda.'],
+        ['help', 'string', '—', 'Ayuda persistente bajo el campo.'],
+        ['prefix', 'ReactNode', '—', 'Icono o unidad a la izquierda del valor.'],
+        ['maxLength', 'number', '—', 'Muestra contador cuando quedan menos de 20 caracteres.'],
+      ]),
+      fieldA11y: r3([
+        ['Label ↔ input', 'htmlFor / id', 'Asociados automáticamente por un id generado.'],
+        ['aria-invalid', 'true', 'Se activa cuando error tiene contenido.'],
+        ['aria-describedby', 'id de ayuda', 'Apunta al texto de ayuda o de error vigente.'],
+        ['Contraste', '4.7:1 · AA', 'El placeholder #8B8B93 nunca lleva información.'],
+      ]),
+      tableRows: [
+        { id: 'CEL-00841', zona: 'Medellín · Norte', saldo: '1.180.400', estado: 'Activa', bg: '#E9F6EE', color: '#1E6B3A' },
+        { id: 'CEL-00842', zona: 'Bogotá · Centro', saldo: '94.011', estado: 'En revisión', bg: '#FEF6E7', color: '#8A5A00' },
+        { id: 'CEL-00843', zona: 'Cali · Sur', saldo: '7.309.885', estado: 'Activa', bg: '#E9F6EE', color: '#1E6B3A' },
+      ],
+      tableApi: r4([
+        ['columns', 'Column[]', '—', 'Definición: key, header, align, sortable, width.'],
+        ['rows', 'T[]', '[]', 'Datos ya formateados; la tabla no formatea números.'],
+        ['selectable', 'boolean', 'false', 'Añade la columna de checkbox y expone onSelectionChange.'],
+        ['sort', '{key, dir}', '—', 'Orden controlado desde el servidor o local.'],
+        ['density', "'amplia' | 'compacta'", "'amplia'", 'Altura de fila: 44 o 36px.'],
+        ['emptyState', 'ReactNode', '—', 'Qué mostrar sin filas. Obligatorio en producción.'],
+      ]),
+      tableA11y: r3([
+        ['Semántica', '<table>', 'Renderiza tabla nativa con scope en los th.'],
+        ['Orden', 'aria-sort', 'Se anuncia ascendente o descendente al cambiar.'],
+        ['Teclado', 'Tab · Space', 'Space alterna el checkbox de la fila enfocada.'],
+        ['Scroll', 'role="region"', 'El contenedor con scroll horizontal es enfocable.'],
+      ]),
+      alertApi: r4([
+        ['tone', "'info' | 'success' | 'warning' | 'danger'", "'info'", 'Color y semántica del mensaje.'],
+        ['title', 'string', '—', 'Una frase, sin punto final.'],
+        ['children', 'ReactNode', '—', 'Explicación y, si aplica, una sola acción.'],
+        ['dismissible', 'boolean', 'false', 'Permite cerrar. Nunca en tono danger.'],
+      ]),
+      alertA11y: r3([
+        ['role', 'status | alert', 'status en info y success, alert en warning y danger.'],
+        ['Color', 'no es el único canal', 'El título nombra la condición además del color.'],
+        ['Foco', 'no lo roba', 'No mueve el foco salvo que sea respuesta a un submit.'],
+      ]),
+
+      goPrev: prev ? this.go(prev.id) : () => {},
+      goNext: next ? this.go(next.id) : () => {},
+      prevLabel: prev ? prev.label : '—',
+      nextLabel: next ? next.label : '—',
+    };
+  }
+}
+
+</script>
+</body>
+</html>

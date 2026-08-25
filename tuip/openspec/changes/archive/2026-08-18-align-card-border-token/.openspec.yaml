@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-08-17
+# Cambio de implementación puro: Card cambia de token de borde por consistencia
+# con el resto del catálogo, sin que cambie ningún comportamiento que el spec
+# declare. El requisito vigente pide "un trazo propio en su contorno" y que las
+# divisiones internas sean consistentes con él; las dos cosas se siguen
+# cumpliendo con el token nuevo.
+skip_specs: true

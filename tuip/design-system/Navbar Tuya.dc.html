@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#EFEFF0; }
+  a { color:#C9151F; text-decoration:none; }
+  a:hover { color:#8E0F18; }
+</style>
+</helmet>
+
+<div style="background:#EFEFF0; font-family:'IBM Plex Sans',system-ui,sans-serif; color:#26262C; padding:0 0 96px; -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums;">
+  <div style="max-width:1120px; margin:0 auto; padding:0 48px;">
+
+    <!-- PORTADA -->
+    <div style="background:#17171B; color:#FAFAFA; padding:72px; margin-top:48px; border-radius:4px; position:relative; overflow:hidden;">
+      <div style="position:absolute; right:-90px; top:-130px; width:380px; height:380px; border-radius:50%; background:radial-gradient(circle at 35% 35%, rgba(237,28,41,.45), rgba(237,28,41,0) 70%);"></div>
+      <div style="position:relative;">
+        <div style="font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:#A0A0A8; font-weight:500; margin-bottom:44px;">Tuya · Sistema de diseño · Componente</div>
+        <div style="font-size:15px; letter-spacing:.14em; text-transform:uppercase; color:#F8626C; font-weight:600; margin-bottom:20px;">Navbar v1.0 · estable</div>
+        <h1 style="font-size:60px; line-height:1.04; font-weight:600; margin:0 0 24px; letter-spacing:-.03em; max-width:16ch;">La barra que orienta toda la plataforma</h1>
+        <p style="font-size:20px; line-height:1.6; color:#C9C9CE; max-width:66ch; margin:0;">Es lo único idéntico en todas las pantallas de todas las apps internas. Identifica dónde está el usuario, dónde puede ir y quién es — en 56 píxeles de alto y sin competir jamás con el contenido.</p>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:36px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; background:#26262C; border-radius:4px; padding:8px 14px;"><span style="color:#F8626C;">tuip</span> add navbar</div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#8B8B93; border:1px solid #3C3C44; border-radius:3px; padding:6px 10px;">4.6 kB</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 01 DEMO -->
+    <div style="margin-top:64px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">01</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">En vivo</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">altura 56 · sticky · z-index 400</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Haz clic en la campana, en el selector de app o en tu avatar. Solo un panel puede estar abierto a la vez: abrir uno cierra el otro, y <span style="font-family:'IBM Plex Mono',monospace; font-size:14px;">Esc</span> cierra todos.</p>
+
+      <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; background:#FFFFFF;">
+        <div style="height:56px; background:{{ barBg }}; border-bottom:1px solid {{ barBorder }}; display:flex; align-items:center; gap:18px; padding:0 20px; position:relative;">
+
+          <div onClick="{{ toggleApps }}" style="display:flex; align-items:center; gap:10px; cursor:pointer; border-radius:4px; padding:6px 8px 6px 6px; margin-left:-6px; background:{{ appsBtnBg }};">
+            <div style="width:24px; height:24px; border-radius:5px; background:#ED1C29; flex-shrink:0;"></div>
+            <div style="font-size:15px; font-weight:600; color:{{ titleColor }};">Capacidad</div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{ mutedColor }}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"></path></svg>
+          </div>
+
+          <div style="width:1px; height:22px; background:{{ dividerColor }};"></div>
+
+          <div style="flex:1; min-width:0; max-width:380px; height:32px; border-radius:4px; background:{{ searchBg }}; border:1px solid {{ searchBorder }}; display:flex; align-items:center; gap:9px; padding:0 12px; color:{{ mutedColor }}; font-size:13.5px; cursor:text;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4 4"></path></svg>
+            <span style="overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">Buscar célula, sitio o solicitud</span>
+            <span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; border:1px solid {{ dividerColor }}; border-radius:3px; padding:1px 5px; flex-shrink:0;">⌘K</span>
+          </div>
+
+          <div style="margin-left:auto; display:flex; align-items:center; gap:6px;">
+            <div style="height:32px; padding:0 12px; display:flex; align-items:center; font-size:13.5px; color:{{ linkColor }}; border-radius:4px; cursor:pointer;" style-hover="background:{{ hoverSurface }};">Ayuda</div>
+
+            <div onClick="{{ toggleNotifs }}" style="width:32px; height:32px; border-radius:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; color:{{ linkColor }}; background:{{ notifsBtnBg }};" style-hover="background:{{ hoverSurface }};">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9z"></path><path d="M10 18a2 2 0 0 0 4 0"></path></svg>
+              <div style="position:absolute; top:3px; right:4px; width:8px; height:8px; border-radius:50%; background:#ED1C29; border:2px solid {{ barBg }};"></div>
+            </div>
+
+            <div onClick="{{ toggleUser }}" style="height:36px; display:flex; align-items:center; gap:9px; padding:0 8px 0 4px; border-radius:4px; cursor:pointer; background:{{ userBtnBg }};" style-hover="background:{{ hoverSurface }};">
+              <div style="width:26px; height:26px; border-radius:50%; background:{{ avatarBg }}; color:{{ avatarColor }}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;">MR</div>
+              <span style="font-size:13.5px; color:{{ titleColor }};">M. Restrepo</span>
+            </div>
+          </div>
+
+          <!-- PANEL APPS -->
+          <sc-if value="{{ appsOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:60px; left:14px; width:300px; background:#FFFFFF; border:1px solid #E3E3E6; border-radius:5px; box-shadow:0 16px 40px rgba(23,23,27,.22); overflow:hidden; z-index:10;">
+            <div style="padding:12px 16px 8px; font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:#8B8B93; font-weight:600;">Aplicaciones internas</div>
+            <sc-for list="{{ apps }}" as="a" hint-placeholder-count="4">
+              <div style="display:flex; align-items:center; gap:12px; padding:10px 16px; cursor:pointer; background:{{ a.bg }};" style-hover="background:#F4F4F5;">
+                <div style="width:26px; height:26px; border-radius:5px; background:{{ a.dot }}; flex-shrink:0;"></div>
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:14px; font-weight:{{ a.weight }};">{{ a.nombre }}</div>
+                  <div style="font-size:12.5px; color:#74747E;">{{ a.desc }}</div>
+                </div>
+                <sc-if value="{{ a.actual }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:11.5px; color:#C9151F; font-weight:500;">actual</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
+
+          <!-- PANEL NOTIFICACIONES -->
+          <sc-if value="{{ notifsOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:60px; right:52px; width:360px; background:#FFFFFF; border:1px solid #E3E3E6; border-radius:5px; box-shadow:0 16px 40px rgba(23,23,27,.22); overflow:hidden; z-index:10;">
+            <div style="padding:13px 16px; border-bottom:1px solid #E3E3E6; display:flex; align-items:center;">
+              <div style="font-size:14px; font-weight:600;">Notificaciones</div>
+              <div style="margin-left:auto; font-size:13px; color:#C9151F; cursor:pointer;">Marcar leídas</div>
+            </div>
+            <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="3">
+              <div style="display:grid; grid-template-columns:7px 1fr; gap:12px; padding:13px 16px; border-bottom:1px solid #EFEFF0; cursor:pointer; background:{{ n.bg }};" style-hover="background:#FAFAFA;">
+                <div style="width:7px; height:7px; border-radius:50%; background:{{ n.dot }}; margin-top:6px;"></div>
+                <div>
+                  <div style="font-size:13.5px; font-weight:{{ n.weight }}; margin-bottom:3px;">{{ n.titulo }}</div>
+                  <div style="font-size:12.5px; color:#8B8B93;">{{ n.hora }}</div>
+                </div>
+              </div>
+            </sc-for>
+            <div style="padding:11px 16px; text-align:center; font-size:13px; color:#C9151F; cursor:pointer; background:#FAFAFA;">Ver todas</div>
+          </div>
+          </sc-if>
+
+          <!-- PANEL USUARIO -->
+          <sc-if value="{{ userOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute; top:60px; right:14px; width:260px; background:#FFFFFF; border:1px solid #E3E3E6; border-radius:5px; box-shadow:0 16px 40px rgba(23,23,27,.22); overflow:hidden; z-index:10;">
+            <div style="padding:16px; border-bottom:1px solid #E3E3E6;">
+              <div style="font-size:14.5px; font-weight:600; margin-bottom:3px;">Mariana Restrepo</div>
+              <div style="font-size:12.5px; color:#74747E;">Analista de capacidad · TI</div>
+            </div>
+            <sc-for list="{{ userMenu }}" as="m" hint-placeholder-count="4">
+              <div style="padding:10px 16px; font-size:14px; color:{{ m.color }}; cursor:pointer; border-top:{{ m.sep }};" style-hover="background:#F4F4F5;">{{ m.label }}</div>
+            </sc-for>
+          </div>
+          </sc-if>
+
+        </div>
+        <div style="min-height:150px; padding:26px 28px; color:#8B8B93; font-size:14px; background:#FAFAFA;">Contenido de la aplicación</div>
+      </div>
+    </div>
+
+    <!-- 02 ANATOMÍA -->
+    <div style="margin-top:64px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">02</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Anatomía</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">3 zonas fijas</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Izquierda identifica, centro busca, derecha pertenece al usuario. Ese reparto no cambia entre apps: es lo que permite que alguien salte de Capacidad a Cartera sin reaprender nada.</p>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; border-bottom:1px solid #E3E3E6;">
+          <div style="padding:11px 18px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:#74747E; border-right:1px dashed #C9C9CE;">Zona izquierda</div>
+          <div style="padding:11px 18px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:#74747E; border-right:1px dashed #C9C9CE;">Zona central</div>
+          <div style="padding:11px 18px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:#74747E;">Zona derecha</div>
+        </div>
+        <sc-for list="{{ anatomia }}" as="row" hint-placeholder-count="5">
+          <div style="display:grid; grid-template-columns:180px 90px 1fr; border-top:1px solid #EFEFF0; font-size:14px; align-items:center; color:#3C3C44;">
+            <div style="padding:12px 18px; font-weight:500;">{{ row.pieza }}</div>
+            <div style="padding:12px 18px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#74747E;">{{ row.medida }}</div>
+            <div style="padding:12px 18px; font-size:13.5px;">{{ row.nota }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- 03 VARIANTES -->
+    <div style="margin-top:64px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">03</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Variantes</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">3 · una por contexto</div>
+      </div>
+
+      <div style="display:grid; gap:16px;">
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+          <div style="height:56px; background:#17171B; display:flex; align-items:center; gap:16px; padding:0 20px;">
+            <div style="width:24px; height:24px; border-radius:5px; background:#ED1C29;"></div>
+            <div style="color:#FAFAFA; font-size:15px; font-weight:600;">Capacidad</div>
+            <div style="width:1px; height:22px; background:#3C3C44;"></div>
+            <div style="flex:1; max-width:300px; height:32px; border-radius:4px; background:#26262C; display:flex; align-items:center; padding:0 12px; color:#8B8B93; font-size:13.5px;">Buscar</div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:12px; color:#C9C9CE; font-size:13.5px;"><span>Ayuda</span><div style="width:26px; height:26px; border-radius:50%; background:#3C3C44; color:#FAFAFA; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;">MR</div></div>
+          </div>
+          <div style="padding:14px 18px; font-size:13.5px; color:#55555E; background:#FAFAFA; border-top:1px solid #E3E3E6;"><span style="font-weight:600; color:#26262C;">dark</span> — por defecto. Ancla la plataforma y deja todo el contraste disponible para el contenido.</div>
+        </div>
+
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+          <div style="height:56px; background:#FFFFFF; border-bottom:1px solid #E3E3E6; display:flex; align-items:center; gap:16px; padding:0 20px;">
+            <div style="width:24px; height:24px; border-radius:5px; background:#ED1C29;"></div>
+            <div style="font-size:15px; font-weight:600;">Capacidad</div>
+            <div style="width:1px; height:22px; background:#E3E3E6;"></div>
+            <div style="flex:1; max-width:300px; height:32px; border-radius:4px; background:#FAFAFA; border:1px solid #E3E3E6; display:flex; align-items:center; padding:0 12px; color:#8B8B93; font-size:13.5px;">Buscar</div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:12px; color:#3C3C44; font-size:13.5px;"><span>Ayuda</span><div style="width:26px; height:26px; border-radius:50%; background:#EFEFF0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;">MR</div></div>
+          </div>
+          <div style="padding:14px 18px; font-size:13.5px; color:#55555E; background:#FAFAFA;"><span style="font-weight:600; color:#26262C;">light</span> — para apps de consulta y pantallas que se proyectan o imprimen. Nunca mezclar ambas dentro de un mismo producto.</div>
+        </div>
+
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+          <div style="height:48px; background:#17171B; display:flex; align-items:center; gap:14px; padding:0 14px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FAFAFA" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+            <div style="width:22px; height:22px; border-radius:5px; background:#ED1C29;"></div>
+            <div style="color:#FAFAFA; font-size:14.5px; font-weight:600;">Capacidad</div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:14px;">
+              <div style="position:relative; color:#C9C9CE; display:flex;">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9z"></path><path d="M10 18a2 2 0 0 0 4 0"></path></svg>
+                <div style="position:absolute; top:-3px; right:-4px; width:8px; height:8px; border-radius:50%; background:#ED1C29; border:2px solid #17171B;"></div>
+              </div>
+              <div style="width:26px; height:26px; border-radius:50%; background:#3C3C44; color:#FAFAFA; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;">MR</div>
+            </div>
+          </div>
+          <div style="padding:14px 18px; font-size:13.5px; color:#55555E; background:#FAFAFA; border-top:1px solid #E3E3E6;"><span style="font-weight:600; color:#26262C;">compact</span> — bajo 960px. Altura 48, el buscador colapsa a icono y el menú lateral pasa al hamburguesa.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 RESPONSIVE -->
+    <div style="margin-top:64px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">04</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Qué cae primero</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">orden de sacrificio</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Al angostarse, la barra descarta en orden inverso a su valor. Logo, notificaciones y avatar sobreviven a todos los anchos: son identidad, alerta y sesión.</p>
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:130px 1fr; background:#FAFAFA; border-bottom:1px solid #E3E3E6; font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#74747E;">
+          <div style="padding:11px 18px;">Breakpoint</div><div style="padding:11px 18px;">Comportamiento</div>
+        </div>
+        <sc-for list="{{ responsive }}" as="r" hint-placeholder-count="4">
+          <div style="display:grid; grid-template-columns:130px 1fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+            <div style="padding:13px 18px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#26262C;">{{ r.bp }}</div>
+            <div style="padding:13px 18px; line-height:1.6;">{{ r.texto }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- 05 API -->
+    <div style="margin-top:64px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">05</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">API</h2>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; margin-bottom:20px;">
+        <div style="display:grid; grid-template-columns:1.1fr 1fr .7fr 1.8fr; background:#FAFAFA; border-bottom:1px solid #E3E3E6; font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#74747E;">
+          <div style="padding:11px 16px;">Prop</div><div style="padding:11px 16px;">Tipo</div><div style="padding:11px 16px;">Default</div><div style="padding:11px 16px;">Descripción</div>
+        </div>
+        <sc-for list="{{ api }}" as="row" hint-placeholder-count="8">
+          <div style="display:grid; grid-template-columns:1.1fr 1fr .7fr 1.8fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+            <div style="padding:11px 16px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#26262C;">{{ row.a }}</div>
+            <div style="padding:11px 16px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#55555E;">{{ row.b }}</div>
+            <div style="padding:11px 16px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#55555E;">{{ row.c }}</div>
+            <div style="padding:11px 16px; font-size:13.5px;">{{ row.d }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#17171B; border-radius:6px; overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid #2A2A31;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8B8B93;">app-shell.tsx</div>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:13.5px; line-height:1.8; padding:18px 20px; overflow-x:auto; white-space:pre; color:#E3E3E6; display:flex; flex-direction:column;">
+          <div>import { Navbar } from "@/components/ui/navbar";</div>
+          <div> </div>
+          <div>&lt;Navbar</div>
+          <div>  product=<span style="color:#F8626C;">"Capacidad"</span></div>
+          <div>  apps={appsDelUsuario}</div>
+          <div>  onSearch={abrirCommandPalette}</div>
+          <div>  notifications={pendientes}</div>
+          <div>  user={sesion.usuario}</div>
+          <div>/&gt;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 06 ACCESIBILIDAD -->
+    <div style="margin-top:64px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">06</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Accesibilidad</h2>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+        <sc-for list="{{ a11y }}" as="row" hint-placeholder-count="6">
+          <div style="display:grid; grid-template-columns:180px 190px 1fr; border-top:1px solid #EFEFF0; font-size:14px; color:#3C3C44;">
+            <div style="padding:12px 16px; font-weight:500;">{{ row.a }}</div>
+            <div style="padding:12px 16px; font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#55555E;">{{ row.b }}</div>
+            <div style="padding:12px 16px; font-size:13.5px;">{{ row.c }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-left:3px solid #ED1C29; border-radius:0 5px 5px 0; padding:16px 20px; margin-top:16px; max-width:74ch;">
+        <div style="font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#ED1C29; font-weight:600; margin-bottom:6px;">Nota de color</div>
+        <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">El punto de notificación y el cuadro del logo usan Red 500 porque no cargan texto. El contador con cifra dentro usa Red 600, según la regla de §10.</div>
+      </div>
+    </div>
+
+    <!-- 07 REGLAS -->
+    <div style="margin-top:64px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">07</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Reglas</h2>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:24px 26px;">
+          <div style="font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#1E6B3A; font-weight:600; margin-bottom:14px;">Sí</div>
+          <div style="display:grid; gap:11px; font-size:14.5px; line-height:1.55; color:#3C3C44;">
+            <div>Una sola navbar por documento, siempre sticky arriba.</div>
+            <div>El nombre del producto es texto, no una imagen.</div>
+            <div>La búsqueda global abre el mismo command palette de ⌘K.</div>
+            <div>Máximo un enlace de utilidad además de Ayuda.</div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:24px 26px;">
+          <div style="font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#8E0F18; font-weight:600; margin-bottom:14px;">No</div>
+          <div style="display:grid; gap:11px; font-size:14.5px; line-height:1.55; color:#3C3C44;">
+            <div>Navegación de secciones en la barra: eso vive en el menú lateral.</div>
+            <div>Botones de acción primaria: pertenecen al page header.</div>
+            <div>Filtros, selectores de fecha o cualquier estado de pantalla.</div>
+            <div>Cambiar de color por sección o por entorno de despliegue.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1220,&quot;height&quot;:1000},&quot;tema&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark' | 'light'&quot;,&quot;section&quot;:&quot;Demo&quot;}}">
+class Component extends DCLogic {
+  state = { open: null };
+
+  componentDidMount() {
+    this.onKey = (e) => { if (e.key === 'Escape') this.setState({ open: null }); };
+    window.addEventListener('keydown', this.onKey);
+  }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); }
+
+  toggle(name) { return () => this.setState(s => ({ open: s.open === name ? null : name })); }
+
+  renderVals() {
+    const dark = this.props.tema !== 'light';
+    const open = this.state.open;
+    const sel = (n) => open === n ? (dark ? '#26262C' : '#F4F4F5') : 'transparent';
+
+    return {
+      barBg: dark ? '#17171B' : '#FFFFFF',
+      barBorder: dark ? '#17171B' : '#E3E3E6',
+      titleColor: dark ? '#FAFAFA' : '#26262C',
+      linkColor: dark ? '#C9C9CE' : '#3C3C44',
+      mutedColor: dark ? '#8B8B93' : '#8B8B93',
+      dividerColor: dark ? '#3C3C44' : '#E3E3E6',
+      searchBg: dark ? '#26262C' : '#FAFAFA',
+      searchBorder: dark ? '#26262C' : '#E3E3E6',
+      hoverSurface: dark ? '#26262C' : '#F4F4F5',
+      avatarBg: dark ? '#3C3C44' : '#EFEFF0',
+      avatarColor: dark ? '#FAFAFA' : '#26262C',
+
+      appsOpen: open === 'apps',
+      notifsOpen: open === 'notifs',
+      userOpen: open === 'user',
+      appsBtnBg: sel('apps'),
+      notifsBtnBg: sel('notifs'),
+      userBtnBg: sel('user'),
+      toggleApps: this.toggle('apps'),
+      toggleNotifs: this.toggle('notifs'),
+      toggleUser: this.toggle('user'),
+
+      apps: [
+        { nombre: 'Capacidad', desc: 'Células, umbrales y proyección', dot: '#ED1C29', bg: '#FAFAFA', weight: 600, actual: true },
+        { nombre: 'Cartera', desc: 'Saldos y recuperación', dot: '#1F4E8C', bg: '#FFFFFF', weight: 400, actual: false },
+        { nombre: 'Originación', desc: 'Solicitudes de crédito', dot: '#1E6B3A', bg: '#FFFFFF', weight: 400, actual: false },
+        { nombre: 'Directorio TI', desc: 'Activos y responsables', dot: '#8A5A00', bg: '#FFFFFF', weight: 400, actual: false },
+      ],
+      notifs: [
+        { titulo: '3 células superaron su umbral', hora: 'hace 12 min', dot: '#8E0F18', bg: '#FFFFFF', weight: 600 },
+        { titulo: 'SOL-2041 espera tu aprobación', hora: 'hace 1 h', dot: '#8A5A00', bg: '#FFFFFF', weight: 600 },
+        { titulo: 'Proyección mensual disponible', hora: 'hoy 07:00', dot: '#C9C9CE', bg: '#FAFAFA', weight: 400 },
+      ],
+      userMenu: [
+        { label: 'Mi perfil', color: '#3C3C44', sep: 'none' },
+        { label: 'Preferencias de notificación', color: '#3C3C44', sep: 'none' },
+        { label: 'Densidad de tablas', color: '#3C3C44', sep: 'none' },
+        { label: 'Cerrar sesión', color: '#8E0F18', sep: '1px solid #E3E3E6' },
+      ],
+
+      anatomia: [
+        { pieza: 'Marca de producto', medida: '24 · gap 10', nota: 'Cuadro Red 500 y nombre en 15/600. Abre el selector de apps.' },
+        { pieza: 'Búsqueda global', medida: 'h 32 · máx 380', nota: 'Colapsa a icono bajo 1120px. Atajo ⌘K siempre activo.' },
+        { pieza: 'Enlace de utilidad', medida: 'h 32', nota: 'Solo Ayuda por defecto. Nunca más de dos.' },
+        { pieza: 'Notificaciones', medida: '32 × 32', nota: 'Punto Red 500 si hay sin leer; sin conteo en la barra.' },
+        { pieza: 'Cuenta', medida: 'avatar 26', nota: 'Nombre visible sobre 1120px; solo avatar por debajo.' },
+      ],
+      responsive: [
+        { bp: '≥ 1440', texto: 'Todo visible. Búsqueda a 380px y nombre completo del usuario.' },
+        { bp: '1120 – 1439', texto: 'La búsqueda se encoge a 240px. Sin otros cambios.' },
+        { bp: '960 – 1119', texto: 'Cae el nombre del usuario y el enlace Ayuda pasa al menú de cuenta.' },
+        { bp: '< 960', texto: 'Variante compact: altura 48, hamburguesa para el menú lateral, búsqueda como icono.' },
+      ],
+      api: [
+        { a: 'product', b: 'string', c: '—', d: 'Nombre de la app. Obligatorio.' },
+        { a: 'variant', b: "'dark' | 'light'", c: "'dark'", d: 'Tema de la barra. Constante dentro de un producto.' },
+        { a: 'apps', b: 'AppRef[]', c: '[]', d: 'Apps del usuario. Con lista vacía, la marca no es clicable.' },
+        { a: 'onSearch', b: '() => void', c: '—', d: 'Abre el command palette. Sin handler, el buscador no se muestra.' },
+        { a: 'notifications', b: 'Notification[]', c: '[]', d: 'Pendientes. Solo eventos accionables.' },
+        { a: 'user', b: 'User', c: '—', d: 'Nombre, rol e iniciales. Obligatorio.' },
+        { a: 'utilities', b: 'UtilityLink[]', c: "[{Ayuda}]", d: 'Enlaces de utilidad. Máximo dos.' },
+        { a: 'onNavigate', b: '(href) => void', c: '—', d: 'Intercepta la navegación para el router de la app.' },
+      ],
+      a11y: [
+        { a: 'Landmark', b: 'role="banner"', c: 'La barra es el banner del documento; contiene un nav propio.' },
+        { a: 'Saltar al contenido', b: 'primer tabbable', c: 'Enlace visible solo con foco, antes de la marca.' },
+        { a: 'Menús', b: 'aria-expanded', c: 'Cada disparador anuncia si su panel está abierto.' },
+        { a: 'Foco atrapado', b: 'no', c: 'Los paneles no atrapan el foco; Tab sale y los cierra.' },
+        { a: 'Escape', b: 'cierra el panel', c: 'Devuelve el foco al botón que lo abrió.' },
+        { a: 'Notificaciones', b: 'aria-label con conteo', c: 'El punto de color nunca es el único indicador.' },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

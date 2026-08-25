@@ -1,0 +1,36 @@
+/**
+ * Reglas base del catálogo: lo que todo componente da por hecho y ninguno
+ * declara. Se concatena en `dist/styles.css` desde `scripts/build-css.ts`.
+ *
+ * El cursor está acá porque Preflight de Tailwind v3 lo traía
+ * (`button, [role="button"] { cursor: pointer }`) y el de v4 lo quitó. Ningún
+ * componente lo declaraba —no hacía falta—, así que la migración dejó sin
+ * manito a la mitad del catálogo: Button entre ellos. Los que sobrevivieron
+ * llevaban `cursor-pointer` por otro motivo, no por criterio.
+ *
+ * En `@layer base` y no suelto: la aplicación consumidora importa esta hoja
+ * junto con sus propias utilidades, y una regla sin capa gana por orden de
+ * aparición sobre cualquier utilidad sin importar la especificidad. Dentro de
+ * `base`, un `cursor-*` puntual del consumidor sigue mandando.
+ */
+@layer base {
+  /*
+   * La exclusión va en el selector, no en una regla posterior que "gane": dos
+   * reglas de igual especificidad se resuelven por orden, y ese orden es
+   * justo lo que se rompe cuando alguien reordena el archivo.
+   */
+  button:not(:disabled):not([aria-disabled="true"]),
+  [role="button"]:not(:disabled):not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  /*
+   * `[aria-disabled]` además de `:disabled`: los componentes construidos sobre
+   * Radix deshabilitan sus ítems sin el atributo nativo, y `:disabled` no los
+   * alcanza.
+   */
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}

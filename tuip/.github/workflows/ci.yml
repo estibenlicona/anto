@@ -1,0 +1,69 @@
+# Verification pipeline.
+#
+# This file is latent: the project is not a git repository and has no remote,
+# so nothing here runs yet. It is written now because the control that matters
+# today — the dependency audit — is wired into `pnpm test` via Turbo, and this
+# is what extends it to every push the moment the project gets a remote.
+# Writing it later means remembering it later.
+#
+# The scheduled run is not decoration: a vulnerability can be disclosed against
+# a dependency nobody touched, so the audit has to run on time as well as on
+# change.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Mondays, 06:17 UTC. Off the hour on purpose — every job scheduled at :00
+    # lands on the runners at the same instant.
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      # Runs the dependency audit as part of the standard verification, the
+      # same way it does locally — `test` depends on the `//#security:audit`
+      # root task.
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  # Split out so a scheduled run reports the audit on its own, without the
+  # noise of a full build, and so its failure is unambiguous.
+  audit:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Dependency audit
+        run: pnpm run security:audit

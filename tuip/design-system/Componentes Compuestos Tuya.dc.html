@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#EFEFF0; }
+  a { color:#C9151F; text-decoration:none; }
+  a:hover { color:#ED1C29; }
+</style>
+</helmet>
+
+<div style="background:#EFEFF0; font-family:'IBM Plex Sans',system-ui,sans-serif; color:#26262C; padding:0 0 96px; -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums;">
+  <div style="max-width:1180px; margin:0 auto; padding:0 48px;">
+
+    <!-- PORTADA -->
+    <div style="background:#17171B; color:#FAFAFA; padding:72px; margin-top:48px; border-radius:4px; position:relative; overflow:hidden;">
+      <div style="position:absolute; right:-100px; top:-140px; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle at 35% 35%, rgba(237,28,41,.5), rgba(237,28,41,0) 70%);"></div>
+      <div style="position:relative;">
+        <div style="font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:#A0A0A8; font-weight:500; margin-bottom:44px;">Tuya · Sistema de diseño</div>
+        <div style="font-size:15px; letter-spacing:.14em; text-transform:uppercase; color:#F8626C; font-weight:600; margin-bottom:20px;">Módulo · Compuestos v0.1 · fase 3</div>
+        <h1 style="font-size:64px; line-height:1.03; font-weight:600; margin:0 0 24px; letter-spacing:-.03em; max-width:17ch;">Las piezas que arman una pantalla completa</h1>
+        <p style="font-size:20px; line-height:1.6; color:#C9C9CE; max-width:64ch; margin:0;">Trece patrones compuestos —shell, cabeceras, filtros, tarjetas, paneles y flujos— resueltos con los componentes base y probados contra el caso real: el sitio de gestión de capacidad.</p>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:32px;">
+      <a href="#p-shell" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">App shell · Menu bar</a>
+      <a href="#p-header" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Page header</a>
+      <a href="#p-filters" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Filter bar</a>
+      <a href="#p-kpi" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">KPI card</a>
+      <a href="#p-capacity" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Capacity card</a>
+      <a href="#p-heatmap" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Heatmap</a>
+      <a href="#p-bulk" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Bulk action bar</a>
+      <a href="#p-drawer" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Detail drawer</a>
+      <a href="#p-confirm" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Confirm modal</a>
+      <a href="#p-stepper" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Stepper</a>
+      <a href="#p-timeline" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Activity timeline</a>
+      <a href="#p-notif" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Notification menu</a>
+      <a href="#p-umbral" style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:20px; padding:7px 15px; font-size:13px; color:#3C3C44;">Semáforo de umbrales</a>
+    </div>
+
+    <!-- 01 APP SHELL -->
+    <div id="p-shell" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">01</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">App shell · Menu bar</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">top bar 56 · sidebar 248</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">El marco de toda la plataforma. Barra superior fija con producto, buscador global, notificaciones y cuenta; menú lateral con las áreas de capacidad. Nunca hay dos niveles de navegación lateral: si un área necesita subsecciones, van en tabs dentro del page header.</p>
+
+      <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; background:#FFFFFF;">
+        <div style="height:56px; background:#17171B; display:flex; align-items:center; gap:20px; padding:0 20px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:24px; height:24px; border-radius:5px; background:#ED1C29;"></div>
+            <div style="color:#FAFAFA; font-size:15px; font-weight:600;">Capacidad</div>
+          </div>
+          <div style="width:1px; height:22px; background:#3C3C44;"></div>
+          <div style="flex:1; max-width:360px; height:32px; border-radius:4px; background:#26262C; display:flex; align-items:center; gap:9px; padding:0 12px; color:#8B8B93; font-size:13.5px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4 4"></path></svg>
+            <span>Buscar célula, sitio o solicitud</span>
+          </div>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:18px;">
+            <div style="position:relative; color:#C9C9CE; display:flex;">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 4 1.5 5.5 1.5 5.5h-15S6 13 6 9z"></path><path d="M10 18a2 2 0 0 0 4 0"></path></svg>
+              <div style="position:absolute; top:-3px; right:-4px; width:8px; height:8px; border-radius:50%; background:#ED1C29; border:2px solid #17171B;"></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:9px; color:#FAFAFA; font-size:13.5px;">
+              <div style="width:26px; height:26px; border-radius:50%; background:#3C3C44; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600;">MR</div>
+              <span>M. Restrepo</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; min-height:320px;">
+          <div style="width:248px; border-right:1px solid #E3E3E6; padding:16px 12px; background:#FAFAFA;">
+            <div style="font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:#8B8B93; font-weight:600; padding:0 10px; margin-bottom:8px;">Operación</div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:14px; padding:8px 10px; border-radius:4px; background:#FFFFFF; box-shadow:inset 2px 0 0 #ED1C29; font-weight:600; margin-bottom:2px;">Torre de control</div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:14px; padding:8px 10px; border-radius:4px; color:#3C3C44; margin-bottom:2px;" style-hover="background:#EFEFF0;">Inventario de células</div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:14px; padding:8px 10px; border-radius:4px; color:#3C3C44; margin-bottom:2px;" style-hover="background:#EFEFF0;">
+              <span>Solicitudes</span>
+              <span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; background:#FDECEE; color:#8E0F18; border-radius:9px; padding:1px 7px;">12</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:14px; padding:8px 10px; border-radius:4px; color:#3C3C44; margin-bottom:20px;" style-hover="background:#EFEFF0;">Proyección</div>
+            <div style="font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:#8B8B93; font-weight:600; padding:0 10px; margin-bottom:8px;">Administración</div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:14px; padding:8px 10px; border-radius:4px; color:#3C3C44; margin-bottom:2px;" style-hover="background:#EFEFF0;">Umbrales</div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:14px; padding:8px 10px; border-radius:4px; color:#3C3C44;" style-hover="background:#EFEFF0;">Usuarios y roles</div>
+          </div>
+          <div style="flex:1; padding:28px 32px; color:#8B8B93; font-size:14px;">Área de contenido — page header + secciones</div>
+        </div>
+      </div>
+      <sc-if value="{{ notas }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-left:3px solid #ED1C29; border-radius:0 5px 5px 0; padding:16px 20px; margin-top:16px; max-width:74ch;">
+        <div style="font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#ED1C29; font-weight:600; margin-bottom:6px;">Regla</div>
+        <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">Máximo siete entradas por grupo lateral y dos grupos. Si aparece un tercero, el producto está creciendo hacia otra app, no hacia otro ítem de menú.</div>
+      </div>
+      </sc-if>
+    </div>
+
+    <!-- 02 PAGE HEADER -->
+    <div id="p-header" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">02</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Page header</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">3 densidades de acción</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Ruta, identidad del objeto, estado y acciones. En pantallas de detalle lleva metadatos en línea; en listados, solo título y acción primaria.</p>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:28px 32px 0;">
+        <div style="display:flex; align-items:center; gap:8px; font-size:13px; color:#8B8B93; margin-bottom:14px;">
+          <span>Inventario de células</span><span>/</span><span style="color:#55555E;">CEL-00841</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:24px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap;">
+              <h3 style="font-size:28px; font-weight:600; letter-spacing:-.02em; margin:0; white-space:nowrap;">Célula CEL-00841</h3>
+              <span style="font-size:12.5px; font-weight:500; border-radius:3px; padding:3px 9px; background:#E9F6EE; color:#1E6B3A;">Activa</span>
+              <span style="font-size:12.5px; font-weight:500; border-radius:3px; padding:3px 9px; background:#FEF6E7; color:#8A5A00;">Utilización 87%</span>
+            </div>
+            <div style="display:flex; gap:26px; font-size:13.5px; color:#55555E; flex-wrap:wrap;">
+              <div style="white-space:nowrap;">Zona <span style="color:#26262C;">Medellín · Norte</span></div>
+              <div style="white-space:nowrap;">Tecnología <span style="color:#26262C;">5G NSA</span></div>
+              <div style="white-space:nowrap;">Última medición <span style="color:#26262C;">hoy, 06:00</span></div>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <div style="height:36px; padding:0 12px; display:flex; align-items:center; border:1px solid #C9C9CE; border-radius:3px; font-size:14px; font-weight:500; background:#FFFFFF; cursor:pointer;" style-hover="background:#F4F4F5;">Exportar</div>
+            <div style="height:36px; padding:0 16px; display:flex; align-items:center; border:1px solid #C9C9CE; border-radius:3px; font-size:14px; font-weight:500; background:#FFFFFF; cursor:pointer;" style-hover="background:#F4F4F5;">Editar</div>
+            <div style="height:36px; padding:0 18px; display:flex; align-items:center; background:#ED1C29; color:#FFFFFF; border-radius:3px; font-size:14px; font-weight:600; cursor:pointer;" style-hover="background:#C9151F;">Solicitar ampliación</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:26px; margin-top:24px; border-top:1px solid #EFEFF0; padding-top:0;">
+          <div style="font-size:14px; font-weight:600; padding:14px 0; box-shadow:inset 0 -2px 0 #ED1C29; cursor:pointer;">Resumen</div>
+          <div style="font-size:14px; font-weight:500; padding:14px 0; color:#74747E; cursor:pointer;" style-hover="color:#26262C;">Tráfico</div>
+          <div style="font-size:14px; font-weight:500; padding:14px 0; color:#74747E; cursor:pointer;" style-hover="color:#26262C;">Proyección</div>
+          <div style="font-size:14px; font-weight:500; padding:14px 0; color:#74747E; cursor:pointer;" style-hover="color:#26262C;">Historial</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 03 FILTER BAR -->
+    <div id="p-filters" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">03</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Filter bar</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">altura 44 + fila de chips</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Los filtros aplicados siempre quedan visibles como chips: el usuario debe poder responder «¿por qué veo estas 43 filas?» sin abrir ningún menú.</p>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:16px 20px;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:220px; height:36px; border:1px solid #C9C9CE; border-radius:3px; display:flex; align-items:center; gap:9px; padding:0 12px; color:#8B8B93; font-size:14px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4 4"></path></svg>
+            <span>Buscar por código o sitio</span>
+          </div>
+          <div style="height:36px; border:1px solid #C9C9CE; border-radius:3px; display:flex; align-items:center; gap:10px; padding:0 12px; font-size:14px; cursor:pointer;" style-hover="background:#F4F4F5;"><span>Zona</span><span style="color:#74747E;">2</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 9.5l6 6 6-6"></path></svg></div>
+          <div style="height:36px; border:1px solid #C9C9CE; border-radius:3px; display:flex; align-items:center; gap:10px; padding:0 12px; font-size:14px; cursor:pointer;" style-hover="background:#F4F4F5;"><span>Estado</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 9.5l6 6 6-6"></path></svg></div>
+          <div style="height:36px; border:1px solid #C9C9CE; border-radius:3px; display:flex; align-items:center; gap:10px; padding:0 12px; font-size:14px; cursor:pointer;" style-hover="background:#F4F4F5;"><span>Utilización</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 9.5l6 6 6-6"></path></svg></div>
+          <div style="width:1px; height:24px; background:#E3E3E6;"></div>
+          <div style="display:flex; border:1px solid #C9C9CE; border-radius:3px; overflow:hidden; height:36px;">
+            <div style="padding:0 12px; display:flex; align-items:center; font-size:13.5px; font-weight:600; background:#F4F4F5;">Amplia</div>
+            <div style="padding:0 12px; display:flex; align-items:center; font-size:13.5px; color:#55555E; border-left:1px solid #C9C9CE; cursor:pointer;">Compacta</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:14px; border-top:1px solid #EFEFF0; padding-top:14px;">
+          <div style="font-size:13px; color:#74747E;">43 células</div>
+          <div style="display:flex; align-items:center; gap:7px; background:#F4F4F5; border-radius:16px; padding:5px 8px 5px 12px; font-size:13px;">Zona: Medellín <span style="color:#8B8B93; cursor:pointer;">✕</span></div>
+          <div style="display:flex; align-items:center; gap:7px; background:#F4F4F5; border-radius:16px; padding:5px 8px 5px 12px; font-size:13px;">Zona: Bogotá <span style="color:#8B8B93; cursor:pointer;">✕</span></div>
+          <div style="display:flex; align-items:center; gap:7px; background:#FEF6E7; color:#8A5A00; border-radius:16px; padding:5px 8px 5px 12px; font-size:13px;">Utilización &gt; 80% <span style="cursor:pointer;">✕</span></div>
+          <div style="font-size:13px; color:#C9151F; cursor:pointer; margin-left:4px;">Limpiar todo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 04 KPI CARD -->
+    <div id="p-kpi" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">04</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">KPI card</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">4 variantes</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Una cifra por tarjeta, con su comparación y su periodo. Un KPI sin referencia temporal no informa: «87%» no dice nada; «87%, +4 pts vs. mes anterior» sí.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px;">
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:20px 22px;">
+          <div style="font-size:13px; color:#74747E; margin-bottom:12px;">Células activas</div>
+          <div style="font-size:34px; font-weight:600; letter-spacing:-.02em; line-height:1;">1.284</div>
+          <div style="font-size:13px; color:#8B8B93; margin-top:10px;">de 1.310 desplegadas</div>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:20px 22px;">
+          <div style="font-size:13px; color:#74747E; margin-bottom:12px;">Utilización media</div>
+          <div style="display:flex; align-items:baseline; gap:10px;">
+            <div style="font-size:34px; font-weight:600; letter-spacing:-.02em; line-height:1;">72%</div>
+            <div style="font-size:13.5px; font-weight:600; color:#8A5A00;">▲ 4 pts</div>
+          </div>
+          <div style="font-size:13px; color:#8B8B93; margin-top:10px;">vs. mes anterior</div>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:20px 22px;">
+          <div style="font-size:13px; color:#74747E; margin-bottom:12px;">Tráfico pico semanal</div>
+          <div style="font-size:34px; font-weight:600; letter-spacing:-.02em; line-height:1;">18,4 <span style="font-size:18px; font-weight:500; color:#55555E;">Gbps</span></div>
+          <div style="display:flex; align-items:flex-end; gap:3px; height:26px; margin-top:12px;">
+            <div style="flex:1; background:#E3E3E6; height:40%;"></div>
+            <div style="flex:1; background:#E3E3E6; height:55%;"></div>
+            <div style="flex:1; background:#E3E3E6; height:48%;"></div>
+            <div style="flex:1; background:#E3E3E6; height:70%;"></div>
+            <div style="flex:1; background:#E3E3E6; height:62%;"></div>
+            <div style="flex:1; background:#E3E3E6; height:85%;"></div>
+            <div style="flex:1; background:#ED1C29; height:100%;"></div>
+          </div>
+        </div>
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:20px 22px; box-shadow:inset 3px 0 0 #8E0F18;">
+          <div style="font-size:13px; color:#74747E; margin-bottom:12px;">Células sobre umbral</div>
+          <div style="display:flex; align-items:baseline; gap:10px;">
+            <div style="font-size:34px; font-weight:600; letter-spacing:-.02em; line-height:1; color:#8E0F18;">27</div>
+            <div style="font-size:13.5px; font-weight:600; color:#8E0F18;">▲ 9</div>
+          </div>
+          <div style="font-size:13px; color:#C9151F; margin-top:10px; cursor:pointer;">Ver listado →</div>
+        </div>
+      </div>
+      <sc-if value="{{ notas }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-left:3px solid #ED1C29; border-radius:0 5px 5px 0; padding:16px 20px; margin-top:16px; max-width:74ch;">
+        <div style="font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#ED1C29; font-weight:600; margin-bottom:6px;">Regla</div>
+        <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">Máximo cuatro KPI en una fila y una sola tarjeta en tono de alerta. El color solo entra cuando hay algo que hacer; una cifra que sube no siempre es una cifra mala.</div>
+      </div>
+      </sc-if>
+    </div>
+
+    <!-- 05 CAPACITY CARD -->
+    <div id="p-capacity" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">05</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Capacity card</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">tarjeta de recurso</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">La pieza más usada del producto: un recurso, su utilización contra umbral y la acción inmediata. La barra muestra la marca del umbral, no solo el relleno — sin la marca, un 78% no se puede juzgar.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;">
+        <sc-for list="{{ capacityCards }}" as="c" hint-placeholder-count="3">
+        <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:20px 22px;">
+          <div style="display:flex; align-items:flex-start; gap:12px; margin-bottom:16px;">
+            <div style="flex:1;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E; margin-bottom:4px;">{{ c.code }}</div>
+              <div style="font-size:16px; font-weight:600;">{{ c.site }}</div>
+            </div>
+            <span style="font-size:12.5px; font-weight:500; border-radius:3px; padding:3px 9px; background:{{ c.bg }}; color:{{ c.color }};">{{ c.estado }}</span>
+          </div>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;">
+            <div style="font-size:28px; font-weight:600; letter-spacing:-.02em; color:{{ c.color }};">{{ c.pct }}</div>
+            <div style="font-size:13px; color:#74747E;">umbral {{ c.umbral }}</div>
+          </div>
+          <div style="position:relative; height:8px; border-radius:4px; background:#EFEFF0; overflow:hidden; margin-bottom:6px;">
+            <div style="position:absolute; left:0; top:0; bottom:0; width:{{ c.pct }}; background:{{ c.color }};"></div>
+          </div>
+          <div style="position:relative; height:10px; margin-bottom:14px;">
+            <div style="position:absolute; left:{{ c.umbral }}; top:-16px; width:1px; height:16px; background:#26262C;"></div>
+          </div>
+          <div style="display:flex; gap:22px; font-size:13px; color:#55555E; border-top:1px solid #EFEFF0; padding-top:14px; flex-wrap:wrap;">
+            <div style="white-space:nowrap;">Pico <span style="color:#26262C;">{{ c.pico }}</span></div>
+            <div style="white-space:nowrap;">Headroom <span style="color:#26262C;">{{ c.headroom }}</span></div>
+          </div>
+        </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- 06 HEATMAP -->
+    <div id="p-heatmap" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">06</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Heatmap de utilización</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">celda 34 · gap 3</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Zona por mes. Cuatro pasos de color, nunca un degradado continuo: el ojo no distingue diez tonos, y la decisión operativa solo tiene cuatro respuestas.</p>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:24px 26px;">
+        <div style="display:grid; grid-template-columns:130px repeat(8, 1fr); gap:3px; align-items:center;">
+          <div></div>
+          <sc-for list="{{ heatMonths }}" as="m" hint-placeholder-count="8">
+            <div style="font-size:11.5px; color:#8B8B93; text-align:center; padding-bottom:4px;">{{ m }}</div>
+          </sc-for>
+          <sc-for list="{{ heatRows }}" as="row" hint-placeholder-count="5">
+            <div style="font-size:13.5px; color:#3C3C44; padding-right:10px;">{{ row.zona }}</div>
+            <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="8">
+              <div style="height:34px; border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:500; background:{{ cell.bg }}; color:{{ cell.fg }}; cursor:pointer;">{{ cell.v }}</div>
+            </sc-for>
+          </sc-for>
+        </div>
+        <div style="display:flex; align-items:center; gap:18px; margin-top:20px; border-top:1px solid #EFEFF0; padding-top:16px; font-size:13px; color:#55555E;">
+          <div style="display:flex; align-items:center; gap:7px;"><div style="width:14px; height:14px; border-radius:2px; background:#E9F6EE;"></div>&lt; 60%</div>
+          <div style="display:flex; align-items:center; gap:7px;"><div style="width:14px; height:14px; border-radius:2px; background:#CFE9D9;"></div>60 – 79%</div>
+          <div style="display:flex; align-items:center; gap:7px;"><div style="width:14px; height:14px; border-radius:2px; background:#FDE3B8;"></div>80 – 89%</div>
+          <div style="display:flex; align-items:center; gap:7px;"><div style="width:14px; height:14px; border-radius:2px; background:#F6BFC4;"></div>≥ 90%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 07 BULK ACTION BAR -->
+    <div id="p-bulk" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">07</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Bulk action bar</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">aparece con la selección</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Reemplaza la cabecera de la tabla mientras hay filas seleccionadas. Nunca flota sobre el contenido tapando filas, y siempre dice cuántas y ofrece deseleccionar.</p>
+
+      <div style="border:1px solid #E3E3E6; border-radius:6px; overflow:hidden; background:#FFFFFF;">
+        <div style="height:52px; background:#17171B; color:#FAFAFA; display:flex; align-items:center; gap:16px; padding:0 16px;">
+          <div style="width:16px; height:16px; border-radius:2px; background:#ED1C29; display:flex; align-items:center; justify-content:center;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>
+          </div>
+          <div style="font-size:14px; font-weight:500;">3 células seleccionadas</div>
+          <div style="font-size:13.5px; color:#A0A0A8; cursor:pointer;" style-hover="color:#FFFFFF;">Deseleccionar</div>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+            <div style="height:32px; padding:0 14px; display:flex; align-items:center; font-size:13.5px; border:1px solid #3C3C44; border-radius:3px; cursor:pointer;" style-hover="background:#26262C;">Reasignar zona</div>
+            <div style="height:32px; padding:0 14px; display:flex; align-items:center; font-size:13.5px; border:1px solid #3C3C44; border-radius:3px; cursor:pointer;" style-hover="background:#26262C;">Exportar</div>
+            <div style="height:32px; padding:0 14px; display:flex; align-items:center; font-size:13.5px; font-weight:600; background:#8E0F18; border-radius:3px; cursor:pointer;" style-hover="background:#700C13;">Dar de baja</div>
+          </div>
+        </div>
+        <sc-for list="{{ bulkRows }}" as="row" hint-placeholder-count="3">
+          <div style="display:grid; grid-template-columns:44px 1.1fr 1.4fr .9fr .9fr; gap:12px; padding:12px 16px; border-top:1px solid #EFEFF0; font-size:14px; align-items:center; background:{{ row.rowBg }};">
+            <div style="width:16px; height:16px; border-radius:2px; border:1px solid {{ row.boxBorder }}; background:{{ row.boxBg }}; display:flex; align-items:center; justify-content:center;">
+              <sc-if value="{{ row.sel }}" hint-placeholder-val="{{ false }}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>
+              </sc-if>
+            </div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ row.code }}</div>
+            <div>{{ row.zona }}</div>
+            <div style="text-align:right;">{{ row.util }}</div>
+            <div><span style="font-size:12.5px; font-weight:500; border-radius:3px; padding:3px 8px; background:{{ row.bg }}; color:{{ row.color }};">{{ row.estado }}</span></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- 08 DETAIL DRAWER -->
+    <div id="p-drawer" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">08</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Detail drawer</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">ancho 440 · footer fijo</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Para inspeccionar un registro sin perder el listado ni los filtros. Si el usuario necesita editar más de cinco campos, no es un drawer: es una pantalla de detalle.</p>
+
+      <div style="display:flex; justify-content:flex-end; background:#26262C; border-radius:6px; padding:24px; overflow:hidden;">
+        <div style="width:440px; background:#FFFFFF; border-radius:5px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,.35);">
+          <div style="padding:20px 24px; border-bottom:1px solid #E3E3E6; display:flex; align-items:flex-start; gap:14px;">
+            <div style="flex:1;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#74747E; margin-bottom:5px;">CEL-00842</div>
+              <div style="font-size:19px; font-weight:600;">Bogotá · Centro Internacional</div>
+            </div>
+            <div style="font-size:20px; color:#8B8B93; cursor:pointer; line-height:1;">✕</div>
+          </div>
+          <div style="padding:22px 24px;">
+            <div style="font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:#8B8B93; font-weight:600; margin-bottom:12px;">Capacidad</div>
+            <div style="display:grid; gap:12px; margin-bottom:24px;">
+              <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="color:#55555E;">Utilización actual</span><span style="font-weight:600; color:#8A5A00;">84%</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="color:#55555E;">Umbral configurado</span><span>80%</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="color:#55555E;">Headroom</span><span>2,1 Gbps</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="color:#55555E;">Proyección 90 días</span><span style="color:#8E0F18; font-weight:600;">96%</span></div>
+            </div>
+            <div style="font-size:11px; letter-spacing:.11em; text-transform:uppercase; color:#8B8B93; font-weight:600; margin-bottom:12px;">Ficha</div>
+            <div style="display:grid; gap:12px;">
+              <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="color:#55555E;">Tecnología</span><span>5G NSA</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="color:#55555E;">Responsable</span><span>C. Ospina</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="color:#55555E;">Última ampliación</span><span>12 mar 2026</span></div>
+            </div>
+          </div>
+          <div style="border-top:1px solid #E3E3E6; padding:16px 24px; display:flex; gap:10px; justify-content:flex-end; background:#FAFAFA;">
+            <div style="height:36px; padding:0 16px; display:flex; align-items:center; border:1px solid #C9C9CE; border-radius:3px; font-size:14px; font-weight:500; background:#FFFFFF; cursor:pointer;">Abrir ficha</div>
+            <div style="height:36px; padding:0 18px; display:flex; align-items:center; background:#ED1C29; color:#FFFFFF; border-radius:3px; font-size:14px; font-weight:600; cursor:pointer;">Solicitar ampliación</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 09 CONFIRM MODAL -->
+    <div id="p-confirm" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">09</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Confirm modal destructivo</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">ancho 520</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Solo para lo irreversible. El título nombra la consecuencia, no pregunta «¿estás seguro?», y el botón repite el verbo exacto de la acción.</p>
+
+      <div style="background:#26262C; border-radius:6px; padding:44px 24px; display:flex; justify-content:center;">
+        <div style="width:520px; background:#FFFFFF; border-radius:5px; overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.4);">
+          <div style="padding:26px 28px 20px;">
+            <div style="font-size:21px; font-weight:600; margin-bottom:10px;">Dar de baja 3 células</div>
+            <div style="font-size:15px; line-height:1.65; color:#3C3C44;">Se liberará su capacidad asignada y las solicitudes en curso asociadas quedarán canceladas. Esta acción no se puede deshacer.</div>
+            <div style="background:#FDECEE; border-radius:4px; padding:12px 14px; margin-top:16px; font-size:13.5px; color:#8E0F18; font-family:'IBM Plex Mono',monospace;">CEL-00841 · CEL-00842 · CEL-00843</div>
+          </div>
+          <div style="border-top:1px solid #E3E3E6; padding:16px 28px; display:flex; gap:10px; justify-content:flex-end; background:#FAFAFA;">
+            <div style="height:40px; padding:0 18px; display:flex; align-items:center; border:1px solid #C9C9CE; border-radius:3px; font-size:15px; font-weight:500; background:#FFFFFF; cursor:pointer;">Cancelar</div>
+            <div style="height:40px; padding:0 20px; display:flex; align-items:center; gap:8px; background:#8E0F18; color:#FFFFFF; border-radius:3px; font-size:15px; font-weight:600; cursor:pointer;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"></path><path d="M9.5 7V5h5v2"></path><path d="M6.5 7v12.5a1.5 1.5 0 0 0 1.5 1.5h8a1.5 1.5 0 0 0 1.5-1.5V7"></path></svg>
+              <span>Dar de baja</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 STEPPER -->
+    <div id="p-stepper" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">10</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Stepper · Solicitud de ampliación</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">3 a 5 pasos</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Para flujos con validación entre pasos. Bajo tres pasos usa un formulario simple; sobre cinco, el usuario pierde el hilo y conviene guardar borrador.</p>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:0; padding:24px 28px; border-bottom:1px solid #E3E3E6;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:28px; height:28px; border-radius:50%; background:#1E6B3A; color:#FFFFFF; display:flex; align-items:center; justify-content:center;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"></path></svg>
+            </div>
+            <div><div style="font-size:14px; font-weight:600;">Recurso</div><div style="font-size:12.5px; color:#74747E;">CEL-00842</div></div>
+          </div>
+          <div style="flex:1; height:1px; background:#E3E3E6; margin:0 20px;"></div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="width:28px; height:28px; border-radius:50%; background:#ED1C29; color:#FFFFFF; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600;">2</div>
+            <div><div style="font-size:14px; font-weight:600;">Dimensionamiento</div><div style="font-size:12.5px; color:#74747E;">en curso</div></div>
+          </div>
+          <div style="flex:1; height:1px; background:#E3E3E6; margin:0 20px;"></div>
+          <div style="display:flex; align-items:center; gap:12px; opacity:.55;">
+            <div style="width:28px; height:28px; border-radius:50%; border:1px solid #C9C9CE; color:#74747E; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600;">3</div>
+            <div><div style="font-size:14px; font-weight:600;">Aprobación</div><div style="font-size:12.5px; color:#74747E;">pendiente</div></div>
+          </div>
+        </div>
+        <div style="padding:28px; display:grid; grid-template-columns:1fr 1fr; gap:22px;">
+          <div>
+            <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Capacidad adicional</div>
+            <div style="height:40px; border:1px solid #C9C9CE; border-radius:3px; padding:0 12px; display:flex; align-items:center; justify-content:space-between; font-size:15px;"><span>4,0</span><span style="color:#74747E; font-size:13.5px;">Gbps</span></div>
+            <div style="font-size:12.5px; color:#74747E; margin-top:6px;">Headroom actual 2,1 Gbps.</div>
+          </div>
+          <div>
+            <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Fecha objetivo</div>
+            <div style="height:40px; border:1px solid #C9C9CE; border-radius:3px; padding:0 12px; display:flex; align-items:center; justify-content:space-between; font-size:15px;"><span>15 sep 2026</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#74747E" stroke-width="1.5" stroke-linecap="round"><rect x="4" y="5.5" width="16" height="15" rx="2"></rect><path d="M4 10h16M9 3.5v4M15 3.5v4"></path></svg>
+            </div>
+          </div>
+          <div style="grid-column:1 / -1;">
+            <div style="font-size:13px; font-weight:500; margin-bottom:6px;">Justificación</div>
+            <div style="min-height:76px; border:1px solid #C9C9CE; border-radius:3px; padding:11px 12px; font-size:15px; color:#8B8B93;">Proyección supera el umbral en 60 días según medición del 8 de agosto…</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid #E3E3E6; padding:16px 28px; display:flex; align-items:center; background:#FAFAFA;">
+          <div style="font-size:13px; color:#74747E;">Borrador guardado hace 2 min</div>
+          <div style="margin-left:auto; display:flex; gap:10px;">
+            <div style="height:40px; padding:0 18px; display:flex; align-items:center; border:1px solid #C9C9CE; border-radius:3px; font-size:15px; font-weight:500; background:#FFFFFF; cursor:pointer;">Atrás</div>
+            <div style="height:40px; padding:0 20px; display:flex; align-items:center; background:#ED1C29; color:#FFFFFF; border-radius:3px; font-size:15px; font-weight:600; cursor:pointer;">Continuar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11 TIMELINE -->
+    <div id="p-timeline" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">11</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Activity timeline</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">historial y trazabilidad</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Quién hizo qué y cuándo. Es el respaldo de auditoría del flujo de aprobaciones: cada entrada nombra al actor, la acción y el objeto, en ese orden.</p>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; padding:26px 28px;">
+        <sc-for list="{{ timeline }}" as="t" hint-placeholder-count="4">
+          <div style="display:grid; grid-template-columns:30px 1fr auto; gap:16px; align-items:start; padding-bottom:{{ t.pad }};">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px; padding-top:3px; align-self:stretch;">
+              <div style="width:10px; height:10px; border-radius:50%; background:{{ t.dot }}; flex-shrink:0;"></div>
+              <sc-if value="{{ t.line }}" hint-placeholder-val="{{ true }}">
+                <div style="width:1px; flex:1; min-height:26px; background:#E3E3E6;"></div>
+              </sc-if>
+            </div>
+            <div>
+              <div style="font-size:14.5px; margin-bottom:3px;"><span style="font-weight:600;">{{ t.actor }}</span> {{ t.accion }}</div>
+              <div style="font-size:13.5px; line-height:1.6; color:#55555E;">{{ t.detalle }}</div>
+            </div>
+            <div style="font-size:12.5px; color:#8B8B93; white-space:nowrap; padding-top:2px;">{{ t.hora }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- 12 NOTIFICATION MENU -->
+    <div id="p-notif" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">12</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Notification menu</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">ancho 380 · máx. 5 visibles</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Colgado de la barra superior. Solo eventos accionables: si el usuario no puede hacer nada al respecto, va al historial, no a la campana.</p>
+
+      <div style="background:#26262C; border-radius:6px; padding:24px; display:flex; justify-content:center;">
+        <div style="width:380px; background:#FFFFFF; border-radius:5px; overflow:hidden; box-shadow:0 16px 40px rgba(0,0,0,.35);">
+          <div style="padding:14px 18px; border-bottom:1px solid #E3E3E6; display:flex; align-items:center;">
+            <div style="font-size:14px; font-weight:600;">Notificaciones</div>
+            <div style="margin-left:auto; font-size:13px; color:#C9151F; cursor:pointer;">Marcar todas leídas</div>
+          </div>
+          <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="4">
+            <div style="display:grid; grid-template-columns:8px 1fr; gap:12px; padding:14px 18px; border-bottom:1px solid #EFEFF0; background:{{ n.bg }}; cursor:pointer;" style-hover="background:#FAFAFA;">
+              <div style="width:7px; height:7px; border-radius:50%; background:{{ n.dot }}; margin-top:6px;"></div>
+              <div>
+                <div style="font-size:14px; font-weight:{{ n.weight }}; margin-bottom:3px;">{{ n.titulo }}</div>
+                <div style="font-size:13px; line-height:1.55; color:#55555E;">{{ n.detalle }}</div>
+                <div style="font-size:12px; color:#8B8B93; margin-top:5px;">{{ n.hora }}</div>
+              </div>
+            </div>
+          </sc-for>
+          <div style="padding:12px 18px; text-align:center; font-size:13.5px; color:#C9151F; cursor:pointer; background:#FAFAFA;">Ver todas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13 UMBRALES -->
+    <div id="p-umbral" style="margin-top:72px;">
+      <div style="display:flex; align-items:baseline; gap:20px; border-bottom:2px solid #17171B; padding-bottom:16px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:14px; color:#ED1C29; font-weight:500;">13</div>
+        <h2 style="font-size:34px; font-weight:600; margin:0; letter-spacing:-.02em;">Semáforo de umbrales</h2>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#74747E;">4 estados · 1 fuente</div>
+      </div>
+      <p style="font-size:16px; line-height:1.7; color:#3C3C44; margin:0 0 22px; max-width:74ch; text-wrap:pretty;">Todo el producto usa esta misma escala: tabla, tarjeta, heatmap, KPI y drawer. Un mismo porcentaje jamás puede tener dos colores distintos en dos pantallas.</p>
+
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-radius:6px; overflow:hidden;">
+        <div style="display:grid; grid-template-columns:.7fr .6fr .8fr 1.6fr; background:#FAFAFA; border-bottom:1px solid #E3E3E6; font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:#74747E;">
+          <div style="padding:10px 18px;">Estado</div><div style="padding:10px 18px;">Rango</div><div style="padding:10px 18px;">Token</div><div style="padding:10px 18px;">Qué hace el operador</div>
+        </div>
+        <sc-for list="{{ umbrales }}" as="u" hint-placeholder-count="4">
+          <div style="display:grid; grid-template-columns:.7fr .6fr .8fr 1.6fr; border-top:1px solid #EFEFF0; font-size:14px; align-items:center; color:#3C3C44;">
+            <div style="padding:13px 18px;"><span style="font-size:12.5px; font-weight:500; border-radius:3px; padding:3px 9px; background:{{ u.bg }}; color:{{ u.color }};">{{ u.estado }}</span></div>
+            <div style="padding:13px 18px; font-family:'IBM Plex Mono',monospace; font-size:13px;">{{ u.rango }}</div>
+            <div style="padding:13px 18px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:#55555E;">{{ u.token }}</div>
+            <div style="padding:13px 18px;">{{ u.accion }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ notas }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#FFFFFF; border:1px solid #E3E3E6; border-left:3px solid #ED1C29; border-radius:0 5px 5px 0; padding:16px 20px; margin-top:16px; max-width:74ch;">
+        <div style="font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:#ED1C29; font-weight:600; margin-bottom:6px;">Regla</div>
+        <div style="font-size:14.5px; line-height:1.65; color:#3C3C44;">El rojo de marca (#ED1C29) no participa del semáforo: crítico usa danger #8E0F18. Así una célula en rojo nunca se confunde con un botón primario.</div>
+      </div>
+      </sc-if>
+    </div>
+
+    <!-- CIERRE -->
+    <div style="margin-top:88px; background:#17171B; color:#FAFAFA; border-radius:6px; padding:44px 48px;">
+      <div style="font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#F8626C; font-weight:600; margin-bottom:16px;">Siguiente</div>
+      <div style="font-size:26px; font-weight:600; letter-spacing:-.02em; margin-bottom:12px; max-width:36ch;">Empaquetar estos patrones en el CLI</div>
+      <div style="font-size:16px; line-height:1.7; color:#C9C9CE; max-width:66ch;">Cada patrón compuesto se publica como receta instalable —<span style="font-family:'IBM Plex Mono',monospace; font-size:14.5px; color:#FAFAFA;">tuip add page-header capacity-card bulk-bar</span>— con su markup, sus tokens y su estado vacío ya resueltos.</div>
+    </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;mostrarNotas&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Documentación&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const heat = (v) => {
+      let bg = '#E9F6EE', fg = '#1E6B3A';
+      if (v >= 90) { bg = '#F6BFC4'; fg = '#8E0F18'; }
+      else if (v >= 80) { bg = '#FDE3B8'; fg = '#8A5A00'; }
+      else if (v >= 60) { bg = '#CFE9D9'; fg = '#1E6B3A'; }
+      return { v: v, bg: bg, fg: fg };
+    };
+    const zonas = [
+      ['Medellín · Norte', [54, 58, 63, 67, 72, 78, 83, 88]],
+      ['Medellín · Sur', [48, 51, 55, 57, 61, 64, 66, 70]],
+      ['Bogotá · Centro', [71, 74, 79, 82, 86, 89, 92, 95]],
+      ['Cali · Sur', [42, 45, 49, 52, 55, 58, 60, 63]],
+      ['Barranquilla', [63, 66, 69, 73, 77, 81, 84, 87]],
+    ];
+
+    return {
+      notas: this.props.mostrarNotas !== false,
+
+      capacityCards: [
+        { code: 'CEL-00841', site: 'Medellín · Norte', estado: 'En umbral', pct: '87%', umbral: '85%', pico: '9,4 Gbps', headroom: '1,2 Gbps', bg: '#FEF6E7', color: '#8A5A00' },
+        { code: 'CEL-00843', site: 'Cali · Sur', estado: 'Saludable', pct: '58%', umbral: '85%', pico: '5,1 Gbps', headroom: '6,0 Gbps', bg: '#E9F6EE', color: '#1E6B3A' },
+        { code: 'CEL-00907', site: 'Bogotá · Centro', estado: 'Crítica', pct: '95%', umbral: '85%', pico: '12,8 Gbps', headroom: '0,4 Gbps', bg: '#FDECEE', color: '#8E0F18' },
+      ],
+
+      heatMonths: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
+      heatRows: zonas.map(z => ({ zona: z[0], cells: z[1].map(heat) })),
+
+      bulkRows: [
+        { code: 'CEL-00841', zona: 'Medellín · Norte', util: '87%', estado: 'En umbral', bg: '#FEF6E7', color: '#8A5A00', sel: true, rowBg: '#FFF7F7', boxBg: '#ED1C29', boxBorder: '#ED1C29' },
+        { code: 'CEL-00842', zona: 'Bogotá · Centro', util: '84%', estado: 'En umbral', bg: '#FEF6E7', color: '#8A5A00', sel: true, rowBg: '#FFF7F7', boxBg: '#ED1C29', boxBorder: '#ED1C29' },
+        { code: 'CEL-00843', zona: 'Cali · Sur', util: '58%', estado: 'Activa', bg: '#E9F6EE', color: '#1E6B3A', sel: false, rowBg: '#FFFFFF', boxBg: '#FFFFFF', boxBorder: '#C9C9CE' },
+        { code: 'CEL-00907', zona: 'Bogotá · Centro', util: '95%', estado: 'Crítica', bg: '#FDECEE', color: '#8E0F18', sel: true, rowBg: '#FFF7F7', boxBg: '#ED1C29', boxBorder: '#ED1C29' },
+      ],
+
+      timeline: [
+        { actor: 'C. Ospina', accion: 'aprobó la ampliación', detalle: 'SOL-2041 · +4,0 Gbps para CEL-00842, efectiva el 15 sep.', hora: 'hoy 09:41', dot: '#1E6B3A', line: true, pad: '22px' },
+        { actor: 'Sistema', accion: 'detectó umbral superado', detalle: 'CEL-00907 alcanzó 95% de utilización (umbral 85%).', hora: 'hoy 06:02', dot: '#8E0F18', line: true, pad: '22px' },
+        { actor: 'M. Restrepo', accion: 'creó la solicitud', detalle: 'SOL-2041 · justificación: proyección supera umbral en 60 días.', hora: 'ayer 17:20', dot: '#1F4E8C', line: true, pad: '22px' },
+        { actor: 'J. Betancur', accion: 'actualizó el umbral de zona', detalle: 'Bogotá · Centro pasó de 80% a 85%.', hora: '6 ago 11:05', dot: '#8B8B93', line: false, pad: '0px' },
+      ],
+
+      notifs: [
+        { titulo: '3 células superaron su umbral', detalle: 'Bogotá · Centro concentra 2 de las 3.', hora: 'hace 12 min', dot: '#8E0F18', bg: '#FFFFFF', weight: 600 },
+        { titulo: 'SOL-2041 espera tu aprobación', detalle: 'M. Restrepo solicitó +4,0 Gbps para CEL-00842.', hora: 'hace 1 h', dot: '#8A5A00', bg: '#FFFFFF', weight: 600 },
+        { titulo: 'Proyección mensual disponible', detalle: 'Agosto 2026 · 14 zonas con riesgo a 90 días.', hora: 'hoy 07:00', dot: '#C9C9CE', bg: '#FAFAFA', weight: 400 },
+        { titulo: 'Ampliación completada', detalle: 'CEL-00755 quedó en 61% de utilización.', hora: 'ayer', dot: '#C9C9CE', bg: '#FAFAFA', weight: 400 },
+      ],
+
+      umbrales: [
+        { estado: 'Saludable', rango: '< 60%', token: 'capacity.ok', accion: 'Nada. No aparece en listados de atención.', bg: '#E9F6EE', color: '#1E6B3A' },
+        { estado: 'Vigilar', rango: '60 – 79%', token: 'capacity.watch', accion: 'Entra a la proyección de 90 días.', bg: '#CFE9D9', color: '#1E6B3A' },
+        { estado: 'En umbral', rango: '80 – 89%', token: 'capacity.warn', accion: 'Se habilita solicitar ampliación.', bg: '#FEF6E7', color: '#8A5A00' },
+        { estado: 'Crítica', rango: '≥ 90%', token: 'capacity.critical', accion: 'Notificación al responsable y bloqueo de nuevas cargas.', bg: '#FDECEE', color: '#8E0F18' },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

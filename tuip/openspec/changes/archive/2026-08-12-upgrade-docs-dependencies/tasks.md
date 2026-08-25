@@ -1,0 +1,30 @@
+## 1. Migración de Vite 5 a 6
+
+- [x] 1.1 Leer la guía oficial de migración de Vite 5 a 6 y anotar los puntos que apliquen a esta configuración (un plugin, tres aliases, sin opciones de build propias). Se leyeron las de 5→6 y 6→7. Para esta config no aplica nada de 5→6; de 6→7 lo único relevante es que **Node 18 queda fuera** (piso 20.19+) y que sube el target por defecto del build. Ni `defineConfig` ni `resolve.alias` cambian.
+- [x] 1.2 Subir `vite` y `@vitejs/plugin-react`. **Desviación del plan:** el objetivo pasó de `vite` 6 a **7.3.6**. La razón apareció al mirar las versiones: `6.4.3` — el mínimo que corrige el advisory — es a la vez la **última versión publicada de la línea 6.x**, así que aterrizar ahí es aterrizar en una línea terminada, y el próximo advisory contra 6.x no tendría parche. `@vitejs/plugin-react@4.7.0`, el que ya estaba instalado, declara `vite: ^4 || ^5 || ^6 || ^7`, con lo cual ir a 7 no costó ningún churn extra y no hizo falta tocar el plugin. Ir a 8.x sí lo habría requerido (plugin-react 6.x exige `vite ^8` más dos peers nuevos). Consecuencia honesta: `engines.node` de la raíz sube de `>=18` a `>=20.19`.
+- [x] 1.3 Aplicar en `apps/docs/vite.config.ts` los ajustes que la migración exija, si exige alguno. **No exigió ninguno** — el archivo quedó intacto, como anticipaba el design por lo mínimo de la configuración.
+- [x] 1.4 Correr `pnpm --filter @tuya-ui/docs build` y dejarlo en verde, incluido el `tsc --noEmit` que corre antes.
+- [x] 1.5 Levantar el servidor de desarrollo y confirmar que el sitio carga y que los tres aliases de resolución siguen funcionando — los componentes se renderizan desde su fuente sin construir, que es lo que esos aliases sostienen. Verificado con captura de `/components/button`: las variantes, tamaños e íconos del componente renderizan, lo que solo ocurre si `@/lib/cn` y `@/icons/paths` resuelven.
+- [x] 1.6 Comparar visualmente una página del sitio construido contra el estado previo para descartar que la cadena de PostCSS/Tailwind haya cambiado de comportamiento. Se capturaron 4 páginas antes de migrar y las mismas 4 después. Estructura, colores, tabla, bloque de código y callout **idénticos**. Única diferencia: la prosa envuelve algo más ancha, y es artefacto de la captura, no de Vite — la prosa usa un `max-width` en unidades `ch`, que dependen de la fuente cargada, y la línea de base se tomó antes de que cargaran las webfonts. El "después" es el render correcto.
+
+## 2. Migración de React Router 6 a 7
+
+- [x] 2.1 Leer la guía oficial de migración de React Router 6 a 7 y confirmar el supuesto del design: que la API declarativa y los hooks inventariados se mantienen. Confirmado: en modo declarativo la v7 no rompe nada. El cambio mecánico es que **`react-router-dom` desaparece** y todo se importa de `react-router`, que en v7 consolidó ambos paquetes.
+- [x] 2.2 Reemplazar `react-router-dom` por `react-router@^7.18.2` en `apps/docs/package.json` y correr `pnpm install`. Sustituir el paquete en vez de subirlo resultó ser lo que **elimina** `GHSA-jjmj-jmhj-qwj2` — el advisory que figuraba sin versión parcheada (`<0.0.0`): no hacía falta un parche, hacía falta que el paquete dejara de estar. Era justo la duda que la excepción dejó anotada para resolver acá y no dar por supuesta.
+- [x] 2.3 Aplicar los ajustes de importación o de API. **Solo cambió el especificador de importación** en 10 archivos (`from "react-router-dom"` → `from "react-router"`); ni un componente, hook ni prop cambió de forma, tal como anticipaba el inventario.
+- [x] 2.4 Si la migración pidiera cambios de fondo en el enrutado — data routers, loaders — detenerse y reportar. **No hizo falta:** no pidió ninguno, el inventario se sostuvo.
+- [x] 2.5 Correr `pnpm --filter @tuya-ui/docs build` y dejarlo en verde.
+
+## 3. Verificación del enrutado en el navegador
+
+- [x] 3.1 Levantar el sitio y recorrer con Chrome headless por CDP: navegación del sidebar entre secciones y componentes. Verificado que es navegación del lado del cliente y no recarga: se marcó el documento antes del clic y el marcador sobrevivió. `NavLink` sigue marcando el activo con `aria-current="page"`. (El primer intento falló por un error de mi prueba, que buscaba un enlace de una sección colapsada del sidebar y por lo tanto ausente del DOM; la app estaba bien.)
+- [x] 3.2 Verificar la ruta de detalle con parámetro (`/components/:name`) sobre al menos dos componentes distintos, confirmando que `useParams` resuelve el nombre correcto. Probado con `button` y `drawer`; cada uno titula lo suyo.
+- [x] 3.3 Verificar el breadcrumb y el paginador anterior/siguiente al pie de una página de componente.
+- [x] 3.4 Verificar el parámetro de búsqueda (`useSearchParams`) y las redirecciones declaradas con `Navigate` (`/components` → `/components/button` y `/tokens` → `/fundamentos/color`). Sin excepciones en consola durante todo el recorrido.
+
+## 4. Cierre
+
+- [x] 4.1 Eliminar de `security-exceptions.json` las **cuatro** excepciones, dejando el archivo con cero en vez de borrarlo. Antes de vaciarlo se corrió el gate con las excepciones puestas y las cuatro se reportaron como `no longer matches any finding — remove it`, o sea que la remoción está respaldada por el propio control y no por confianza.
+- [x] 4.2 Correr `pnpm run security:audit` y confirmar que queda en verde **sin ninguna excepción aplicada** — que es la señal de que este change hizo lo que vino a hacer. Los dos umbrales reportan `nothing at or above the threshold`.
+- [x] 4.3 Confirmar que ya no queda ninguna vulnerabilidad alta en `pnpm audit`, y anotar el estado final. **De 9 (1 alta, 7 moderadas, 1 baja) a 1 baja.** La que queda es `esbuild` (GHSA-g7r4-m6w7-qqqr) por `packages/cli > tsup@8.5.1 > bundle-require`; no cruza ninguno de los dos umbrales y no tiene arreglo disponible porque `tsup` ya está en su última versión, como quedó anotado en el change anterior.
+- [x] 4.4 Ejecutar `pnpm lint`, `pnpm test` y `pnpm build` en la raíz y dejar los tres en verde. Lint 4/4, test 7/7 (incluye la auditoría, contraste WCAG y e2e del CLI), build 4/4.

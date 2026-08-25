@@ -1,0 +1,34 @@
+{
+  "name": "tuya-ui-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "generate:registry": "turbo run generate:registry",
+    "docs:dev": "pnpm --filter @tuya-ui/docs dev",
+    "security:audit": "tsx scripts/security-audit.ts",
+    "publish:local": "tsx scripts/publish-local.ts",
+    "changeset": "changeset",
+    "release": "pnpm run build && pnpm run test && pnpm run lint && pnpm run security:audit && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.0",
+    "eslint": "^9.12.0",
+    "prettier": "^3.3.0",
+    "tsx": "^4.19.0",
+    "turbo": "^2.1.0",
+    "typescript": "^5.6.0"
+  },
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "pnpm": {
+    "overrides": {
+      "prismjs": ">=1.30.0"
+    }
+  }
+}

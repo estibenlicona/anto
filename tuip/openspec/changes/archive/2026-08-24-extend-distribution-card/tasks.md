@@ -1,0 +1,3 @@
+- [x] 1.1 `distribution-card.tsx`: `headline`, `action`, `legend="inline"`, `total` opcional.
+- [x] 1.2 Test de headline/action/inline; suite en verde.
+- [x] 1.3 Docs (cuándo usar + anatomía); build y pack.

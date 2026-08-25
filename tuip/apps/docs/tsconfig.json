@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "types": [
+      "vite/client"
+    ],
+    "paths": {
+      "@/lib/*": [
+        "../../packages/components/src/lib/*"
+      ],
+      "@/icons/paths": [
+        "../../packages/components/src/icons/paths.ts"
+      ],
+      "@/*": [
+        "src/*"
+      ]
+    }
+  },
+  "include": [
+    "src",
+    "../../packages/components/src"
+  ],
+  "exclude": [
+    "../../packages/components/src/**/*.test.ts",
+    "../../packages/components/src/**/*.test.tsx"
+  ]
+}

@@ -1,0 +1,26 @@
+/* The system serves its own typefaces: these packages ship the woff2 files and
+   their @font-face rules, so the fonts are bundled with the site and no screen
+   makes a request to a third party to render its text. Only the three weights
+   the scale uses are imported. */
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+@import "@tuya-ui/components/styles.css";
+
+/* `source(none)` apaga la detección automática de la v4, que subiría por el
+   monorepo escaneando de más; `@config` trae el vocabulario y su `content`
+   declara qué mirar. */
+@import "tailwindcss" source(none);
+@config "../tailwind.config.js";
+@source "./**/*.{ts,tsx}";
+@source "../index.html";
+
+body {
+  /* Canvas de página, un paso más oscuro que la superficie de Card
+     (bg-neutral-default) — ver la nota en Card sobre este emparejamiento. */
+  @apply bg-neutral-subtlest text-neutral-default;
+  font-family: var(--font-sans);
+}

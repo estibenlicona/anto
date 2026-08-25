@@ -1,0 +1,3 @@
+- [x] 1.1 `capacity-bar.tsx`: prop `separated` → `SegmentedBar`.
+- [x] 1.2 Test: con `separated` las piezas llevan `gap-hug` y la pista neutra sigue presente.
+- [x] 1.3 Docs; build y pack.

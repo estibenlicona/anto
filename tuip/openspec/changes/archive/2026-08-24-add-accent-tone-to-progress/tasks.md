@@ -1,0 +1,4 @@
+- [x] 1.1 `progress.tsx`: prop `tone?: AccentTone`; relleno con `accentToneClasses[tone]` y sin severidad cuando está; comentario de precedencia sobre `brandFill`.
+- [x] 1.2 `meter.tsx`: prop `tone` trasladado a Progress.
+- [x] 1.3 Tests: Progress con `tone` no cambia de color al superar `warningFrom`; Meter con `tone` pinta la clase de acento.
+- [x] 1.4 Docs de Progress y Meter (cuándo usar `tone`); build y pack.
