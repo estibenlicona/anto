@@ -246,7 +246,7 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-3">
       <PersonDetailHeader
         detail={detail}
         roleLabel={roleLabel}
@@ -271,8 +271,8 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
         validating={validating}
       />
 
-      <div className="grid items-start gap-4 xl:grid-cols-[7fr_5fr]">
-        <div className="flex flex-col gap-4">
+      <div className="grid items-start gap-3 xl:grid-cols-[7fr_5fr]">
+        <div className="flex flex-col gap-3">
           {detail.allocation ? (
             <PersonAssignmentPanel
               detail={detail}
@@ -300,7 +300,7 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
           )}
           <HoursBySprintPanel detail={detail} />
         </div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           <PersonStacksPanel detail={detail} onEdit={openStacks} />
           <PersonProfilePanel detail={detail} onEdit={openEdit} />
         </div>

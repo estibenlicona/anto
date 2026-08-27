@@ -32,6 +32,9 @@ export function Tooltip({ content, children, side = "top", align = "center", cla
             sideOffset={4}
             className={cn(
               "z-menu max-w-[240px] rounded-control bg-neutral-bold px-2.5 py-1.5 text-body-sm text-neutral-inverse shadow-md",
+              // Crece desde el control que explica (la receta `float`).
+              "[transform-origin:var(--radix-tooltip-content-transform-origin)]",
+              "data-[state=delayed-open]:animate-float-in data-[state=instant-open]:animate-float-in data-[state=closed]:animate-float-out",
               className,
             )}
           >

@@ -31,8 +31,28 @@ export function isBusinessDay(date: Date): boolean {
   return day !== 0 && day !== 6;
 }
 
-/** Días hábiles del rango, ambos extremos incluidos. 0 si el rango es inválido. */
-export function countBusinessDays(start: Date, end: Date): number {
+/**
+ * Qué extremos del rango se piden a media jornada. Sólo los extremos: un día
+ * interior de la ausencia siempre se cuenta completo (design.md).
+ */
+export interface HalfDayEdges {
+  startsHalfDay?: boolean;
+  endsHalfDay?: boolean;
+}
+
+/**
+ * Días hábiles del rango, ambos extremos incluidos. 0 si el rango es inválido.
+ *
+ * Con `edges`, cada extremo marcado descuenta media jornada — pero sólo si ese
+ * extremo cae en día hábil: un sábado no se trabaja, así que no puede pedirse
+ * a medias. El parámetro es opcional para no tocar las llamadas que cuentan
+ * tramos de mes o el calendario del mes entero.
+ */
+export function countBusinessDays(
+  start: Date,
+  end: Date,
+  edges?: HalfDayEdges
+): number {
   if (end < start) return 0;
   let count = 0;
   const cursor = new Date(start);
@@ -40,7 +60,26 @@ export function countBusinessDays(start: Date, end: Date): number {
     if (isBusinessDay(cursor)) count += 1;
     cursor.setDate(cursor.getDate() + 1);
   }
+  if (count === 0) return 0;
+  // Rango de un solo día: sus dos extremos son el mismo día, y el formulario
+  // manda las dos banderas iguales. Se descuenta una vez, no dos — si no, un
+  // "medio día" saldría a cero.
+  if (start.getTime() === end.getTime()) {
+    const halved = edges?.startsHalfDay || edges?.endsHalfDay;
+    return halved && isBusinessDay(start) ? count - 0.5 : count;
+  }
+  if (edges?.startsHalfDay && isBusinessDay(start)) count -= 0.5;
+  if (edges?.endsHalfDay && isBusinessDay(end)) count -= 0.5;
   return count;
+}
+
+/**
+ * Los días de una ausencia como se escriben: el entero pelado cuando lo es, un
+ * decimal cuando hay media jornada. `toFixed(1)` escribiría "3.0" para tres
+ * días completos, que es justo lo que no queremos leer en una tabla.
+ */
+export function formatBusinessDays(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
 /** Primer y último día del mes "YYYY-MM"; null si no tiene esa forma. */

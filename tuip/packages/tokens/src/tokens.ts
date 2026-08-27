@@ -56,7 +56,8 @@ export { textStyle, numeric } from "./typography";
 export type { TextStyle } from "./typography";
 export { elevationLight, elevationDark } from "./elevation";
 export type { ElevationPalette } from "./elevation";
-export { motion } from "./motion";
+export { motion, motionRecipe } from "./motion";
+export type { MotionRecipe, MotionRecipeName, MotionFrames } from "./motion";
 export { borderWidth, focusRing } from "./border";
 export { gradient } from "./gradient";
 export {

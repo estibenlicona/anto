@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Icon, useToast } from "@tuya-ui/components";
+import { Button, Icon, useToast } from "@tuya-ui/components";
+import { useLeadBreadcrumbActions } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { useSquads } from "./hooks/useSquads";
 import { useSquadMutations } from "./hooks/useSquadMutations";
 import { useCriticalities } from "./hooks/useCriticalities";
 import { useSquadsStats } from "./hooks/useSquadsStats";
-import { SquadsHeader } from "./components/SquadsHeader";
 import { SquadsStatsCards } from "./components/SquadsStatsCards";
 import { SquadsList } from "./components/SquadsList";
 import { SquadFormDrawer } from "./components/SquadFormDrawer";
@@ -52,6 +52,21 @@ export const SquadsContainer: React.FC = () => {
     setFormKey((key) => key + 1);
     setFormOpen(true);
   };
+
+  // Sin encabezado de módulo: el nombre de la pantalla ya lo da el breadcrumb
+  // del shell, y el botón sube a esa misma franja, a la derecha, para que el
+  // resumen y la tabla arranquen arriba. Tamaño small porque la franja es una
+  // banda de navegación, no un encabezado.
+  useLeadBreadcrumbActions(
+    <Button
+      variant="primary"
+      size="small"
+      onClick={openCreate}
+      iconBefore={<Icon name="cell" size={16} />}
+    >
+      Nueva célula
+    </Button>
+  );
 
   const openEdit = (squad: Squad) => {
     setEditingSquad(squad);
@@ -102,8 +117,7 @@ export const SquadsContainer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <SquadsHeader onCreate={openCreate} />
+    <div className="flex flex-col gap-3">
       <SquadsStatsCards stats={stats} loading={statsLoading} />
       <SquadsList
         squads={squads}

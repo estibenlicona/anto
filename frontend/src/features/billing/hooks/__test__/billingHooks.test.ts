@@ -17,8 +17,13 @@ import {
 import {
   availablePeriods,
   billingAdapter,
+  digitsOnly,
+  formatDigits,
   money,
+  shortDate,
   periodLabel,
+  periodTitle,
+  shiftPeriod,
   signedMoney,
 } from "../../adapters/BillingAdapter";
 
@@ -28,6 +33,16 @@ describe("BillingAdapter", () => {
     expect(signedMoney(500000)).toMatch(/^\+/);
     expect(signedMoney(-1200000)).toMatch(/1\.200\.000/);
     expect(periodLabel("2026-08")).toBe("agosto 2026");
+    expect(periodTitle("2026-08")).toBe("Agosto 2026");
+    // Cruza el año en los dos sentidos.
+    expect(shiftPeriod("2026-01", -1)).toBe("2025-12");
+    expect(shiftPeriod("2025-12", 1)).toBe("2026-01");
+    expect(shortDate("2026-07-08T16:20:00Z")).toBe("8 jul");
+    expect(shortDate("2026-11-23T00:00:00Z")).toBe("23 nov");
+    expect(digitsOnly("$ 11.500.000")).toBe("11500000");
+    expect(formatDigits("11500000")).toBe("11.500.000");
+    expect(formatDigits("950")).toBe("950");
+    expect(formatDigits("")).toBe("");
     expect(availablePeriods("2026-02", 3)).toEqual([
       "2026-02",
       "2026-01",

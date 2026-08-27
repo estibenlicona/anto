@@ -81,7 +81,7 @@ export const SpanSummaryCards: React.FC<SpanSummaryCardsProps> = ({
   const excedente = peopleAtRisk.length - visibles.length;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <Metric
         label="BRECHAS CRÍTICAS"
         foot={`de ${totalGaps} ${totalGaps === 1 ? "brecha abierta" : "brechas abiertas"} · no se cierran con la operación diaria`}

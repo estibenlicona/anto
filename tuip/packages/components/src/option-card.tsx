@@ -7,10 +7,11 @@ import {
   isValidElement,
   useContext,
   useId,
-  useRef,
   useState,
 } from "react";
 import { cn } from "@/lib/cn";
+import { Icon } from "./icon";
+import type { IconName } from "@/icons/paths";
 import { Kbd } from "./kbd";
 
 interface OptionCardContextValue {
@@ -20,7 +21,6 @@ interface OptionCardContextValue {
   /** The value that currently holds the roving tab stop. */
   focusable: string | undefined;
   disabled: boolean;
-  register: (value: string, disabled: boolean) => void;
   moveFocus: (from: string, delta: 1 | -1) => void;
 }
 
@@ -76,11 +76,7 @@ export function OptionCardGroup({
   const generatedName = useId();
   const [internal, setInternal] = useState(defaultValue);
   const current = value !== undefined ? value : internal;
-  const order = useRef<Array<{ value: string; disabled: boolean }>>([]);
   const [focusable, setFocusable] = useState<string | undefined>(undefined);
-  // Registro por render: cada tarjeta se anota al montar, en orden de
-  // documento, para que las flechas sepan cuál es la siguiente.
-  order.current = [];
 
   const select = (next: string) => {
     if (value === undefined) setInternal(next);
@@ -88,8 +84,17 @@ export function OptionCardGroup({
     onValueChange?.(next);
   };
 
+  const childValues = Children.toArray(children)
+    .filter((c): c is ReactElement<OptionCardProps> => isValidElement(c))
+    .map((c) => c.props);
+
   const moveFocus = (from: string, delta: 1 | -1) => {
-    const enabled = order.current.filter((o) => !o.disabled);
+    // El orden se lee de los hijos declarados y no de un registro que cada
+    // tarjeta rellenaba durante su render: ese registro se vaciaba al empezar
+    // cada render del grupo, así que en cuanto el consumidor re-renderizaba
+    // por su cuenta —un grupo controlado, sin ir más lejos— las flechas se
+    // encontraban la lista vacía y no movían nada.
+    const enabled = childValues.filter((c) => !c.disabled && !disabled);
     if (enabled.length === 0) return;
     const index = enabled.findIndex((o) => o.value === from);
     const next = enabled[(index + delta + enabled.length) % enabled.length];
@@ -97,9 +102,6 @@ export function OptionCardGroup({
     document.getElementById(`${generatedName}-${next.value}`)?.focus();
   };
 
-  const childValues = Children.toArray(children)
-    .filter((c): c is ReactElement<OptionCardProps> => isValidElement(c))
-    .map((c) => c.props);
   const firstEnabled = childValues.find((c) => !c.disabled && !disabled)?.value;
   const tabStop =
     focusable ??
@@ -113,9 +115,6 @@ export function OptionCardGroup({
         select,
         focusable: tabStop,
         disabled,
-        register: (v, d) => {
-          order.current.push({ value: v, disabled: d });
-        },
         moveFocus,
       }}
     >
@@ -140,6 +139,11 @@ export interface OptionCardProps {
   value: string;
   /** Option title. */
   title: string;
+  /**
+   * Icon shown between the radio and the title. Decorative: the title already
+   * names the option, so it is hidden from screen readers.
+   */
+  icon?: IconName;
   /** One line on what choosing it means. */
   description?: ReactNode;
   /** Keyboard shortcut shown next to the title. Informative only: the consumer listens for it. */
@@ -154,6 +158,7 @@ export interface OptionCardProps {
 export function OptionCard({
   value,
   title,
+  icon,
   description,
   shortcut,
   disabled: ownDisabled = false,
@@ -163,7 +168,6 @@ export function OptionCard({
   const ctx = useContext(OptionCardContext);
   if (!ctx) throw new Error("OptionCard must be rendered inside OptionCardGroup");
   const disabled = ctx.disabled || ownDisabled;
-  ctx.register(value, disabled);
   const selected = ctx.value === value;
   const id = `${ctx.name}-${value}`;
   const labelId = `${id}-label`;
@@ -239,7 +243,24 @@ export function OptionCard({
           >
             {title}
           </span>
-          {shortcut && <Kbd size="sm" className="ml-auto">{shortcut}</Kbd>}
+          {/* El icono se ancla al borde derecho y no junto al título: la
+              columna de la izquierda es del radio, y con el icono pegado al
+              texto las tarjetas de una fila dejaban de leerse alineadas. */}
+          {icon && (
+            <Icon
+              name={icon}
+              size={16}
+              className={cn(
+                "ml-auto shrink-0",
+                disabled ? "text-neutral-disabled" : "text-neutral-subtle",
+              )}
+            />
+          )}
+          {shortcut && (
+            <Kbd size="sm" className={icon ? undefined : "ml-auto"}>
+              {shortcut}
+            </Kbd>
+          )}
         </div>
         {description && (
           <span

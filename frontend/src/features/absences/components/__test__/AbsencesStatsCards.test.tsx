@@ -16,21 +16,25 @@ const month: AbsencesMonth = {
 };
 
 describe("AbsencesStatsCards", () => {
-  it("lee el descuento contra el FTE del chapter, no como cifra suelta", () => {
+  it("lee el descuento contra el FTE del chapter, al pie de la cifra", () => {
     render(<AbsencesStatsCards month={month} chapterFte={17.8} />);
-    expect(screen.getByText("de 17.8 FTE del chapter")).toBeInTheDocument();
-    expect(screen.getByText(/−0.50/)).toBeInTheDocument();
+    // Misma anatomía que las otras dos cards: arriba la cifra sola, abajo la
+    // unidad y su referencia.
+    const referencia = screen.getByText("de 17.8 FTE del chapter");
+    expect(referencia).toBeInTheDocument();
+    expect(screen.getByText(/−0.50/)).not.toBe(referencia);
+    expect(screen.getByText(/−0.50/).textContent!.trim()).toBe("−0.50");
   });
 
-  it("el pie se explica solo, sin continuar la cifra de arriba", () => {
+  it("el pie no vuelve a hablar de la célula más afectada", () => {
     render(<AbsencesStatsCards month={month} chapterFte={17.8} />);
-    // El texto anterior — "de lo aprobado · la más afectada: …" — empezaba a
-    // mitad de frase y sólo se entendía leyendo el número primero.
     expect(
-      screen.getByText(/Sólo cuentan las ausencias aprobadas/)
-    ).toBeInTheDocument();
-    expect(screen.getByText(/La célula que más pierde es/)).toBeInTheDocument();
-    expect(screen.getByText("Backend Platform")).toBeInTheDocument();
+      screen.queryByText(/Sólo cuentan las ausencias aprobadas/)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/La célula que más pierde es/)
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Backend Platform")).not.toBeInTheDocument();
   });
 
   it("sin total del chapter muestra el descuento solo, sin fracción sobre cero", () => {
@@ -46,18 +50,20 @@ describe("AbsencesStatsCards", () => {
     expect(screen.getByText("FTE")).toBeInTheDocument();
   });
 
-  it("sin nada aprobado lo dice en una frase, no con una fracción vacía", () => {
+  it("sin nada aprobado muestra el cero, sin frase sobre lo aprobado", () => {
     render(
       <AbsencesStatsCards
         month={{ ...month, approvedFteImpact: 0, mostAffectedSquadName: null }}
         chapterFte={17.8}
       />
     );
+    expect(screen.getByText(/0.00/)).toBeInTheDocument();
+    expect(screen.getByText("de 17.8 FTE del chapter")).toBeInTheDocument();
     expect(
-      screen.getByText(
+      screen.queryByText(
         "Ninguna ausencia aprobada este mes descuenta capacidad."
       )
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
   });
 
   it("un descuento pequeño no se redondea hasta parecer cero", () => {

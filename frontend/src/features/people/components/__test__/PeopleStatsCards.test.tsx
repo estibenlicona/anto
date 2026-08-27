@@ -67,6 +67,17 @@ describe("PeopleStatsCards — distribución por seniority", () => {
     expect(boldSegments).toHaveLength(0);
   });
 
+  it("las cards van separadas con la misma medida que el resto de la vista", () => {
+    const { container } = render(
+      <PeopleStatsCards stats={stats} loading={false} />
+    );
+    // Una sola medida de separación en la vista (gap-3, como en células y
+    // ausencias): el grid dejó el gap-4 que lo hacía verse más suelto.
+    const grid = container.firstElementChild!;
+    expect(grid).toHaveClass("grid", "gap-3");
+    expect(grid).not.toHaveClass("gap-4");
+  });
+
   it("abre con el % en avanzado o superior y la leyenda en línea lleva cada conteo", () => {
     render(<PeopleStatsCards stats={stats} loading={false} />);
 

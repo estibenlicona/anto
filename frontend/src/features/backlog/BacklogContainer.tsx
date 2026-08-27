@@ -5,7 +5,8 @@ import { useCapacityOverview } from "@features/control-tower/hooks/useCapacityOv
 import { useBacklogCatalogs } from "./hooks/useBacklogCatalogs";
 import { useBacklogQueue } from "./hooks/useBacklogQueue";
 import { useBacklogMutations } from "./hooks/useBacklogMutations";
-import { BacklogHeader } from "./components/BacklogHeader";
+import { useLeadBreadcrumbActions } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
+import { BacklogDaySummary } from "./components/BacklogDaySummary";
 import { BacklogQueue, type QueueView } from "./components/BacklogQueue";
 import { CurrentStoryPanel } from "./components/CurrentStoryPanel";
 import { RejectItemDrawer } from "./components/RejectItemDrawer";
@@ -199,10 +200,17 @@ export const BacklogContainer: React.FC = () => {
     ? items.findIndex((s) => s.id === current.id) + 1
     : 0;
 
-  return (
-    <div className="flex flex-col gap-5">
-      <BacklogHeader summary={summary} />
+  // Sin encabezado de módulo: el nombre de la pantalla ya lo da el breadcrumb
+  // del shell, y el resumen del día sube a esa misma franja, a la derecha,
+  // para que la cola y la historia en curso arranquen arriba. Sin resumen
+  // (primera carga) se publica null: la franja queda sólo con el breadcrumb
+  // y no salta de altura cuando el resumen llega.
+  useLeadBreadcrumbActions(
+    summary ? <BacklogDaySummary summary={summary} /> : null
+  );
 
+  return (
+    <div className="flex flex-col gap-3">
       {error && !loading && (
         <Alert
           variant="danger"
@@ -222,7 +230,7 @@ export const BacklogContainer: React.FC = () => {
       )}
 
       {summary && (
-        <div className="grid items-start gap-4 lg:grid-cols-[22rem_1fr]">
+        <div className="grid items-start gap-3 lg:grid-cols-[22rem_1fr]">
           <BacklogQueue
             items={items}
             summary={summary}

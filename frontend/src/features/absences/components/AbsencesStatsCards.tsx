@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardBody, Icon } from "@tuya-ui/components";
 import type { AbsencesMonth } from "../adapters/AbsenceAdapter";
+import { formatBusinessDays } from "../services/businessDays";
 
 /**
  * Las tres lecturas del mes visible, con la misma anatomía de cards que el
@@ -13,7 +14,7 @@ export const AbsencesStatsCards: React.FC<{
 }> = ({ month, chapterFte }) => {
   const impact = month.approvedFteImpact;
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-3 sm:grid-cols-3">
       <Card>
         <CardBody className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
@@ -28,7 +29,7 @@ export const AbsencesStatsCards: React.FC<{
           <span className="mt-auto text-body-sm text-neutral-subtle">
             {month.totalCount === 1 ? "ausencia" : "ausencias"} ·{" "}
             <b className="font-bold tabular-nums text-neutral-default">
-              {month.totalBusinessDaysInMonth}
+              {formatBusinessDays(month.totalBusinessDaysInMonth)}
             </b>{" "}
             {/*
               La cifra es la suma de días hábiles ausentes, no el calendario
@@ -66,31 +67,14 @@ export const AbsencesStatsCards: React.FC<{
             {/* Dos decimales, como la columna de cada fila: con uno solo,
                 un descuento de 0.04 se muestra como "−0.0" y la tarjeta dice
                 que no hay impacto cuando sí lo hay. */}
-            {impact > 0 ? `−${impact.toFixed(2)}` : "0.00"}{" "}
-            <span className="text-heading-md font-semibold text-neutral-subtle">
-              {chapterFte && chapterFte > 0
-                ? `de ${chapterFte.toFixed(1)} FTE del chapter`
-                : "FTE"}
-            </span>
+            {impact > 0 ? `−${impact.toFixed(2)}` : "0.00"}
           </span>
-          {/*
-            El pie ya no continúa la cifra de arriba: antes decía "de lo
-            aprobado · la más afectada: …", que sólo se entendía leyendo el
-            número primero y adivinando el nexo.
-          */}
+          {/* La unidad y su referencia van al pie, como en las otras dos
+              cards: arriba la cifra sola, abajo lo que la hace legible. */}
           <span className="mt-auto text-body-sm text-neutral-subtle">
-            {month.mostAffectedSquadName ? (
-              <>
-                Sólo cuentan las ausencias aprobadas. La célula que más pierde
-                es{" "}
-                <b className="font-bold text-neutral-default">
-                  {month.mostAffectedSquadName}
-                </b>
-                .
-              </>
-            ) : (
-              "Ninguna ausencia aprobada este mes descuenta capacidad."
-            )}
+            {chapterFte && chapterFte > 0
+              ? `de ${chapterFte.toFixed(1)} FTE del chapter`
+              : "FTE"}
           </span>
         </CardBody>
       </Card>

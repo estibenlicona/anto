@@ -99,6 +99,18 @@ describe("AppShell", () => {
     expect(screen.getByText("Cerrar sesión")).toBeInTheDocument();
   });
 
+  it("el disparador de cuenta no trae realce, y sí su anillo de foco", () => {
+    // El shell no dibuja este disparador: lo hereda de NavbarUtilities. La
+    // prueba está igual acá porque es el shell el que lo puso en pantalla en
+    // Gestión de Capacidad, donde el cuadrado gris alrededor del avatar se
+    // reportó. Su par vive en navbar.test.tsx.
+    renderShell();
+    const account = screen.getByRole("button", { name: /Chapter Lead/ });
+
+    expect(account.className).not.toMatch(/hover:bg-|data-\[state=open\]:bg-/);
+    expect(account.className).toContain("focus-visible:ring-focus");
+  });
+
   it("sin onSearch no hay búsqueda; con onSearch aparece", () => {
     const { rerender } = renderShell();
     expect(screen.queryByRole("button", { name: /Buscar/ })).not.toBeInTheDocument();

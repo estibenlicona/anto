@@ -1,4 +1,4 @@
-import { Fragment, MouseEvent, ReactNode, useEffect, useState } from "react";
+import { Fragment, MouseEvent, ReactNode, useEffect, useRef, useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { cn } from "@/lib/cn";
 import { Avatar } from "./avatar";
@@ -419,6 +419,31 @@ export function NavbarUtilities({
   const hasUnread = notifications.some((item) => item.unread);
   const firstDestructiveIndex = userMenu.findIndex((action) => action.destructive);
 
+  /**
+   * Al cerrar el panel, Radix le devuelve el foco a su disparador. Chrome
+   * cuenta ese `focus()` programático como recorrido de teclado, así que
+   * `:focus-visible` engancha y el anillo queda pintado sobre el avatar
+   * después de una interacción que fue sólo con el mouse — nadie está
+   * recorriendo nada, y el anillo dice que sí.
+   *
+   * Así que se recuerda con qué se abrió el panel y, si fue con el puntero, se
+   * cancela esa devolución en `onCloseAutoFocus`. Abierto por teclado no se
+   * cancela nada: el foco vuelve al disparador con su anillo, que es lo que
+   * esa persona necesita para saber dónde quedó parada.
+   *
+   * Cancelar es lo único que funciona acá. Devolver el foco y sacarlo después
+   * con un `blur()` es una carrera contra el `focus()` de Radix, y se pierde:
+   * en el navegador el anillo volvía a aparecer.
+   */
+  const openedWithPointerRef = useRef(false);
+
+  function handleAccountCloseAutoFocus(event: Event) {
+    if (openedWithPointerRef.current) {
+      openedWithPointerRef.current = false;
+      event.preventDefault();
+    }
+  }
+
   return (
     <div className="flex shrink-0 items-center gap-1.5">
       {!narrow &&
@@ -473,8 +498,35 @@ export function NavbarUtilities({
         open={accountOpen}
         onOpenChange={onAccountOpenChange}
         align="end"
+        onCloseAutoFocus={handleAccountCloseAutoFocus}
         trigger={
-          <button type="button" className={cn("flex h-9 items-center gap-2 py-0.5 pl-0.5 pr-2", interactive)}>
+          // Único control de la barra que NO usa `interactive`, y la omisión es
+          // deliberada: ese helper realza con un rectángulo de `rounded-control`,
+          // que es la forma de los controles rectangulares de la zona (enlaces de
+          // utilidad, campana, botón de menú) pero no la de un avatar circular —
+          // por debajo de 1120px, donde el nombre se oculta, dejaba un cuadrado
+          // gris alrededor de un círculo. Así que este disparador no pinta
+          // superficie: ni en hover ni con su panel abierto, donde el panel
+          // desplegado ya es la señal de que está activo. Lo que sí conserva,
+          // porque es la única señal que no puede perderse, es el anillo de foco
+          // por teclado, copiado tal cual de `interactive`.
+          <button
+            type="button"
+            // Los dos registran con qué se está abriendo, no qué se hizo antes:
+            // `keydown` llega en la activación por Enter/Espacio, `pointerdown`
+            // en el clic. El que dispara la apertura es el último en correr, y
+            // es el que manda.
+            onPointerDown={() => {
+              openedWithPointerRef.current = true;
+            }}
+            onKeyDown={() => {
+              openedWithPointerRef.current = false;
+            }}
+            className={cn(
+              "flex h-9 items-center gap-2 py-0.5 pl-0.5 pr-2",
+              "rounded-control outline-none focus-visible:ring-focus focus-visible:ring-brand-focus-ring",
+            )}
+          >
             <Avatar size="medium" label={user.name}>
               {user.initials}
             </Avatar>

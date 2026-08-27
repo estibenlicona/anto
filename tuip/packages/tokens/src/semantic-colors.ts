@@ -52,6 +52,15 @@ export interface NeutralBackground {
    * for `subtlest` for everything else that wants "the almost-white step."
    */
   canvas: string;
+  /**
+   * The veil behind a blocking surface — Modal, Drawer, Command Palette. Dark
+   * in both themes, because its job is to push the page back, and a page is
+   * pushed back by shade regardless of which theme it is in. It used to be
+   * `bold` at 40%, which reads correctly in light and inverts in dark: `bold`
+   * there is near-white, so the veil brightened the page it was meant to dim.
+   * Translucent so it composites over whatever the page is showing.
+   */
+  scrim: string;
 }
 
 export interface BrandBackground {
@@ -317,6 +326,8 @@ export const semanticColorsLight: SemanticColorPalette = assemble(statusLight, {
       // Selection and active row come from the lightest brand steps.
       selected: p.brand[50],
       canvas: p.neutralCanvas,
+      // The same shade `bold` gave at 40%, now stated as a token of its own.
+      scrim: alpha(p.neutral[800], 0.4),
     },
     brand: {
       default: p.brand[50],
@@ -401,6 +412,10 @@ export const semanticColorsDark: SemanticColorPalette = assemble(statusDark, {
       // No dark-theme spec exists yet for this tone — falls back to the same
       // step `subtlest` already uses in dark, so dark mode is unchanged.
       canvas: p.neutral[1000],
+      // Deeper and denser than in light: over a canvas that is already near
+      // black, 40% of a dark tone barely registers, so the veil takes the
+      // darkest step at 60% to still read as "the page stepped back".
+      scrim: alpha(p.neutral[1000], 0.6),
     },
     brand: {
       default: p.brand[900],

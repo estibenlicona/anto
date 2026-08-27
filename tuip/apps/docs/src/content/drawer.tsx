@@ -33,10 +33,10 @@ export const drawerContent: ComponentContent = {
       <div className="flex h-[320px] w-drawer-sm flex-col border-l border-neutral-default bg-neutral-default shadow-lg">
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-neutral-default px-6 py-5">
           <div className="flex-1">
-            <div className="mb-1.5 text-body-sm font-semibold uppercase tracking-wide text-neutral-subtle">
+            <div className="mb-1.5 text-label uppercase text-neutral-subtle">
               Capacidad
             </div>
-            <div className="text-lg font-semibold text-neutral-default">María González</div>
+            <div className="text-heading-md text-neutral-default">María González</div>
           </div>
           <Icon name="close" size={20} className="shrink-0 text-neutral-subtle" />
         </div>
@@ -86,7 +86,7 @@ export const drawerContent: ComponentContent = {
     ],
     renderState: (state) => (
       <div className="flex h-[180px] w-drawer-sm flex-col border-l border-neutral-default bg-neutral-default shadow-lg">
-        <div className="shrink-0 border-b border-neutral-default px-6 py-5 text-lg font-semibold text-neutral-default">
+        <div className="shrink-0 border-b border-neutral-default px-6 py-5 text-heading-md text-neutral-default">
           Detalle
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-5 text-body-sm text-neutral-subtle">Contenido del panel.</div>

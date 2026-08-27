@@ -30,8 +30,8 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "2.11.2",
-    "@tuya-ui/components": "file:../tuip/.local-packages/tuya-ui-components-0.1.6.tgz",
-    "@tuya-ui/tokens": "file:../tuip/.local-packages/tuya-ui-tokens-0.1.6.tgz",
+    "@tuya-ui/components": "file:../tuip/.local-packages/tuya-ui-components-0.1.11.tgz",
+    "@tuya-ui/tokens": "file:../tuip/.local-packages/tuya-ui-tokens-0.1.11.tgz",
     "axios": "1.19.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",

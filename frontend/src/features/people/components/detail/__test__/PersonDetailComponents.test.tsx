@@ -105,6 +105,21 @@ describe("PersonDetailHeader", () => {
 });
 
 describe("PersonDetailStatsCards", () => {
+  it("las cards van separadas con la medida del detalle", () => {
+    const { container } = wrap(
+      <PersonDetailStatsCards
+        detail={assigned}
+        onValidateHours={vi.fn()}
+        onLinkIdentity={vi.fn()}
+        validating={false}
+      />
+    );
+    // gap-3 como los bloques y las columnas del detalle; antes gap-4.
+    const grid = container.querySelector(".grid")!;
+    expect(grid).toHaveClass("gap-3");
+    expect(grid).not.toHaveClass("gap-4");
+  });
+
   it("con reporte por validar muestra Validar; real y delta", () => {
     const onValidate = vi.fn();
     wrap(
@@ -235,6 +250,11 @@ describe("PersonUnassignedPanel", () => {
       screen.getByText("DÓNDE HACE FALTA PRODUCT OWNER")
     ).toBeInTheDocument();
     expect(screen.getByText("Sin equipo · pide SFIA 3")).toBeInTheDocument();
+    // Cada célula sugerida es una fila de panel: py-3, como la cabecera del
+    // panel y las filas del perfil; antes py-2.5.
+    const row = screen.getAllByRole("listitem")[0];
+    expect(row).toHaveClass("py-3");
+    expect(row).not.toHaveClass("py-2.5");
     fireEvent.click(screen.getByRole("button", { name: "Asignar acá" }));
     expect(onAssignTo).toHaveBeenCalledWith("pagos");
   });
@@ -266,6 +286,10 @@ describe("PersonStacksPanel", () => {
     const onEdit = vi.fn();
     render(<PersonStacksPanel detail={assigned} onEdit={onEdit} />);
     const items = screen.getAllByRole("listitem");
+    // Cada stack es una fila de panel: py-3, como la cabecera del panel y
+    // las filas del perfil; antes py-2.5.
+    expect(items[0]).toHaveClass("py-3");
+    expect(items[0]).not.toHaveClass("py-2.5");
     expect(within(items[0]).getByText("Principal")).toBeInTheDocument();
     expect(
       within(items[0]).queryByText("Bus factor 1")

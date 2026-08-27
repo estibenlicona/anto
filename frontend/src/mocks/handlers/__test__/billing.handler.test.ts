@@ -89,6 +89,8 @@ describe("mock de prefacturas", () => {
       type: "Vacation",
       startDate: firstBusinessDay(CURRENT_PERIOD),
       endDate: firstBusinessDay(CURRENT_PERIOD),
+      startsHalfDay: false,
+      endsHalfDay: false,
     });
     await absenceService.approve(ausencia.id);
 
@@ -294,6 +296,8 @@ describe("mock de prefacturas", () => {
       type: "Vacation",
       startDate: firstBusinessDay(PREVIOUS_PERIOD),
       endDate: firstBusinessDay(PREVIOUS_PERIOD),
+      startsHalfDay: false,
+      endsHalfDay: false,
     });
     await absenceService.approve(ausencia.id);
 

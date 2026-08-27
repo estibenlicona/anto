@@ -83,9 +83,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             duration={duration}
             className={cn(
               "flex items-center gap-3 rounded-control bg-neutral-bold px-4 py-3.5 text-neutral-inverse shadow-md",
+              // Entra desde el borde derecho, donde vive su viewport (la
+              // receta `slide`), y se va con un fundido: al cerrarse por
+              // tiempo o por su ×, nadie está mirando hacia dónde va. Un
+              // deslizamiento hasta el borde queda para el gesto que ya va
+              // en esa dirección — el swipe.
+              "data-[state=open]:animate-slide-in-right data-[state=closed]:animate-fade-out",
               "data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)]",
-              "data-[swipe=cancel]:translate-x-0",
-              "data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)]",
+              "data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-[translate] data-[swipe=cancel]:duration-normal data-[swipe=cancel]:ease-standard",
+              "data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=end]:animate-slide-out-right",
             )}
           >
             {current.icon && (

@@ -218,7 +218,7 @@ export const BillingDetailContainer: React.FC<BillingDetailContainerProps> = ({
         description="Puede que se haya eliminado o que el enlace esté mal."
         action={
           <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
-            Volver a Facturación
+            Volver a Prefacturación
           </Button>
         }
       />
@@ -413,10 +413,7 @@ export const BillingDetailContainer: React.FC<BillingDetailContainerProps> = ({
         key={invoiceKey}
         open={invoiceOpen}
         onOpenChange={setInvoiceOpen}
-        providerName={billing.providerName}
-        period={billing.period}
-        expected={billing.expected}
-        isCorrection={objected}
+        billing={billing}
         saving={busy}
         serverError={invoiceError}
         onSubmit={handleInvoice}

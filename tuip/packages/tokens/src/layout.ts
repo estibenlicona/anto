@@ -54,12 +54,21 @@ export const overlayWidth = {
  * The application shell every screen of the system shares. The content
  * changes, the frame does not: whoever learns to move around one application
  * moves around all of them.
+ *
+ * The three measures are the ones the approved canvases fix and that Navbar,
+ * Sidebar and AppShell already render (`h-14`, `w-[248px]`, `w-[64px]`): the
+ * token used to say 264/68/64 from an earlier draft while the components said
+ * 248/64/56, and the documentation printed the token — so it documented a shell
+ * nobody shipped. The components are the source of truth here because the
+ * canvases were approved against them (see the archived `add-navbar` and
+ * `add-app-shell-component` changes).
  */
 export const shell = {
-  railWidth: "264px",
+  railWidth: "248px",
   /** The rail collapses to icons only below the medium breakpoint. */
-  railCollapsedWidth: "68px",
-  topBarHeight: "64px",
+  railCollapsedWidth: "64px",
+  /** 56px from the medium breakpoint; Navbar drops to 48px below 960px. */
+  topBarHeight: "56px",
 } as const;
 
 /**

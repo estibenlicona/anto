@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SUBCAPA_UTILIDADES, cuerpoDeCapa, formaPublicada } from "./css-layers";
 
 /**
  * Tres cosas que la hoja publicada tiene que cumplir y que compilar no garantiza.
@@ -308,22 +309,17 @@ if (failures === fallosPrevios) {
 // reglas de capas en cascada, lo suelto es una última subcapa implícita que le
 // gana a `tuya-ui`. En `scripts/build-css.ts` está por qué va anidada y no en
 // una capa de nivel superior.
+//
+// Y el par inverso: la VARIANTE del paquete contra la utilidad BASE del
+// consumidor. `peer-checked:opacity-100` del punto del radio contra un
+// `opacity-0` que la app genera para otra pantalla. Una subcapa pierde contra
+// lo suelto sin mirar especificidad, así que si la variante viaja anidada, el
+// punto no aparece nunca. Por eso a la subcapa van sólo las utilidades base y
+// las variantes quedan detrás, sueltas: ahí ganan por especificidad, que es lo
+// que Tailwind hace dentro de una sola hoja. La regla de reparto está en
+// `css-layers.ts`, la misma que usa `build-css.ts`.
 
-const SUBCAPA = "tuya-ui";
-
-/** El tramo `[inicio, fin)` del cuerpo de `@layer <nombre>` en `css`. */
-function cuerpoDeCapa(css: string, nombre: string): { inicio: number; fin: number } | null {
-  const apertura = new RegExp(`@layer\\s+${nombre}\\s*\\{`).exec(css);
-  if (apertura === null) return null;
-  const inicio = apertura.index + apertura[0].length;
-  let profundidad = 1;
-  let i = inicio;
-  for (; i < css.length && profundidad > 0; i++) {
-    if (css[i] === "{") profundidad++;
-    else if (css[i] === "}") profundidad--;
-  }
-  return profundidad === 0 ? { inicio, fin: i - 1 } : null;
-}
+const SUBCAPA = SUBCAPA_UTILIDADES;
 
 const fallosDeSubcapa = failures;
 
@@ -332,20 +328,30 @@ if (utilidadesPublicadas === null) {
   fail("[subcapa] La hoja publicada no tiene un bloque `@layer utilities` que se pueda leer.");
 } else {
   const cuerpo = publishedCss.slice(utilidadesPublicadas.inicio, utilidadesPublicadas.fin);
-  const subcapa = cuerpoDeCapa(cuerpo, SUBCAPA);
-  // Que envuelva TODO el cuerpo y no una parte: una utilidad que quede fuera de
-  // la subcapa vuelve a ganarle a las variantes del consumidor, y es justo la
-  // que nadie va a mirar.
-  const envuelveTodo =
-    subcapa !== null &&
-    subcapa.inicio === `@layer ${SUBCAPA}{`.length &&
-    subcapa.fin === cuerpo.length - 1;
-  if (!envuelveTodo) {
+  const forma = formaPublicada(cuerpo);
+  if (!forma.ok) {
     fail(
-      `[subcapa] Las utilidades publicadas no están —todas— dentro de \`@layer utilities { ` +
-        `@layer ${SUBCAPA} { … } }\`. Sin eso le ganan a las variantes del consumidor por orden ` +
-        `de aparición: \`w-full\` de acá pisa un \`lg:w-80\` de la app.`,
+      `[subcapa] Las utilidades publicadas no tienen la forma \`@layer utilities { ` +
+        `@layer ${SUBCAPA} { …base… } …variantes… }\`: ${forma.motivo}. Una base fuera de la ` +
+        `subcapa le gana a las variantes del consumidor por orden de aparición (\`w-full\` pisa ` +
+        `un \`lg:w-80\` de la app); una variante dentro pierde contra cualquier base del ` +
+        `consumidor sin mirar especificidad (el \`opacity-0\` de la app apaga el ` +
+        `\`peer-checked:opacity-100\` del radio).`,
     );
+  }
+
+  // Autoprueba: la hoja que se publicaba antes —todo anidado— tiene que
+  // rechazarse, porque es la que dejaba los radios sin punto.
+  const subcapa = cuerpoDeCapa(cuerpo, SUBCAPA);
+  if (subcapa !== null) {
+    const todoAnidado =
+      `@layer ${SUBCAPA}{` + cuerpo.slice(subcapa.inicio, subcapa.fin) + cuerpo.slice(subcapa.fin + 1) + "}";
+    if (formaPublicada(todoAnidado).ok) {
+      fail(
+        "[autoprueba] La comprobación de forma da por buena una hoja con las variantes dentro " +
+          "de la subcapa, que es la que apagaba el punto del radio. Con eso no rechazaría nada.",
+      );
+    }
   }
 }
 
@@ -355,6 +361,9 @@ if (utilidadesPublicadas === null) {
 // subcapa, y aplanarla no rompe nada visible hasta que alguien mide un ancho.
 const VARIANTE = "lg:w-[321px]";
 const SELECTOR_VARIANTE = ".lg\\:w-\\[321px\\]";
+// Una variante que el paquete sí publica —la del punto del radio— y que tiene
+// que sobrevivir al import FUERA de la subcapa.
+const VARIANTE_PUBLICADA = ".peer-checked\\:opacity-100";
 
 const consumidorCss = compile(
   [
@@ -385,6 +394,15 @@ function fronteraSana(css: string): { ok: boolean; motivo: string } {
   if (!css.includes(SELECTOR_VARIANTE)) {
     return { ok: false, motivo: `\`${VARIANTE}\` no compiló, así que no se comprobó nada` };
   }
+  if (dentro.includes(VARIANTE_PUBLICADA)) {
+    return {
+      ok: false,
+      motivo: `\`${VARIANTE_PUBLICADA}\` del paquete quedó dentro de \`${SUBCAPA}\`, donde el \`opacity-0\` del consumidor la apaga`,
+    };
+  }
+  if (!cuerpo.includes(VARIANTE_PUBLICADA)) {
+    return { ok: false, motivo: `\`${VARIANTE_PUBLICADA}\` del paquete no sobrevivió al import` };
+  }
   return { ok: true, motivo: "" };
 }
 
@@ -411,8 +429,9 @@ if (fronteraSana(sinSubcapa).ok) {
 
 if (failures === fallosDeSubcapa) {
   console.log(
-    `[subcapa] las utilidades publicadas viven en \`utilities > ${SUBCAPA}\`, y las del ` +
-      `consumidor quedan por encima.`,
+    `[subcapa] las utilidades base publicadas viven en \`utilities > ${SUBCAPA}\` y las del ` +
+      `consumidor quedan por encima; las variantes publicadas quedan fuera de la subcapa, ` +
+      `por encima de toda base.`,
   );
 }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Icon, useToast } from "@tuya-ui/components";
 import { squadService } from "@features/squads/services/squadService";
+import { useLeadBreadcrumbActions } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { useInitiatives } from "./hooks/useInitiatives";
 import { useInitiativesStats } from "./hooks/useInitiativesStats";
 import { useInitiativeMutations } from "./hooks/useInitiativeMutations";
@@ -70,6 +71,21 @@ export const InitiativesContainer: React.FC = () => {
     setFormOpen(true);
   };
 
+  // Sin encabezado de módulo: el nombre de la pantalla ya lo da el breadcrumb
+  // del shell, y la acción de crear sube a esa misma franja, a la derecha,
+  // para que las cards y el listado arranquen arriba. Tamaño small porque la
+  // franja es una banda de navegación, no un encabezado.
+  useLeadBreadcrumbActions(
+    <Button
+      variant="primary"
+      size="small"
+      onClick={openCreate}
+      iconBefore={<Icon name="plus" size={16} />}
+    >
+      Nueva iniciativa
+    </Button>
+  );
+
   const openEdit = (initiative: Initiative) => {
     setEditing(initiative);
     setFormError(null);
@@ -123,25 +139,7 @@ export const InitiativesContainer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-heading-lg font-semibold text-neutral-default">
-            Iniciativas
-          </h1>
-          <p className="text-body-sm text-neutral-subtle">
-            Las solicitudes del negocio y la capacidad que requieren. Sólo las
-            activas cuentan como demanda.
-          </p>
-        </div>
-        <Button
-          variant="primary"
-          onClick={openCreate}
-          iconBefore={<Icon name="plus" size={20} />}
-        >
-          Nueva iniciativa
-        </Button>
-      </div>
+    <div className="flex flex-col gap-3">
       <InitiativesStatsCards stats={stats} loading={statsLoading} />
       <InitiativesList
         initiatives={list.initiatives}

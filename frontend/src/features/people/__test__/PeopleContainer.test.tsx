@@ -1,13 +1,31 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@tuya-ui/components";
 import { resetPeopleMock } from "../../../mocks/handlers/people.handlers";
 import { personService } from "../services/personService";
+import {
+  LeadBreadcrumbProvider,
+  useLeadBreadcrumb,
+} from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { PeopleContainer } from "../PeopleContainer";
 
+// Hace las veces de la franja del breadcrumb del shell: pinta lo que el
+// contenedor publica ahí (el botón "Nueva persona").
+function BreadcrumbActionsProbe() {
+  const { actions } = useLeadBreadcrumb();
+  return <div data-testid="breadcrumb-actions">{actions}</div>;
+}
+
 /**
- * Cubre solo el listado (carga real vía el servidor de mocks). Los flujos
+ * Cubre la acción publicada en la franja del breadcrumb, el resumen y el
+ * listado (carga real vía el servidor de mocks). Los flujos
  * de alta/edición/borrado requieren abrir `PersonFormDrawer`/
  * `DeletePersonConfirmDialog` (`Drawer`/`Modal` de @tuya-ui/components,
  * ambos sobre `@radix-ui/react-dialog`) — no se pueden montar en jsdom en
@@ -21,11 +39,14 @@ import { PeopleContainer } from "../PeopleContainer";
 // pantalla de detalle, y un `Link` fuera de un router lanza al renderizar.
 function renderContainer() {
   return render(
-    <MemoryRouter>
-      <ToastProvider>
-        <PeopleContainer />
-      </ToastProvider>
-    </MemoryRouter>
+    <ToastProvider>
+      <LeadBreadcrumbProvider>
+        <MemoryRouter>
+          <BreadcrumbActionsProbe />
+          <PeopleContainer />
+        </MemoryRouter>
+      </LeadBreadcrumbProvider>
+    </ToastProvider>
   );
 }
 
@@ -41,25 +62,28 @@ describe("PeopleContainer", () => {
     expect(screen.getByText("Carlos López")).toBeInTheDocument();
   });
 
-  it("renders the create action without opening the modal", async () => {
+  it("publishes the create action in the breadcrumb strip without opening the modal", async () => {
     renderContainer();
     await screen.findByText("María González");
+    const strip = screen.getByTestId("breadcrumb-actions");
     expect(
-      screen.getByRole("button", { name: "Nueva persona" })
+      within(strip).getByRole("button", { name: "Nueva persona" })
     ).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("renders the module header and the stats cards from the mock", async () => {
+  it("renders the stats cards from the mock, with no visible module header", async () => {
     renderContainer();
     await screen.findByText("María González");
 
+    // El nombre de la pantalla lo da el breadcrumb del shell: la vista no
+    // repite el título ni la descripción del módulo.
     expect(
-      screen.getByRole("heading", { name: "Personas" })
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { name: "Personas" })
+    ).not.toBeInTheDocument();
     expect(
-      screen.getByText("Perfiles y seniority del equipo")
-    ).toBeInTheDocument();
+      screen.queryByText("Perfiles y seniority del equipo")
+    ).not.toBeInTheDocument();
 
     expect(screen.getByText("PERSONAS ACTIVAS")).toBeInTheDocument();
     expect(screen.getByText("STACKS SIN RESPALDO")).toBeInTheDocument();
@@ -73,6 +97,19 @@ describe("PeopleContainer", () => {
       )
     ).toBeInTheDocument();
     expect(await screen.findByText(/\d+ en \d+ células/)).toBeInTheDocument();
+  });
+
+  it("apila resumen y listado con una sola medida de separación", async () => {
+    renderContainer();
+    await screen.findByText("PERSONAS ACTIVAS");
+    // El raíz de la vista es el padre del grid de cards: resumen y listado
+    // se apilan con gap-3, la misma medida que células y ausencias; antes
+    // era gap-2 y las cards iban a gap-4.
+    const root = screen
+      .getByText("PERSONAS ACTIVAS")
+      .closest(".grid")!.parentElement!;
+    expect(root).toHaveClass("gap-3");
+    expect(root).not.toHaveClass("gap-2");
   });
 
   it("gives a person the same avatar color in the list and in the summary", async () => {

@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SUBCAPA_UTILIDADES, cuerpoDeCapa, partirUtilidades } from "./css-layers";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
@@ -112,13 +113,8 @@ if (missing.length > 0) {
 }
 
 /**
- * Nombre de la subcapa donde viajan las utilidades publicadas. Vive dentro de
- * `utilities`, no al lado.
- */
-const SUBCAPA_UTILIDADES = "tuya-ui";
-
-/**
- * Mete el cuerpo de `@layer utilities` en una subcapa propia.
+ * Reparte el cuerpo de `@layer utilities` entre una subcapa propia (las
+ * utilidades base) y la capa a secas (las que llevan variante).
  *
  * El paquete publica sus utilidades ya compiladas y la aplicación compila las
  * suyas: son dos hojas que se concatenan, y las dos escriben en `@layer
@@ -141,6 +137,17 @@ const SUBCAPA_UTILIDADES = "tuya-ui";
  * consumidor —que llegan sueltas dentro de `utilities`— pasan a ganarle a todas
  * las de acá sin que el consumidor tenga que declarar nada.
  *
+ * Pero a la subcapa sólo van las utilidades **base**. Las que llevan variante
+ * (`peer-checked:opacity-100`, `md:flex-row`, `hover:bg-neutral-hover`) se
+ * quedan fuera, detrás de ella: una subcapa pierde contra lo suelto de su capa
+ * **sin mirar especificidad**, así que con todo anidado el `opacity-0` que la
+ * aplicación generaba para una pantalla cualquiera le ganaba al
+ * `peer-checked:opacity-100` del punto del radio y del check de la casilla, y
+ * los controles se marcaban sin que se viera. Fuera de la subcapa, la variante
+ * gana a cualquier utilidad base —del paquete o del consumidor— por
+ * especificidad, que es lo que Tailwind garantiza dentro de una sola hoja. El
+ * reparto vive en `css-layers.ts` porque la verificación lo usa también.
+ *
  * Y va anidada dentro de `utilities` en vez de en una capa propia de nivel
  * superior: una capa aparte tendría que declararse antes que `utilities` para
  * perder contra el consumidor, y ahí quedaría también antes que `base` —donde
@@ -162,22 +169,27 @@ function anidarUtilidades(css: string): string {
 
   const apertura = aperturas[0];
   const inicioCuerpo = apertura.index + apertura[0].length;
-  let profundidad = 1;
-  let i = inicioCuerpo;
-  for (; i < css.length && profundidad > 0; i++) {
-    if (css[i] === "{") profundidad++;
-    else if (css[i] === "}") profundidad--;
-  }
-  const finCuerpo = i - 1;
-  if (profundidad !== 0 || css[finCuerpo] !== "}") {
+  const cuerpo = cuerpoDeCapa(css.slice(apertura.index), "utilities");
+  if (cuerpo === null) {
     throw new Error("El bloque `@layer utilities` no cierra: no se pudo anidar la subcapa.");
+  }
+  const finCuerpo = apertura.index + cuerpo.fin;
+
+  const { base, variantes } = partirUtilidades(css.slice(inicioCuerpo, finCuerpo));
+  if (base.length === 0 || variantes.length === 0) {
+    throw new Error(
+      `La salida de Tailwind trajo ${base.length} utilidades base y ${variantes.length} con ` +
+        `variante. Las dos mitades tienen que existir: una hoja sin variantes es una hoja sin ` +
+        `estados, y una sin base es una hoja sin componentes.`,
+    );
   }
 
   return (
     css.slice(0, inicioCuerpo) +
     `@layer ${SUBCAPA_UTILIDADES}{` +
-    css.slice(inicioCuerpo, finCuerpo) +
+    base.join("") +
     "}" +
+    variantes.join("") +
     css.slice(finCuerpo)
   );
 }

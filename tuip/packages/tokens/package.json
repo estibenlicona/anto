@@ -1,6 +1,6 @@
 {
   "name": "@tuya-ui/tokens",
-  "version": "0.1.6",
+  "version": "0.1.11",
   "description": "Design tokens for the Tuya CA brand identity (Tuya UI)",
   "type": "module",
   "main": "./dist/index.js",

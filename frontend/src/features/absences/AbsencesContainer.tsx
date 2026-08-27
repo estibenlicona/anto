@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Alert, Button, EmptyState, Icon, useToast } from "@tuya-ui/components";
+import { Button, EmptyState, Icon, useToast } from "@tuya-ui/components";
 import { useCapacityOverview } from "@features/control-tower/hooks/useCapacityOverview";
+import { useLeadBreadcrumbActions } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import {
   currentMonthKey,
   monthLabel,
@@ -10,8 +11,9 @@ import {
 } from "./adapters/AbsenceAdapter";
 import { monthBounds } from "./services/businessDays";
 import { useAbsencesMonth } from "./hooks/useAbsencesMonth";
+import { useAbsencesFilters } from "./hooks/useAbsencesFilters";
 import { useAbsenceMutations } from "./hooks/useAbsenceMutations";
-import { AbsencesHeader } from "./components/AbsencesHeader";
+import { AbsencesMonthNav } from "./components/AbsencesMonthNav";
 import { AbsencesStatsCards } from "./components/AbsencesStatsCards";
 import { AbsencesTable } from "./components/AbsencesTable";
 import { ApproveAbsenceDialog } from "./components/ApproveAbsenceDialog";
@@ -28,6 +30,10 @@ export const AbsencesContainer: React.FC = () => {
     requested && monthBounds(requested) ? requested : currentMonthKey();
 
   const { month, loading, error, refetch } = useAbsencesMonth(monthKey);
+  // Buscador, filtros y paginación trabajan sobre las filas ya cargadas del
+  // mes: el endpoint devuelve el mes entero y no hay nada que volver a pedir.
+  // Las cards siguen leyendo el mes completo, no lo filtrado.
+  const filters = useAbsencesFilters(month?.items ?? [], monthKey);
   // Las personas del alta salen del resumen del chapter, como en el backlog.
   const { overview, loading: peopleLoading } = useCapacityOverview();
   const { saving, create, approve, reject } = useAbsenceMutations();
@@ -48,6 +54,28 @@ export const AbsencesContainer: React.FC = () => {
     setRegisterKey((key) => key + 1);
     setRegisterOpen(true);
   };
+
+  // Sin encabezado de módulo: el nombre de la pantalla ya lo da el breadcrumb
+  // del shell, y el mes visible con su acción suben a esa misma franja, a la
+  // derecha, para que el resumen y la tabla arranquen arriba. Tamaño small
+  // porque la franja es una banda de navegación, no un encabezado.
+  useLeadBreadcrumbActions(
+    <div className="flex items-center gap-2">
+      <AbsencesMonthNav
+        monthTitle={month?.monthTitle ?? monthLabel(monthKey)}
+        onPreviousMonth={() => goToMonth(shiftMonth(monthKey, -1))}
+        onNextMonth={() => goToMonth(shiftMonth(monthKey, 1))}
+      />
+      <Button
+        variant="primary"
+        size="small"
+        onClick={openRegister}
+        iconBefore={<Icon name="calendar" size={16} />}
+      >
+        Registrar ausencia
+      </Button>
+    </div>
+  );
 
   const handleRegister = async (request: CreateAbsenceRequest) => {
     setRegisterError(null);
@@ -97,34 +125,14 @@ export const AbsencesContainer: React.FC = () => {
     }
   };
 
+  const monthIsEmpty =
+    !loading && !error && month !== null && month.items.length === 0;
+
   return (
-    <div className="flex flex-col gap-6">
-      <AbsencesHeader
-        monthTitle={month?.monthTitle ?? monthLabel(monthKey)}
-        onPreviousMonth={() => goToMonth(shiftMonth(monthKey, -1))}
-        onNextMonth={() => goToMonth(shiftMonth(monthKey, 1))}
-        onRegister={openRegister}
-      />
-
-      {loading && (
-        <p className="text-body-sm text-neutral-subtle">Cargando ausencias…</p>
-      )}
-
-      {!loading && error && (
-        <Alert
-          variant="danger"
-          title="No se pudieron cargar las ausencias"
-          action={
-            <Button variant="secondary" size="small" onClick={refetch}>
-              Reintentar
-            </Button>
-          }
-        >
-          {error}
-        </Alert>
-      )}
-
-      {!loading && !error && month && month.items.length === 0 && (
+    <div className="flex flex-col gap-3">
+      {monthIsEmpty ? (
+        // Sin ninguna ausencia en el mes no hay nada que acotar: el estado
+        // vacío reemplaza la tabla entera, barra incluida.
         <EmptyState
           icon={<Icon name="calendar" size={32} />}
           title={`Sin ausencias en ${month.monthTitle.toLowerCase()}`}
@@ -135,29 +143,38 @@ export const AbsencesContainer: React.FC = () => {
             </Button>
           }
         />
-      )}
-
-      {!loading && !error && month && month.items.length > 0 && (
+      ) : (
         <>
-          <AbsencesStatsCards
-            month={month}
-            chapterFte={overview?.chapterFte ?? null}
-          />
+          {month && (
+            <AbsencesStatsCards
+              month={month}
+              chapterFte={overview?.chapterFte ?? null}
+            />
+          )}
           <AbsencesTable
-            items={month.items}
+            items={filters.visible}
+            loading={loading}
+            error={error}
+            onRetry={refetch}
             saving={saving}
             onApprove={(absence) => setApproveFor(absence)}
             onReject={(absence) => {
               setRejectError(null);
               setRejectFor(absence);
             }}
+            page={filters.page}
+            pageSize={filters.pageSize}
+            total={filters.total}
+            totalPages={filters.totalPages}
+            onPageChange={filters.onPageChange}
+            onPageSizeChange={filters.onPageSizeChange}
+            search={filters.search}
+            onSearchChange={filters.onSearchChange}
+            selectedTypes={filters.types}
+            onTypesChange={filters.onTypesChange}
+            selectedStatuses={filters.statuses}
+            onStatusesChange={filters.onStatusesChange}
           />
-          <Alert variant="info">
-            La ausencia se registra una sola vez, acá. Al aprobarla, descuenta
-            capacidad del mes. De este mismo registro saldrán el descuento en la
-            factura del proveedor y el ajuste de capacidad de la célula y del
-            sprint, que todavía no están disponibles.
-          </Alert>
         </>
       )}
 

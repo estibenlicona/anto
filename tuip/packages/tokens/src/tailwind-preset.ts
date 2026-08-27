@@ -11,6 +11,8 @@ import {
   identityColor,
   layer,
   maxWidth,
+  motion,
+  motionRecipe,
   overlayWidth,
   radius,
   shadow,
@@ -143,6 +145,34 @@ const componentHeights = {
 };
 
 /**
+ * The motion steps as utilities (`duration-fast`, `ease-entrance`), each a
+ * reference to its variable rather than the literal, so a retuned step reaches
+ * every transition already shipped.
+ */
+function motionVars(group: "duration" | "easing") {
+  return Object.fromEntries(
+    Object.keys(motion[group]).map((name) => [name, `var(--motion-${group}-${toKebabCase(name)})`]),
+  );
+}
+
+/**
+ * One `animate-*` utility per recipe (`animate-panel-in`, `animate-float-out`),
+ * naming the `@keyframes` that `@tuya-ui/tokens/css` emits and taking its
+ * duration and curve from the motion variables. `both` holds the last frame
+ * until the element unmounts, which is what lets a Radix surface finish its
+ * exit before it is removed. The reduced-motion swap lives with the keyframes,
+ * so nothing here has to know about it.
+ */
+function animationRecipes() {
+  return Object.fromEntries(
+    Object.entries(motionRecipe).map(([name, recipe]) => [
+      toKebabCase(name),
+      `tuya-${toKebabCase(name)} var(--motion-duration-${recipe.duration}) var(--motion-easing-${recipe.easing}) both`,
+    ]),
+  );
+}
+
+/**
  * Tailwind preset mapping Tuya CA semantic design tokens to utility classes
  * (e.g. `bg-brand-bold`, `text-neutral-default`) backed by
  * the CSS Variables emitted by `@tuya-ui/tokens/css`. Only the semantic
@@ -225,6 +255,9 @@ export const tuyaUiTailwindPreset = {
       // one instead of each hardcoding a width that happens to match today.
       ringWidth: { focus: focusRing.width },
       ringOffsetWidth: { focus: focusRing.offset },
+      transitionDuration: motionVars("duration"),
+      transitionTimingFunction: motionVars("easing"),
+      animation: animationRecipes(),
     },
   },
 };

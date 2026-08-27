@@ -46,7 +46,14 @@ export function Modal({ open, defaultOpen, onOpenChange, size = "sm", children, 
   return (
     <Dialog.Root open={open} defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-overlay bg-neutral-bold/40" />
+        <Dialog.Overlay
+          className={cn(
+            // `scrim` es oscuro en los dos temas; `bold/40` se invertía en
+            // oscuro y aclaraba la página que tenía que apagar.
+            "fixed inset-0 z-overlay bg-neutral-scrim",
+            "data-[state=open]:animate-fade-in data-[state=closed]:animate-fade-out",
+          )}
+        />
         <Dialog.Content
           aria-describedby={undefined}
           onOpenAutoFocus={() => {
@@ -66,6 +73,18 @@ export function Modal({ open, defaultOpen, onOpenChange, size = "sm", children, 
             // definir, que es justo donde el diálogo se fundía con la pantalla.
             // Tooltip y Toast usan `bg-neutral-bold` y se recortan solos.
             "fixed left-1/2 top-1/2 z-overlay flex max-h-[85vh] -translate-x-1/2 -translate-y-1/2 flex-col rounded-surface border-default border-neutral-default bg-neutral-default shadow-lg",
+            // Un panel centrado se asienta desde apenas abajo (la receta
+            // `panel`); Radix mantiene el nodo montado mientras dura la
+            // animación de salida, así que el cierre también se ve. El
+            // centrado va por `translate` y la receta por `transform`: son
+            // dos propiedades y no se pisan.
+            "data-[state=open]:animate-panel-in data-[state=closed]:animate-panel-out",
+            // The size utilities are fixed widths — 480px does not fit a phone.
+            // Below the smallest breakpoint the panel yields to the viewport
+            // and keeps a `group` (16px) margin on each side, the same air the
+            // one-column layout gives everything else; from 640px up the cap
+            // never engages, so desktop is unchanged.
+            "max-w-[calc(100%-2rem)]",
             SIZE_WIDTH[size],
             className,
           )}
@@ -90,11 +109,28 @@ export function ModalHeader({ title, children }: ModalHeaderProps) {
   return (
     <div className="flex items-start justify-between gap-4 px-6 pt-6">
       <div className="flex-1">
-        <Dialog.Title className="text-lg font-semibold text-neutral-default">{title}</Dialog.Title>
+        {/* `text-heading-md`, the scale's card-title step, not `text-lg`: the
+            preset replaces Tailwind's own font sizes, so `text-lg` emits no
+            rule and the title silently inherited the body size. The step
+            bundles its weight, so no `font-semibold` alongside. */}
+        <Dialog.Title className="text-heading-md text-neutral-default">{title}</Dialog.Title>
         {children}
       </div>
       <Dialog.Close asChild>
-        <button type="button" aria-label="Cerrar" className="shrink-0 text-neutral-subtle hover:text-neutral-default">
+        {/* The same 32px icon-button box the Navbar utilities use, so the
+            close has a hit area and a visible focus ring — a bare 20px glyph
+            had neither. The negative margins pull the box back so the glyph
+            stays where it sat: level with the title's first line and flush
+            with the panel's inner edge; only the box grew, not the layout. */}
+        <button
+          type="button"
+          aria-label="Cerrar"
+          className={cn(
+            "-mr-1.5 -mt-[3px] flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-neutral-subtle outline-none",
+            "transition-colors hover:bg-neutral-subtle-hover hover:text-neutral-default",
+            "focus-visible:ring-focus focus-visible:ring-offset-focus focus-visible:ring-brand-focus-ring",
+          )}
+        >
           <Icon name="close" size={20} />
         </button>
       </Dialog.Close>

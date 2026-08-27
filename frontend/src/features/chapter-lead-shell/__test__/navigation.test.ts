@@ -20,9 +20,7 @@ describe("chapter-lead navigation", () => {
       "/app/lead/competencias",
     ]);
     expect(leadRouteTitles["lead-backlog"]).toBe("Gestionar Backlog");
-    expect(leadRouteTitles["lead-facturacion"]).toBe(
-      "Facturación de proveedores"
-    );
+    expect(leadRouteTitles["lead-facturacion"]).toBe("Prefacturación");
     expect(leadRouteTitles["lead-ausencias"]).toBe("Gestionar Ausencias");
     expect(leadNavGroups.map((g) => g.label)).toEqual([
       "",

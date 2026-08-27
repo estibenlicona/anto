@@ -16,24 +16,45 @@ import {
   CURRENT_PERIOD,
   PREVIOUS_PERIOD,
 } from "../../../mocks/handlers/billing.seeds";
+import {
+  LeadBreadcrumbProvider,
+  useLeadBreadcrumb,
+} from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { billingService } from "../services/billingService";
+import {
+  availablePeriods,
+  periodLabel,
+  periodTitle,
+} from "../adapters/BillingAdapter";
 import { BillingContainer } from "../BillingContainer";
 import { BillingDetailContainer } from "../BillingDetailContainer";
 
 const LIST_PATH = "/app/lead/facturacion";
 
+// Hace las veces de la franja del breadcrumb del shell: pinta lo que el
+// contenedor publica ahí (el navegador de período y las dos acciones).
+function BreadcrumbActionsProbe() {
+  const { actions } = useLeadBreadcrumb();
+  return <div data-testid="breadcrumb-actions">{actions}</div>;
+}
+
 function renderList(search = "") {
   return render(
     <MemoryRouter initialEntries={[`${LIST_PATH}${search}`]}>
       <ToastProvider>
-        <Routes>
-          <Route path={LIST_PATH} element={<BillingContainer />} />
-          <Route path={`${LIST_PATH}/:id`} element={<h1>Detalle</h1>} />
-        </Routes>
+        <LeadBreadcrumbProvider>
+          <BreadcrumbActionsProbe />
+          <Routes>
+            <Route path={LIST_PATH} element={<BillingContainer />} />
+            <Route path={`${LIST_PATH}/:id`} element={<h1>Detalle</h1>} />
+          </Routes>
+        </LeadBreadcrumbProvider>
       </ToastProvider>
     </MemoryRouter>
   );
 }
+
+const strip = () => screen.getByTestId("breadcrumb-actions");
 
 function renderDetail(id: string) {
   return render(
@@ -73,7 +94,9 @@ describe("BillingContainer", () => {
     expect(screen.getAllByText("Sin esperado")).toHaveLength(2);
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Generar el esperado del mes" })
+      within(strip()).getByRole("button", {
+        name: "Generar el esperado del mes",
+      })
     );
     await waitFor(() =>
       expect(screen.getAllByText("Sin prefactura")).toHaveLength(2)
@@ -83,7 +106,9 @@ describe("BillingContainer", () => {
     ).toBeInTheDocument();
     // Ya generados, no queda nada por generar.
     expect(
-      screen.getByRole("button", { name: "Generar el esperado del mes" })
+      within(strip()).getByRole("button", {
+        name: "Generar el esperado del mes",
+      })
     ).toBeDisabled();
   });
 
@@ -100,17 +125,100 @@ describe("BillingContainer", () => {
     ).toBeInTheDocument();
   });
 
-  it("el período se lee en el encabezado, no entre los filtros del listado", async () => {
+  it("el período vive en la franja del breadcrumb, no entre los filtros de la tabla", async () => {
     renderList();
     await screen.findByText("Carlos López");
 
-    // Manda sobre todo lo que la pantalla muestra, indicadores incluidos: no
-    // puede tener el mismo peso que un filtro de la tabla.
-    const selector = screen.getByRole("combobox", { name: /Período/ });
-    const encabezado = screen.getByRole("heading", {
-      name: "Prefacturas",
-    }).parentElement!;
-    expect(encabezado.contains(selector)).toBe(true);
+    // Manda sobre todo lo que la pantalla muestra, cards incluidas: no puede
+    // tener el mismo peso que un filtro de la tabla. Va como navegador de mes
+    // en lo publicado a la franja, con las dos acciones a su derecha.
+    const published = within(strip());
+    expect(
+      published.getByRole("button", { name: "Mes anterior" })
+    ).toBeInTheDocument();
+    expect(
+      published.getByRole("button", { name: "Mes siguiente" })
+    ).toBeInTheDocument();
+    expect(
+      published.getByRole("button", { name: "Generar el esperado del mes" })
+    ).toBeInTheDocument();
+    expect(
+      published.getByRole("button", { name: "Registrar prefactura" })
+    ).toBeInTheDocument();
+
+    // El nombre de la pantalla lo da el breadcrumb del shell: sin título,
+    // descripción ni selector desplegable en el contenido.
+    expect(
+      screen.queryByRole("combobox", { name: /Período/ })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Prefacturas" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Revisa lo que cada proveedor propone cobrar/)
+    ).not.toBeInTheDocument();
+  });
+
+  it("el navegador cambia de mes y arrastra cards y listado", async () => {
+    renderList();
+    await screen.findByText("Carlos López");
+    const published = within(strip());
+
+    fireEvent.click(published.getByRole("button", { name: "Mes anterior" }));
+    expect(
+      published.getByText(periodTitle(PREVIOUS_PERIOD))
+    ).toBeInTheDocument();
+    // La card nombra el mes visible; aparece cuando el período ya cargó.
+    expect(
+      await screen.findByText(`Prefacturas · ${periodLabel(PREVIOUS_PERIOD)}`)
+    ).toBeInTheDocument();
+    expect(await screen.findByText("Carlos López")).toBeInTheDocument();
+    expect(
+      published.getByRole("button", { name: "Mes siguiente" })
+    ).toBeEnabled();
+
+    fireEvent.click(published.getByRole("button", { name: "Mes siguiente" }));
+    expect(
+      published.getByText(periodTitle(CURRENT_PERIOD))
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText(`Prefacturas · ${periodLabel(CURRENT_PERIOD)}`)
+    ).toBeInTheDocument();
+  });
+
+  it("el navegador se detiene en el mes más antiguo del rango", async () => {
+    const oldest = availablePeriods(CURRENT_PERIOD)[5];
+    renderList(`?period=${oldest}`);
+    const published = within(strip());
+    expect(published.getByText(periodTitle(oldest))).toBeInTheDocument();
+    expect(
+      published.getByRole("button", { name: "Mes anterior" })
+    ).toBeDisabled();
+    expect(
+      published.getByRole("button", { name: "Mes siguiente" })
+    ).toBeEnabled();
+    // Se espera la carga para no dejar peticiones a medias.
+    await screen.findByText("Carlos López");
+  });
+
+  it("la búsqueda acota el listado en cliente y sin coincidencias invita a ajustarla", async () => {
+    renderList();
+    await screen.findByText("Carlos López");
+    expect(screen.getByText(/Mostrando/)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "paula" },
+    });
+    expect(screen.getByText("Paula Ramírez")).toBeInTheDocument();
+    expect(screen.queryByText("Carlos López")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "nadie" },
+    });
+    expect(screen.getByText("Sin resultados")).toBeInTheDocument();
+    // La barra sigue montada con lo escrito y la paginación se retira.
+    expect(screen.getByRole("searchbox")).toHaveValue("nadie");
+    expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
   });
 
   it("el listado se puede acotar por proveedor, que sigue siendo con quien se reclama", async () => {
@@ -277,7 +385,13 @@ describe("BillingDetailContainer", () => {
     fireEvent.change(screen.getByLabelText("Valor total"), {
       target: { value: "7000000" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Registrar" }));
+    // El botón del drawer también dice "Registrar corregida": se busca dentro
+    // del diálogo para no confundirlo con el de la página.
+    fireEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "Registrar corregida",
+      })
+    );
 
     await waitFor(() =>
       expect(screen.getByText("Recibida")).toBeInTheDocument()
@@ -293,7 +407,7 @@ describe("BillingDetailContainer", () => {
       await screen.findByText("No encontramos esa prefactura")
     ).toBeInTheDocument();
     fireEvent.click(
-      screen.getByRole("button", { name: "Volver a Facturación" })
+      screen.getByRole("button", { name: "Volver a Prefacturación" })
     );
     expect(
       await screen.findByRole("heading", { name: "Listado" })
@@ -303,9 +417,18 @@ describe("BillingDetailContainer", () => {
   it("el período del listado sigue al mes en curso, no a una fecha fija", async () => {
     renderList();
     await screen.findAllByText("En revisión");
-    // El selector arranca en el mes corriente calculado, no en uno fijo.
+    // El navegador arranca en el mes corriente calculado, no en uno fijo, y
+    // no deja pasar a un mes futuro: no hay prefacturas de meses que no
+    // vencieron.
+    const published = within(strip());
     expect(
-      screen.getByRole("combobox", { name: /Período/ }).textContent
-    ).toContain(CURRENT_PERIOD.slice(0, 4));
+      published.getByText(periodTitle(CURRENT_PERIOD))
+    ).toBeInTheDocument();
+    expect(
+      published.getByRole("button", { name: "Mes siguiente" })
+    ).toBeDisabled();
+    expect(
+      published.getByRole("button", { name: "Mes anterior" })
+    ).toBeEnabled();
   });
 });

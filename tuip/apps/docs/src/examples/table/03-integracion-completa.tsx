@@ -16,8 +16,8 @@ import {
 export const meta = {
   title: "Integración completa",
   description:
-    "SearchField + densidad sueltos sobre la página (ya no dentro de TableToolbar) + TableHead ordenable + selección con Checkbox + PaginationBar, todo controlado por el consumidor.",
-  caption: "Table sigue sin conocer la forma de los datos: orden, filtro, selección y paginación viven acá",
+    "SearchField + densidad en el slot `toolbar`, PaginationBar en `footer`, TableHead ordenable y selección con Checkbox: Table dibuja una sola card alrededor de todo, y el consumidor controla orden, filtro, selección y paginación.",
+  caption: "Un marco para barra, tabla y pie; los datos y su lógica siguen viviendo acá",
 };
 
 const ROWS = [
@@ -66,32 +66,51 @@ export default function Example() {
 
   return (
     <div className="w-full">
-      {/* Sueltos sobre el fondo de la página, ya no dentro de un TableToolbar con caja. */}
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <SearchField
-          placeholder="Buscar capacidad…"
-          className="min-w-[200px]"
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(1);
-          }}
-        />
-        <span className="text-body-sm text-neutral-subtle">
-          {selectedInView.length} seleccionada{selectedInView.length === 1 ? "" : "s"}
-        </span>
-        <div className="ml-auto flex items-center gap-2">
-          <span className="text-body-sm text-neutral-subtle">Densidad</span>
-          <SegmentedControl
-            label="Densidad"
-            options={DENSITY_OPTIONS}
-            value={density}
-            onValueChange={(value) => setDensity(value as "comfortable" | "compact")}
+      <Table
+        density={density}
+        // Los controles van en el slot: Table los envuelve en su marco y los
+        // deja fuera del scroll horizontal. La barra no lleva contenedor propio.
+        toolbar={
+          <>
+            <SearchField
+              placeholder="Buscar capacidad…"
+              className="min-w-[200px]"
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setPage(1);
+              }}
+            />
+            <span className="text-body-sm text-neutral-subtle">
+              {selectedInView.length} seleccionada{selectedInView.length === 1 ? "" : "s"}
+            </span>
+            <div className="ml-auto flex items-center gap-2">
+              <span className="text-body-sm text-neutral-subtle">Densidad</span>
+              <SegmentedControl
+                label="Densidad"
+                options={DENSITY_OPTIONS}
+                value={density}
+                onValueChange={(value) => setDensity(value as "comfortable" | "compact")}
+              />
+            </div>
+          </>
+        }
+        // Sin clases de borde ni de fondo: el pie las pone.
+        footer={
+          <PaginationBar
+            page={currentPage}
+            pageCount={pageCount}
+            onPageChange={setPage}
+            total={sorted.length}
+            pageSize={pageSize}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(1);
+            }}
           />
-        </div>
-      </div>
-
-      <Table density={density}>
+        }
+      >
         <TableHeader>
           <TableRow>
             <TableHead className="w-10">
@@ -142,20 +161,6 @@ export default function Example() {
           ))}
         </TableBody>
       </Table>
-
-      <PaginationBar
-        className="mt-3"
-        page={currentPage}
-        pageCount={pageCount}
-        onPageChange={setPage}
-        total={sorted.length}
-        pageSize={pageSize}
-        pageSizeOptions={PAGE_SIZE_OPTIONS}
-        onPageSizeChange={(size) => {
-          setPageSize(size);
-          setPage(1);
-        }}
-      />
     </div>
   );
 }

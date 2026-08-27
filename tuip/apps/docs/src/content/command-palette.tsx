@@ -63,8 +63,8 @@ export const commandPaletteContent: ComponentContent = {
     parts: [
       {
         name: "Overlay",
-        measure: "z-overlay, bg-neutral-bold/40",
-        note: "Misma capa y el mismo fondo que ya usa Modal para oscurecer detrás.",
+        measure: "z-overlay, bg-neutral-scrim",
+        note: "Misma capa y el mismo velo que usa Modal: el token `scrim`, oscuro en los dos temas.",
       },
       {
         name: "Ancho del panel",

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { Table, TableBody, TableCell, TableDensity, TableHead, TableHeader, TableRow } from "./table";
@@ -100,6 +101,99 @@ describe("Columna fija de Table", () => {
 
     scrollTo(scroller, 240);
     expect(scroller).not.toHaveAttribute("data-scrolled");
+  });
+});
+
+function renderSlotted(
+  props: {
+    toolbar?: ReactNode;
+    footer?: ReactNode;
+    flush?: boolean;
+    stickyFirstColumn?: boolean;
+  } = {},
+) {
+  render(
+    <Table {...props} aria-label="Personas">
+      <TableHeader>
+        <TableRow>
+          <TableHead>Persona</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell>Paula</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  );
+  const scroller = screen.getByRole("table").parentElement as HTMLElement;
+  return { scroller, root: scroller.parentElement as HTMLElement };
+}
+
+const FRAME = ["rounded-surface", "border-default", "border-neutral-default"];
+
+describe("Barra y pie de Table", () => {
+  it("sin slots, el contenedor de scroll sigue siendo la raíz con su borde", () => {
+    const { scroller, root } = renderSlotted();
+    for (const cls of FRAME) expect(scroller.className).toContain(cls);
+    // Sin marco por encima: el padre es el contenedor de testing-library, y
+    // el único div de Table es el de scroll.
+    expect(root.querySelectorAll("div")).toHaveLength(1);
+  });
+
+  it("la barra va antes de la tabla y fuera del contenedor de scroll", () => {
+    const { scroller, root } = renderSlotted({ toolbar: <button type="button">Filtrar</button> });
+    const toolbar = screen.getByRole("button", { name: "Filtrar" }).parentElement as HTMLElement;
+    expect(toolbar.parentElement).toBe(root);
+    expect(scroller.contains(toolbar)).toBe(false);
+    expect(toolbar.compareDocumentPosition(scroller) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(toolbar.className).toContain("border-b-default");
+  });
+
+  it("el pie va después de la tabla y fuera del contenedor de scroll", () => {
+    const { scroller, root } = renderSlotted({ footer: <p>Mostrando 1 de 1</p> });
+    const footer = screen.getByText("Mostrando 1 de 1").parentElement as HTMLElement;
+    expect(footer.parentElement).toBe(root);
+    expect(scroller.contains(footer)).toBe(false);
+    expect(scroller.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(footer.className).toContain("border-t-default");
+    expect(footer.className).toContain("bg-neutral-subtlest");
+  });
+
+  it("con slots, un solo nodo lleva el borde y las esquinas", () => {
+    const { scroller, root } = renderSlotted({ toolbar: <span>Barra</span>, footer: <span>Pie</span> });
+    for (const cls of FRAME) expect(root.className).toContain(cls);
+    expect(scroller.className).not.toContain("border-default");
+    expect(scroller.className).not.toMatch(/rounded/);
+    expect(scroller.className).toContain("overflow-x-auto");
+  });
+
+  it("el contenedor de scroll conserva el redondeo del lado sin slot", () => {
+    const { scroller } = renderSlotted({ toolbar: <span>Barra</span> });
+    expect(scroller.className).toContain("rounded-b-surface");
+    expect(scroller.className).not.toContain("rounded-t-surface");
+  });
+
+  it("flush deja el marco y los slots sin borde ni esquinas", () => {
+    const { root } = renderSlotted({ flush: true, toolbar: <span>Barra</span>, footer: <span>Pie</span> });
+    for (const el of [root, ...Array.from(root.children)]) {
+      expect(el.className).not.toContain("border-default");
+      expect(el.className).not.toMatch(/rounded/);
+    }
+  });
+
+  it("un slot en null no dibuja marco ni zona vacía", () => {
+    const { scroller, root } = renderSlotted({ toolbar: null, footer: undefined });
+    for (const cls of FRAME) expect(scroller.className).toContain(cls);
+    expect(root.querySelectorAll("div")).toHaveLength(1);
+  });
+
+  it("la columna fija sigue funcionando con slots", () => {
+    const { scroller } = renderSlotted({ stickyFirstColumn: true, toolbar: <span>Barra</span> });
+    expect(scroller.className).toContain("[&_tr:not([data-detail])>*:first-child]:sticky");
+    expect(scroller).toHaveAttribute("data-scrolled", "false");
+    scrollTo(scroller, 240);
+    expect(scroller).toHaveAttribute("data-scrolled", "true");
   });
 });
 

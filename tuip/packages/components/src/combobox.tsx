@@ -156,7 +156,13 @@ export function Combobox(props: ComboboxProps) {
           <Popover.Content
             align="start"
             sideOffset={4}
-            className="z-menu w-[--radix-popover-trigger-width] overflow-hidden rounded-control border-default border-neutral-default bg-neutral-default shadow-md"
+            className={cn(
+              "z-menu w-[--radix-popover-trigger-width] overflow-hidden rounded-control border-default border-neutral-default bg-neutral-default shadow-md",
+              // Crece desde el campo (la receta `float`); va sobre Popover,
+              // así que el origen es el de Popover.
+              "[transform-origin:var(--radix-popover-content-transform-origin)]",
+              "data-[state=open]:animate-float-in data-[state=closed]:animate-float-out",
+            )}
           >
             <Command shouldFilter={!loading} className="flex flex-col">
               <CommandInput

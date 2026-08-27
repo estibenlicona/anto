@@ -68,10 +68,5 @@ export const SpanLegend: React.FC = () => (
         ))}
       </ul>
     </div>
-
-    <p className="max-w-[220px] text-body-sm text-neutral-subtlest">
-      Lo que está bien no lleva color. Si todo tuviera, el rojo dejaría de
-      saltar.
-    </p>
   </div>
 );

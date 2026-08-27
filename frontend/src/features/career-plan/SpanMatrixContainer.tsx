@@ -8,6 +8,7 @@ import { useSpanSummary } from "./hooks/useSpanSummary";
 import { pendingLabel, type SpanSort } from "./adapters/SpanMatrixAdapter";
 import { toSkillBreakdown } from "./adapters/SkillBreakdownAdapter";
 import { SpanControls } from "./components/SpanControls";
+import { SpanVisibleGaps } from "./components/SpanVisibleGaps";
 import { SpanSummaryCards } from "./components/SpanSummaryCards";
 import { SpanFocusSkills } from "./components/SpanFocusSkills";
 import { SpanPendingWork } from "./components/SpanPendingWork";
@@ -26,7 +27,9 @@ interface ActiveCell {
 
 export const SpanMatrixContainer: React.FC = () => {
   const [groups, setGroups] = useState<SkillGroup[]>([]);
-  const [sort, setSort] = useState<SpanSort>("gaps");
+  // Orden fijo: la matriz se mira por brechas, de mayor a menor. Se quitó el
+  // control para ponerla por nombre — era una decisión más sin tarea detrás.
+  const sort: SpanSort = "gaps";
   const [openSkillId, setOpenSkillId] = useState<string | null>(null);
   const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
   const navigate = useNavigate();
@@ -94,31 +97,12 @@ export const SpanMatrixContainer: React.FC = () => {
 
   const pending = span ? pendingLabel(span) : null;
 
+  // Sin encabezado de módulo: el nombre de la pantalla ya lo da el breadcrumb
+  // del shell, y el resumen arranca arriba. El contador de brechas a la vista
+  // va en la fila de notas sobre el mapa (SpanVisibleGaps), con el aviso de
+  // pendientes; el filtro de habilidades, en la barra de la card del mapa.
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-heading-lg font-semibold text-neutral-default">
-            Competencias
-          </h1>
-          <p className="max-w-prose text-body-sm text-neutral-subtle">
-            Brecha entre el nivel que pide cada cargo y el nivel evaluado de
-            cada persona. El color dice una sola cosa: cuántos niveles faltan.
-            Haz clic en un cuadro para ver el detalle.
-          </p>
-        </div>
-        {span && !span.empty && (
-          /* "a la vista" y no "en el span": esta cifra sigue al recorte de
-             habilidades, y llamarla del span la ponía a contradecir —arriba y
-             al lado— a la card de brechas críticas, que sí cuenta el span
-             entero. */
-          <p className="shrink-0 text-body font-medium text-neutral-default">
-            {span.totalGaps}{" "}
-            {span.totalGaps === 1 ? "brecha a la vista" : "brechas a la vista"}
-          </p>
-        )}
-      </div>
-
+    <div className="flex flex-col gap-3">
       {/* Los indicadores van fuera del bloque de la matriz: describen al
           chapter, así que no dependen de que haya algo que dibujar abajo ni
           del recorte que el usuario tenga puesto. */}
@@ -165,48 +149,45 @@ export const SpanMatrixContainer: React.FC = () => {
 
       {span && !span.empty && (
         <>
-          <SpanControls
-            span={span}
-            groups={groups}
-            sort={sort}
-            onGroupsChange={setGroups}
-            onSortChange={setSort}
-          />
-
-          {pending && (
-            <div className="flex flex-wrap items-center gap-2">
+          {/* Una fila de notas sobre el mapa: el aviso de pendientes a la
+              izquierda y el contador de brechas a la vista a la derecha. */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {pending && (
+              /* Sólo el aviso, sin botón: el camino para evaluar está en el
+               detalle de cada celda ("Evaluar a …"), que apunta a la persona
+               y la competencia concretas; mandar al listado de Personas desde
+               acá era un desvío. */
               <p className="text-body-sm text-neutral-subtle">
                 {pending}. Sin evaluación cerrada no hay brecha que medir.
               </p>
-              {/* El aviso ofrece qué hacer: enterarse de que faltan
-                  evaluaciones y no poder ir a abrirlas deja al lector con el
-                  problema y sin el camino. */}
-              <Button
-                variant="subtle"
-                size="small"
-                onClick={() => navigate("/app/lead/personas")}
-              >
-                Abrir evaluaciones
-              </Button>
-            </div>
-          )}
+            )}
+            <SpanVisibleGaps span={span} />
+          </div>
 
           {/*
-            Dos zonas: el mapa con su leyenda, y la columna de apoyo. El
+            Dos zonas: el mapa, y la columna de apoyo con el detalle, los
+            bloques del chapter y la leyenda. El
             detalle de una celda vive acá dentro y no en un panel flotante
             porque lo que la pantalla habilita es comparar la celda abierta con
             el resto del mapa, y un panel anclado tapa justo a sus vecinas.
           */}
-          <div className="flex flex-wrap items-start gap-6">
+          <div className="flex flex-wrap items-start gap-3">
             {/*
               Sin `flex-1`: la tabla mide lo que mide su contenido. Estirada
               al ancho disponible, la holgura caía entera en la columna de
               persona —la única elástica— y dejaba un hueco largo entre el
               nombre y sus cuadros.
             */}
-            <div className="flex min-w-0 max-w-full flex-col gap-4">
+            <div className="flex min-w-0 max-w-full flex-col">
+              {/* El filtro va en la barra de la card del mapa (slot toolbar
+                  de Table): dentro del marco, pegado a las columnas que
+                  recorta, y el marco arranca a la altura de las cards de al
+                  lado en vez de una fila más abajo. */}
               <SpanMatrixTable
                 span={span}
+                toolbar={
+                  <SpanControls groups={groups} onGroupsChange={setGroups} />
+                }
                 activeCellKey={
                   activeCell
                     ? cellKey(activeCell.personId, activeCell.skillId)
@@ -219,12 +200,14 @@ export const SpanMatrixContainer: React.FC = () => {
                   navigate(`/app/lead/competencias/${personId}`)
                 }
               />
-              <SpanLegend />
             </div>
 
-            {/* Ancho completo hasta `lg`, donde pasa a ser una columna de 20rem
-                al lado del mapa. */}
-            <aside className="flex w-full min-w-0 flex-col gap-4 lg:w-80">
+            {/* Elástica: se queda con todo el ancho que el mapa no usa y
+                reparte sus cards en una rejilla de 1 a 3 columnas según ese
+                ancho, para no dejar el resto de la fila en blanco. Si al lado
+                del mapa no caben ni 20rem, baja debajo de él a ancho completo
+                (flex-wrap del padre) y ahí también se reparte. */}
+            <aside className="grid min-w-[20rem] flex-1 grid-cols-[repeat(auto-fit,minmax(18rem,1fr))] items-start gap-3">
               {active && (
                 <div
                   // Con cargo de región y nombre: es contenido que aparece lejos
@@ -271,6 +254,12 @@ export const SpanMatrixContainer: React.FC = () => {
                   onOpenCatalog={() => navigate("/app/admin/habilidades")}
                 />
               )}
+              {/* La leyenda cierra la columna, no el mapa: debajo de una
+                  matriz de muchas filas quedaba fuera de la vista justo
+                  cuando se necesita, y como card suelta al pie parecía otra
+                  sección. Al lado del mapa, con las demás, se lee de un
+                  vistazo. */}
+              <SpanLegend />
             </aside>
           </div>
         </>

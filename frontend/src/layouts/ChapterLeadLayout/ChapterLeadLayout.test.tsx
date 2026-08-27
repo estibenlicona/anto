@@ -4,12 +4,21 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AuthContext } from "@app/providers/AuthContext";
 import { deriveAuthSession } from "@features/auth-session";
 import { ChapterLeadLayout } from "./ChapterLeadLayout";
-import { useLeadBreadcrumbTrailing } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
+import {
+  useLeadBreadcrumbActions,
+  useLeadBreadcrumbTrailing,
+} from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 
 // Simula una pantalla de detalle: publica su nombre como último nivel.
 function DetailStub({ name }: { name: string }) {
   useLeadBreadcrumbTrailing(name);
   return <div>Detalle de {name}</div>;
+}
+
+// Simula un listado: publica su acción principal para la franja del breadcrumb.
+function ActionsStub() {
+  useLeadBreadcrumbActions(<button type="button">Acción de prueba</button>);
+  return <div>Contenido de iniciativas</div>;
 }
 
 // El layout filtra su menú según los roles de la sesión, así que necesita el
@@ -44,6 +53,7 @@ function renderLeadLayout(initialPath: string) {
               path="competencias"
               element={<div>Contenido de plan de carrera</div>}
             />
+            <Route path="iniciativas" element={<ActionsStub />} />
           </Route>
         </Routes>
       </MemoryRouter>
@@ -60,7 +70,7 @@ describe("ChapterLeadLayout", () => {
       /Personas/i,
       /Ausencias/i,
       /Backlog/i,
-      /Facturación/i,
+      /Prefacturación/i,
       /Competencias/i,
     ]) {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
@@ -72,9 +82,10 @@ describe("ChapterLeadLayout", () => {
 
   it("marca Competencias activa y la nombra igual en el breadcrumb", () => {
     renderLeadLayout("/app/lead/competencias");
-    expect(
-      screen.getByRole("link", { name: /Competencias/i })
-    ).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: /Competencias/i })).toHaveAttribute(
+      "aria-current",
+      "page"
+    );
     const breadcrumb = screen.getByRole("navigation", {
       name: /ruta de navegación/i,
     });
@@ -151,6 +162,36 @@ describe("ChapterLeadLayout", () => {
     expect(
       within(breadcrumb).getByText("Gestionar Personas")
     ).toBeInTheDocument();
+  });
+
+  it("shows the actions published by the active screen inside the breadcrumb strip", () => {
+    renderLeadLayout("/app/lead/iniciativas");
+    const breadcrumb = screen.getByRole("navigation", {
+      name: /ruta de navegación/i,
+    });
+    // La franja es el contenedor inmediato del breadcrumb; el botón tiene que
+    // estar ahí adentro, no en el contenido de la pantalla.
+    const strip = breadcrumb.parentElement!;
+    expect(
+      within(strip).getByRole("button", { name: "Acción de prueba" })
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("main")).queryByRole("button", {
+        name: "Acción de prueba",
+      })
+    ).not.toBeInTheDocument();
+  });
+
+  it("removes the published actions when leaving the screen that published them", () => {
+    renderLeadLayout("/app/lead/iniciativas");
+    expect(
+      screen.getByRole("button", { name: "Acción de prueba" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("link", { name: /Personas/i }));
+    expect(screen.getByText("Contenido de personas")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Acción de prueba" })
+    ).not.toBeInTheDocument();
   });
 
   it("keeps the full screen name in the breadcrumb while the menu shows the short one", () => {

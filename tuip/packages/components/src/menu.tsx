@@ -22,6 +22,14 @@ export interface MenuProps {
   open?: boolean;
   /** Called on every open/close attempt when `open` is provided. */
   onOpenChange?: (open: boolean) => void;
+  /**
+   * Corre al cerrarse, justo antes de que el foco vuelva al disparador.
+   * `event.preventDefault()` cancela esa devolución — lo que quiere un
+   * disparador que se abrió con el mouse, donde recuperar el foco pinta el
+   * anillo de teclado sobre un control que nadie está recorriendo. Omitido, el
+   * foco vuelve como siempre, que es lo que necesita quien navega por teclado.
+   */
+  onCloseAutoFocus?: (event: Event) => void;
 }
 
 /**
@@ -29,7 +37,16 @@ export interface MenuProps {
  * `Escape`, and `Home`/`End` are native to `@radix-ui/react-dropdown-menu` —
  * nothing here reimplements them.
  */
-export function Menu({ trigger, children, side = "bottom", align = "start", className, open, onOpenChange }: MenuProps) {
+export function Menu({
+  trigger,
+  children,
+  side = "bottom",
+  align = "start",
+  className,
+  open,
+  onOpenChange,
+  onCloseAutoFocus,
+}: MenuProps) {
   return (
     <DropdownMenu.Root open={open} onOpenChange={onOpenChange}>
       <DropdownMenu.Trigger asChild>{trigger}</DropdownMenu.Trigger>
@@ -38,8 +55,13 @@ export function Menu({ trigger, children, side = "bottom", align = "start", clas
           side={side}
           align={align}
           sideOffset={4}
+          onCloseAutoFocus={onCloseAutoFocus}
           className={cn(
             "z-menu w-[220px] overflow-hidden rounded-control border-default border-neutral-default bg-neutral-default p-1 shadow-md",
+            // Crece desde su disparador (la receta `float`), con el origen
+            // que Radix publica según el lado en que cupo.
+            "[transform-origin:var(--radix-dropdown-menu-content-transform-origin)]",
+            "data-[state=open]:animate-float-in data-[state=closed]:animate-float-out",
             className,
           )}
         >

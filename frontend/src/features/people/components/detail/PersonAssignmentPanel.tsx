@@ -37,7 +37,7 @@ const Signal: React.FC<{
   detail: string;
 }> = ({ tone, title, detail }) => (
   <div
-    className={`flex items-center gap-2.5 rounded-control px-3 py-2.5 ${
+    className={`flex items-center gap-2.5 rounded-control px-3 py-3 ${
       tone === "success" ? "bg-success-subtle" : "bg-warning-subtle"
     }`}
   >

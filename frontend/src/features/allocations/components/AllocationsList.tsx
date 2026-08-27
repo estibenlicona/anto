@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@tuya-ui/components";
+import { TableStatusRow } from "@shared/components/TableStatusRow";
 import { getPersonInitials } from "@features/people/adapters/PersonAdapter";
 import type {
   Seniority,
@@ -97,32 +98,10 @@ export const AllocationsList: React.FC<AllocationsListProps> = ({
   selectedSeniorities,
   onSenioritiesChange,
 }) => {
-  if (loading) {
-    return (
-      <p className="text-body-sm text-neutral-subtle">Cargando asignaciones…</p>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert
-        variant="danger"
-        title="No se pudieron cargar las asignaciones"
-        action={
-          <Button variant="secondary" size="small" onClick={onRetry}>
-            Reintentar
-          </Button>
-        }
-      >
-        {error}
-      </Alert>
-    );
-  }
-
   const hasActiveFilter =
     search.trim().length > 0 || selectedSeniorities.length > 0;
 
-  if (allocations.length === 0 && !hasActiveFilter) {
+  if (!loading && !error && allocations.length === 0 && !hasActiveFilter) {
     return (
       <EmptyState
         icon={<Icon name="team" size={32} />}
@@ -137,135 +116,36 @@ export const AllocationsList: React.FC<AllocationsListProps> = ({
     );
   }
 
+  // Barra y paginación como slots de Table: una sola card. La carga, el error
+  // y el "sin resultados" van como fila bajo las cabeceras para que la barra
+  // se quede montada (antes eran returns tempranos y el filtro abierto se
+  // cerraba y la búsqueda perdía el foco en cada recarga). Sin filas no hay
+  // paginación.
+  const hasRows = !loading && !error && allocations.length > 0;
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <SearchField
-          placeholder="Buscar por nombre o cargo"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="max-w-xs"
-        />
-        <FilterButton
-          label="Seniority"
-          options={seniorityOptions.map((s) => ({
-            value: String(s.value),
-            label: s.label,
-          }))}
-          selected={selectedSeniorities.map(String)}
-          onChange={(values) => onSenioritiesChange(values.map(Number))}
-        />
-      </div>
-      {allocations.length === 0 ? (
-        <EmptyState
-          icon={<Icon name="search" size={32} />}
-          title="Sin resultados"
-          description="No encontramos personas de la célula con esa búsqueda o esos filtros. Prueba ajustarlos."
-        />
-      ) : (
-        <div className="overflow-hidden rounded-surface border border-neutral-default">
-          <Table flush>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Persona</TableHead>
-                <TableHead>Seniority</TableHead>
-                <TableHead>Dedicación en esta célula</TableHead>
-                <TableHead>BAU / Transformación</TableHead>
-                <TableHead>Disponible de la persona</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {allocations.map((allocation) => {
-                const availability = availabilityReading(allocation);
-                return (
-                  <TableRow key={allocation.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar
-                          size="large"
-                          label={allocation.personName}
-                          colorId={allocation.personId}
-                        >
-                          {getPersonInitials(allocation.personName)}
-                        </Avatar>
-                        <div className="flex flex-col">
-                          <span className="font-medium leading-5 text-neutral-default">
-                            {allocation.personName}
-                          </span>
-                          <span className={SECONDARY_TEXT}>
-                            {allocation.personPosition}
-                            {allocation.personPosition && " · "}
-                            {MODALITY_LABELS[allocation.personModality] ??
-                              allocation.personModality}
-                          </span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <SeniorityCard
-                        level={allocation.personSeniorityLabel}
-                        density="compact"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Meter
-                        className="max-w-36"
-                        value={allocation.dedicationPercentage}
-                        warningFrom={100}
-                        label="Dedicación en esta célula"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <DedicationCell
-                        bauPercentage={allocation.bauPercentage}
-                        transformationPercentage={
-                          allocation.transformationPercentage
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`text-body-sm tabular-nums ${availability.className}`}
-                      >
-                        {availability.text}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end">
-                        <Menu
-                          trigger={
-                            <Button
-                              variant="subtle"
-                              size="small"
-                              aria-label="Más acciones"
-                            >
-                              <Icon name="more" size={16} />
-                            </Button>
-                          }
-                        >
-                          <MenuItem
-                            icon={<Icon name="edit" size={16} />}
-                            onSelect={() => onEdit(allocation)}
-                          >
-                            Editar
-                          </MenuItem>
-                          <MenuSeparator />
-                          <MenuItem
-                            destructive
-                            icon={<Icon name="delete" size={16} />}
-                            onSelect={() => onRemove(allocation)}
-                          >
-                            Quitar
-                          </MenuItem>
-                        </Menu>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+    <Table
+      toolbar={
+        <>
+          <SearchField
+            placeholder="Buscar por nombre o cargo"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="max-w-xs"
+          />
+          <FilterButton
+            label="Seniority"
+            options={seniorityOptions.map((s) => ({
+              value: String(s.value),
+              label: s.label,
+            }))}
+            selected={selectedSeniorities.map(String)}
+            onChange={(values) => onSenioritiesChange(values.map(Number))}
+          />
+        </>
+      }
+      footer={
+        hasRows ? (
           <PaginationBar
             page={page}
             pageCount={totalPages}
@@ -274,10 +154,140 @@ export const AllocationsList: React.FC<AllocationsListProps> = ({
             pageSize={pageSize}
             pageSizeOptions={[10, 20, 50]}
             onPageSizeChange={onPageSizeChange}
-            className="border-t border-neutral-default bg-neutral-subtlest px-4 py-3"
           />
-        </div>
-      )}
-    </div>
+        ) : undefined
+      }
+    >
+      <TableHeader>
+        <TableRow>
+          <TableHead>Persona</TableHead>
+          <TableHead>Seniority</TableHead>
+          <TableHead>Dedicación en esta célula</TableHead>
+          <TableHead>BAU / Transformación</TableHead>
+          <TableHead>Disponible de la persona</TableHead>
+          <TableHead />
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {loading ? (
+          <TableStatusRow colSpan={6}>
+            <p className="text-body-sm text-neutral-subtle">
+              Cargando asignaciones…
+            </p>
+          </TableStatusRow>
+        ) : error ? (
+          <TableStatusRow colSpan={6}>
+            <Alert
+              variant="danger"
+              title="No se pudieron cargar las asignaciones"
+              action={
+                <Button variant="secondary" size="small" onClick={onRetry}>
+                  Reintentar
+                </Button>
+              }
+            >
+              {error}
+            </Alert>
+          </TableStatusRow>
+        ) : allocations.length === 0 ? (
+          <TableStatusRow colSpan={6}>
+            <EmptyState
+              icon={<Icon name="search" size={32} />}
+              title="Sin resultados"
+              description="No encontramos personas de la célula con esa búsqueda o esos filtros. Prueba ajustarlos."
+            />
+          </TableStatusRow>
+        ) : (
+          allocations.map((allocation) => {
+            const availability = availabilityReading(allocation);
+            return (
+              <TableRow key={allocation.id}>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Avatar
+                      size="large"
+                      label={allocation.personName}
+                      colorId={allocation.personId}
+                    >
+                      {getPersonInitials(allocation.personName)}
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="font-medium leading-5 text-neutral-default">
+                        {allocation.personName}
+                      </span>
+                      <span className={SECONDARY_TEXT}>
+                        {allocation.personPosition}
+                        {allocation.personPosition && " · "}
+                        {MODALITY_LABELS[allocation.personModality] ??
+                          allocation.personModality}
+                      </span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <SeniorityCard
+                    level={allocation.personSeniorityLabel}
+                    density="compact"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Meter
+                    className="max-w-36"
+                    value={allocation.dedicationPercentage}
+                    warningFrom={100}
+                    label="Dedicación en esta célula"
+                  />
+                </TableCell>
+                <TableCell>
+                  <DedicationCell
+                    bauPercentage={allocation.bauPercentage}
+                    transformationPercentage={
+                      allocation.transformationPercentage
+                    }
+                  />
+                </TableCell>
+                <TableCell>
+                  <span
+                    className={`text-body-sm tabular-nums ${availability.className}`}
+                  >
+                    {availability.text}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex justify-end">
+                    <Menu
+                      trigger={
+                        <Button
+                          variant="subtle"
+                          size="small"
+                          aria-label="Más acciones"
+                        >
+                          <Icon name="more" size={16} />
+                        </Button>
+                      }
+                    >
+                      <MenuItem
+                        icon={<Icon name="edit" size={16} />}
+                        onSelect={() => onEdit(allocation)}
+                      >
+                        Editar
+                      </MenuItem>
+                      <MenuSeparator />
+                      <MenuItem
+                        destructive
+                        icon={<Icon name="delete" size={16} />}
+                        onSelect={() => onRemove(allocation)}
+                      >
+                        Quitar
+                      </MenuItem>
+                    </Menu>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })
+        )}
+      </TableBody>
+    </Table>
   );
 };

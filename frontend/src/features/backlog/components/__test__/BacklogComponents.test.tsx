@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { BacklogHeader } from "../BacklogHeader";
+import { BacklogDaySummary } from "../BacklogDaySummary";
 import { BacklogQueue } from "../BacklogQueue";
 import { CurrentStoryPanel } from "../CurrentStoryPanel";
 import { RejectItemDrawer } from "../RejectItemDrawer";
@@ -10,9 +10,9 @@ import { catalogs, changed, story, summary } from "./fixtures";
 const wrap = (ui: React.ReactElement) =>
   render(<MemoryRouter>{ui}</MemoryRouter>);
 
-describe("BacklogHeader", () => {
+describe("BacklogDaySummary", () => {
   it("muestra el progreso del día", () => {
-    render(<BacklogHeader summary={summary} />);
+    render(<BacklogDaySummary summary={summary} />);
     expect(screen.getByText(/clasificadas hoy/)).toHaveTextContent(
       "2 clasificadas hoy · quedan 8 de 10"
     );

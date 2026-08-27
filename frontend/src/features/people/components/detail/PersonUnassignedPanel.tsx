@@ -51,7 +51,7 @@ export const PersonUnassignedPanel: React.FC<PersonUnassignedPanelProps> = ({
             {detail.suggestedSquads.map((s, index) => (
               <li
                 key={s.id}
-                className={`flex items-center gap-3 py-2.5 ${
+                className={`flex items-center gap-3 py-3 ${
                   index > 0 ? "border-t border-neutral-default" : ""
                 }`}
               >

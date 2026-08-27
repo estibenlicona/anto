@@ -22,7 +22,7 @@ export const BillingStatsCards: React.FC<BillingStatsCardsProps> = ({
   if (loading) return null;
   const diff = stats.difference;
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-3 sm:grid-cols-3">
       <Card>
         <CardBody className="flex h-full flex-col gap-2">
           <div className="flex items-center justify-between">

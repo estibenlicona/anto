@@ -10,7 +10,7 @@ export const iconFamily = {
   actions: ["attach-doc", "check", "close", "delete", "duplicate", "edit", "export", "filter", "import", "link", "more", "plus", "save", "search", "sort", "sync"],
   status: ["status-empty", "status-error", "status-info", "status-locked", "status-pending", "status-progress", "status-rejected", "status-success", "status-waiting", "status-warning"],
   data: ["capacity-load", "chart-donut", "chart-line", "compare", "density-comfortable", "density-compact", "metrics", "percent", "table", "target", "trend-down", "trend-up"],
-  domain: ["backlog", "bau", "bus-factor", "capacity", "cell", "devops-branch", "expertise", "fte", "hours-log", "initiative", "rebalance", "shirt", "sprint", "transformation", "work-item"],
+  domain: ["backlog", "bau", "bus-factor", "capacity", "cell", "devops-branch", "expertise", "fte", "hours-log", "initiative", "rebalance", "shirt", "sick-leave", "sprint", "transformation", "work-item"],
   objects: ["calendar", "comment", "document", "external-link", "folder", "help", "integration", "notification", "team", "user"],
 } as const;
 
@@ -69,6 +69,7 @@ export const iconPaths = {
   "search": "<circle cx=\"11\" cy=\"11\" r=\"7\"></circle><path d=\"m16.5 16.5 4 4\"></path>",
   "settings": "<circle cx=\"12\" cy=\"12\" r=\"3\"></circle><path d=\"M19.5 14.5a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.4 1z\"></path>",
   "shirt": "<path d=\"M8.5 4.5 3.5 7l2 4 2-1v9.5h9V10l2 1 2-4-5-2.5a3.5 3.5 0 0 1-7 0z\"></path>",
+  "sick-leave": "<rect x=\"3\" y=\"7.5\" width=\"18\" height=\"12.5\" rx=\"2\"></rect><path d=\"M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5\"></path><path d=\"M12 11v5.5M9.25 13.75h5.5\"></path>",
   "sort": "<path d=\"M7 4v16M4 17l3 3 3-3\"></path><path d=\"M17 20V4M14 7l3-3 3 3\"></path>",
   "sprint": "<path d=\"M20.5 12a8.5 8.5 0 1 1-3.4-6.8\"></path><path d=\"M21 4v4.5h-4.5\"></path><path d=\"M12 8v4.3l3 1.7\"></path>",
   "status-empty": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\" stroke-dasharray=\"3 3\"></rect><path d=\"M9 12h6\"></path>",

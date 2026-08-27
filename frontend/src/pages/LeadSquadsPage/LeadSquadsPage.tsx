@@ -1,8 +1,14 @@
 import React from "react";
 import { SquadsContainer } from "@features/squads/SquadsContainer";
 
-// El h1 visible lo pone el encabezado del módulo (SquadsHeader); sumar uno
-// oculto acá dejaría dos h1 en la página.
+// El nombre de la pantalla lo muestra el breadcrumb del shell; el h1 queda
+// sr-only para conservar el landmark de encabezado sin repetir el título en
+// la interfaz visible (mismo patrón que LeadPeoplePage).
 export const LeadSquadsPage: React.FC = () => {
-  return <SquadsContainer />;
+  return (
+    <div>
+      <h1 className="sr-only">Gestionar Células</h1>
+      <SquadsContainer />
+    </div>
+  );
 };

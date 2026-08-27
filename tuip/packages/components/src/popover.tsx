@@ -113,6 +113,11 @@ export function PopoverContent({
           // popover más se necesita. Radix mide cuánto hay y lo publica;
           // la superficie se acota a eso y desplaza adentro.
           "max-h-[var(--radix-popover-content-available-height)] overflow-y-auto",
+          // Crece desde su ancla (la receta `float`): el origen es el borde
+          // por el que Radix lo posicionó, así que el ojo lee a qué control
+          // pertenece. Un popover que aparece de golpe no dice de dónde vino.
+          "[transform-origin:var(--radix-popover-content-transform-origin)]",
+          "data-[state=open]:animate-float-in data-[state=closed]:animate-float-out",
           padded && "p-4",
           className,
         )}

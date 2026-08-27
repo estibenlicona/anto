@@ -206,6 +206,8 @@ El componente Table SHALL presentar datos tabulares mediante elementos HTML nati
 
 Table SHALL aceptar además que su **primera columna quede fija** mientras el resto se desplaza horizontalmente dentro del contenedor de la tabla. La columna fija SHALL mantener su fondo propio —opaco, para que el contenido que pasa por debajo no se transparente— y SHALL dibujar una separación en su borde derecho **sólo cuando hay contenido oculto hacia la izquierda**, de modo que esa línea signifique "acá empieza lo que está congelado" y no se confunda con una línea más de la grilla. La celda fija de la cabecera SHALL quedar fija en el mismo eje que las del cuerpo.
 
+Table SHALL aceptar dos **slots opcionales de contenido arbitrario**: una **barra** que se muestra encima de la cabecera y un **pie** que se muestra debajo del cuerpo. Son zonas de composición: Table no interpreta lo que recibe (búsqueda, filtros, acciones, paginación o cualquier otro elemento son decisión del consumidor). Cuando al menos uno de los dos está presente, Table SHALL dibujar **un único marco** —el mismo borde y esquinas que hoy dibuja alrededor de la tabla— que envuelva barra, tabla y pie como una sola superficie, con una línea que separe cada slot de la tabla. Los slots SHALL quedar **fuera de la zona de desplazamiento horizontal**, de modo que no se desplacen con las columnas ni queden recortados por ella. El modo sin borde SHALL aplicar al marco completo. Sin slots, Table SHALL renderizar exactamente lo mismo que antes de este requisito: el marco empieza en la cabecera.
+
 #### Scenario: Semántica de tabla accesible a tecnologías de asistencia
 - **WHEN** una tecnología de asistencia recorre una tabla construida con estos componentes
 - **THEN** anuncia la estructura de filas y columnas usando la semántica nativa de tabla, sin roles ARIA agregados a mano
@@ -237,6 +239,26 @@ Table SHALL aceptar además que su **primera columna quede fija** mientras el re
 #### Scenario: La tabla sin columna fija no cambia
 - **WHEN** una Table no activa la columna fija
 - **THEN** se comporta exactamente igual que antes de este requisito, incluido su desplazamiento horizontal
+
+#### Scenario: Barra y pie dentro de un solo marco
+- **WHEN** una Table recibe contenido en la barra, en el pie o en ambos
+- **THEN** ese contenido se muestra en su zona —la barra encima de la cabecera, el pie debajo del cuerpo— y un único borde con esquinas redondeadas envuelve barra, tabla y pie, con una línea entre cada slot y la tabla
+
+#### Scenario: Los slots no se desplazan con las columnas
+- **WHEN** una tabla con barra o pie es más ancha que su contenedor y se desplaza horizontalmente
+- **THEN** la barra y el pie permanecen en su lugar, visibles completos, y sólo las columnas se desplazan
+
+#### Scenario: Slots dentro de un contenedor con borde
+- **WHEN** una Table con barra o pie activa el modo sin borde dentro de una Card
+- **THEN** barra, tabla y pie se integran a ras de la Card sin dibujar un segundo borde ni esquinas propias
+
+#### Scenario: Sin slots nada cambia
+- **WHEN** una Table no recibe ni barra ni pie
+- **THEN** su estructura y su estilo son exactamente los de antes de este requisito: el marco arranca en la cabecera y no aparece ninguna zona vacía
+
+#### Scenario: Columna fija con slots
+- **WHEN** una Table con barra o pie activa la primera columna fija
+- **THEN** la columna se comporta igual que sin slots: queda anclada al desplazarse y su separación aparece sólo con contenido oculto a la izquierda
 
 ### Requirement: Convención de alineación y datos ausentes en Table
 Table SHALL ofrecer una alineación por columna, `left` o `right`, aplicable tanto a la cabecera como a las celdas, donde `right` alinea el contenido a la derecha y lo renderiza con cifras tabulares, con `left` como valor por defecto. La documentación de Table SHALL indicar que el texto se alinea a la izquierda, las columnas numéricas se alinean a la derecha con cifras tabulares, y un dato ausente se representa con el carácter "—" en vez de dejar la celda vacía.
@@ -1871,6 +1893,8 @@ El motivo es que las dos hojas conviven: el paquete distribuye utilidades ya com
 
 El caso que SHALL quedar resuelto es el par (utilidad base publicada por el paquete, variante del consumidor sobre la misma propiedad): `w-full` contra `lg:w-80`, `flex-col` contra `md:flex-row`, `p-4` contra `lg:p-8`. Un consumidor SHALL poder escribir esos pares y obtener el comportamiento que Tailwind describe.
 
+El par inverso SHALL quedar igual de resuelto: (variante publicada por el paquete, utilidad base del consumidor sobre la misma propiedad). Las variantes con que un componente dibuja su estado —`peer-checked:opacity-100` para el punto del radio o el check de la casilla, `hover:`, `focus-visible:`, `data-[state]`— SHALL ganar a cualquier utilidad base que toque la misma propiedad, la publique el paquete o la genere el consumidor porque otra pantalla suya la usa. Es el orden que Tailwind garantiza dentro de una sola hoja, y perderlo no produce error: el control se marca y no se ve.
+
 Las utilidades publicadas SHALL seguir por encima de la base y de los componentes del propio paquete: bajarlas por debajo de la capa base rompería toda utilidad que el paquete publique y el consumidor no compile —un `p-4` que ningún archivo del consumidor escribe— contra el reset universal que las aplicaciones suelen tener en base.
 
 Esta condición SHALL vigilarse sobre la hoja publicada, porque su pérdida no produce ningún error: nada falla al compilar, ninguna prueba mira la cascada, y el síntoma aparece como una pantalla que se ve mal.
@@ -1878,6 +1902,10 @@ Esta condición SHALL vigilarse sobre la hoja publicada, porque su pérdida no p
 #### Scenario: Una variante del consumidor le gana a la utilidad base del paquete
 - **WHEN** un consumidor escribe `w-full lg:w-80` en un elemento y mira la pantalla por encima del punto de corte `lg`
 - **THEN** el elemento mide 20rem, y no el ancho completo
+
+#### Scenario: Una variante de estado del paquete le gana a una utilidad base del consumidor
+- **WHEN** un radio dibuja su punto con `opacity-0` en reposo y `peer-checked:opacity-100` al marcarse, y el consumidor genera `opacity-0` por su cuenta porque otra pantalla suya lo usa
+- **THEN** al marcar el radio el punto aparece igual: la variante publicada gana a la utilidad base, venga de la hoja que venga
 
 #### Scenario: Una utilidad que sólo publica el paquete sigue aplicándose
 - **WHEN** el consumidor usa una clase que el paquete publica pero que su propio código no escribe en ninguna parte —así que su Tailwind no la genera— y su hoja tiene un reset universal en la capa base
@@ -1890,3 +1918,42 @@ Esta condición SHALL vigilarse sobre la hoja publicada, porque su pérdida no p
 #### Scenario: El consumidor no tiene que saber nada de esto
 - **WHEN** un consumidor instala el paquete e importa su hoja después de la suya
 - **THEN** no necesita declarar capas, reordenar importaciones ni usar `!important` para que sus utilidades manden
+
+### Requirement: Realce del disparador de cuenta de Navbar
+
+El disparador del panel de cuenta de Navbar no SHALL pintar una superficie de realce con forma distinta de la del avatar que contiene: no SHALL mostrar fondo al recibir el puntero ni mientras su panel está abierto. El anillo de foco por teclado SHALL seguir presente y visible: es la única señal del estado del control que no puede perderse. Ese anillo SHALL corresponderse con un recorrido por teclado y no con uno por puntero: cerrado el panel que se abrió con un clic, el disparador no SHALL quedar enfocado ni mostrar anillo; cerrado el que se abrió por teclado, el foco SHALL volver al disparador con su anillo. El resto de los controles de la zona de utilidades —enlaces de utilidad, botón de notificaciones y botón de menú de la variante compacta— SHALL conservar el realce rectangular que ya tienen, porque su anatomía sí es rectangular.
+
+#### Scenario: El puntero sobre el avatar no pinta un rectángulo
+
+- **WHEN** una persona pasa el puntero sobre el disparador de cuenta
+- **THEN** no aparece ninguna superficie de fondo detrás del avatar, ni rectangular ni de ninguna otra forma
+
+#### Scenario: Con el panel abierto tampoco hay superficie
+
+- **WHEN** el panel de cuenta está abierto
+- **THEN** el disparador sigue sin pintar fondo, y la señal de que el control está activo es el propio panel desplegado
+
+#### Scenario: El foco por teclado sigue siendo visible
+
+- **WHEN** una persona que navega por teclado lleva el foco al disparador de cuenta
+- **THEN** el disparador muestra su anillo de foco, distinguible de su estado en reposo
+
+#### Scenario: Cerrado con el mouse, el avatar no queda con anillo
+
+- **WHEN** una persona abre el panel de cuenta con un clic y después lo cierra
+- **THEN** el disparador queda sin foco y sin anillo, sin importar que el panel devuelva el foco al cerrarse
+
+#### Scenario: Cerrado por teclado, el foco vuelve al disparador
+
+- **WHEN** una persona abre el panel de cuenta desde el teclado y después lo cierra
+- **THEN** el foco vuelve al disparador y su anillo se ve, para que sepa dónde quedó parada
+
+#### Scenario: Sin el nombre visible, el avatar queda solo
+
+- **WHEN** el ancho disponible oculta el nombre de la persona y el disparador queda reducido al avatar
+- **THEN** el puntero sobre el avatar no dibuja un contenedor alrededor del círculo
+
+#### Scenario: Las demás utilidades conservan su realce
+
+- **WHEN** una persona pasa el puntero sobre el botón de notificaciones o sobre un enlace de utilidad
+- **THEN** ese control sí muestra su superficie de realce, igual que antes de este cambio

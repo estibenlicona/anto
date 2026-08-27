@@ -74,6 +74,31 @@ describe("AllocationsList", () => {
     expect(screen.getByText("Cargando asignaciones…")).toBeInTheDocument();
   });
 
+  // La barra es un slot de la tabla: se queda montada, con su valor, mientras
+  // los resultados cambian de estado; la paginación no, porque no hay filas.
+  it("keeps the toolbar mounted while loading and on error, without pagination", () => {
+    const loading = renderList({ loading: true, search: "ana" });
+    expect(screen.getByText("Cargando asignaciones…")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Buscar por nombre o cargo")
+    ).toHaveValue("ana");
+    expect(
+      screen.getByRole("button", { name: /Seniority/ })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
+    loading.unmount();
+
+    renderList({ error: "Error de red" });
+    expect(screen.getByText("Error de red")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Buscar por nombre o cargo")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Persona" })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
+  });
+
   it("renders the first-time empty state with a create action and no toolbar", () => {
     const onCreate = vi.fn();
     renderList({ onCreate });

@@ -44,6 +44,17 @@ const LeadBreadcrumb: React.FC<{ activeId: string }> = ({ activeId }) => {
   );
 };
 
+/**
+ * Acciones que la pantalla activa publica para la franja del breadcrumb
+ * (`useLeadBreadcrumbActions`). Sin nada publicado no se pinta el contenedor,
+ * y la franja queda como si el mecanismo no existiera.
+ */
+const LeadBreadcrumbActions: React.FC = () => {
+  const { actions } = useLeadBreadcrumb();
+  if (!actions) return null;
+  return <div className="flex shrink-0 items-center gap-2">{actions}</div>;
+};
+
 function leadNavHref(id: string): string {
   for (const group of leadNavGroups) {
     const item = group.items.find((entry) => entry.id === id);
@@ -97,11 +108,18 @@ export const ChapterLeadLayout: React.FC = () => {
           }}
           userMenu={[{ label: "Cerrar sesión", destructive: true }]}
         >
-          <div className="bg-neutral-canvas px-6 py-3">
+          {/* Breadcrumb a la izquierda y, a su misma altura, las acciones
+              de la pantalla a la derecha: así un listado no gasta una fila
+              propia dentro del contenido para su botón principal. */}
+          <div className="flex items-center justify-between gap-4 bg-neutral-canvas px-6 py-3">
             <LeadBreadcrumb activeId={activeId} />
+            <LeadBreadcrumbActions />
           </div>
-          {/* Ancla del enlace "Saltar al contenido" (AppShell aún no lo trae). */}
-          <main id="main-content" className="flex-1 px-6 py-6">
+          {/* Ancla del enlace "Saltar al contenido" (AppShell aún no lo trae).
+              Padding vertical corto: la franja de arriba ya separa el
+              contenido de la barra, y las pantallas de listado quieren la
+              primera fila lo más arriba posible. */}
+          <main id="main-content" className="flex-1 px-6 py-3">
             <Outlet />
           </main>
         </AppShell>

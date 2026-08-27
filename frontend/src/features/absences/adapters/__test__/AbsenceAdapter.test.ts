@@ -17,6 +17,8 @@ function dto(overrides: Partial<AbsenceDto>): AbsenceDto {
     type: "Vacation",
     startDate: "2026-07-06",
     endDate: "2026-07-08",
+    startsHalfDay: false,
+    endsHalfDay: false,
     businessDays: 3,
     status: "Approved",
     rejectReason: null,
@@ -47,6 +49,8 @@ describe("AbsenceAdapter", () => {
           status: "Requested",
           startDate: "2026-07-21",
           endDate: "2026-07-21",
+          startsHalfDay: false,
+          endsHalfDay: false,
         }),
       ],
     });

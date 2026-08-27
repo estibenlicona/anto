@@ -65,6 +65,8 @@ describe("mock de ausencias", () => {
       type: "Vacation",
       startDate: "2031-03-03",
       endDate: "2031-03-05",
+      startsHalfDay: false,
+      endsHalfDay: false,
     });
     expect(created.status).toBe("Requested");
     expect(created.businessDays).toBe(3);
@@ -88,6 +90,8 @@ describe("mock de ausencias", () => {
       type: "SickLeave",
       startDate: "2031-03-28",
       endDate: "2031-04-01",
+      startsHalfDay: false,
+      endsHalfDay: false,
     });
     expect(created.businessDays).toBe(3);
     const march = await absenceService.getByMonth(MARCH);
@@ -108,6 +112,8 @@ describe("mock de ausencias", () => {
       type: "Leave",
       startDate: "2031-03-10",
       endDate: "2031-03-11",
+      startsHalfDay: false,
+      endsHalfDay: false,
     });
     expect(
       await status(() =>
@@ -116,6 +122,8 @@ describe("mock de ausencias", () => {
           type: "Vacation",
           startDate: "2031-03-11",
           endDate: "2031-03-12",
+          startsHalfDay: false,
+          endsHalfDay: false,
         })
       )
     ).toBe(400);
@@ -128,6 +136,8 @@ describe("mock de ausencias", () => {
       type: "Leave",
       startDate: "2031-03-10",
       endDate: "2031-03-11",
+      startsHalfDay: false,
+      endsHalfDay: false,
     });
     expect(again.status).toBe("Requested");
   });
@@ -140,6 +150,8 @@ describe("mock de ausencias", () => {
           type: "Vacation",
           startDate: "2031-03-10",
           endDate: "2031-03-09",
+          startsHalfDay: false,
+          endsHalfDay: false,
         })
       )
     ).toBe(400);
@@ -150,6 +162,8 @@ describe("mock de ausencias", () => {
           type: "Vacation",
           startDate: "2031-03-10",
           endDate: "2031-03-10",
+          startsHalfDay: false,
+          endsHalfDay: false,
         })
       )
     ).toBe(400);
@@ -161,6 +175,8 @@ describe("mock de ausencias", () => {
       type: "Leave",
       startDate: "2031-03-10",
       endDate: "2031-03-10",
+      startsHalfDay: false,
+      endsHalfDay: false,
     });
     // Rechazar sin motivo no transiciona.
     expect(await status(() => absenceService.reject(created.id, "  "))).toBe(
@@ -187,6 +203,8 @@ describe("mock de ausencias", () => {
       type: "Leave",
       startDate: "2031-04-07",
       endDate: "2031-04-11",
+      startsHalfDay: false,
+      endsHalfDay: false,
     });
     await absenceService.approve(created.id);
 
@@ -205,5 +223,82 @@ describe("mock de ausencias", () => {
     // Aprobadas—, así que revertir la saca del cálculo sin restar nada.
     expect(revertida.status).toBe("Rejected");
     expect(revertida.rejectReason).toBe("Aprobada por error");
+  });
+  it("registra un permiso de medio día y lo devuelve al releer el mes", async () => {
+    // 4 de marzo de 2031 es martes: un día hábil, pedido a medias.
+    const created = await absenceService.create({
+      personId: MARIA,
+      type: "Leave",
+      startDate: "2031-03-04",
+      endDate: "2031-03-04",
+      startsHalfDay: true,
+      endsHalfDay: true,
+    });
+    expect(created.businessDays).toBe(0.5);
+
+    const releido = (await absenceService.getByMonth(MARCH)).items.find(
+      (a) => a.id === created.id
+    )!;
+    expect(releido.businessDays).toBe(0.5);
+    expect(releido.startsHalfDay).toBe(true);
+    expect(releido.endsHalfDay).toBe(true);
+  });
+
+  it("rechaza medias jornadas en lo que no es un permiso", async () => {
+    // Unas vacaciones y una incapacidad van por días completos.
+    const code = await status(() =>
+      absenceService.create({
+        personId: MARIA,
+        type: "Vacation",
+        startDate: "2031-03-10",
+        endDate: "2031-03-12",
+        startsHalfDay: true,
+        endsHalfDay: false,
+      })
+    );
+    expect(code).toBe(400);
+  });
+
+  it("un permiso de varios días se registra por días completos", async () => {
+    // 4 a 6 de marzo de 2031: martes a jueves, tres días hábiles enteros.
+    const created = await absenceService.create({
+      personId: CARLOS,
+      type: "Leave",
+      startDate: "2031-03-04",
+      endDate: "2031-03-06",
+      startsHalfDay: false,
+      endsHalfDay: false,
+    });
+    expect(created.businessDays).toBe(3);
+    expect(created.startsHalfDay).toBe(false);
+    expect(created.endsHalfDay).toBe(false);
+  });
+
+  it("rechaza un medio día que abarque más de un día", async () => {
+    // El medio día es de un día suelto: un permiso de varios días va completo.
+    const code = await status(() =>
+      absenceService.create({
+        personId: CARLOS,
+        type: "Leave",
+        startDate: "2031-03-04",
+        endDate: "2031-03-06",
+        startsHalfDay: true,
+        endsHalfDay: true,
+      })
+    );
+    expect(code).toBe(400);
+  });
+
+  it("un solo día a medias cuenta media jornada, no cero", async () => {
+    // El formulario manda las dos banderas iguales cuando el rango es de un día.
+    const created = await absenceService.create({
+      personId: LAURA,
+      type: "Leave",
+      startDate: "2031-03-04",
+      endDate: "2031-03-04",
+      startsHalfDay: true,
+      endsHalfDay: true,
+    });
+    expect(created.businessDays).toBe(0.5);
   });
 });

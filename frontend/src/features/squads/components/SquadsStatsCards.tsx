@@ -47,7 +47,7 @@ export const SquadsStatsCards: React.FC<SquadsStatsCardsProps> = ({
     .reduce((sum, e) => sum + e.count, 0);
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1.2fr_1.2fr]">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1.2fr_1.2fr]">
       <Card>
         <CardBody className="flex h-full flex-col gap-2">
           <span className="text-label text-neutral-subtle">CÉLULAS</span>

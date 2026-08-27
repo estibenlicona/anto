@@ -147,7 +147,7 @@ describe("InitiativesList", () => {
 
 describe("InitiativesStatsCards", () => {
   it("muestra sin evaluar, activas por talla y FTE demandado", () => {
-    render(
+    const { container } = render(
       <InitiativesStatsCards
         loading={false}
         stats={{
@@ -163,12 +163,42 @@ describe("InitiativesStatsCards", () => {
       />
     );
     expect(screen.getByText("SIN EVALUAR")).toBeInTheDocument();
-    expect(screen.getByText("de 7 iniciativas")).toBeInTheDocument();
+    // "de 7 iniciativas" es el pie de activas y también el de sin evaluar.
+    expect(screen.getAllByText("de 7 iniciativas")).toHaveLength(2);
     const porTalla = screen.getByRole("list", { name: "Activas por talla" });
     expect(within(porTalla).getAllByRole("listitem")).toHaveLength(2);
     expect(screen.getByText("S").closest("li")).toHaveTextContent("1");
     expect(screen.getByText("M").closest("li")).toHaveTextContent("3");
     expect(screen.getByText("2,89")).toBeInTheDocument();
+    // Los pies llevan datos, no explicaciones: la unidad con el conteo de
+    // activas, y la relación con el total.
+    expect(screen.getByText("FTE de 4 activas")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/FTE esperado que suman/)
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Sin talla no entran/)).not.toBeInTheDocument();
+    // Una sola medida de separación en la vista (gap-3, como en ausencias):
+    // el grid dejó el gap-4 que lo hacía verse más suelto que el resto.
+    const grid = container.firstElementChild!;
+    expect(grid).toHaveClass("grid", "gap-3");
+    expect(grid).not.toHaveClass("gap-4");
+  });
+
+  it("concuerda los pies en singular con una activa y una iniciativa", () => {
+    render(
+      <InitiativesStatsCards
+        loading={false}
+        stats={{
+          total: 1,
+          unevaluated: 0,
+          active: 1,
+          activeByTalla: [{ talla: "S", count: 1 }],
+          fteDemand: 0.5,
+        }}
+      />
+    );
+    expect(screen.getByText("FTE de 1 activa")).toBeInTheDocument();
+    expect(screen.getAllByText("de 1 iniciativa")).toHaveLength(2);
   });
 });
 

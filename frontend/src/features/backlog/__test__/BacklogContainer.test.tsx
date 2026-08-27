@@ -15,14 +15,29 @@ import { resetPersonDetailMock } from "../../../mocks/handlers/personDetail.hand
 import { resetBacklogMock } from "../../../mocks/handlers/backlog.handlers";
 import { MARIA } from "../../../mocks/handlers/personDetail.seeds";
 import { backlogService } from "../services/backlogService";
+import {
+  LeadBreadcrumbProvider,
+  useLeadBreadcrumb,
+} from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { BacklogContainer } from "../BacklogContainer";
+
+// Hace las veces de la franja del breadcrumb del shell: pinta lo que el
+// contenedor publica ahí (el resumen del día, que casi todos los tests usan
+// como centinela de carga).
+function BreadcrumbActionsProbe() {
+  const { actions } = useLeadBreadcrumb();
+  return <div data-testid="breadcrumb-actions">{actions}</div>;
+}
 
 function renderBacklog(path = "/app/lead/backlog") {
   return render(
     <ToastProvider>
-      <MemoryRouter initialEntries={[path]}>
-        <BacklogContainer />
-      </MemoryRouter>
+      <LeadBreadcrumbProvider>
+        <MemoryRouter initialEntries={[path]}>
+          <BreadcrumbActionsProbe />
+          <BacklogContainer />
+        </MemoryRouter>
+      </LeadBreadcrumbProvider>
     </ToastProvider>
   );
 }
@@ -59,6 +74,21 @@ describe("BacklogContainer", () => {
     ).toBeInTheDocument();
   });
 
+  it("publica el resumen del día en la franja del breadcrumb, sin encabezado de módulo", async () => {
+    renderBacklog();
+    const strip = within(screen.getByTestId("breadcrumb-actions"));
+    expect(await strip.findByText(/clasificadas hoy/)).toHaveTextContent(
+      "1 clasificadas hoy · quedan 9 de 10"
+    );
+    expect(
+      strip.getByRole("progressbar", { name: "Progreso del día" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Backlog" })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Una historia a la vez/)).not.toBeInTheDocument();
+  });
+
   it("guardar con Descartar avanza y suma al progreso; atajos 3 + Enter", async () => {
     renderBacklog();
     await screen.findByText(/clasificadas hoy/);
@@ -79,7 +109,9 @@ describe("BacklogContainer", () => {
     fireEvent.click(
       screen.getByRole("button", { name: "Guardar y siguiente" })
     );
-    expect(await screen.findByText("Selecciona la categoría")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Selecciona la categoría")
+    ).toBeInTheDocument();
     expect(currentTitle().textContent).toBe(first);
   });
 

@@ -95,7 +95,7 @@ export function SearchDialog({ open, onClose }: { open: boolean; onClose: () => 
       onClose={onClose}
       aria-label="Buscar en la documentación"
       // El mismo overlay que ya usan Modal, Drawer y CommandPalette.
-      className="w-full max-w-lg rounded-surface border border-neutral-default bg-neutral-default p-0 text-neutral-default backdrop:bg-neutral-bold/40"
+      className="w-full max-w-lg rounded-surface border border-neutral-default bg-neutral-default p-0 text-neutral-default backdrop:bg-neutral-scrim"
     >
       <div className="border-b border-neutral-default p-3">
         <input

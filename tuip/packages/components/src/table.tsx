@@ -81,6 +81,20 @@ export interface TableProps extends HTMLAttributes<HTMLTableElement> {
    * compatible; the trap is a wrapper added around it.
    */
   stickyFirstColumn?: boolean;
+  /**
+   * Content shown above the header, inside the table's own frame — search,
+   * filters, actions, whatever the screen needs; Table does not read it.
+   * Given content, Table draws a single border around toolbar, table and
+   * footer together. With neither slot the frame starts at the header,
+   * exactly as before. `null`/`undefined` means "no toolbar", not an empty
+   * band. `flush` drops the frame's border so a Card can be the one drawing it.
+   */
+  toolbar?: ReactNode;
+  /**
+   * Content shown below the body, inside the same frame — a PaginationBar,
+   * most often. Same rules as `toolbar`.
+   */
+  footer?: ReactNode;
 }
 
 /**
@@ -116,10 +130,15 @@ export function Table({
   density = "comfortable",
   flush = false,
   stickyFirstColumn = false,
+  toolbar,
+  footer,
   className,
   ...props
 }: TableProps) {
   const scroller = useRef<HTMLDivElement>(null);
+  const hasToolbar = toolbar != null;
+  const hasFooter = footer != null;
+  const framed = hasToolbar || hasFooter;
 
   useEffect(() => {
     const node = scroller.current;
@@ -135,18 +154,64 @@ export function Table({
     return () => node.removeEventListener("scroll", sync);
   }, [stickyFirstColumn]);
 
-  return (
+  const scrollArea = (
     <div
       ref={scroller}
       className={cn(
         "w-full overflow-x-auto bg-neutral-default",
-        !flush && "rounded-surface border-default border-neutral-default",
+        // Standalone, the scroller is the frame. Inside one it keeps only the
+        // corners no slot covers: `overflow-x-auto` is what clips the header's
+        // background at a rounded corner, so the side without a slot still
+        // needs the radius here.
+        !flush && !framed && "rounded-surface border-default border-neutral-default",
+        !flush && framed && !hasToolbar && "rounded-t-surface",
+        !flush && framed && !hasFooter && "rounded-b-surface",
         stickyFirstColumn && stickyColumn,
       )}
     >
       <DensityContext.Provider value={density}>
         <table className={cn("w-full border-collapse text-body-sm", className)} {...props} />
       </DensityContext.Provider>
+    </div>
+  );
+
+  // The frame exists only once a slot has content: every Table that uses
+  // neither keeps the tree it always had, and nobody gets an empty band. The
+  // slots sit outside the scroller so they neither travel with the columns nor
+  // get their popovers clipped by `overflow-x-auto`. The frame itself never
+  // clips either — `overflow-hidden` here would cancel `stickyFirstColumn`,
+  // see the note on that prop.
+  if (!framed) return scrollArea;
+
+  return (
+    <div
+      className={cn(
+        "w-full bg-neutral-default",
+        !flush && "rounded-surface border-default border-neutral-default",
+      )}
+    >
+      {hasToolbar && (
+        <div
+          className={cn(
+            "flex flex-wrap items-center gap-3 border-b-default border-neutral-default px-4 py-3",
+            !flush && "rounded-t-surface",
+          )}
+        >
+          {toolbar}
+        </div>
+      )}
+      {scrollArea}
+      {hasFooter && (
+        // Almost-white like a tfoot: it is a foot, not more content.
+        <div
+          className={cn(
+            "border-t-default border-neutral-default bg-neutral-subtlest px-4 py-3",
+            !flush && "rounded-b-surface",
+          )}
+        >
+          {footer}
+        </div>
+      )}
     </div>
   );
 }

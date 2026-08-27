@@ -67,7 +67,7 @@ export const PeopleStatsCards: React.FC<PeopleStatsCardsProps> = ({
   const advancedPct = total > 0 ? Math.round((advanced / total) * 100) : 0;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.3fr]">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.3fr]">
       <Card>
         <CardBody className="flex h-full flex-col gap-2">
           <div className="flex items-baseline justify-between gap-2">

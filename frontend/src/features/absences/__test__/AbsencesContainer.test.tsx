@@ -11,21 +11,37 @@ import { ToastProvider } from "@tuya-ui/components";
 import { resetAbsencesMock } from "../../../mocks/handlers/absences.handlers";
 import { resetAllocationsMock } from "../../../mocks/handlers/allocations.handlers";
 import { resetPeopleMock } from "../../../mocks/handlers/people.handlers";
+import {
+  LeadBreadcrumbProvider,
+  useLeadBreadcrumb,
+} from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { AbsencesContainer } from "../AbsencesContainer";
+
+// Hace las veces de la franja del breadcrumb del shell: pinta lo que el
+// contenedor publica ahí (el navegador de mes y "Registrar ausencia").
+function BreadcrumbActionsProbe() {
+  const { actions } = useLeadBreadcrumb();
+  return <div data-testid="breadcrumb-actions">{actions}</div>;
+}
 
 /**
  * Carga real vía el servidor de mocks, cuyas semillas son relativas al mes
  * corriente: las aserciones son estructurales (conteos, estados, orígenes),
- * no de fechas puntuales.
+ * no de fechas puntuales. El navegador de mes y la acción de registrar se
+ * publican en la franja del breadcrumb del shell, así que el render la monta
+ * con una sonda: sin ella esos controles no existirían.
  */
 function renderAbsences() {
   return render(
     <ToastProvider>
-      <MemoryRouter initialEntries={["/app/lead/ausencias"]}>
-        <Routes>
-          <Route path="/app/lead/ausencias" element={<AbsencesContainer />} />
-        </Routes>
-      </MemoryRouter>
+      <LeadBreadcrumbProvider>
+        <MemoryRouter initialEntries={["/app/lead/ausencias"]}>
+          <BreadcrumbActionsProbe />
+          <Routes>
+            <Route path="/app/lead/ausencias" element={<AbsencesContainer />} />
+          </Routes>
+        </MemoryRouter>
+      </LeadBreadcrumbProvider>
     </ToastProvider>
   );
 }
@@ -43,9 +59,6 @@ describe("AbsencesContainer", () => {
 
   it("muestra el mes corriente: lecturas, origen por fila y acciones sólo en solicitadas", async () => {
     renderAbsences();
-    expect(
-      await screen.findByRole("heading", { level: 1, name: "Ausencias" })
-    ).toBeInTheDocument();
     // Carlos es de GFT; María es de planta.
     expect(await screen.findByText("Carlos López")).toBeInTheDocument();
     expect(within(rowOf("Carlos López")).getByText("GFT")).toBeInTheDocument();
@@ -67,8 +80,6 @@ describe("AbsencesContainer", () => {
     expect(
       within(pendingCard as HTMLElement).getByText("2")
     ).toBeInTheDocument();
-    // El impacto agregado nombra la célula más afectada (aprobadas de Backend).
-    expect(screen.getByText(/La célula que más pierde es/)).toBeInTheDocument();
   });
 
   it("una rechazada muestra su motivo de no contar: sin impacto y sin acciones", async () => {
@@ -101,9 +112,8 @@ describe("AbsencesContainer", () => {
     renderAbsences();
     await screen.findByText("María González");
 
-    // El descuento vive en el nodo padre del "de N FTE del chapter": ese
-    // sufijo es el denominador y no se mueve. Lo que tiene que moverse es la
-    // cifra de arriba.
+    // El "de N FTE del chapter" es el pie de la card y no se mueve: se lee la
+    // card entera desde él, porque lo que tiene que moverse es la cifra.
     const cifra = () =>
       screen.getByText(/de .* FTE del chapter/).parentElement!.textContent!;
     const impactoAntes = cifra();
@@ -146,17 +156,137 @@ describe("AbsencesContainer", () => {
     });
   });
 
-  it("el aviso del alcance no habla de fases del plan", async () => {
+  it("publica el mes y la acción en la franja, sin encabezado visible", async () => {
     renderAbsences();
     await screen.findByText("María González");
 
-    // Lo que quien registra necesita saber es qué pasa con lo que registra,
-    // no en qué punto del cronograma está el equipo.
+    // El nombre de la pantalla lo da el breadcrumb del shell: la vista no
+    // repite el título ni la descripción del módulo.
     expect(
-      screen.getByText(/La ausencia se registra una sola vez/)
+      screen.queryByRole("heading", { name: "Ausencias" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Vacaciones, permisos e incapacidades del chapter/)
+    ).not.toBeInTheDocument();
+
+    const strip = screen.getByTestId("breadcrumb-actions");
+    expect(
+      within(strip).getByRole("button", { name: "Mes anterior" })
     ).toBeInTheDocument();
-    expect(screen.queryByText(/fases del plan/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/próximas fases/)).not.toBeInTheDocument();
+    expect(
+      within(strip).getByRole("button", { name: "Mes siguiente" })
+    ).toBeInTheDocument();
+    expect(
+      within(strip).getByRole("button", { name: "Registrar ausencia" })
+    ).toBeInTheDocument();
+
+    // El aviso de alcance del pie ya no se muestra.
+    expect(
+      screen.queryByText(/La ausencia se registra una sola vez/)
+    ).not.toBeInTheDocument();
+  });
+
+  it("una fila con media jornada muestra el decimal en sus días", async () => {
+    renderAbsences();
+    await screen.findByText("Paula Ramírez");
+    // El permiso de Paula es de un solo día pedido a media jornada: 0.5, y
+    // así tiene que leerse en la columna de días.
+    const fila = rowOf("Paula Ramírez");
+    expect(within(fila).getByText("0.5")).toBeInTheDocument();
+  });
+
+  it("busca por persona y deja sólo sus filas", async () => {
+    renderAbsences();
+    await screen.findByText("María González");
+
+    fireEvent.change(screen.getByPlaceholderText("Buscar por persona"), {
+      target: { value: "carlos" },
+    });
+
+    expect(screen.getByText("Carlos López")).toBeInTheDocument();
+    expect(screen.queryByText("María González")).not.toBeInTheDocument();
+  });
+
+  it("filtra por estado y combina el filtro con la búsqueda", async () => {
+    renderAbsences();
+    await screen.findByText("María González");
+    // Se cuenta dentro de la tabla: con el menú del filtro abierto, la opción
+    // marcada también dice "Solicitada" y contaría como una fila más.
+    const tabla = () => screen.getByRole("table");
+    const solicitadasAntes = within(tabla()).getAllByText("Solicitada").length;
+
+    fireEvent.click(screen.getByRole("button", { name: /Estado/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Solicitada" }));
+
+    expect(within(tabla()).getAllByText("Solicitada")).toHaveLength(
+      solicitadasAntes
+    );
+    expect(within(tabla()).queryByText("Aprobada")).not.toBeInTheDocument();
+    expect(within(tabla()).queryByText("Rechazada")).not.toBeInTheDocument();
+
+    // Y con la búsqueda encima: sólo lo solicitado de esa persona.
+    fireEvent.change(screen.getByPlaceholderText("Buscar por persona"), {
+      target: { value: "paula" },
+    });
+    expect(within(tabla()).getAllByText("Solicitada")).toHaveLength(1);
+    expect(within(tabla()).getByText("Paula Ramírez")).toBeInTheDocument();
+    expect(within(tabla()).queryByText("Laura Ruiz")).not.toBeInTheDocument();
+  });
+
+  it("sin resultados lo dice dentro de la tabla, con la barra puesta", async () => {
+    renderAbsences();
+    await screen.findByText("María González");
+
+    fireEvent.change(screen.getByPlaceholderText("Buscar por persona"), {
+      target: { value: "zzzznoexiste" },
+    });
+
+    expect(screen.getByText("Sin resultados")).toBeInTheDocument();
+    // La barra sigue montada y conserva lo escrito: es lo que permite deshacer.
+    expect(
+      (screen.getByPlaceholderText("Buscar por persona") as HTMLInputElement)
+        .value
+    ).toBe("zzzznoexiste");
+    expect(screen.getByRole("button", { name: /Tipo/ })).toBeInTheDocument();
+    // No es el vacío del mes: ese habla de registrar la primera.
+    expect(screen.queryByText(/Sin ausencias en/)).not.toBeInTheDocument();
+  });
+
+  it("filtrar no mueve las cifras del resumen, que son del mes entero", async () => {
+    renderAbsences();
+    await screen.findByText("María González");
+    const resumenAntes = screen
+      .getByText("Impacto en capacidad")
+      .closest("div")!.parentElement!.textContent;
+
+    fireEvent.click(screen.getByRole("button", { name: /Estado/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Solicitada" }));
+
+    expect(
+      screen.getByText("Impacto en capacidad").closest("div")!.parentElement!
+        .textContent
+    ).toBe(resumenAntes);
+  });
+
+  it("cambiar de mes reinicia la búsqueda y los filtros", async () => {
+    renderAbsences();
+    await screen.findByText("María González");
+
+    fireEvent.change(screen.getByPlaceholderText("Buscar por persona"), {
+      target: { value: "carlos" },
+    });
+    expect(screen.queryByText("María González")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Mes anterior" }));
+    await screen.findByText(/Sin ausencias en/);
+    fireEvent.click(screen.getByRole("button", { name: "Mes siguiente" }));
+
+    // El mes nuevo se ve entero: la búsqueda no viaja con el usuario.
+    expect(await screen.findByText("María González")).toBeInTheDocument();
+    expect(
+      (screen.getByPlaceholderText("Buscar por persona") as HTMLInputElement)
+        .value
+    ).toBe("");
   });
 
   it("navega al mes anterior (vacío) y vuelve", async () => {

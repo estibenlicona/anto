@@ -29,11 +29,15 @@ export interface AbsenceDto {
   startDate: string;
   /** ISO date, último día ausente (incluido). */
   endDate: string;
-  /** Días hábiles (L–V) del rango completo. */
+  /** El primer día se pide a media jornada. */
+  startsHalfDay: boolean;
+  /** El último día se pide a media jornada. En un rango de un día, igual que `startsHalfDay`. */
+  endsHalfDay: boolean;
+  /** Días hábiles (L–V) del rango completo; múltiplo de 0.5 con medias jornadas. */
   businessDays: number;
   status: AbsenceStatus;
   rejectReason: string | null;
-  /** Días hábiles del rango que caen dentro del mes pedido. */
+  /** Días hábiles del rango que caen dentro del mes pedido; múltiplo de 0.5. */
   businessDaysInMonth: number;
   /** Impactos sobre el mes pedido, uno por célula de la persona. */
   squadImpacts: AbsenceSquadImpactDto[];
@@ -53,6 +57,10 @@ export interface CreateAbsenceRequest {
   type: AbsenceType;
   startDate: string;
   endDate: string;
+  /** El primer día se pide a media jornada. */
+  startsHalfDay: boolean;
+  /** El último día se pide a media jornada. */
+  endsHalfDay: boolean;
 }
 
 const ABSENCES_URL = "/absences";

@@ -34,7 +34,7 @@ export const modalContent: ComponentContent = {
     renderParts: () => (
       <div className="flex max-h-[85vh] w-modal-sm flex-col rounded-surface border border-neutral-default bg-neutral-default shadow-lg">
         <div className="flex items-start justify-between gap-4 px-6 pt-6">
-          <div className="flex-1 text-lg font-semibold text-neutral-default">¿Eliminar la iniciativa?</div>
+          <div className="flex-1 text-heading-md text-neutral-default">¿Eliminar la iniciativa?</div>
           <Icon name="close" size={20} className="shrink-0 text-neutral-subtle" />
         </div>
         <div className="overflow-y-auto px-6 py-3 text-body-sm text-neutral-subtle">
@@ -63,8 +63,8 @@ export const modalContent: ComponentContent = {
       },
       {
         name: "Fondo",
-        measure: "bg-neutral-bold/40",
-        note: "El mismo tono oscuro que ya validan Toast y Tooltip, a una opacidad baja — el mockup no dibuja el fondo, así que se reusa en vez de declarar un color nuevo.",
+        measure: "bg-neutral-scrim",
+        note: "El velo tiene token propio porque tiene que ser oscuro en los dos temas: su trabajo es empujar la página hacia atrás, y eso se hace con sombra sea cual sea el tema. Reusar `bold` al 40% funcionaba en claro y se invertía en oscuro —ahí `bold` es casi blanco— aclarando justo lo que debía apagar.",
       },
       {
         name: "Capa",
@@ -74,7 +74,7 @@ export const modalContent: ComponentContent = {
     ],
     renderState: (state) => (
       <div className="flex w-modal-sm flex-col rounded-surface bg-neutral-default shadow-lg">
-        <div className="px-6 pt-6 text-lg font-semibold text-neutral-default">Guardar cambios</div>
+        <div className="px-6 pt-6 text-heading-md text-neutral-default">Guardar cambios</div>
         <div className="px-6 py-3 text-body-sm text-neutral-subtle">Hay cambios sin guardar en este formulario.</div>
         <div className="flex justify-end gap-3 rounded-b-surface border-t border-neutral-default bg-neutral-subtle px-6 py-4">
           <Button variant="secondary" disabled={state.disabled}>

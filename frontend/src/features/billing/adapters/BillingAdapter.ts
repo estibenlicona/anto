@@ -69,6 +69,42 @@ export function periodLabel(period: string): string {
 }
 
 /**
+ * "2026-08" → "Agosto 2026". Para el navegador de la franja, donde el mes es
+ * un título y no va a mitad de frase como en las cards (`periodLabel`).
+ */
+export function periodTitle(period: string): string {
+  const label = periodLabel(period);
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+/** "2026-07-08T16:20:00Z" → "8 jul". Para fechas puntuales a mitad de frase. */
+export function shortDate(iso: string): string {
+  const day = Number(iso.slice(8, 10));
+  const month = Number(iso.slice(5, 7));
+  const name = MONTHS[month - 1];
+  if (!day || !name) return iso;
+  return `${day} ${name.slice(0, 3)}`;
+}
+
+/** Deja sólo los dígitos: lo que se escribe o pega en un campo de pesos. */
+export function digitsOnly(text: string): string {
+  return text.replace(/\D+/g, "");
+}
+
+/** "11500000" → "11.500.000"; "" → "". El campo de valor se lee como el resto de cifras. */
+export function formatDigits(digits: string): string {
+  if (digits === "") return "";
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/** Suma meses a un período "YYYY-MM" (delta puede ser negativo). */
+export function shiftPeriod(period: string, delta: number): string {
+  const [y, m] = period.split("-").map(Number);
+  const d = new Date(Date.UTC(y, m - 1 + delta, 1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+/**
  * Mes vencido: el período por defecto es el mes en curso, calculado y no
  * fijo, para que la pantalla no quede anclada a un mes viejo.
  */

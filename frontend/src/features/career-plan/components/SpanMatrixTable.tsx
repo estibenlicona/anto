@@ -27,6 +27,13 @@ interface SpanMatrixTableProps {
     element: HTMLButtonElement
   ) => void;
   onOpenPerson: (personId: string) => void;
+  /**
+   * Barra superior de la card del mapa (el slot `toolbar` de Table): el
+   * filtro de habilidades, típicamente. Queda dentro del marco y fuera del
+   * scroll horizontal, así el marco arranca a la altura de las cards de al
+   * lado y el filtro se queda pegado a las columnas que recorta.
+   */
+  toolbar?: React.ReactNode;
 }
 
 export function cellKey(personId: string, skillId: string): string {
@@ -62,10 +69,12 @@ export const SpanMatrixTable: React.FC<SpanMatrixTableProps> = ({
   activeCellKey,
   onActivateCell,
   onOpenPerson,
+  toolbar,
 }) => (
   <Table
     density="matrix"
     stickyFirstColumn
+    toolbar={toolbar}
     aria-label="Capacidades por habilidad"
   >
     <TableHeader>

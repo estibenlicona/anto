@@ -1,5 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  within,
+  cleanup,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { BillingList } from "../BillingList";
 import { AdjustLineDrawer } from "../AdjustLineDrawer";
@@ -82,6 +88,14 @@ function renderList(
     providers: [],
     selectedProviders: [],
     onProvidersChange: vi.fn(),
+    search: "",
+    onSearchChange: vi.fn(),
+    page: 1,
+    pageSize: 10,
+    total: rows.length,
+    totalPages: 1,
+    onPageChange: vi.fn(),
+    onPageSizeChange: vi.fn(),
   };
   render(
     <MemoryRouter>
@@ -162,10 +176,57 @@ describe("BillingList", () => {
     fireEvent.click(screen.getByRole("button", { name: "Reintentar" }));
     expect(failed.onRetry).toHaveBeenCalledTimes(1);
   });
+
+  it("sin filas con búsqueda o filtro activos invita a ajustarlos, no a asignar proveedor", () => {
+    const searched = renderList([], { search: "zzz" });
+    expect(screen.getByText("Sin resultados")).toBeInTheDocument();
+    expect(
+      screen.queryByText("No hay personas externas")
+    ).not.toBeInTheDocument();
+    // La barra sigue montada con lo escrito.
+    expect(screen.getByRole("searchbox")).toHaveValue("zzz");
+    fireEvent.change(screen.getByRole("searchbox"), {
+      target: { value: "zz" },
+    });
+    expect(searched.onSearchChange).toHaveBeenCalledWith("zz");
+  });
+
+  it("con filas muestra la paginación en el pie; sin filas, no", () => {
+    renderList([], {});
+    expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
+    cleanup();
+    renderList([prefacture("InReview", { personName: "Carlos López" })], {
+      total: 1,
+    });
+    expect(screen.getByText(/Mostrando/)).toBeInTheDocument();
+  });
+
+  // El filtro es un slot de la tabla: con más de un proveedor se queda
+  // montado mientras carga o falla, y el estado se lee bajo las cabeceras.
+  it("con error mantiene el filtro de proveedor y muestra el error bajo las cabeceras", () => {
+    renderList([], {
+      error: "Se cayó la red",
+      providers: ["Globant", "Endava"],
+    });
+    expect(
+      screen.getByRole("button", { name: /Proveedor/ })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Persona" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Se cayó la red")).toBeInTheDocument();
+  });
 });
 
 describe("RegisterInvoiceDrawer", () => {
+  // Tarifa 12.000.000 − 3 días de ausencia 1.500.000 = esperado 10.500.000.
+  const pending = () =>
+    prefacture("Pending", {
+      absenceDiscount: { businessDays: 3, amount: 1500000 },
+    });
+
   const renderDrawer = (
+    billing: PrefactureDto = pending(),
     overrides: Partial<React.ComponentProps<typeof RegisterInvoiceDrawer>> = {}
   ) => {
     const onSubmit = vi.fn();
@@ -173,10 +234,7 @@ describe("RegisterInvoiceDrawer", () => {
       <RegisterInvoiceDrawer
         open
         onOpenChange={vi.fn()}
-        providerName="GFT"
-        period="2026-07"
-        expected={9800000}
-        isCorrection={false}
+        billing={billing}
         saving={false}
         serverError={null}
         onSubmit={onSubmit}
@@ -185,6 +243,23 @@ describe("RegisterInvoiceDrawer", () => {
     );
     return onSubmit;
   };
+
+  it("nombra a la persona, el proveedor y el mes, y desglosa el esperado", () => {
+    renderDrawer();
+    expect(
+      screen.getByText("Carlos López · GFT · julio 2026")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Esperado del período")).toBeInTheDocument();
+    expect(screen.getByText(/Tarifa \$\s?12\.000\.000/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/3 días de ausencia \$\s?1\.500\.000/)
+    ).toBeInTheDocument();
+    // Sin valor todavía, no hay lectura de diferencia.
+    expect(screen.queryByText(/Difiere en/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Sin diferencia contra lo esperado")
+    ).not.toBeInTheDocument();
+  });
 
   it("exige número, fecha y monto antes de registrar", () => {
     const onSubmit = renderDrawer();
@@ -210,7 +285,10 @@ describe("RegisterInvoiceDrawer", () => {
     fireEvent.change(screen.getByLabelText("Valor total"), {
       target: { value: "11300000" },
     });
-    expect(screen.getByText(/Difiere del esperado/)).toBeInTheDocument();
+    // Se muestra con puntos de miles y se compara contra 10.500.000.
+    expect(screen.getByLabelText("Valor total")).toHaveValue("11.300.000");
+    expect(screen.getByText(/Difiere en \+\$\s?800\.000/)).toBeInTheDocument();
+    expect(screen.getByText(/Se registra igual/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Registrar" }));
     expect(onSubmit).toHaveBeenCalledWith({
       number: "FE-2049",
@@ -218,7 +296,9 @@ describe("RegisterInvoiceDrawer", () => {
       amount: 11300000,
       currency: "COP",
       imputation: {
-        costObject: null,
+        // La célula de la persona llega prellenada; el concepto es sólo
+        // placeholder y viaja vacío.
+        costObject: "Backend Platform",
         concept: null,
         accountName: null,
         accountNumber: null,
@@ -229,10 +309,105 @@ describe("RegisterInvoiceDrawer", () => {
     });
   });
 
-  it("la corregida de una objetada se anuncia como tal", () => {
-    renderDrawer({ isCorrection: true });
+  it("'Usar el esperado' llena el valor y lo deja sin diferencia; pegar texto deja sólo dígitos", () => {
+    renderDrawer();
+    fireEvent.click(screen.getByRole("button", { name: "Usar el esperado" }));
+    expect(screen.getByLabelText("Valor total")).toHaveValue("10.500.000");
+    expect(
+      screen.getByText("Sin diferencia contra lo esperado")
+    ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Valor total"), {
+      target: { value: "$ 11.500.000" },
+    });
+    expect(screen.getByLabelText("Valor total")).toHaveValue("11.500.000");
+  });
+
+  it("permite adjuntar el PDF y quitarlo, sin que cambie lo que se envía", () => {
+    const onSubmit = renderDrawer();
+    // FileInput de tuip: zona de arrastre sobre un input real, sólo PDF.
+    const input = screen.getByLabelText("Cargar PDF");
+    expect(input).toHaveAttribute("accept", "application/pdf");
+
+    const file = new File(["%PDF-1.7"], "prefactura-agosto.pdf", {
+      type: "application/pdf",
+    });
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(screen.getByText("prefactura-agosto.pdf")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Quitar archivo" }));
+    expect(screen.queryByText("prefactura-agosto.pdf")).not.toBeInTheDocument();
+
+    // El PDF no viaja en la petición: el registro sigue siendo el de siempre.
+    fireEvent.change(screen.getByLabelText("Número de prefactura"), {
+      target: { value: "FE-2049" },
+    });
+    fireEvent.change(screen.getByLabelText("Fecha de recepción"), {
+      target: { value: "2026-08-05" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Usar el esperado" }));
+    fireEvent.click(screen.getByRole("button", { name: "Registrar" }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(Object.keys(onSubmit.mock.calls[0][0])).toEqual([
+      "number",
+      "receivedAt",
+      "amount",
+      "currency",
+      "imputation",
+    ]);
+  });
+
+  it("los datos de prefactura se anuncian opcionales, sin texto explicativo, y parten de lo que se sabe de la persona", () => {
+    renderDrawer();
+    expect(screen.getByText("Datos de prefactura")).toBeInTheDocument();
+    expect(screen.getByText("Opcional")).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Suele llegar después que el documento/)
+    ).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Célula o CoE")).toHaveValue(
+      "Backend Platform"
+    );
+    expect(screen.getByLabelText("Concepto")).toHaveValue("");
+    expect(screen.getByLabelText("Concepto")).toHaveAttribute(
+      "placeholder",
+      "Ej. Servicios profesionales"
+    );
+    // Sin célula asignada, el campo abre vacío.
+    cleanup();
+    renderDrawer(prefacture("Pending", { squadName: null }));
+    expect(screen.getByLabelText("Célula o CoE")).toHaveValue("");
+  });
+
+  it("la corregida muestra la objeción, hereda la imputación y lo dice en el botón", () => {
+    renderDrawer(
+      prefacture("Objected", {
+        objection: {
+          reason: "No descontaron la incapacidad de Carlos",
+          objectedAtUtc: "2026-07-08T16:20:00Z",
+        },
+      })
+    );
     expect(
       screen.getByText("Registrar prefactura corregida")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/vuelve a revisión con las cifras nuevas/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Objetada el 8 jul · PF-2049 por \$\s?12\.000\.000/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("«No descontaron la incapacidad de Carlos»")
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Cuenta contable")).toHaveValue(
+      "Servicios técnicos"
+    );
+    expect(screen.getByLabelText("Cuenta destinada al pago")).toHaveValue(
+      "Bancolombia 4567"
+    );
+    expect(screen.getByLabelText("Orden de compra")).toHaveValue("");
+    expect(
+      screen.getByRole("button", { name: "Registrar corregida" })
     ).toBeInTheDocument();
   });
 });

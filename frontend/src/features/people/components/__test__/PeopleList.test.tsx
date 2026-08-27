@@ -97,6 +97,32 @@ describe("PeopleList", () => {
     expect(screen.getByText("Cargando personas…")).toBeInTheDocument();
   });
 
+  // La barra es un slot de la tabla: se queda montada, con su valor, mientras
+  // los resultados cambian de estado; la paginación no, porque no hay filas.
+  it("keeps the toolbar mounted while loading, without pagination", () => {
+    renderList(<PeopleList people={[]} {...listProps} loading search="mar" />);
+    expect(screen.getByText("Cargando personas…")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Buscar por nombre o cargo")
+    ).toHaveValue("mar");
+    expect(
+      screen.getByRole("button", { name: /Seniority/ })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
+  });
+
+  it("keeps the toolbar mounted on error, with the retry action under the headers", () => {
+    renderList(<PeopleList people={[]} {...listProps} error="Error de red" />);
+    expect(screen.getByText("Error de red")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Buscar por nombre o cargo")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Nombre" })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
+  });
+
   it("renders an empty state with a create action", () => {
     const onCreate = vi.fn();
     renderList(

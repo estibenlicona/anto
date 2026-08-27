@@ -34,7 +34,7 @@ const FAMILIES: Array<{ heading: string; id: string; expected: number }> = [
   { heading: "Acciones", id: "actions", expected: 16 },
   { heading: "Estado y feedback", id: "status", expected: 10 },
   { heading: "Datos y análisis", id: "data", expected: 12 },
-  { heading: "Dominio Tuya TI", id: "domain", expected: 15 },
+  { heading: "Dominio Tuya TI", id: "domain", expected: 16 },
   { heading: "Personas, tiempo y objetos", id: "objects", expected: 10 },
 ];
 

@@ -13,7 +13,6 @@ h6 {
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
   color: var(--color-text-primary);
-  margin-bottom: 0.75rem;
 }
 
 h1 {
@@ -43,7 +42,6 @@ h6 {
 
 /* Paragraphs */
 p {
-  margin-bottom: 1rem;
   color: var(--color-text-secondary);
 }
 
@@ -89,7 +87,6 @@ pre {
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
-  margin-bottom: 1rem;
 }
 
 pre code {

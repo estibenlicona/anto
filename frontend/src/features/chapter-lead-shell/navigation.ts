@@ -83,7 +83,7 @@ export const leadNavGroups: LeadNavGroupConfig[] = [
       },
       {
         id: "lead-facturacion",
-        label: "Facturación",
+        label: "Prefacturación",
         href: "/app/lead/facturacion",
         icon: "document",
       },
@@ -112,7 +112,7 @@ export const leadRouteTitles: Record<string, string> = {
   "lead-ausencias": "Gestionar Ausencias",
   "lead-backlog": "Gestionar Backlog",
   "lead-iniciativas": "Gestionar Iniciativas",
-  "lead-facturacion": "Facturación de proveedores",
+  "lead-facturacion": "Prefacturación",
   // La entrada del menú y el nombre de la pantalla coinciden acá:
   // "Competencias" ya es el término más corto que la distingue.
   "lead-competencias": "Competencias",

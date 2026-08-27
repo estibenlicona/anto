@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-27T00:00:00Z",
+  "title": "Design System: Tuya UI",
+  "extensions": {
+    "colorMeta": {
+      "tuya-red": {
+        "role": "primary",
+        "displayName": "Rojo Tuya",
+        "canonical": "#ED1C29",
+        "tonalRamp": ["#52080C", "#7A0C12", "#A21018", "#C9151F", "#ED1C29", "#F8626C", "#FF9AA1", "#FFE1E3"]
+      },
+      "tuya-red-action": {
+        "role": "primary",
+        "displayName": "Rojo Tuya Acción",
+        "canonical": "#C9151F",
+        "tonalRamp": ["#52080C", "#7A0C12", "#A21018", "#C9151F", "#ED1C29", "#F8626C", "#FF9AA1", "#FFE1E3"]
+      },
+      "tuya-red-tint": {
+        "role": "primary",
+        "displayName": "Tinte Tuya (selección)",
+        "canonical": "#FFF1F2",
+        "tonalRamp": ["#52080C", "#7A0C12", "#A21018", "#C9151F", "#ED1C29", "#F8626C", "#FFC4C8", "#FFF1F2"]
+      },
+      "tuya-red-night": {
+        "role": "primary",
+        "displayName": "Rojo Tuya Noche (bold en tema oscuro)",
+        "canonical": "#F8626C",
+        "tonalRamp": ["#52080C", "#7A0C12", "#A21018", "#C9151F", "#ED1C29", "#F8626C", "#FF9AA1", "#FFE1E3"]
+      },
+      "graphite-cold": {
+        "role": "neutral",
+        "displayName": "Grafito Frío",
+        "canonical": "#26262C",
+        "tonalRamp": ["#0E0E11", "#17171B", "#26262C", "#3C3C44", "#55555E", "#74747E", "#A0A0A8", "#E3E3E6"]
+      },
+      "graphite-subtle": {
+        "role": "neutral",
+        "displayName": "Grafito Sutil",
+        "canonical": "#55555E",
+        "tonalRamp": ["#0E0E11", "#17171B", "#26262C", "#3C3C44", "#55555E", "#74747E", "#A0A0A8", "#E3E3E6"]
+      },
+      "slate-gray": {
+        "role": "neutral",
+        "displayName": "Gris Pizarra",
+        "canonical": "#74747E",
+        "tonalRamp": ["#0E0E11", "#17171B", "#26262C", "#3C3C44", "#55555E", "#74747E", "#A0A0A8", "#E3E3E6"]
+      },
+      "line-neutral": {
+        "role": "neutral",
+        "displayName": "Línea Neutra",
+        "canonical": "#E3E3E6",
+        "tonalRamp": ["#26262C", "#55555E", "#74747E", "#A0A0A8", "#C9C9CE", "#E3E3E6", "#EFEFF0", "#F4F4F5"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Superficie",
+        "canonical": "#FFFFFF",
+        "tonalRamp": ["#C9C9CE", "#E3E3E6", "#EFEFF0", "#F4F4F5", "#F6F6F7", "#FAFAFB", "#FFFFFF", "#FFFFFF"]
+      },
+      "fog-canvas": {
+        "role": "neutral",
+        "displayName": "Lienzo Niebla",
+        "canonical": "#F6F6F7",
+        "tonalRamp": ["#C9C9CE", "#E3E3E6", "#EFEFF0", "#F4F4F5", "#F6F6F7", "#FAFAFB", "#FFFFFF", "#FFFFFF"]
+      },
+      "night-surface": {
+        "role": "neutral",
+        "displayName": "Noche (superficie oscura)",
+        "canonical": "#17171B",
+        "tonalRamp": ["#0E0E11", "#17171B", "#26262C", "#3C3C44", "#55555E", "#74747E", "#A0A0A8", "#FAFAFB"]
+      },
+      "danger-deep": {
+        "role": "status",
+        "displayName": "Peligro Profundo",
+        "canonical": "#8E0F18",
+        "tonalRamp": ["#331416", "#700C13", "#8E0F18", "#E8646E", "#FBE9EA"]
+      },
+      "warning-amber": {
+        "role": "status",
+        "displayName": "Ámbar de Advertencia",
+        "canonical": "#B57A00",
+        "tonalRamp": ["#302509", "#6E4B00", "#B57A00", "#D9A032", "#FBF2DE"]
+      },
+      "success-green": {
+        "role": "status",
+        "displayName": "Verde Bosque",
+        "canonical": "#116B4B",
+        "tonalRamp": ["#12291F", "#0D5239", "#116B4B", "#3FB985", "#E7F3EC"]
+      },
+      "info-blue": {
+        "role": "status",
+        "displayName": "Azul Información",
+        "canonical": "#1B5FBF",
+        "tonalRamp": ["#14213A", "#154A96", "#1B5FBF", "#5A94EC", "#E8F0FC"]
+      },
+      "discovery-violet": {
+        "role": "status",
+        "displayName": "Violeta Descubrimiento",
+        "canonical": "#5B3FC4",
+        "tonalRamp": ["#221A3D", "#3D2894", "#5B3FC4", "#9B84E4", "#EFEAFB"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Título de pantalla. Uno por vista, arriba a la izquierda." },
+      "headline": { "displayName": "Heading LG", "purpose": "Título de sección o panel." },
+      "title": { "displayName": "Heading MD", "purpose": "Título de card." },
+      "body": { "displayName": "Body", "purpose": "Párrafos, celdas, valores de formulario. 16px porque hay lectores ocasionales." },
+      "body-sm": { "displayName": "Body SM", "purpose": "Ayuda, metadatos, tablas compactas y el texto de casi todos los controles." },
+      "label": { "displayName": "Label", "purpose": "Cabecera de columna y rúbricas en mayúsculas con tracking 0.09em." },
+      "metric": { "displayName": "Metric", "purpose": "La cifra que encabeza un indicador. Bold, tabular, tracking −0.04em." },
+      "mono": { "displayName": "Mono", "purpose": "Solo cadenas literales: IDs, ramas, código." }
+    },
+    "shadows": [
+      { "name": "sm", "value": "0 2px 4px -1px rgb(0 0 0 / 0.08)", "purpose": "Cards en reposo (par de elevación «raised»)." },
+      { "name": "md", "value": "0 4px 8px -2px rgb(0 0 0 / 0.10)", "purpose": "Menús, popovers, selector de aplicaciones." },
+      { "name": "lg", "value": "0 12px 24px -4px rgb(0 0 0 / 0.14)", "purpose": "Modales y drawers (par «overlay»)." },
+      { "name": "edge", "value": "2px 0 4px -1px rgb(0 0 0 / 0.08)", "purpose": "Costura de una columna congelada; sm girada al eje horizontal." },
+      { "name": "focus-ring", "value": "0 0 0 3px var(--color-border-brand-focus-ring, #ED1C294D)", "purpose": "Anillo de foco 3px, sin gap, en el color base del control al 30%." }
+    ],
+    "motion": [
+      { "name": "duration-fast", "value": "100ms", "purpose": "Micro-feedback: hover, toggle." },
+      { "name": "duration-normal", "value": "200ms", "purpose": "Transiciones de color y estado por defecto." },
+      { "name": "duration-slow", "value": "300ms", "purpose": "Overlays que entran o salen. Nunca más." },
+      { "name": "easing-standard", "value": "cubic-bezier(0.2, 0, 0, 1)", "purpose": "Cambio de estado en su lugar." },
+      { "name": "easing-entrance", "value": "cubic-bezier(0, 0, 0.2, 1)", "purpose": "Lo que aparece desacelera al llegar." },
+      { "name": "easing-exit", "value": "cubic-bezier(0.4, 0, 1, 1)", "purpose": "Lo que se va acelera al salir." },
+      { "name": "animate-fade-in / animate-fade-out", "value": "opacity 0→1 · 200ms entrance / 1→0 · 100ms exit", "purpose": "El velo detrás de una superficie bloqueante, y la salida de lo que no necesita dirección." },
+      { "name": "animate-panel-in / animate-panel-out", "value": "opacity + translateY(8px) scale(0.98) → none · 200ms / 100ms", "purpose": "Superficie centrada (Modal, Command Palette): se asienta desde apenas abajo." },
+      { "name": "animate-float-in / animate-float-out", "value": "opacity + scale(0.96) → none desde el transform-origin del ancla · 100ms / 100ms", "purpose": "Superficie anclada (Menu, Popover, Select, Combobox, Tooltip): crece desde su ancla." },
+      { "name": "animate-slide-in-right / animate-slide-out-right", "value": "translateX(100%) → none · 300ms / 200ms", "purpose": "Superficie que entra por un borde (Drawer, Toast): viaja su propio ancho." },
+      { "name": "prefers-reduced-motion", "value": "los mismos @keyframes redefinidos como fundidos", "purpose": "Cada receta conserva aparición y desaparición y pierde el desplazamiento, sin que el componente lo declare." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "1024px" },
+      { "name": "lg", "value": "1440px" },
+      { "name": "xl", "value": "1920px" }
+    ],
+    "layout": {
+      "controlHeight": { "sm": "32px", "md": "40px", "lg": "48px" },
+      "touchTarget": "44px",
+      "maxWidth": { "prose": "680px", "form": "640px", "panel": "480px", "page": "1728px" },
+      "overlayWidth": { "modalSm": "480px", "modalMd": "640px", "modalLg": "880px", "drawerSm": "480px", "drawerLg": "720px", "popoverMin": "280px", "popoverMax": "360px", "tooltip": "240px" },
+      "shell": { "railWidth": "248px", "railCollapsedWidth": "64px", "topBarHeight": "56px", "topBarHeightMobile": "48px" },
+      "layer": { "content": 0, "stickyTableHeader": 10, "navigation": 100, "overlay": 400, "menu": 600, "notification": 800 },
+      "border": { "default": "1px", "bold": "2px", "focusRingWidth": "3px", "focusRingOffset": "0px" },
+      "iconSizes": [16, 20, 24, 32],
+      "iconStroke": "1.5px"
+    },
+    "colorVocabularies": {
+      "accent": {
+        "purpose": "Pasos de una escala ordinal. Solo relleno.",
+        "light": { "sky": "#93C5FD", "blue": "#2563EB", "violet": "#7C3AED", "magenta": "#A21CAF" },
+        "dark": { "sky": "#38BDF8", "blue": "#60A5FA", "violet": "#A78BFA", "magenta": "#E879F9" }
+      },
+      "attention": {
+        "purpose": "Cuánta atención pide algo. Tres pasos, sin paso para «sin atención».",
+        "light": { "low": "#B57A00", "medium": "mix(#E8646E, #8E0F18, 0.5)", "high": "#8E0F18" },
+        "dark": { "low": "#D9A032", "medium": "mix(#E8646E, #8E0F18, 0.3)", "high": "#E8646E" }
+      },
+      "identity": {
+        "purpose": "Distinguir personas. 12 matices de la paleta de personas de Fluent/Teams; nunca estado.",
+        "source": "packages/tokens/src/identity-colors.ts"
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Botón primario",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "La acción de la vista: una por pantalla. Rojo Tuya Acción con texto blanco, 40px.",
+      "html": "<button class=\"ds-btn ds-btn-primary\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Crear iniciativa</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border: 1px solid transparent; border-radius: var(--radius-control, 8px); font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; line-height: 22px; font-weight: 500; cursor: pointer; transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1), color 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-brand-focus-ring, #ED1C294D); } .ds-btn:disabled { opacity: 0.5; cursor: not-allowed; } .ds-btn-primary { background: var(--color-bg-brand-bold, #C9151F); color: var(--color-text-brand-on-bold, #FFFFFF); } .ds-btn-primary:hover { background: var(--color-bg-brand-bold-hover, #A21018); } .ds-btn-primary:active { background: var(--color-bg-brand-bold-pressed, #7A0C12); }"
+    },
+    {
+      "name": "Botón secundario",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Acción de apoyo: relleno sutil con trazo translúcido que insinúa el borde sin declararlo.",
+      "html": "<button class=\"ds-btn ds-btn-secondary\">Cancelar</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border: 1px solid transparent; border-radius: var(--radius-control, 8px); font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; line-height: 22px; font-weight: 500; cursor: pointer; transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-btn-secondary { background: var(--color-bg-neutral-subtle, #F4F4F5); border-color: var(--color-border-neutral-soft, #74747E2E); color: var(--color-text-neutral-default, #26262C); } .ds-btn-secondary:hover { background: var(--color-bg-neutral-subtle-hover, #EFEFF0); } .ds-btn-secondary:active { background: var(--color-bg-neutral-subtle-pressed, #E3E3E6); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-neutral-focus-ring, #74747E4D); }"
+    },
+    {
+      "name": "Botón sutil",
+      "kind": "button",
+      "refersTo": "button-subtle",
+      "description": "Acción de baja énfasis sin caja: solo texto, gana fondo al hover.",
+      "html": "<button class=\"ds-btn ds-btn-subtle\">Ver detalle</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border: 1px solid transparent; border-radius: var(--radius-control, 8px); font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; line-height: 22px; font-weight: 500; cursor: pointer; transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-btn-subtle { background: transparent; color: var(--color-text-neutral-default, #26262C); } .ds-btn-subtle:hover { background: var(--color-bg-neutral-subtle-hover, #EFEFF0); } .ds-btn-subtle:active { background: var(--color-bg-neutral-subtle-pressed, #E3E3E6); } .ds-btn-subtle:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-neutral-focus-ring, #74747E4D); }"
+    },
+    {
+      "name": "Botón de peligro",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Acción destructiva en rojo profundo, deliberadamente distinto del rojo Tuya.",
+      "html": "<button class=\"ds-btn ds-btn-danger\">Eliminar</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border: 1px solid transparent; border-radius: var(--radius-control, 8px); font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; line-height: 22px; font-weight: 500; cursor: pointer; transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-btn-danger { background: var(--color-bg-danger-bold, #8E0F18); color: var(--color-text-danger-on-bold, #FFFFFF); } .ds-btn-danger:hover { background: var(--color-bg-danger-bold-hover, #700C13); } .ds-btn-danger:active { background: var(--color-bg-danger-bold-pressed, #331416); } .ds-btn-danger:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-danger-focus-ring, #8E0F184D); }"
+    },
+    {
+      "name": "Campo de texto",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Label encima, campo blanco con trazo neutro de 1px, 40px de alto; el foco lo ilumina en gris al 30%.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Horas asignadas <span class=\"ds-field-required\" aria-hidden=\"true\">*</span></span><span class=\"ds-field-control\"><input class=\"ds-input\" type=\"text\" value=\"32\" /><span class=\"ds-field-suffix\">FTE</span></span><span class=\"ds-field-hint\">Sobre una base de 40 h semanales.</span></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 4px; font-family: 'IBM Plex Sans', system-ui, sans-serif; max-width: 320px; } .ds-field-label { font-size: 14px; line-height: 22px; font-weight: 500; color: var(--color-text-neutral-default, #26262C); } .ds-field-required { color: var(--color-text-danger-default, #700C13); } .ds-field-control { display: flex; align-items: stretch; overflow: hidden; border: 1px solid var(--color-border-neutral-default, #E3E3E6); border-radius: var(--radius-control, 8px); background: var(--color-bg-neutral-default, #FFFFFF); transition: box-shadow 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-field-control:focus-within { box-shadow: 0 0 0 3px var(--color-border-neutral-focus-ring, #74747E4D); } .ds-input { flex: 1; min-width: 0; padding: 8px 12px; border: none; background: transparent; font: inherit; font-size: 14px; line-height: 22px; color: var(--color-text-neutral-default, #26262C); font-variant-numeric: tabular-nums; } .ds-input:focus { outline: none; } .ds-field-suffix { display: flex; align-items: center; padding: 0 12px; border-left: 1px solid var(--color-border-neutral-default, #E3E3E6); background: var(--color-bg-neutral-subtle, #F4F4F5); font-size: 14px; line-height: 22px; color: var(--color-text-neutral-subtle, #55555E); } .ds-field-hint { font-size: 14px; line-height: 22px; color: var(--color-text-neutral-subtle, #55555E); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Superficie blanca sobre el lienzo, trazo de 1px que delimita y sombra sm que eleva.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\">Capacidad del sprint</div><div class=\"ds-card-body\"><div class=\"ds-metric\">86%</div><p class=\"ds-card-text\">312 de 364 horas comprometidas.</p></div></div>",
+      "css": ".ds-card { width: 280px; border: 1px solid var(--color-border-neutral-default, #E3E3E6); border-radius: var(--radius-surface, 12px); background: var(--color-bg-neutral-default, #FFFFFF); box-shadow: var(--shadow-sm, 0 2px 4px -1px rgb(0 0 0 / 0.08)); font-family: 'IBM Plex Sans', system-ui, sans-serif; color: var(--color-text-neutral-default, #26262C); } .ds-card-header { padding: 12px 16px; border-bottom: 1px solid var(--color-border-neutral-default, #E3E3E6); font-size: 18px; line-height: 26px; font-weight: 600; } .ds-card-body { padding: 12px 16px; } .ds-metric { font-size: 40px; line-height: 40px; font-weight: 700; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; } .ds-card-text { margin: 8px 0 0; font-size: 14px; line-height: 22px; color: var(--color-text-neutral-subtle, #55555E); }"
+    },
+    {
+      "name": "Chip de filtro",
+      "kind": "chip",
+      "refersTo": "chip-filter",
+      "description": "Filtro conmutable: blanco con trazo en reposo; seleccionado se vuelve Grafito Frío, nunca rojo.",
+      "html": "<span class=\"ds-chips\"><button class=\"ds-chip\" aria-pressed=\"false\">Backend <span class=\"ds-chip-count\">12</span></button><button class=\"ds-chip ds-chip-selected\" aria-pressed=\"true\">Frontend <span class=\"ds-chip-count\">8</span></button><span class=\"ds-chip ds-chip-removable\">Célula Pagos<button class=\"ds-chip-remove\" aria-label=\"Quitar Célula Pagos\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6 6 18\"/></svg></button></span></span>",
+      "css": ".ds-chips { display: inline-flex; gap: 8px; font-family: 'IBM Plex Sans', system-ui, sans-serif; } .ds-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--color-border-neutral-default, #E3E3E6); border-radius: var(--radius-control, 8px); background: var(--color-bg-neutral-default, #FFFFFF); font: inherit; font-size: 14px; line-height: 22px; color: var(--color-text-neutral-default, #26262C); cursor: pointer; transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-chip:hover { background: var(--color-bg-neutral-subtle-hover, #EFEFF0); } .ds-chip:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-neutral-focus-ring, #74747E4D); } .ds-chip-count { font-variant-numeric: tabular-nums; color: var(--color-text-neutral-subtle, #55555E); } .ds-chip-selected { background: var(--color-bg-neutral-bold, #26262C); border-color: var(--color-border-neutral-bold, #74747E); color: var(--color-text-neutral-inverse, #FFFFFF); } .ds-chip-selected:hover { background: var(--color-bg-neutral-bold-hover, #17171B); } .ds-chip-selected .ds-chip-count { color: var(--color-text-neutral-inverse, #FFFFFF); } .ds-chip-removable { border-color: transparent; background: var(--color-bg-neutral-selected, #FFF1F2); cursor: default; } .ds-chip-removable:hover { background: var(--color-bg-neutral-selected, #FFF1F2); } .ds-chip-remove { display: inline-flex; padding: 0; border: none; background: none; color: var(--color-text-neutral-subtle, #55555E); cursor: pointer; border-radius: var(--radius-control, 8px); } .ds-chip-remove:hover { color: var(--color-text-neutral-default, #26262C); } .ds-chip-remove:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-brand-focus-ring, #ED1C294D); }"
+    },
+    {
+      "name": "Badge y Tag",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Badge reporta estado (cuadrado, punto + texto); Tag marca pertenencia (píldora, sin punto). Ninguno puede ser brand.",
+      "html": "<span class=\"ds-row\"><span class=\"ds-badge ds-badge-success\" role=\"status\"><span class=\"ds-badge-dot\"></span>En curso</span><span class=\"ds-badge ds-badge-warning\" role=\"status\"><span class=\"ds-badge-dot\"></span>En riesgo</span><span class=\"ds-badge ds-badge-neutral\" role=\"status\"><span class=\"ds-badge-dot\"></span>Cerrada</span><span class=\"ds-tag ds-tag-blue\">Datos</span><span class=\"ds-tag ds-tag-gray\">L</span></span>",
+      "css": ".ds-row { display: inline-flex; align-items: center; gap: 8px; font-family: 'IBM Plex Sans', system-ui, sans-serif; } .ds-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-control, 8px); font-size: 14px; line-height: 22px; font-weight: 500; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: currentColor; } .ds-badge-success { background: var(--color-bg-success-subtle, #E7F3EC); color: var(--color-text-success-default, #0D5239); } .ds-badge-success .ds-badge-dot { background: var(--color-bg-success-bold, #116B4B); } .ds-badge-warning { background: var(--color-bg-warning-subtle, #FBF2DE); color: var(--color-text-warning-default, #6E4B00); } .ds-badge-warning .ds-badge-dot { background: var(--color-bg-warning-bold, #B57A00); } .ds-badge-neutral { background: var(--color-bg-neutral-subtle, #F4F4F5); color: var(--color-text-neutral-default, #26262C); } .ds-badge-neutral .ds-badge-dot { background: var(--color-text-neutral-subtle, #55555E); } .ds-tag { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; padding: 2px 10px; border-radius: 9999px; font-size: 14px; line-height: 22px; font-weight: 500; } .ds-tag-blue { background: var(--color-bg-info-subtle, #E8F0FC); color: var(--color-text-info-default, #154A96); } .ds-tag-gray { background: var(--color-bg-neutral-subtle, #F4F4F5); color: var(--color-text-neutral-default, #26262C); }"
+    },
+    {
+      "name": "Barra superior",
+      "kind": "nav",
+      "refersTo": "navbar",
+      "description": "Shell compartido: logo rojo de 24px, nombre del producto, búsqueda con atajo y campana con punto sin leer.",
+      "html": "<header class=\"ds-navbar\"><span class=\"ds-navbar-brand\"><span class=\"ds-navbar-logo\" aria-hidden=\"true\"></span>Torre de Control</span><span class=\"ds-navbar-divider\" aria-hidden=\"true\"></span><button class=\"ds-navbar-search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg><span>Buscar</span><kbd class=\"ds-kbd\">Ctrl K</kbd></button><span class=\"ds-navbar-spacer\"></span><button class=\"ds-navbar-icon\" aria-label=\"Notificaciones, hay sin leer\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z\"/><path d=\"M10 20a2 2 0 0 0 4 0\"/></svg><span class=\"ds-navbar-unread\" aria-hidden=\"true\"></span></button><span class=\"ds-navbar-avatar\" aria-hidden=\"true\">EL</span></header>",
+      "css": ".ds-navbar { display: flex; align-items: center; gap: 16px; height: 56px; padding: 0 20px; width: 640px; max-width: 100%; box-sizing: border-box; border-bottom: 1px solid var(--color-border-neutral-default, #E3E3E6); background: var(--color-bg-neutral-default, #FFFFFF); font-family: 'IBM Plex Sans', system-ui, sans-serif; color: var(--color-text-neutral-default, #26262C); } .ds-navbar-brand { display: inline-flex; align-items: center; gap: 10px; padding: 6px 8px 6px 4px; font-size: 14px; line-height: 22px; font-weight: 600; } .ds-navbar-logo { width: 24px; height: 24px; border-radius: var(--radius-control, 8px); background: var(--color-bg-brand-bold, #C9151F); } .ds-navbar-divider { width: 1px; height: 20px; background: var(--color-bg-neutral-subtle-pressed, #E3E3E6); } .ds-navbar-search { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border: 1px solid var(--color-border-neutral-default, #E3E3E6); border-radius: var(--radius-control, 8px); background: var(--color-bg-neutral-subtle, #F4F4F5); font: inherit; font-size: 14px; color: var(--color-text-neutral-subtle, #55555E); cursor: pointer; transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-navbar-search:hover { background: var(--color-bg-neutral-subtle-hover, #EFEFF0); } .ds-navbar-search:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-brand-focus-ring, #ED1C294D); } .ds-kbd { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 16px; padding: 1px 6px; border: 1px solid var(--color-border-neutral-default, #E3E3E6); border-radius: var(--radius-compact, 4px); background: var(--color-bg-neutral-default, #FFFFFF); } .ds-navbar-spacer { flex: 1; } .ds-navbar-icon { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: none; border-radius: var(--radius-control, 8px); background: none; color: var(--color-text-neutral-subtle, #55555E); cursor: pointer; } .ds-navbar-icon:hover { background: var(--color-bg-neutral-subtle-hover, #EFEFF0); } .ds-navbar-icon:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-brand-focus-ring, #ED1C294D); } .ds-navbar-unread { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 9999px; background: var(--color-bg-brand-bold, #C9151F); } .ds-navbar-avatar { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 9999px; background: var(--color-identity-bg-teal, #E5F2F1); color: var(--color-identity-text-teal, #02494C); font-size: 12px; font-weight: 600; }"
+    },
+    {
+      "name": "Ítem de sidebar",
+      "kind": "nav",
+      "refersTo": "sidebar-item-active",
+      "description": "Riel rojo de 2px + fondo Tinte Tuya + semibold para el activo; los inactivos en Grafito Sutil con hover neutro.",
+      "html": "<nav class=\"ds-sidebar\" aria-label=\"Principal\"><div class=\"ds-sidebar-group\">Gestión</div><a class=\"ds-side-item ds-side-item-active\" href=\"#\" aria-current=\"page\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"9\" cy=\"8\" r=\"3.2\"/><path d=\"M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5\"/><path d=\"M17 8.5a3 3 0 0 1 0 5\"/><path d=\"M18 20c0-2.4-1-4.2-2.5-5.2\"/></svg>Capacidad</a><a class=\"ds-side-item\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 2.8 20 7v10l-8 4.2L4 17V7z\"/><circle cx=\"12\" cy=\"12\" r=\"2.4\"/></svg>Células<span class=\"ds-side-badge\" aria-hidden=\"true\">3</span></a><a class=\"ds-side-item\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3 3 7.5l9 4.5 9-4.5z\"/><path d=\"m3 12.2 9 4.5 9-4.5\"/><path d=\"m3 16.7 9 4.5 9-4.5\"/></svg>Backlog</a></nav>",
+      "css": ".ds-sidebar { display: flex; flex-direction: column; gap: 2px; width: 248px; padding: 14px 12px; box-sizing: border-box; border-right: 1px solid var(--color-border-neutral-default, #E3E3E6); background: var(--color-bg-neutral-default, #FFFFFF); font-family: 'IBM Plex Sans', system-ui, sans-serif; } .ds-sidebar-group { padding: 0 12px 8px; font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--color-text-neutral-subtlest, #74747E); } .ds-side-item { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 10px; border-left: 2px solid transparent; border-radius: var(--radius-control, 8px); font-size: 14px; line-height: 22px; text-decoration: none; color: var(--color-text-neutral-subtle, #55555E); transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-side-item:hover { background: var(--color-bg-neutral-subtle-hover, #EFEFF0); } .ds-side-item:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-brand-focus-ring, #ED1C294D); } .ds-side-item-active { border-left-color: var(--color-border-brand-default, #ED1C29); background: var(--color-bg-neutral-selected, #FFF1F2); color: var(--color-text-neutral-default, #26262C); font-weight: 600; } .ds-side-item-active:hover { background: var(--color-bg-neutral-selected, #FFF1F2); opacity: 0.8; } .ds-side-badge { margin-left: auto; padding: 0 6px; border-radius: 9999px; background: var(--color-bg-brand-bold, #C9151F); color: var(--color-text-brand-on-bold, #FFFFFF); font-size: 14px; line-height: 22px; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Tabla",
+      "kind": "custom",
+      "refersTo": "table-cell",
+      "description": "Cabecera en Label mayúsculas sobre casi-blanco, filas con filete de 1px, columna numérica a la derecha en tabular-nums, orden en rojo de marca.",
+      "html": "<div class=\"ds-table-frame\"><table class=\"ds-table\"><thead><tr><th class=\"ds-th\"><button class=\"ds-th-sort\" type=\"button\" aria-sort=\"ascending\">Célula<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"ds-th-sort-icon\"><path d=\"m5 9 7 7 7-7\"/></svg></button></th><th class=\"ds-th\">Estado</th><th class=\"ds-th ds-th-num\">Capacidad</th></tr></thead><tbody><tr class=\"ds-tr\"><td class=\"ds-td\">Pagos</td><td class=\"ds-td\"><span class=\"ds-badge ds-badge-success\"><span class=\"ds-badge-dot\"></span>En curso</span></td><td class=\"ds-td ds-td-num\">86%</td></tr><tr class=\"ds-tr\"><td class=\"ds-td\">Onboarding</td><td class=\"ds-td\"><span class=\"ds-badge ds-badge-warning\"><span class=\"ds-badge-dot\"></span>En riesgo</span></td><td class=\"ds-td ds-td-num\">104%</td></tr><tr class=\"ds-tr\"><td class=\"ds-td\">Cobranzas</td><td class=\"ds-td\"><span class=\"ds-badge ds-badge-neutral\"><span class=\"ds-badge-dot\"></span>Cerrada</span></td><td class=\"ds-td ds-td-num\">0%</td></tr></tbody></table></div>",
+      "css": ".ds-table-frame { width: 520px; max-width: 100%; overflow: hidden; border: 1px solid var(--color-border-neutral-default, #E3E3E6); border-radius: var(--radius-surface, 12px); background: var(--color-bg-neutral-default, #FFFFFF); font-family: 'IBM Plex Sans', system-ui, sans-serif; } .ds-table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; } .ds-th { padding: 8px 16px; background: var(--color-bg-neutral-subtlest, #FAFAFB); text-align: left; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--color-text-neutral-subtle, #55555E); } .ds-th-num, .ds-td-num { text-align: right; font-variant-numeric: tabular-nums; } .ds-th-sort { display: inline-flex; align-items: center; gap: 4px; padding: 0; border: none; background: none; font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--color-text-neutral-default, #26262C); cursor: pointer; } .ds-th-sort:hover { color: var(--color-text-brand-default, #C9151F); } .ds-th-sort:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-brand-focus-ring, #ED1C294D); border-radius: var(--radius-compact, 4px); } .ds-th-sort-icon { color: var(--color-text-brand-default, #C9151F); transform: rotate(180deg); } .ds-tr { border-bottom: 1px solid var(--color-border-neutral-default, #E3E3E6); transition: background-color 100ms cubic-bezier(0.2, 0, 0, 1); } .ds-tr:last-child { border-bottom: none; } .ds-tr:hover { background: var(--color-bg-neutral-subtlest, #FAFAFB); } .ds-td { padding: 12px 16px; color: var(--color-text-neutral-default, #26262C); } .ds-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: var(--radius-control, 8px); font-size: 14px; line-height: 22px; font-weight: 500; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; } .ds-badge-success { background: var(--color-bg-success-subtle, #E7F3EC); color: var(--color-text-success-default, #0D5239); } .ds-badge-success .ds-badge-dot { background: var(--color-bg-success-bold, #116B4B); } .ds-badge-warning { background: var(--color-bg-warning-subtle, #FBF2DE); color: var(--color-text-warning-default, #6E4B00); } .ds-badge-warning .ds-badge-dot { background: var(--color-bg-warning-bold, #B57A00); } .ds-badge-neutral { background: var(--color-bg-neutral-subtle, #F4F4F5); color: var(--color-text-neutral-default, #26262C); } .ds-badge-neutral .ds-badge-dot { background: var(--color-text-neutral-subtle, #55555E); }"
+    },
+    {
+      "name": "Modal",
+      "kind": "custom",
+      "refersTo": "modal",
+      "description": "Para decidir, no para consultar. Panel de 480px con trazo + sombra lg sobre un velo de Grafito al 40%; pie sutil con las acciones a la derecha.",
+      "html": "<div class=\"ds-modal-scene\"><div class=\"ds-modal\" role=\"dialog\" aria-labelledby=\"ds-modal-title\"><div class=\"ds-modal-header\"><h2 class=\"ds-modal-title\" id=\"ds-modal-title\">¿Cerrar el sprint 14?</h2><button class=\"ds-modal-close\" type=\"button\" aria-label=\"Cerrar\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6 6 18\"/></svg></button></div><div class=\"ds-modal-body\">Las 3 historias sin terminar pasan al backlog. Esta acción no se puede deshacer.</div><div class=\"ds-modal-footer\"><button class=\"ds-btn ds-btn-secondary\" type=\"button\">Cancelar</button><button class=\"ds-btn ds-btn-primary\" type=\"button\">Cerrar sprint</button></div></div></div>",
+      "css": ".ds-modal-scene { display: flex; align-items: center; justify-content: center; padding: 32px; background: var(--color-bg-neutral-scrim, rgb(38 38 44 / 0.4)); border-radius: var(--radius-surface, 12px); font-family: 'IBM Plex Sans', system-ui, sans-serif; } .ds-modal { display: flex; flex-direction: column; width: 480px; max-width: 100%; border: 1px solid var(--color-border-neutral-default, #E3E3E6); border-radius: var(--radius-surface, 12px); background: var(--color-bg-neutral-default, #FFFFFF); box-shadow: var(--shadow-lg, 0 12px 24px -4px rgb(0 0 0 / 0.14)); overflow: hidden; } .ds-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px 24px 0; } .ds-modal-title { margin: 0; font-size: 18px; line-height: 26px; font-weight: 600; color: var(--color-text-neutral-default, #26262C); } .ds-modal-close { display: inline-flex; padding: 0; border: none; background: none; color: var(--color-text-neutral-subtle, #55555E); cursor: pointer; border-radius: var(--radius-control, 8px); } .ds-modal-close:hover { color: var(--color-text-neutral-default, #26262C); } .ds-modal-close:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-brand-focus-ring, #ED1C294D); } .ds-modal-body { padding: 12px 24px; font-size: 14px; line-height: 22px; color: var(--color-text-neutral-subtle, #55555E); } .ds-modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--color-border-neutral-default, #E3E3E6); background: var(--color-bg-neutral-subtle, #F4F4F5); } .ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border: 1px solid transparent; border-radius: var(--radius-control, 8px); font-family: inherit; font-size: 14px; line-height: 22px; font-weight: 500; cursor: pointer; transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-brand-focus-ring, #ED1C294D); } .ds-btn-primary { background: var(--color-bg-brand-bold, #C9151F); color: var(--color-text-brand-on-bold, #FFFFFF); } .ds-btn-primary:hover { background: var(--color-bg-brand-bold-hover, #A21018); } .ds-btn-primary:active { background: var(--color-bg-brand-bold-pressed, #7A0C12); } .ds-btn-secondary { background: var(--color-bg-neutral-subtle, #F4F4F5); border-color: var(--color-border-neutral-soft, #74747E2E); color: var(--color-text-neutral-default, #26262C); } .ds-btn-secondary:hover { background: var(--color-bg-neutral-subtle-hover, #EFEFF0); } .ds-btn-secondary:focus-visible { box-shadow: 0 0 0 3px var(--color-border-neutral-focus-ring, #74747E4D); }"
+    },
+    {
+      "name": "Select",
+      "kind": "input",
+      "refersTo": "select",
+      "description": "Disparador con la receta del campo de texto y chevron de 16px; menú de 8px con sombra md; el ítem resaltado toma el Tinte Tuya de selección.",
+      "html": "<div class=\"ds-select\"><span class=\"ds-select-label\">Línea de expertise</span><button class=\"ds-select-trigger\" type=\"button\" aria-haspopup=\"listbox\" aria-expanded=\"true\">Backend<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m5 9 7 7 7-7\"/></svg></button><ul class=\"ds-select-menu\" role=\"listbox\"><li class=\"ds-select-item\" role=\"option\" aria-selected=\"false\">Frontend</li><li class=\"ds-select-item ds-select-item-highlighted\" role=\"option\" aria-selected=\"true\">Backend<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5 10 17.5 19.5 7\"/></svg></li><li class=\"ds-select-item\" role=\"option\" aria-selected=\"false\">Datos</li><li class=\"ds-select-item ds-select-item-disabled\" role=\"option\" aria-disabled=\"true\">QA (sin cupo)</li></ul></div>",
+      "css": ".ds-select { display: flex; flex-direction: column; gap: 4px; width: 280px; font-family: 'IBM Plex Sans', system-ui, sans-serif; } .ds-select-label { font-size: 14px; line-height: 22px; font-weight: 500; color: var(--color-text-neutral-default, #26262C); } .ds-select-trigger { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 8px 12px; border: 1px solid var(--color-border-neutral-default, #E3E3E6); border-radius: var(--radius-control, 8px); background: var(--color-bg-neutral-default, #FFFFFF); font: inherit; font-size: 14px; line-height: 22px; color: var(--color-text-neutral-default, #26262C); cursor: pointer; transition: box-shadow 200ms cubic-bezier(0.2, 0, 0, 1); } .ds-select-trigger:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--color-border-neutral-focus-ring, #74747E4D); } .ds-select-menu { list-style: none; margin: 8px 0 0; padding: 4px; border: 1px solid var(--color-border-neutral-default, #E3E3E6); border-radius: var(--radius-control, 8px); background: var(--color-bg-neutral-default, #FFFFFF); box-shadow: var(--shadow-md, 0 4px 8px -2px rgb(0 0 0 / 0.10)); } .ds-select-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: var(--radius-control, 8px); font-size: 14px; line-height: 22px; color: var(--color-text-neutral-default, #26262C); cursor: pointer; } .ds-select-item:hover, .ds-select-item-highlighted { background: var(--color-bg-neutral-selected, #FFF1F2); } .ds-select-item-disabled { color: var(--color-text-neutral-disabled, #A0A0A8); cursor: not-allowed; } .ds-select-item-disabled:hover { background: transparent; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Tablero de Control",
+    "overview": "Una sala de operaciones serena: todo lo que hay en pantalla es neutro, frío y legible —grises con un grado de azul, IBM Plex Sans a 16px, cifras tabulares— y una sola luz encendida, el rojo Tuya, solo donde el sistema quiere que la mirada vaya: un botón primario por vista, el riel de la sección activa, el halo de foco. Esa escasez es lo que lo convierte en señal.\n\nEl tono es sereno, preciso, denso y cercano. Cada medida es una decisión cerrada (siete estilos de texto, tres alturas de control, contraste AA verificado en el build); las pantallas son de gestión, diseñadas primero a 1440px; y el sistema explica el porqué de sus reglas en voseo. Rechaza, confirmado: el look genérico de plantilla (grises cálidos, Inter, radios y sombras de kit), degradados y vidrio en la interfaz, y el color como único canal de significado.",
+    "keyCharacteristics": [
+      "Un solo acento cromático (rojo Tuya) reservado a la acción primaria, la navegación activa y el foco; todo lo demás vive en neutros fríos.",
+      "Tokens en dos capas: primitivos → semánticos nombrados por rol (bg/text/border/icon × rol × énfasis × estado). Los componentes solo tocan la capa semántica.",
+      "Tema oscuro escrito a mano, no invertido: las superficies se separan por claridad, los acentos se aclaran, el texto nunca es blanco puro.",
+      "Escalas cerradas: 7 estilos de texto, 3 alturas de control (32/40/48), 4 radios, 6 capas de z-index, 4 tamaños de icono (16/20/24/32).",
+      "Cuatro vocabularios de color que responden preguntas distintas: semántico («qué es»), identidad («quién es»), acento («cuánto»), atención («cuánto urge»).",
+      "Sombras que solo caen hacia abajo: la luz viene de arriba, el borde delimita y la sombra eleva."
+    ],
+    "rules": [
+      { "name": "The One Red Rule", "body": "El rojo Tuya aparece en una sola acción por vista, en la posición actual de la navegación y en el foco. Un badge, un tag, un chip, un gráfico nunca son «brand»: ese rol no está disponible para ellos, y ni la API lo ofrece.", "section": "colors" },
+      { "name": "The AA Over Literal Rule", "body": "Cuando el color de marca y el contraste AA no pueden ser ambos ciertos, gana el contraste y la secuencia entera se corre un paso. Ningún color de texto se elige por parecido a la marca.", "section": "colors" },
+      { "name": "The Never-Hue-Alone Rule", "body": "Nada comunica solo por color. Badge lleva punto y texto; Tag es píldora y Badge es cuadrado; el error lleva mensaje; el icono de estado tiene forma propia. Uno de cada doce hombres no distingue rojo de verde.", "section": "colors" },
+      { "name": "The Four Vocabularies Rule", "body": "Semántico dice qué es, identidad dice quién es, acento dice cuánto, atención dice cuánto urge. No se prestan pasos entre sí: accent.blue no es info, y una persona nunca es danger.", "section": "colors" },
+      { "name": "The No Eighth Step Rule", "body": "Siete estilos y ninguno más. Una pantalla que parece necesitar un tamaño intermedio tiene un problema de jerarquía, no un paso faltante: se cambia de nivel, no se inventa un tamaño. Cada estilo empaqueta tamaño, interlineado y peso para que no exista una combinación que nadie aprobó.", "section": "typography" },
+      { "name": "The Tabular Figures Rule", "body": "Toda cifra que se compare verticalmente —tabla, lista de indicadores, columna de métricas— lleva tabular-nums. La mono no es para números; es para texto que es literalmente una cadena.", "section": "typography" },
+      { "name": "The Belonging Gap Rule", "body": "El espacio comunica pertenencia: el hueco dentro de un grupo es siempre menor que el hueco entre grupos. Cuando son iguales, nadie sabe dónde termina una idea.", "section": "layout" },
+      { "name": "The Data Welcomes Width Rule", "body": "El texto se topa a ~75 caracteres porque el ojo pierde la línea; la tabla no se topa nunca, porque más ancho son más columnas visibles.", "section": "layout" },
+      { "name": "The Light From Above Rule", "body": "Toda sombra de elevación cae hacia abajo y nunca asoma por arriba. Una sombra que rodea el elemento por igual no existe en el sistema.", "section": "elevation" },
+      { "name": "The Border Delimits, Shadow Lifts Rule", "body": "La sombra no puede definir el borde superior de una superficie porque se proyecta hacia abajo; por eso toda superficie elevada lleva además su trazo de #E3E3E6. Quitar uno de los dos deja la card a medias.", "section": "elevation" },
+      { "name": "The Control Under Surface Rule", "body": "El radio de un control (8px) siempre es menor que el de la superficie que lo contiene (12px). Un botón con el radio de una card deja de parecer un botón.", "section": "shapes" },
+      { "name": "The Pill Is Never A Control Rule", "body": "La píldora identifica (tag, avatar, contador); nunca se acciona. Un botón redondo es un botón de otro sistema.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do reservar el rojo Tuya (#ED1C29 / #C9151F) a una acción primaria por vista, la posición actual en la navegación y el anillo de foco.",
+      "Do consumir solo la capa semántica (bg-brand-bold, text-neutral-subtle, border-neutral-default); los primitivos y los hex sueltos fallan el build.",
+      "Do usar los siete estilos de texto como utilidades cerradas (text-body-sm, text-label) y tabular-nums en toda cifra que se compare.",
+      "Do emparejar estado con forma o texto: punto + texto en Badge, píldora vs cuadrado, mensaje junto al borde de error.",
+      "Do separar superficies con el escalón de gris (lienzo → card) y un trazo de 1px, y elevar con sombras que solo caen hacia abajo.",
+      "Do elegir la altura de control entre 32 / 40 / 48 y el radio entre 4 / 8 / 12 / píldora.",
+      "Do maquetar con los alias de espaciado (hug → page-bottom) y mantener el hueco interno de un grupo menor que el hueco entre grupos.",
+      "Do diseñar primero a 1440px y verificar que a 1024px el shell completo sigue entrando.",
+      "Do usar el Tinte Tuya (#FFF1F2) como único color de selección: fila activa, ítem de sidebar, opción resaltada de un menú, chip de filtro aplicado.",
+      "Do elegir la densidad de tabla por contexto (comfortable / compact / matrix) y alinear a la derecha toda columna numérica, que arrastra tabular-nums consigo.",
+      "Do dar a toda superficie flotante clara (modal, menú, popover) su trazo Línea Neutra además de la sombra: la sombra no define el borde superior.",
+      "Do ordenar las acciones de un pie de modal por énfasis creciente, con el primario último y a la derecha."
+    ],
+    "donts": [
+      "Don't pintar de rojo Tuya badges, tags, chips seleccionados, gráficos o filtros encendidos; el estado seleccionado de un chip es Grafito Frío.",
+      "Don't comunicar solo por color: ningún estado, nivel o alerta sin texto, forma o icono.",
+      "Don't usar degradados, vidrio, blur ni glow en controles o superficies de interfaz; el degradado de marca es decoración y nunca representa un estado.",
+      "Don't invertir el tema claro para obtener el oscuro: en oscuro las superficies se separan por claridad, el rojo sube a #F8626C y el texto es #FAFAFB, nunca blanco puro.",
+      "Don't inventar un tamaño de texto, un paso de espaciado, una altura de control ni un tamaño de icono intermedio (18px, 22px); cambiá de nivel.",
+      "Don't aplicar la píldora a un control, ni el radio de superficie (12px) a un botón.",
+      "Don't usar sombras ambientales, halos o sombras que asomen por el borde superior.",
+      "Don't mezclar vocabularios de color: accent no es info, una persona no es danger, y no existe un paso de atención para «sin atención».",
+      "Don't recurrir a Inter, grises cálidos ni a los radios y sombras por defecto de un kit: el sistema es IBM Plex sobre neutros fríos.",
+      "Don't pintar la cabecera de una tabla con color de marca ni con negrita de cuerpo: es Label en mayúsculas, Grafito Sutil sobre casi-blanco; solo el chevron de orden lleva rojo.",
+      "Don't usar un modal para consultar información; es para decidir. Lo que se lee sin bloquear la página va en drawer o popover.",
+      "Don't hacer un modal a pantalla completa en desktop ni más ancho que 880px.",
+      "Don't dibujar la costura edge de una columna congelada mientras no haya nada oculto a la izquierda: dibujada siempre, deja de significar y se vuelve una raya más.",
+      "Don't inventar una entrada nueva para una superposición: elegí la receta de su clase (panel, float, slide, fade); ni rebotes, ni elásticos, ni hover que levante o mueva."
+    ]
+  }
+}

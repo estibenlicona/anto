@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Button, Icon, Select, useToast } from "@tuya-ui/components";
+import { Button, Icon, useToast } from "@tuya-ui/components";
+import { useLeadBreadcrumbActions } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
+import { MonthNav } from "@shared/components/MonthNav";
 import { useBillingPeriod } from "./hooks/useBillingPeriod";
 import { useBillingMutations } from "./hooks/useBillingMutations";
 import { BillingStatsCards } from "./components/BillingStatsCards";
@@ -13,7 +15,8 @@ import { RegisterInvoiceDrawer } from "./components/RegisterInvoiceDrawer";
 import {
   availablePeriods,
   currentPeriod,
-  periodLabel,
+  periodTitle,
+  shiftPeriod,
 } from "./adapters/BillingAdapter";
 import type { BillingRow } from "./adapters/BillingAdapter";
 import type {
@@ -43,10 +46,42 @@ export const BillingContainer: React.FC = () => {
   const providers = [...new Set(allRows.map((r) => r.providerName))]
     .filter(Boolean)
     .sort();
-  const rows =
-    selectedProviders.length === 0
-      ? allRows
-      : allRows.filter((r) => selectedProviders.includes(r.providerName));
+  // Búsqueda y paginación en cliente: el período ya trae todas sus filas de
+  // una vez, así que no hay ida al backend que ahorrar. La página vuelve a 1
+  // cada vez que cambia lo que se busca, se filtra o el mes.
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const needle = search.trim().toLowerCase();
+  const rows = allRows.filter(
+    (r) =>
+      (selectedProviders.length === 0 ||
+        selectedProviders.includes(r.providerName)) &&
+      (needle === "" ||
+        [r.personName, r.providerName, r.costObjectText].some((text) =>
+          text.toLowerCase().includes(needle)
+        ))
+  );
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageRows = rows.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const onSearchChange = (next: string) => {
+    setSearch(next);
+    setPage(1);
+  };
+  const onProvidersChange = (next: string[]) => {
+    setSelectedProviders(next);
+    setPage(1);
+  };
+  const onPageSizeChange = (next: number) => {
+    setPageSize(next);
+    setPage(1);
+  };
   const { generate, registerPrefacture, approve, object, busy } =
     useBillingMutations();
   const { toast } = useToast();
@@ -62,13 +97,18 @@ export const BillingContainer: React.FC = () => {
   );
   const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
-  const onPeriodChange = (next: string) =>
+  const onPeriodChange = (next: string) => {
     setParams(next === anchor ? {} : { period: next });
+    setPage(1);
+  };
 
+  // Las acciones miran el período entero, no lo que la búsqueda o el filtro
+  // dejan a la vista: generar y registrar actúan sobre el mes, y esconder
+  // una fila no debería apagar el botón.
   // Sin esperado generado: es lo que el botón de generar tiene que crear.
-  const withoutExpected = rows.filter((r) => r.status === "None").length;
+  const withoutExpected = allRows.filter((r) => r.status === "None").length;
   // Sin esperado generado no hay dónde registrar una prefactura.
-  const canRegisterAny = rows.some((r) => r.canRegisterPrefacture);
+  const canRegisterAny = allRows.some((r) => r.canRegisterPrefacture);
 
   const handleGenerate = async () => {
     const result = await generate(period);
@@ -142,67 +182,66 @@ export const BillingContainer: React.FC = () => {
   };
 
   /** Con una sola prefactura por registrar, el primario va directo a ella. */
-  const soleRegistrable = rows.find((r) => r.canRegisterPrefacture);
+  const soleRegistrable = allRows.find((r) => r.canRegisterPrefacture);
+
+  // Sin encabezado de módulo: el nombre de la pantalla ya lo da el breadcrumb
+  // del shell. El período no es un filtro de la tabla —decide de qué mes es
+  // todo lo que la pantalla muestra, cards incluidas—, así que sube a la
+  // franja del breadcrumb como navegador de mes, igual que en Ausencias, y
+  // con él las dos acciones de la pantalla. Tamaño small porque la franja es
+  // una banda de navegación, no un encabezado. El navegador se acota al rango
+  // que antes ofrecía el selector: el mes en curso y los cinco anteriores.
+  const oldest = periods[periods.length - 1];
+  useLeadBreadcrumbActions(
+    <div className="flex items-center gap-2">
+      <MonthNav
+        title={periodTitle(period)}
+        onPrevious={() => onPeriodChange(shiftPeriod(period, -1))}
+        onNext={() => onPeriodChange(shiftPeriod(period, 1))}
+        previousDisabled={period <= oldest}
+        nextDisabled={period >= anchor}
+      />
+      <Button
+        variant="secondary"
+        size="small"
+        onClick={handleGenerate}
+        isLoading={busy}
+        disabled={loading || withoutExpected === 0}
+        iconBefore={<Icon name="calibration" size={16} />}
+      >
+        Generar el esperado del mes
+      </Button>
+      <Button
+        variant="primary"
+        size="small"
+        onClick={() => soleRegistrable && openInvoice(soleRegistrable)}
+        disabled={loading || !canRegisterAny}
+        iconBefore={<Icon name="document" size={16} />}
+      >
+        Registrar prefactura
+      </Button>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          {/* El período va con el título, no entre los filtros del listado:
-              no acota lo que se lista, decide de qué mes es todo lo que la
-              pantalla muestra, indicadores incluidos. */}
-          <div className="flex flex-wrap items-end gap-3">
-            <h1 className="text-heading-lg font-semibold text-neutral-default">
-              Prefacturas
-            </h1>
-            {/* Etiqueta visible, no aria-label: el Select del sistema de diseño
-                no reenvía aria-label, así que el control quedaría sin nombre
-                accesible y nadie se enteraría. */}
-            <Select
-              label="Período"
-              options={periods.map((value) => ({
-                value,
-                label: periodLabel(value),
-              }))}
-              value={period}
-              onValueChange={onPeriodChange}
-              className="w-48"
-            />
-          </div>
-          <p className="text-body-sm text-neutral-subtle">
-            Revisa lo que cada proveedor propone cobrar por cada persona, contra
-            su tarifa, sus ausencias y sus horas extra del período.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            onClick={handleGenerate}
-            isLoading={busy}
-            disabled={loading || withoutExpected === 0}
-            iconBefore={<Icon name="calibration" size={20} />}
-          >
-            Generar el esperado del mes
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => soleRegistrable && openInvoice(soleRegistrable)}
-            disabled={loading || !canRegisterAny}
-            iconBefore={<Icon name="document" size={20} />}
-          >
-            Registrar prefactura
-          </Button>
-        </div>
-      </div>
+    <div className="flex flex-col gap-3">
       <BillingStatsCards stats={stats} period={period} loading={loading} />
       <BillingList
-        rows={rows}
+        rows={pageRows}
         loading={loading}
         error={error}
         onRetry={refetch}
+        search={search}
+        onSearchChange={onSearchChange}
         providers={providers}
         selectedProviders={selectedProviders}
-        onProvidersChange={setSelectedProviders}
+        onProvidersChange={onProvidersChange}
+        page={currentPage}
+        pageSize={pageSize}
+        total={total}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        onPageSizeChange={onPageSizeChange}
         onOpen={(row) => navigate(billingPath(row.id))}
         onRegisterInvoice={openInvoice}
         onApprove={(row) => openDecision(row, "Approved")}
@@ -226,10 +265,7 @@ export const BillingContainer: React.FC = () => {
           onOpenChange={(open) => {
             if (!open) setInvoiceTarget(null);
           }}
-          providerName={invoiceTarget.providerName}
-          period={invoiceTarget.period}
-          expected={invoiceTarget.expected}
-          isCorrection={invoiceTarget.status === "Objected"}
+          billing={invoiceTarget}
           saving={busy}
           serverError={invoiceError}
           onSubmit={handleInvoice}

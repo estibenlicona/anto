@@ -28,6 +28,8 @@ interface StoredAbsence {
   type: AbsenceType;
   startDate: string;
   endDate: string;
+  startsHalfDay: boolean;
+  endsHalfDay: boolean;
   status: AbsenceStatus;
   rejectReason: string | null;
 }
@@ -69,13 +71,16 @@ const seed = (
   start: Date,
   end: Date,
   status: AbsenceStatus,
-  rejectReason: string | null = null
+  rejectReason: string | null = null,
+  halves: { startsHalfDay?: boolean; endsHalfDay?: boolean } = {}
 ): StoredAbsence => ({
   id: `ab${String(n).repeat(6)}-${String(n).repeat(4)}-${String(n).repeat(4)}-${String(n).repeat(4)}-${String(n).repeat(12)}`,
   personId,
   type,
   startDate: formatIsoDate(start),
   endDate: formatIsoDate(end),
+  startsHalfDay: halves.startsHalfDay ?? false,
+  endsHalfDay: halves.endsHalfDay ?? false,
   status,
   rejectReason,
 });
@@ -101,13 +106,17 @@ const initialAbsences: StoredAbsence[] = [
     addDays(lastBusinessDayOfMonth(), 4),
     "Approved"
   ),
+  // Un permiso de medio día: sin un dato así, el decimal de la tabla y del
+  // resumen no se ve nunca en desarrollo. Sólo los permisos lo admiten.
   seed(
     3,
     "pbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
     "Leave",
     nthWeekday(3, 3),
     nthWeekday(3, 3),
-    "Requested"
+    "Requested",
+    null,
+    { startsHalfDay: true, endsHalfDay: true }
   ),
   seed(
     4,
@@ -133,6 +142,25 @@ let absences: StoredAbsence[] = initialAbsences.map((a) => ({ ...a }));
 /** Reinicia el estado en memoria del mock — llamar explícitamente en los tests que ejercitan mutaciones. */
 export function resetAbsencesMock() {
   absences = initialAbsences.map((a) => ({ ...a }));
+}
+
+/**
+ * Las marcas de media jornada que sobreviven a recortar la ausencia a un mes.
+ * Un rango que cruza de mes tiene, en cada tramo, un extremo que no es el de
+ * la ausencia: aplicarle la marca descontaría la misma media jornada dos
+ * veces, una en cada mes.
+ */
+function edgesWithinRange(
+  absence: StoredAbsence,
+  tramo: { start: Date; end: Date }
+) {
+  const start = parseIsoDate(absence.startDate)!;
+  const end = parseIsoDate(absence.endDate)!;
+  return {
+    startsHalfDay:
+      absence.startsHalfDay && tramo.start.getTime() === start.getTime(),
+    endsHalfDay: absence.endsHalfDay && tramo.end.getTime() === end.getTime(),
+  };
 }
 
 /** Una ausencia aprobada vista desde la facturación: sólo lo que el descuento necesita. */
@@ -176,7 +204,11 @@ export function getApprovedAbsencesSnapshot(month: string): {
         startDate: a.startDate,
         endDate: a.endDate,
         businessDaysInMonth: inMonth
-          ? countBusinessDays(inMonth.start, inMonth.end)
+          ? countBusinessDays(
+              inMonth.start,
+              inMonth.end,
+              edgesWithinRange(a, inMonth)
+            )
           : 0,
       };
     })
@@ -203,7 +235,11 @@ function enrich(absence: StoredAbsence, month: string): AbsenceDto {
   const monthBusinessDays = countBusinessDays(bounds.start, bounds.end);
   const inMonth = clampRange(start, end, bounds.start, bounds.end);
   const businessDaysInMonth = inMonth
-    ? countBusinessDays(inMonth.start, inMonth.end)
+    ? countBusinessDays(
+        inMonth.start,
+        inMonth.end,
+        edgesWithinRange(absence, inMonth)
+      )
     : 0;
   const shares = getAllocationsSnapshot()
     .filter((a) => a.personId === absence.personId)
@@ -216,7 +252,10 @@ function enrich(absence: StoredAbsence, month: string): AbsenceDto {
     ...absence,
     personName: person?.name ?? "Persona",
     providerName,
-    businessDays: countBusinessDays(start, end),
+    businessDays: countBusinessDays(start, end, {
+      startsHalfDay: absence.startsHalfDay,
+      endsHalfDay: absence.endsHalfDay,
+    }),
     businessDaysInMonth,
     squadImpacts: computeSquadImpacts(
       businessDaysInMonth,
@@ -235,7 +274,9 @@ function isValidCreateRequest(value: unknown): value is CreateAbsenceRequest {
     v.personId.length > 0 &&
     (v.type === "Vacation" || v.type === "Leave" || v.type === "SickLeave") &&
     typeof v.startDate === "string" &&
-    typeof v.endDate === "string"
+    typeof v.endDate === "string" &&
+    typeof v.startsHalfDay === "boolean" &&
+    typeof v.endsHalfDay === "boolean"
   );
 }
 
@@ -286,6 +327,28 @@ export const absencesHandlers = [
         { status: 400 }
       );
     }
+    // El medio día es del día pedido, no de un extremo del rango: las dos
+    // banderas viajan siempre iguales.
+    if (body.startsHalfDay !== body.endsHalfDay) {
+      return HttpResponse.json(
+        { message: "El medio día es del día pedido, no de un extremo" },
+        { status: 400 }
+      );
+    }
+    // Y sólo un permiso se pide así, sobre un único día: unas vacaciones o una
+    // incapacidad se piden por rango y por días completos.
+    if (body.startsHalfDay && body.type !== "Leave") {
+      return HttpResponse.json(
+        { message: "Sólo un permiso puede pedirse por medio día" },
+        { status: 400 }
+      );
+    }
+    if (body.startsHalfDay && body.startDate !== body.endDate) {
+      return HttpResponse.json(
+        { message: "Un medio día se pide sobre un solo día" },
+        { status: 400 }
+      );
+    }
     if (!getPeopleSnapshot().some((p) => p.id === body.personId)) {
       return HttpResponse.json(
         { message: "La persona no existe" },
@@ -320,6 +383,8 @@ export const absencesHandlers = [
       type: body.type,
       startDate: body.startDate,
       endDate: body.endDate,
+      startsHalfDay: body.startsHalfDay,
+      endsHalfDay: body.endsHalfDay,
       status: "Requested",
       rejectReason: null,
     };

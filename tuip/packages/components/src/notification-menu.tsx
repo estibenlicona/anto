@@ -55,6 +55,9 @@ export function NotificationMenu({
           sideOffset={4}
           className={cn(
             "z-menu flex w-[380px] flex-col overflow-hidden rounded-control border-default border-neutral-default bg-neutral-default shadow-md",
+            // Misma llegada que Menu: es un menú anclado a la campana.
+            "[transform-origin:var(--radix-dropdown-menu-content-transform-origin)]",
+            "data-[state=open]:animate-float-in data-[state=closed]:animate-float-out",
             className,
           )}
         >

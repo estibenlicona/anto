@@ -35,9 +35,17 @@ export function CommandPalette({
   return (
     <Command.Dialog
       onOpenChange={onOpenChange}
-      overlayClassName={cn("fixed inset-0 z-overlay bg-neutral-bold/40", overlayClassName)}
+      overlayClassName={cn(
+        // `scrim`: oscuro en los dos temas, ver la nota en Modal.
+        "fixed inset-0 z-overlay bg-neutral-scrim",
+        "data-[state=open]:animate-fade-in data-[state=closed]:animate-fade-out",
+        overlayClassName,
+      )}
       contentClassName={cn(
         "fixed left-1/2 top-[20vh] z-overlay w-modal-md -translate-x-1/2 overflow-hidden rounded-surface border-default border-neutral-default bg-neutral-default shadow-lg",
+        // Misma llegada que Modal: es un panel centrado, y cmdk envuelve el
+        // Dialog de Radix, así que expone el mismo `data-state`.
+        "data-[state=open]:animate-panel-in data-[state=closed]:animate-panel-out",
         contentClassName,
       )}
       {...props}

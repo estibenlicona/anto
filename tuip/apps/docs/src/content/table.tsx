@@ -20,7 +20,7 @@ export const tableContent: ComponentContent = {
       "Cuando cada fila tiene un detalle que se lee dentro de su propio contexto: `detail` lo abre como una fila más de la tabla, sin sacar al usuario a otra pantalla.",
     ],
     whenNotToUse: [
-      "Para búsqueda, filtros o paginación de datos: Table no trae esa lógica — se compone con `SearchField`, `FilterButton` y `PaginationBar`, y el filtrado/orden real de los datos sigue siendo responsabilidad del consumidor.",
+      "Para buscar, filtrar o paginar datos por sí sola: Table no trae esa lógica. Trae el lugar — los slots `toolbar` y `footer` — donde se componen `SearchField`, `FilterButton` y `PaginationBar`; el filtrado, el orden y la paginación reales siguen siendo responsabilidad del consumidor.",
       "Para agrupar un solo registro con sus atributos: eso es un `Card`, no una tabla de una fila.",
     ],
     pairs: [
@@ -48,6 +48,11 @@ export const tableContent: ComponentContent = {
         do: "Dejar que el contenedor propio de Table sea el que recorta cuando se usa `stickyFirstColumn`.",
         dont: "Envolver la tabla en un contenedor con `overflow: hidden` — una Card que recorta, un panel con `overflow-hidden` para redondear esquinas.",
         why: "`overflow: hidden` en cualquier ancestro anula `position: sticky`, y lo hace en silencio: no hay error, la columna simplemente se va con el scroll. El contenedor de Table usa `overflow-x-auto`, que sí es compatible; la trampa es el envoltorio que se agrega alrededor.",
+      },
+      {
+        do: "Pasar la fila de búsqueda y filtros como `toolbar` y la `PaginationBar` como `footer`, y dejar que Table dibuje la card que los envuelve.",
+        dont: "Envolver Table, filtros y paginación en una Card o un `div` con borde propio, con las clases de borde y fondo repetidas en cada pantalla.",
+        why: "Con contenido en un slot, Table dibuja un solo marco alrededor de barra, tabla y pie, y deja los slots fuera del desplazamiento horizontal para que no se muevan con las columnas ni recorten sus popovers. La card a mano necesitaba `overflow-hidden` para redondear esquinas, que es justo lo que anula `stickyFirstColumn`. Sin slots no cambia nada: el marco arranca en la cabecera.",
       },
       {
         do: "Armar la columna de selección componiendo `Checkbox` dentro de `TableHead`/`TableCell`, con el estado de selección en el consumidor.",
@@ -141,7 +146,17 @@ export const tableContent: ComponentContent = {
       {
         name: "Contenedor",
         measure: "border-neutral-default + overflow-x-auto",
-        note: "Table envuelve el elemento nativo en un contenedor con scroll horizontal, para que una tabla ancha no rompa el layout de la página. Con `flush` el contenedor conserva el scroll pero omite borde y esquinas, para cuando la tabla ya está dentro de una Card.",
+        note: "Table envuelve el elemento nativo en un contenedor con scroll horizontal, para que una tabla ancha no rompa el layout de la página. Con `flush` el contenedor conserva el scroll pero omite borde y esquinas, para cuando la tabla ya está dentro de una Card. Con `toolbar` o `footer`, el borde y las esquinas pasan a un marco que envuelve barra, tabla y pie; el scroll sigue siendo sólo de la tabla.",
+      },
+      {
+        name: "Barra (slot `toolbar`)",
+        measure: "px-4 py-3 · border-b · fuera del scroll",
+        note: "Zona de composición encima de la cabecera: búsqueda, filtros, acciones, lo que la pantalla necesite. Table no la interpreta. Queda fuera del contenedor de scroll, así que no se desplaza con las columnas ni recorta los popovers de los filtros. Sin contenido no existe: no hay banda vacía.",
+      },
+      {
+        name: "Pie (slot `footer`)",
+        measure: "px-4 py-3 · border-t · bg-neutral-subtlest",
+        note: "Zona debajo del cuerpo, con el mismo casi blanco que `TableFooter` — es un pie, no más contenido. El lugar natural de `PaginationBar`. Sin contenido no existe.",
       },
     ],
     renderState: (state) => {

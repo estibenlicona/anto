@@ -47,6 +47,12 @@ export interface SelectProps {
   className?: string;
   /** Id applied to the trigger and referenced by `label`'s `htmlFor`. Generated when omitted. */
   id?: string;
+  /**
+   * Accessible name for the trigger when there is no visible `label` — a field
+   * whose section title already names it, for instance. With `label` present
+   * the label wins and this is redundant.
+   */
+  "aria-label"?: string;
 }
 
 const SIZE_TRIGGER: Record<SelectSize, string> = {
@@ -73,6 +79,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
       onValueChange,
       className,
       id,
+      "aria-label": ariaLabel,
     },
     ref,
   ) => {
@@ -97,6 +104,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
           <SelectTrigger
             ref={ref}
             id={triggerId}
+            aria-label={ariaLabel}
             aria-describedby={describedBy}
             aria-required={required || undefined}
             placeholder={placeholder}
@@ -109,7 +117,12 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
             <RadixSelect.Content
               position="popper"
               sideOffset={4}
-              className="z-menu overflow-hidden rounded-control border-default border-neutral-default bg-neutral-default shadow-md"
+              className={cn(
+                "z-menu overflow-hidden rounded-control border-default border-neutral-default bg-neutral-default shadow-md",
+                // Crece desde el campo (la receta `float`).
+                "[transform-origin:var(--radix-select-content-transform-origin)]",
+                "data-[state=open]:animate-float-in data-[state=closed]:animate-float-out",
+              )}
             >
               <RadixSelect.Viewport className="max-h-64 p-1">
                 {loading ? (
@@ -139,6 +152,7 @@ Select.displayName = "Select";
 export interface SelectTriggerProps
   extends Pick<SelectProps, "placeholder" | "size" | "error" | "className"> {
   id?: string;
+  "aria-label"?: string;
   "aria-describedby"?: string;
   "aria-required"?: boolean;
 }
@@ -151,6 +165,7 @@ export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
       error,
       className,
       id,
+      "aria-label": ariaLabel,
       "aria-describedby": ariaDescribedBy,
       "aria-required": ariaRequired,
     },
@@ -160,6 +175,7 @@ export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
       <RadixSelect.Trigger
         ref={ref}
         id={id}
+        aria-label={ariaLabel}
         aria-invalid={Boolean(error)}
         aria-describedby={ariaDescribedBy}
         aria-required={ariaRequired}

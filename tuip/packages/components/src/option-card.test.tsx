@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { OptionCard, OptionCardGroup } from "./option-card";
@@ -10,7 +11,7 @@ function renderGroup(onValueChange = vi.fn(), value?: string) {
           <option>Kafka Migration</option>
         </select>
       </OptionCard>
-      <OptionCard value="bau" title="BAU" shortcut="2" />
+      <OptionCard value="bau" title="BAU" icon="bau" shortcut="2" />
       <OptionCard value="skip" title="Saltar" disabled />
       <OptionCard value="discard" title="Descartar" shortcut="3" />
     </OptionCardGroup>
@@ -89,6 +90,41 @@ describe("OptionCardGroup", () => {
     fireEvent.keyDown(select, { key: "ArrowDown" });
     fireEvent.click(select);
     expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it("dibuja el icono de la tarjeta sin darle nombre accesible propio", () => {
+    renderGroup();
+    // El icono acompaña al título, que ya nombra la opción: anunciarlo otra
+    // vez haría que el lector de pantalla dijera lo mismo dos veces.
+    const radio = screen.getByRole("radio", { name: "BAU" });
+    const svg = radio.querySelector("svg");
+    expect(svg).not.toBeNull();
+    expect(svg).toHaveAttribute("aria-hidden", "true");
+    // Y una tarjeta sin icono sigue sin dibujar ninguno.
+    expect(
+      screen.getByRole("radio", { name: "Descartar" }).querySelector("svg")
+    ).toBeNull();
+  });
+
+  it("las flechas siguen moviendo la selección aunque el padre re-renderice", () => {
+    // El grupo controlado desde fuera: cada selección re-renderiza al padre.
+    // Con el orden guardado en un ref que el grupo vaciaba en cada render,
+    // la segunda flecha se encontraba la lista vacía y no movía nada.
+    function Padre() {
+      const [value, setValue] = useState("initiative");
+      return (
+        <OptionCardGroup label="¿Qué es?" value={value} onValueChange={setValue} columns={3}>
+          <OptionCard value="initiative" title="Iniciativa" />
+          <OptionCard value="bau" title="BAU" />
+          <OptionCard value="discard" title="Descartar" />
+        </OptionCardGroup>
+      );
+    }
+    render(<Padre />);
+    fireEvent.keyDown(screen.getByRole("radio", { name: "Iniciativa" }), { key: "ArrowRight" });
+    expect(screen.getByRole("radio", { name: "BAU" })).toHaveAttribute("aria-checked", "true");
+    fireEvent.keyDown(screen.getByRole("radio", { name: "BAU" }), { key: "ArrowRight" });
+    expect(screen.getByRole("radio", { name: "Descartar" })).toHaveAttribute("aria-checked", "true");
   });
 
   it("muestra el atajo con Kbd", () => {

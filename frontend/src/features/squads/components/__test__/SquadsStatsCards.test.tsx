@@ -145,6 +145,17 @@ describe("SquadsStatsCards", () => {
     expect(container.querySelector(".bg-info-bold")).toBeNull();
   });
 
+  it("separa las tres cards con los mismos 12px que separan el resumen del listado", () => {
+    const { container } = render(
+      <SquadsStatsCards stats={stats} loading={false} />
+    );
+    // Una sola medida de separación en la vista (gap-3, como en ausencias):
+    // el grid dejó el gap-4 que lo hacía verse más suelto que el resto.
+    const grid = container.firstElementChild!;
+    expect(grid).toHaveClass("grid", "gap-3");
+    expect(grid).not.toHaveClass("gap-4");
+  });
+
   it("lee cuántas células están en criticidad alta o crítica", () => {
     render(<SquadsStatsCards stats={stats} loading={false} />);
     expect(screen.getByText("3")).toBeInTheDocument();

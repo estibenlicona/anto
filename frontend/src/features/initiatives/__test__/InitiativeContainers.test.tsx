@@ -9,20 +9,35 @@ import {
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { ToastProvider } from "@tuya-ui/components";
 import { resetInitiativesMock } from "../../../mocks/handlers/initiatives.handlers";
+import {
+  LeadBreadcrumbProvider,
+  useLeadBreadcrumb,
+} from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { initiativeService } from "../services/initiativeService";
 import { InitiativesContainer } from "../InitiativesContainer";
 import { InitiativeEvaluationContainer } from "../InitiativeEvaluationContainer";
+
+// Hace las veces de la franja del breadcrumb del shell: pinta lo que el
+// contenedor publica ahí (el botón "Nueva iniciativa"). Sin ella el botón no
+// existiría en el DOM del test.
+function BreadcrumbActionsProbe() {
+  const { actions } = useLeadBreadcrumb();
+  return <div data-testid="breadcrumb-actions">{actions}</div>;
+}
 
 function renderAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <ToastProvider>
-        <Routes>
-          <Route
-            path="/app/lead/iniciativas"
-            element={<InitiativesContainer />}
-          />
-        </Routes>
+        <LeadBreadcrumbProvider>
+          <BreadcrumbActionsProbe />
+          <Routes>
+            <Route
+              path="/app/lead/iniciativas"
+              element={<InitiativesContainer />}
+            />
+          </Routes>
+        </LeadBreadcrumbProvider>
       </ToastProvider>
     </MemoryRouter>
   );
@@ -52,7 +67,26 @@ describe("InitiativesContainer", () => {
     expect(await screen.findByText("Kafka Migration")).toBeInTheDocument();
     expect(screen.getByText("SIN EVALUAR")).toBeInTheDocument();
     expect(screen.getByText("FTE DEMANDADO")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Nueva iniciativa" }));
+    // Sin encabezado de módulo: ni título ni descripción; el botón vive en
+    // la franja del breadcrumb, no en el contenido.
+    expect(
+      screen.queryByRole("heading", { name: "Iniciativas" })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Las solicitudes del negocio/)
+    ).not.toBeInTheDocument();
+    const newButton = screen.getByRole("button", { name: "Nueva iniciativa" });
+    expect(screen.getByTestId("breadcrumb-actions")).toContainElement(
+      newButton
+    );
+    // Resumen y listado se apilan con gap-3, la única medida de separación
+    // de la pantalla (misma que ausencias y células); antes era gap-6.
+    const root = screen
+      .getByText("SIN EVALUAR")
+      .closest(".grid")!.parentElement!;
+    expect(root).toHaveClass("gap-3");
+    expect(root).not.toHaveClass("gap-6");
+    fireEvent.click(newButton);
     fireEvent.change(await screen.findByLabelText(/Nombre/), {
       target: { value: "Nueva del test" },
     });

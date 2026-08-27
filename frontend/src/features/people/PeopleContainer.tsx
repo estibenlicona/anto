@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Icon, useToast } from "@tuya-ui/components";
+import { Button, Icon, useToast } from "@tuya-ui/components";
+import { useLeadBreadcrumbActions } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { usePeople } from "./hooks/usePeople";
 import { usePersonMutations } from "./hooks/usePersonMutations";
 import { useCatalogs } from "./hooks/useCatalogs";
 import { usePeopleStats } from "./hooks/usePeopleStats";
 import { useStackCatalog } from "./hooks/useStackCatalog";
 import { useCapacityOverview } from "@features/control-tower/hooks/useCapacityOverview";
-import { PeopleHeader } from "./components/PeopleHeader";
 import { PeopleStatsCards } from "./components/PeopleStatsCards";
 import { PeopleList } from "./components/PeopleList";
 import { PersonFormDrawer } from "./components/PersonFormDrawer";
@@ -78,6 +78,21 @@ export const PeopleContainer: React.FC = () => {
     setFormOpen(true);
   };
 
+  // Sin encabezado de módulo: el nombre de la pantalla ya lo da el breadcrumb
+  // del shell, y el botón sube a esa misma franja, a la derecha, para que el
+  // resumen y la tabla arranquen arriba. Tamaño small porque la franja es una
+  // banda de navegación, no un encabezado.
+  useLeadBreadcrumbActions(
+    <Button
+      variant="primary"
+      size="small"
+      onClick={openCreate}
+      iconBefore={<Icon name="user" size={16} />}
+    >
+      Nueva persona
+    </Button>
+  );
+
   const openEdit = (person: Person) => {
     setEditingPerson(person);
     setFormError(null);
@@ -127,8 +142,7 @@ export const PeopleContainer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <PeopleHeader onCreate={openCreate} />
+    <div className="flex flex-col gap-3">
       <PeopleStatsCards
         stats={stats}
         loading={statsLoading}

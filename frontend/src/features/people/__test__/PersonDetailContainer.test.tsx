@@ -101,6 +101,23 @@ describe("PersonDetailContainer", () => {
     expect(screen.getByText("Ficha")).toBeInTheDocument();
   });
 
+  it("separa bloques, columnas y paneles con una sola medida", async () => {
+    const { container } = renderDetail(MARIA);
+    await screen.findByRole("heading", { name: "María González" });
+    // Encabezado, cards y paneles a gap-3 —la medida del listado—; antes el
+    // raíz iba a gap-6 y el grid de dos columnas y sus pilas a gap-4.
+    const grid = container.querySelector('[class*="xl:grid-cols-[7fr_5fr]"]')!;
+    expect(grid).toHaveClass("gap-3");
+    expect(grid).not.toHaveClass("gap-4");
+    const root = grid.parentElement!;
+    expect(root).toHaveClass("gap-3");
+    expect(root).not.toHaveClass("gap-6");
+    for (const column of Array.from(grid.children)) {
+      expect(column).toHaveClass("gap-3");
+      expect(column).not.toHaveClass("gap-4");
+    }
+  });
+
   it("validar horas cambia el estado y recalcula el real", async () => {
     renderDetail(MARIA);
     fireEvent.click(await screen.findByRole("button", { name: "Validar" }));

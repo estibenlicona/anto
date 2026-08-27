@@ -116,16 +116,50 @@ describe("SpanMatrixContainer", () => {
     });
   });
 
-  it("ofrece abrir las evaluaciones que faltan, no sólo avisar que faltan", async () => {
+  it("avisa de las evaluaciones que faltan sin un botón propio: el camino es el detalle de la celda", async () => {
     renderMatrix();
     await screen.findByText("Paula Ramírez");
 
     expect(
       screen.getByText(/Sin evaluación cerrada no hay brecha que medir/)
     ).toBeInTheDocument();
+    // El "Evaluar a …" del detalle de celda es el único camino, y ya tiene
+    // su propia prueba más abajo.
     expect(
-      screen.getByRole("button", { name: "Abrir evaluaciones" })
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Abrir evaluaciones" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("acotar desde la barra del mapa deja la barra montada y la columna fija viva", async () => {
+    renderMatrix();
+    await screen.findByText("Paula Ramírez");
+
+    fireEvent.click(screen.getByRole("radio", { name: "Técnicas" }));
+    await waitFor(() => expect(columnas()).toHaveLength(7));
+
+    // La barra sigue en la card, y el scroller (padre de <table>) sigue
+    // llevando el estado de desplazamiento de la columna fija.
+    const scroller = screen.getByRole("table").parentElement as HTMLElement;
+    const marco = scroller.parentElement as HTMLElement;
+    expect(
+      marco.contains(screen.getByRole("radio", { name: "Técnicas" }))
+    ).toBe(true);
+    expect(scroller).toHaveAttribute("data-scrolled", "false");
+  });
+
+  it("la leyenda del mapa vive en la columna de apoyo, con las demás cards", async () => {
+    renderMatrix();
+    await screen.findByText("Paula Ramírez");
+
+    const columna = screen.getByRole("complementary");
+    expect(within(columna).getByText("Dónde enfocarse")).toBeInTheDocument();
+    // No queda nada en la card del mapa aparte de su barra y la tabla. (El
+    // padre directo de <table> es el scroller de Table; el de éste, el marco.)
+    const marco = screen.getByRole("table").parentElement!
+      .parentElement as HTMLElement;
+    expect(
+      within(marco).queryByText("Dónde enfocarse")
+    ).not.toBeInTheDocument();
   });
 
   it("sin celda activa la columna de apoyo no deja un hueco esperando", async () => {
@@ -235,9 +269,28 @@ describe("SpanMatrixContainer", () => {
     expect(porColumna.reduce((a, b) => a + b, 0)).toBe(total);
     expect(total).toBe(6);
 
-    // Y el encabezado de la pantalla dice lo mismo que el pie, con el rótulo
-    // que corresponde a una cifra que sigue al recorte.
-    expect(screen.getByText(/6 brechas a la vista/)).toBeInTheDocument();
+    // Y la fila de controles dice lo mismo que el pie, con el rótulo que
+    // corresponde a una cifra que sigue al recorte: vive junto al control que
+    // la cambia, no en un encabezado.
+    const contador = screen.getByText(/6 brechas a la vista/);
+    expect(
+      contador.parentElement!.contains(
+        screen.getByText(/Sin evaluación cerrada no hay brecha que medir/)
+      )
+    ).toBe(true);
+    // Y el filtro de habilidades va dentro de la card del mapa, en su barra
+    // (slot toolbar de Table): el marco lo contiene, y no contiene las notas.
+    const marcoMapa = screen.getByRole("table").parentElement!
+      .parentElement as HTMLElement;
+    expect(
+      marcoMapa.contains(screen.getByRole("radio", { name: "Técnicas" }))
+    ).toBe(true);
+    expect(marcoMapa.contains(contador)).toBe(false);
+    // Sin encabezado de módulo: el nombre lo pone el breadcrumb del shell.
+    expect(screen.queryByRole("heading", { level: 1 })).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Brecha entre el nivel que pide cada cargo/)
+    ).not.toBeInTheDocument();
   });
 
   it("los indicadores del chapter no se mueven al acotar la matriz", async () => {
@@ -272,11 +325,12 @@ describe("SpanMatrixContainer", () => {
       // Cinco técnicas más Persona y Brechas.
       expect(columnas()).toHaveLength(7)
     );
-    expect(
-      screen.getByText(
-        /Los totales cuentan sólo las 5 habilidades a la vista, de 9/
-      )
-    ).toBeInTheDocument();
+    // Contador y aviso de recorte son una sola frase, y "a la vista" se dice
+    // una vez: el aviso habla de habilidades "visibles".
+    const aviso = screen.getByText(
+      /\d+ brechas? a la vista\. Los totales cuentan sólo las 5 habilidades visibles, de 9\./
+    );
+    expect(aviso.textContent!.match(/a la vista/g)).toHaveLength(1);
   });
 
   it("ordena las filas por brechas, de mayor a menor", async () => {
@@ -299,9 +353,10 @@ describe("SpanMatrixContainer", () => {
     expect(porBrechas.length).toBeGreaterThan(1);
     expect(porBrechas).toEqual([...porBrechas].sort((a, b) => b - a));
 
-    // Cambiar el criterio cambia el orden.
-    fireEvent.click(screen.getByRole("radio", { name: "Por nombre" }));
-    await waitFor(() => expect(gapsPorFila()).not.toEqual(porBrechas));
+    // El orden es fijo: no se ofrece ponerla por nombre.
+    expect(
+      screen.queryByRole("radio", { name: "Por nombre" })
+    ).not.toBeInTheDocument();
   });
 
   it("ordena las columnas por brechas dentro de cada grupo", async () => {

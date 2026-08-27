@@ -33,6 +33,9 @@ const Metric: React.FC<{
  * filete, las cinco tallas como columnas fijas: camiseta que crece con la
  * talla, la letra en el matiz categórico de su Tag y la cifra debajo — las
  * tallas en cero se quedan, en gris, para que la escala se lea siempre igual.
+ *
+ * Las tres cards comparten anatomía: rótulo, la cifra sola y al pie una
+ * referencia con datos (no una explicación de qué mide la cifra).
  */
 export const InitiativesStatsCards: React.FC<InitiativesStatsCardsProps> = ({
   stats,
@@ -40,8 +43,15 @@ export const InitiativesStatsCards: React.FC<InitiativesStatsCardsProps> = ({
 }) => {
   if (loading || !stats) return null;
 
+  const totalText = `de ${stats.total} ${
+    stats.total === 1 ? "iniciativa" : "iniciativas"
+  }`;
+  const activeText = `FTE de ${stats.active} ${
+    stats.active === 1 ? "activa" : "activas"
+  }`;
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
       <Card className="sm:col-span-2 lg:col-span-1">
         <CardBody className="flex h-full items-stretch gap-5">
           <div className="flex min-w-24 flex-col justify-between gap-1">
@@ -50,8 +60,7 @@ export const InitiativesStatsCards: React.FC<InitiativesStatsCardsProps> = ({
               {stats.active}
             </span>
             <span className="text-body-sm text-neutral-subtle">
-              de {stats.total}{" "}
-              {stats.total === 1 ? "iniciativa" : "iniciativas"}
+              {totalText}
             </span>
           </div>
           <ul
@@ -90,17 +99,13 @@ export const InitiativesStatsCards: React.FC<InitiativesStatsCardsProps> = ({
         </CardBody>
       </Card>
 
-      <Metric
-        label="FTE DEMANDADO"
-        foot="FTE esperado que suman las iniciativas activas."
-      >
+      {/* La unidad baja al pie, como en la card de impacto de ausencias:
+          arriba la cifra sola, abajo lo que la hace legible. */}
+      <Metric label="FTE DEMANDADO" foot={activeText}>
         {fteText(stats.fteDemand)}
-        <span className="ml-1 text-body-sm font-medium text-neutral-subtle">
-          FTE
-        </span>
       </Metric>
 
-      <Metric label="SIN EVALUAR" foot="Sin talla no entran a la demanda.">
+      <Metric label="SIN EVALUAR" foot={totalText}>
         {stats.unevaluated}
       </Metric>
     </div>
