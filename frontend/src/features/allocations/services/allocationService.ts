@@ -1,9 +1,6 @@
 import { httpClient } from "@shared/services/httpClient";
 import type { PagedResult } from "@shared/services/pagination";
-import type {
-  Modality,
-  Seniority,
-} from "@features/people/services/personService";
+import type { Modality, Level } from "@features/people/services/personService";
 
 export interface AllocationDto {
   id: string;
@@ -23,8 +20,8 @@ export interface AllocationDto {
   // Hoy los sirve el mock (brecha documentada en add-squad-detail-page).
   personPosition: string;
   personModality: Modality;
-  personSeniority: Seniority;
-  personSeniorityLabel: string;
+  personLevel: Level;
+  personLevelLabel: string;
   /** 100 − dedicación: una persona tiene una sola asignación. */
   personAvailablePercentage: number;
 }
@@ -55,14 +52,14 @@ export const allocationService = {
     page: number,
     pageSize: number,
     search?: string,
-    seniorities?: Seniority[]
+    levels?: Level[]
   ): Promise<PagedResult<AllocationDto>> => {
     // Serializado a mano como personService: `seniority=A&seniority=B`.
     const params = new URLSearchParams();
     params.set("page", String(page));
     params.set("pageSize", String(pageSize));
     if (search) params.set("search", search);
-    seniorities?.forEach((s) => params.append("seniority", String(s)));
+    levels?.forEach((s) => params.append("level", String(s)));
     const response = await httpClient.get<PagedResult<AllocationDto>>(
       `${SQUADS_URL}/${squadId}/allocations`,
       { params }

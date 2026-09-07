@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- helpers junto al componente, patrón previo del archivo (mismo criterio que routes.tsx) */
 import React from "react";
 import {
   Alert,
@@ -23,8 +24,8 @@ import {
 import { TableStatusRow } from "@shared/components/TableStatusRow";
 import { getPersonInitials } from "@features/people/adapters/PersonAdapter";
 import type {
-  Seniority,
-  SeniorityOption,
+  Level,
+  LevelOption,
 } from "@features/people/services/personService";
 import type { Allocation } from "../adapters/AllocationAdapter";
 import { DedicationCell } from "@shared/components/DedicationCell";
@@ -73,9 +74,9 @@ export interface AllocationsListProps {
   onPageSizeChange: (pageSize: number) => void;
   search: string;
   onSearchChange: (value: string) => void;
-  seniorityOptions: SeniorityOption[];
-  selectedSeniorities: Seniority[];
-  onSenioritiesChange: (values: Seniority[]) => void;
+  levelOptions: LevelOption[];
+  selectedLevels: Level[];
+  onLevelsChange: (values: Level[]) => void;
 }
 
 export const AllocationsList: React.FC<AllocationsListProps> = ({
@@ -94,12 +95,11 @@ export const AllocationsList: React.FC<AllocationsListProps> = ({
   onPageSizeChange,
   search,
   onSearchChange,
-  seniorityOptions,
-  selectedSeniorities,
-  onSenioritiesChange,
+  levelOptions,
+  selectedLevels,
+  onLevelsChange,
 }) => {
-  const hasActiveFilter =
-    search.trim().length > 0 || selectedSeniorities.length > 0;
+  const hasActiveFilter = search.trim().length > 0 || selectedLevels.length > 0;
 
   if (!loading && !error && allocations.length === 0 && !hasActiveFilter) {
     return (
@@ -131,16 +131,16 @@ export const AllocationsList: React.FC<AllocationsListProps> = ({
             placeholder="Buscar por nombre o cargo"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="max-w-xs"
+            className="w-96"
           />
           <FilterButton
-            label="Seniority"
-            options={seniorityOptions.map((s) => ({
+            label="Nivel"
+            options={levelOptions.map((s) => ({
               value: String(s.value),
               label: s.label,
             }))}
-            selected={selectedSeniorities.map(String)}
-            onChange={(values) => onSenioritiesChange(values.map(Number))}
+            selected={selectedLevels.map(String)}
+            onChange={(values) => onLevelsChange(values.map(Number))}
           />
         </>
       }
@@ -161,7 +161,7 @@ export const AllocationsList: React.FC<AllocationsListProps> = ({
       <TableHeader>
         <TableRow>
           <TableHead>Persona</TableHead>
-          <TableHead>Seniority</TableHead>
+          <TableHead>Nivel</TableHead>
           <TableHead>Dedicación en esta célula</TableHead>
           <TableHead>BAU / Transformación</TableHead>
           <TableHead>Disponible de la persona</TableHead>
@@ -226,7 +226,7 @@ export const AllocationsList: React.FC<AllocationsListProps> = ({
                 </TableCell>
                 <TableCell>
                   <SeniorityCard
-                    level={allocation.personSeniorityLabel}
+                    level={allocation.personLevelLabel}
                     density="compact"
                   />
                 </TableCell>

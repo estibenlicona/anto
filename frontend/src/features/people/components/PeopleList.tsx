@@ -25,7 +25,12 @@ import {
 } from "@tuya-ui/components";
 import { TableStatusRow } from "@shared/components/TableStatusRow";
 import { getPersonInitials, type Person } from "../adapters/PersonAdapter";
-import type { Seniority, SeniorityOption } from "../services/personService";
+import type {
+  Level,
+  LevelOption,
+  Seniority,
+  SeniorityOption,
+} from "../services/personService";
 
 export interface PeopleListProps {
   people: Person[];
@@ -43,6 +48,9 @@ export interface PeopleListProps {
   onPageSizeChange: (pageSize: number) => void;
   search: string;
   onSearchChange: (value: string) => void;
+  levelOptions: LevelOption[];
+  selectedLevels: Level[];
+  onLevelsChange: (values: Level[]) => void;
   seniorityOptions: SeniorityOption[];
   selectedSeniorities: Seniority[];
   onSenioritiesChange: (values: Seniority[]) => void;
@@ -70,6 +78,9 @@ export const PeopleList: React.FC<PeopleListProps> = ({
   onPageSizeChange,
   search,
   onSearchChange,
+  levelOptions,
+  selectedLevels,
+  onLevelsChange,
   seniorityOptions,
   selectedSeniorities,
   onSenioritiesChange,
@@ -79,6 +90,7 @@ export const PeopleList: React.FC<PeopleListProps> = ({
 }) => {
   const hasActiveFilter =
     search.trim().length > 0 ||
+    selectedLevels.length > 0 ||
     selectedSeniorities.length > 0 ||
     selectedStacks.length > 0;
 
@@ -112,16 +124,25 @@ export const PeopleList: React.FC<PeopleListProps> = ({
             placeholder="Buscar por nombre o cargo"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="max-w-xs"
+            className="w-96"
+          />
+          <FilterButton
+            label="Nivel"
+            options={levelOptions.map((o) => ({
+              value: String(o.value),
+              label: o.label,
+            }))}
+            selected={selectedLevels.map(String)}
+            onChange={(values) => onLevelsChange(values.map(Number))}
           />
           <FilterButton
             label="Seniority"
-            options={seniorityOptions.map((s) => ({
-              value: String(s.value),
-              label: s.label,
+            options={seniorityOptions.map((o) => ({
+              value: o.value,
+              label: o.label,
             }))}
-            selected={selectedSeniorities.map(String)}
-            onChange={(values) => onSenioritiesChange(values.map(Number))}
+            selected={selectedSeniorities}
+            onChange={(values) => onSenioritiesChange(values as Seniority[])}
           />
           <FilterButton
             label="Stack"
@@ -150,6 +171,7 @@ export const PeopleList: React.FC<PeopleListProps> = ({
           <TableHead>Nombre</TableHead>
           <TableHead>Cargo</TableHead>
           <TableHead>Stacks</TableHead>
+          <TableHead>Nivel</TableHead>
           <TableHead>Seniority</TableHead>
           <TableHead>Modalidad</TableHead>
           <TableHead>FTE</TableHead>
@@ -159,13 +181,13 @@ export const PeopleList: React.FC<PeopleListProps> = ({
       </TableHeader>
       <TableBody>
         {loading ? (
-          <TableStatusRow colSpan={8}>
+          <TableStatusRow colSpan={9}>
             <p className="text-body-sm text-neutral-subtle">
               Cargando personas…
             </p>
           </TableStatusRow>
         ) : error ? (
-          <TableStatusRow colSpan={8}>
+          <TableStatusRow colSpan={9}>
             <Alert
               variant="danger"
               title="No se pudieron cargar las personas"
@@ -179,7 +201,7 @@ export const PeopleList: React.FC<PeopleListProps> = ({
             </Alert>
           </TableStatusRow>
         ) : people.length === 0 ? (
-          <TableStatusRow colSpan={8}>
+          <TableStatusRow colSpan={9}>
             <EmptyState
               icon={<Icon name="search" size={32} />}
               title="Sin resultados"
@@ -262,11 +284,11 @@ export const PeopleList: React.FC<PeopleListProps> = ({
                         El nivel llega por nombre y la card resuelve el resto —
                         un valor inesperado cae en su estado vacío, que ocupa
                         lo mismo y no descuadra la columna. */}
-                <SeniorityCard
-                  level={person.seniorityLabel}
-                  density="compact"
-                />
+                <SeniorityCard level={person.levelLabel} density="compact" />
               </TableCell>
+              {/* El seniority es texto plano: dos columnas, dos vocabularios —
+                  el medidor queda reservado al nivel. */}
+              <TableCell>{person.seniorityLabel}</TableCell>
               <TableCell>{person.modality}</TableCell>
               <TableCell>
                 {/* Lectura, no edición: el FTE se cambia en el drawer.

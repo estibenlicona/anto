@@ -4,7 +4,7 @@ import { usePersonDetail } from "../usePersonDetail";
 import { resetPersonDetailMock } from "../../../../mocks/handlers/personDetail.handlers";
 import { resetAllocationsMock } from "../../../../mocks/handlers/allocations.handlers";
 import { resetPeopleMock } from "../../../../mocks/handlers/people.handlers";
-import { MARIA } from "../../../../mocks/handlers/personDetail.seeds";
+import { CAMILA } from "../../../../mocks/handlers/personDetail.seeds";
 import { personDetailService } from "../../services/personDetailService";
 
 describe("usePersonDetail", () => {
@@ -15,17 +15,21 @@ describe("usePersonDetail", () => {
   });
 
   it("carga y adapta el detalle; refetch refleja una mutación", async () => {
-    const { result } = renderHook(() => usePersonDetail(MARIA));
+    const { result } = renderHook(() => usePersonDetail(CAMILA));
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.detail?.person.name).toBe("María González");
-    expect(result.current.detail?.currentReport?.status).toBe("Submitted");
+    expect(result.current.detail?.person.name).toBe("Camila Restrepo");
+    expect(result.current.detail?.devOpsIdentity).toBeNull();
     expect(result.current.notFound).toBe(false);
 
-    await personDetailService.validateHours(MARIA, "S16");
+    // La mutación que sí existe en el detalle: vincular la identidad DevOps.
+    const user = await personDetailService.searchDevOpsUser(
+      "camila.restrepo@tuya.com"
+    );
+    await personDetailService.linkDevOpsIdentity(CAMILA, user.id);
     act(() => result.current.refetch());
     await waitFor(() =>
-      expect(result.current.detail?.currentReport?.status).toBe("Validated")
+      expect(result.current.detail?.devOpsIdentity?.id).toBe(user.id)
     );
   });
 

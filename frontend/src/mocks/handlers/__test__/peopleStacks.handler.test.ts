@@ -32,17 +32,26 @@ describe("stacks en el mock de personas", () => {
 
   it("filtra por stack (cualquiera de los elegidos) y cuenta el subconjunto", async () => {
     const all = await personService.list(1, 100);
-    const azure = await personService.list(1, 100, undefined, undefined, [
-      "Azure",
-    ]);
+    const azure = await personService.list(
+      1,
+      100,
+      undefined,
+      undefined,
+      undefined,
+      ["Azure"]
+    );
     expect(azure.totalCount).toBeLessThan(all.totalCount);
     expect(
       azure.items.every((p) => p.stacks.some((s) => s.name === "Azure"))
     ).toBe(true);
-    const both = await personService.list(1, 100, undefined, undefined, [
-      "AS400",
-      "MuleSoft",
-    ]);
+    const both = await personService.list(
+      1,
+      100,
+      undefined,
+      undefined,
+      undefined,
+      ["AS400", "MuleSoft"]
+    );
     expect(both.totalCount).toBe(2);
   });
 

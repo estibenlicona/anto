@@ -1,0 +1,38 @@
+/* Tailwind v4: sólo para las utilidades propias del host (layout del portal). */
+@import "tailwindcss";
+
+/* La tipografía del sistema: IBM Plex Sans en los cuatro pesos de la escala e
+   IBM Plex Mono para lo literal. Los woff2 viajan con el bundle. */
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-sans/700.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+/* Tuya UI (tuip) — tokens + utilidades pre-generadas del design system */
+@import "@tuya-ui/components/styles.css";
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+body {
+  /* La familia la fija tuip (`--font-sans`, IBM Plex Sans): una sola fuente
+     para el shell y para los componentes. */
+  font-family: var(--font-sans);
+  color: var(--color-text-neutral-default);
+  background-color: var(--color-bg-neutral-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

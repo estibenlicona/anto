@@ -70,6 +70,9 @@ const FORBIDDEN = {
  * ahí todo lo que se pide es efectivamente una llamada al API.
  */
 const DEV_ASSET_PREFIXES = [
+  // Un build servido localmente (vite preview) pide sus chunks bajo /assets/;
+  // tampoco son llamadas de datos.
+  "/assets/",
   "/src/",
   "/node_modules/",
   "/@vite",

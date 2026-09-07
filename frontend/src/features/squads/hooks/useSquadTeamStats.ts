@@ -10,6 +10,7 @@ export const useSquadTeamStats = (squadId: string | undefined) => {
 
   useEffect(() => {
     if (!squadId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset síncrono anterior a la regla; se mantiene tal cual (deuda ajena a este change)
       setStats(null);
       setLoading(false);
       return;

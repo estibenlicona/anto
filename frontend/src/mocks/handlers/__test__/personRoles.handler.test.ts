@@ -50,7 +50,8 @@ describe("el catálogo de roles", () => {
         // Lo que el campo tenía antes: el cargo copiado.
         role: "Backend Dev" as never,
         technicalLeadId: null,
-        seniority: 2,
+        level: 2,
+        seniority: "Junior" as const,
         modality: "Remote",
         availableFte: 1,
         monthlyCost: 5000000,
@@ -142,6 +143,7 @@ describe("el nivel esperado se lee del cargo", () => {
       // dedica.
       role: "Contributor",
       technicalLeadId: null,
+      level: carlos.level,
       seniority: carlos.seniority,
       modality: carlos.modality,
       availableFte: carlos.availableFte,
@@ -172,6 +174,7 @@ describe("el nivel esperado se lee del cargo", () => {
       position: carlos.position,
       role: "Contributor",
       technicalLeadId: null,
+      level: carlos.level,
       seniority: carlos.seniority,
       modality: carlos.modality,
       availableFte: carlos.availableFte,
@@ -222,6 +225,7 @@ describe("la línea de expertise en el formulario", () => {
       position: carlos.position,
       role: "TechnicalLead",
       technicalLeadId: null,
+      level: carlos.level,
       seniority: carlos.seniority,
       modality: carlos.modality,
       availableFte: carlos.availableFte,

@@ -2,38 +2,35 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Button, EmptyState, Icon, useToast } from "@tuya-ui/components";
 import { useLeadBreadcrumbTrailing } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
-import { useCapacityOverview } from "@features/control-tower/hooks/useCapacityOverview";
-import {
-  asAllocation,
-  useReassignPerson,
-} from "@features/control-tower/hooks/useReassignPerson";
-import { ReassignPersonDrawer } from "@features/control-tower/components/ReassignPersonDrawer";
-import { useAllocationMutations } from "@features/allocations/hooks/useAllocationMutations";
-import { RemoveAllocationConfirmDialog } from "@features/allocations/components/RemoveAllocationConfirmDialog";
 import { usePersonDetail } from "./hooks/usePersonDetail";
+import { usePersonPlan } from "./hooks/usePersonPlan";
 import { usePersonDetailMutations } from "./hooks/usePersonDetailMutations";
 import { usePersonMutations } from "./hooks/usePersonMutations";
 import { useCatalogs } from "./hooks/useCatalogs";
 import { personAdapter, type PersonFormValues } from "./adapters/PersonAdapter";
-import { personDetailAdapter } from "./adapters/PersonDetailAdapter";
 import { PersonFormDrawer } from "./components/PersonFormDrawer";
-import { DeletePersonConfirmDialog } from "./components/DeletePersonConfirmDialog";
 import { PersonDetailHeader } from "./components/detail/PersonDetailHeader";
-import { PersonDetailStatsCards } from "./components/detail/PersonDetailStatsCards";
-import { PersonAssignmentPanel } from "./components/detail/PersonAssignmentPanel";
-import { PersonUnassignedPanel } from "./components/detail/PersonUnassignedPanel";
-import { HoursBySprintPanel } from "./components/detail/HoursBySprintPanel";
+import { PersonPointerCards } from "./components/detail/PersonPointerCards";
+import { PersonSkillProfilePanel } from "./components/detail/PersonSkillProfilePanel";
+import { PersonPlanPanel } from "./components/detail/PersonPlanPanel";
 import { PersonStacksPanel } from "./components/detail/PersonStacksPanel";
 import { EditStacksDrawer } from "./components/detail/EditStacksDrawer";
 import { useStackCatalog } from "./hooks/useStackCatalog";
 import { usePersonStacksMutation } from "./hooks/usePersonStacksMutation";
 import { PersonProfilePanel } from "./components/detail/PersonProfilePanel";
-import { LinkDevOpsIdentityModal } from "./components/detail/LinkDevOpsIdentityModal";
+import { LinkDevOpsIdentityDrawer } from "./components/detail/LinkDevOpsIdentityDrawer";
 
 export interface PersonDetailContainerProps {
   personId: string | undefined;
 }
 
+/**
+ * El perfil profesional de la persona. La página no muestra ni gestiona nada
+ * de su asignación —eso vive en la Torre de control y en Células— y del
+ * sprint sólo lleva el puntero con el resumen que sirve Capacidad. Sus
+ * escrituras propias son tres: editar a la persona, editar sus stacks y
+ * vincular su identidad DevOps.
+ */
 export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
   personId,
 }) => {
@@ -41,24 +38,13 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
   const { toast } = useToast();
   const { detail, loading, error, notFound, refetch } =
     usePersonDetail(personId);
-  // Las células que el drawer ofrece (todas, ordenadas por necesidad): la
-  // misma lista que la Torre. El overview se refresca junto con el detalle.
-  const overview = useCapacityOverview();
-  const refreshAll = () => {
-    refetch();
-    overview.refetch();
-  };
-  const reassign = useReassignPerson(refreshAll);
-  const { validateHours, linkIdentity, validating, linking } =
-    usePersonDetailMutations();
-  const { remove: removeAllocation, removing } = useAllocationMutations();
+  // El plan viaja aparte y degrada por partes: si falla, los paneles de
+  // competencias muestran su estado vacío sin tumbar la ficha (design D3).
+  const { plan } = usePersonPlan(personId);
+  const { linkIdentity, linking } = usePersonDetailMutations();
+  const { update: updatePerson, updating } = usePersonMutations();
   const {
-    update: updatePerson,
-    remove: removePerson,
-    updating,
-    removing: deleting,
-  } = usePersonMutations();
-  const {
+    levels,
     seniorities,
     modalities,
     companies,
@@ -72,10 +58,6 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
   const [formOpen, setFormOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
   const [formError, setFormError] = useState<string | null>(null);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [removeOpen, setRemoveOpen] = useState(false);
-  const [removeError, setRemoveError] = useState<string | null>(null);
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkKey, setLinkKey] = useState(0);
   const [linkError, setLinkError] = useState<string | null>(null);
@@ -126,12 +108,7 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
   }
 
   const person = personAdapter.toEntity(detail.person);
-  // La etiqueta sale del catálogo, que esta pantalla ya carga para el
-  // formulario. Sin él —mientras carga— se muestra el valor del contrato, que
-  // es feo pero no miente.
-  const roleLabel =
-    roles.find((r) => r.value === person.role)?.label ?? person.role;
-  const overviewPerson = personDetailAdapter.toOverviewPerson(detail);
+  const planHref = `/app/lead/competencias/${detail.person.id}`;
 
   const openEdit = () => {
     setFormError(null);
@@ -148,56 +125,9 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
         message: "Persona actualizada",
         icon: <Icon name="status-success" size={16} />,
       });
-      refreshAll();
+      refetch();
     } else if (result.error) {
       setFormError(result.error);
-    }
-  };
-
-  const handleDeleteConfirm = async () => {
-    setDeleteError(null);
-    const result = await removePerson(person);
-    if (result.success) {
-      setDeleteOpen(false);
-      toast({
-        message: "Persona eliminada",
-        icon: <Icon name="status-success" size={16} />,
-      });
-      navigate("/app/lead/personas");
-    } else if (result.error) {
-      setDeleteError(result.error);
-    }
-  };
-
-  const handleRemoveConfirm = async () => {
-    setRemoveError(null);
-    const result = await removeAllocation(asAllocation(overviewPerson));
-    if (result.success) {
-      setRemoveOpen(false);
-      toast({
-        message: "Asignación quitada",
-        icon: <Icon name="status-success" size={16} />,
-      });
-      refreshAll();
-    } else if (result.error) {
-      setRemoveError(result.error);
-    }
-  };
-
-  const handleValidate = async () => {
-    if (!detail.currentReport) return;
-    const result = await validateHours(
-      detail.person.id,
-      detail.currentReport.sprint
-    );
-    if (result.success) {
-      toast({
-        message: `Reporte del ${detail.currentReport.sprint} validado`,
-        icon: <Icon name="status-success" size={16} />,
-      });
-      refetch();
-    } else {
-      toast({ message: result.error ?? "No se pudo validar el reporte" });
     }
   };
 
@@ -230,17 +160,19 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
     setLinkOpen(true);
   };
 
-  const handleLinkConfirm = async (identityId: string) => {
+  const handleLinkConfirm = async (devOpsUserId: string) => {
     setLinkError(null);
-    const result = await linkIdentity(detail.person.id, identityId);
+    const result = await linkIdentity(detail.person.id, devOpsUserId);
     if (result.success) {
       setLinkOpen(false);
       toast({
-        message: "Identidad DevOps vinculada",
+        message: "Identidad vinculada",
         icon: <Icon name="status-success" size={16} />,
       });
       refetch();
     } else if (result.error) {
+      // Se queda abierto con el resultado a la vista: el 409 dice quién tiene
+      // esa identidad, y cerrar sería esconderlo.
       setLinkError(result.error);
     }
   };
@@ -249,85 +181,35 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
     <div className="flex flex-col gap-3">
       <PersonDetailHeader
         detail={detail}
-        roleLabel={roleLabel}
         onEdit={openEdit}
-        onReassign={() => reassign.openFor(overviewPerson)}
-        onDelete={() => {
-          setDeleteError(null);
-          setDeleteOpen(true);
-        }}
-        onAssess={() =>
-          navigate(`/app/lead/personas/${detail.person.id}/evaluacion`)
-        }
-        onCareerPlan={() =>
-          navigate(`/app/lead/competencias/${detail.person.id}`)
-        }
+        onCareerPlan={() => navigate(planHref)}
       />
 
-      <PersonDetailStatsCards
-        detail={detail}
-        onValidateHours={handleValidate}
-        onLinkIdentity={openLink}
-        validating={validating}
-      />
-
-      <div className="grid items-start gap-3 xl:grid-cols-[7fr_5fr]">
+      {/* La ficha y los stacks protagonizan (2/3); los punteros y las
+          lecturas de competencias van al costado (1/3). */}
+      <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="flex flex-col gap-3">
-          {detail.allocation ? (
-            <PersonAssignmentPanel
-              detail={detail}
-              onRaise={() =>
-                reassign.openFor(overviewPerson, { initialMode: "raise" })
-              }
-              onMove={() =>
-                reassign.openFor(overviewPerson, { initialMode: "move" })
-              }
-              onRemove={() => {
-                setRemoveError(null);
-                setRemoveOpen(true);
-              }}
-            />
-          ) : (
-            <PersonUnassignedPanel
-              detail={detail}
-              onAssignTo={(squadId) =>
-                reassign.openFor(overviewPerson, {
-                  initialMode: "assign",
-                  initialTargetSquadId: squadId,
-                })
-              }
-            />
-          )}
-          <HoursBySprintPanel detail={detail} />
+          <PersonProfilePanel detail={detail} onEdit={openEdit} />
+          <PersonStacksPanel detail={detail} onEdit={openStacks} />
         </div>
         <div className="flex flex-col gap-3">
-          <PersonStacksPanel detail={detail} onEdit={openStacks} />
-          <PersonProfilePanel detail={detail} onEdit={openEdit} />
+          <PersonPointerCards
+            detail={detail}
+            plan={plan}
+            planHref={planHref}
+            onLinkIdentity={openLink}
+          />
+          <PersonSkillProfilePanel plan={plan} planHref={planHref} />
+          <PersonPlanPanel plan={plan} planHref={planHref} />
         </div>
       </div>
-
-      {reassign.target && (
-        <ReassignPersonDrawer
-          key={reassign.drawerKey}
-          open
-          onOpenChange={(open) => {
-            if (!open) reassign.close();
-          }}
-          person={reassign.target}
-          squads={overview.squadsByNeed}
-          saving={reassign.saving}
-          serverError={reassign.serverError}
-          onSubmit={reassign.handleSubmit}
-          initialMode={reassign.options.initialMode}
-          initialTargetSquadId={reassign.options.initialTargetSquadId}
-        />
-      )}
 
       <PersonFormDrawer
         key={formKey}
         open={formOpen}
         onOpenChange={setFormOpen}
         person={person}
+        levels={levels}
         seniorities={seniorities}
         modalities={modalities}
         roles={roles}
@@ -340,26 +222,6 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
         serverError={formError}
         onSubmit={handleFormSubmit}
       />
-
-      <DeletePersonConfirmDialog
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-        person={person}
-        deleting={deleting}
-        serverError={deleteError}
-        onConfirm={handleDeleteConfirm}
-      />
-
-      {detail.allocation && (
-        <RemoveAllocationConfirmDialog
-          open={removeOpen}
-          onOpenChange={setRemoveOpen}
-          allocation={asAllocation(overviewPerson)}
-          removing={removing}
-          serverError={removeError}
-          onConfirm={handleRemoveConfirm}
-        />
-      )}
 
       {stacksOpen && (
         <EditStacksDrawer
@@ -376,12 +238,12 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
       )}
 
       {linkOpen && (
-        <LinkDevOpsIdentityModal
+        <LinkDevOpsIdentityDrawer
           key={linkKey}
           open={linkOpen}
           onOpenChange={setLinkOpen}
           personName={detail.person.name}
-          candidates={detail.devOpsCandidates}
+          personEmail={detail.person.userPrincipalName}
           linking={linking}
           serverError={linkError}
           onConfirm={handleLinkConfirm}

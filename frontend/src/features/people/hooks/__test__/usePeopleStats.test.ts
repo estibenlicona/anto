@@ -13,7 +13,9 @@ const mockStats = {
   activeCount: 3,
   fteAvailable: 2.8,
   fteTarget: 12,
-  bySeniority: [{ seniority: 3, label: "Avanzado", count: 1 }],
+  bySeniority: [
+    { seniority: "Intermediate" as const, label: "Intermedio", count: 1 },
+  ],
   sample: [{ id: "1", name: "María González" }],
   stackCoverage: { distinct: 0, atRisk: [] },
 };

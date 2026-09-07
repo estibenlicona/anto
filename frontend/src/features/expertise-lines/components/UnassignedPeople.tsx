@@ -59,7 +59,7 @@ export const UnassignedPeople: React.FC<UnassignedPeopleProps> = ({
                   {person.name}
                 </span>
                 <span className="block text-body-sm text-neutral-subtle">
-                  {person.position} · {person.seniorityLabel} ·{" "}
+                  {person.position} · {person.levelLabel} ·{" "}
                   {person.availableFteLabel} FTE
                 </span>
               </span>

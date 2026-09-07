@@ -75,8 +75,8 @@ export interface LinePersonView {
   id: string;
   name: string;
   position: string;
-  seniorityLabel: string;
-  seniority: number;
+  levelLabel: string;
+  level: number;
   availableFteLabel: string;
   isLead: boolean;
   squadName: string | null;
@@ -89,8 +89,8 @@ function toPersonView(dto: LinePersonDto): LinePersonView {
     id: dto.id,
     name: dto.name,
     position: dto.position,
-    seniority: dto.seniority,
-    seniorityLabel: dto.seniorityLabel,
+    level: dto.level,
+    levelLabel: dto.levelLabel,
     availableFteLabel: formatFte(dto.availableFte),
     isLead: dto.isLead,
     squadName: dto.allocation?.squadName ?? null,
@@ -150,7 +150,7 @@ export interface RosterPersonView {
   id: string;
   name: string;
   position: string;
-  seniorityLabel: string;
+  levelLabel: string;
   availableFteLabel: string;
   /** El nombre de su línea, o `null` si no tiene. */
   lineName: string | null;
@@ -169,7 +169,7 @@ function toRosterPerson(dto: RosterPersonDto): RosterPersonView {
     id: dto.id,
     name: dto.name,
     position: dto.position,
-    seniorityLabel: dto.seniorityLabel,
+    levelLabel: dto.levelLabel,
     availableFteLabel: formatFte(dto.availableFte),
     lineName: dto.line?.name ?? null,
     lineId: dto.line?.id ?? null,

@@ -1,13 +1,15 @@
 ## Purpose
 
 La capacidad `people` permite al Chapter Lead consultar, crear, editar y eliminar las personas registradas en el sistema, como el maestro del que se deriva la capacidad disponible del chapter.
+
 ## Requirements
+
 ### Requirement: Resumen del módulo de Personas
 El sistema SHALL mostrar, arriba del listado de Personas, un encabezado con el título del módulo, su descripción, el botón para dar de alta una persona, y un resumen de 3 indicadores sobre el total de personas **a cargo del Chapter Lead** (no sobre la página ni el filtro actual del listado, y no sobre todas las personas del sistema): total de personas activas con sus avatares, FTE disponible frente a la capacidad objetivo, y distribución por seniority. Los avatares del resumen SHALL usar el mismo color por persona que el listado.
 
-La distribución por seniority SHALL pintar cada nivel con el mismo color con que el listado representa ese nivel — el vocabulario ordinal del sistema de diseño —, tanto en los segmentos de la barra como en los puntos de su leyenda, de modo que un solo código de color describa el nivel en toda la pantalla. El sistema NO SHALL definir localmente esos colores: los toma del sistema de diseño, y un cambio de matiz en la escala SHALL reflejarse en la card sin tocar el código de la aplicación.
+La distribución por seniority SHALL contar por la escala de **Seniority** —Junior, Intermedio, Senior—, no por la escala de niveles: el Nivel (Principiante → Experto) se lee en la columna Nivel del listado y en Competencias. La barra y su leyenda SHALL pintar los tres escalones con el vocabulario ordinal del sistema de diseño recorrido de menor a mayor. El sistema NO SHALL definir localmente esos colores: los toma del sistema de diseño, y un cambio de matiz en la escala SHALL reflejarse en la card sin tocar el código de la aplicación.
 
-Debajo de la distribución, la card SHALL mostrar dos lecturas calculadas de las mismas cifras: el porcentaje del total que está en el nivel Avanzado o superior, y cuántas personas están en el nivel que requiere acompañamiento (Principiante) — de modo que el estado general del equipo se lea de un vistazo sin sumar mentalmente la leyenda.
+La card SHALL abrir con una lectura calculada de las mismas cifras — el porcentaje del total que es Senior, con su frase ("4 de 13 en Senior") — y la leyenda SHALL llevar el conteo de cada escalón, de modo que cuántas personas son Junior (las que requieren acompañamiento) se lea directamente de la leyenda.
 
 #### Scenario: Los indicadores cuentan sólo lo que el lead tiene a cargo
 - **WHEN** el sistema registra personas de más de un chapter y el Chapter Lead abre la pantalla
@@ -31,19 +33,19 @@ Debajo de la distribución, la card SHALL mostrar dos lecturas calculadas de las
 
 #### Scenario: Distribución por seniority
 - **WHEN** el Chapter Lead ve el resumen de Personas
-- **THEN** el sistema muestra cuántas personas hay en cada uno de los 4 niveles de seniority del catálogo
+- **THEN** el sistema muestra cuántas personas hay en cada uno de los tres seniorities del catálogo —Junior, Intermedio, Senior— y en ningún caso distribuye por los 4 niveles de la escala Tuya
 
 #### Scenario: Lectura de avanzado o superior
 - **WHEN** el Chapter Lead ve el pie de la card de distribución
-- **THEN** encuentra el porcentaje del total que está en Avanzado o Experto, calculado sobre las mismas cifras que muestra la distribución
+- **THEN** encuentra el porcentaje del total que es Senior, calculado sobre las mismas cifras que muestra la distribución
 
 #### Scenario: Lectura de acompañamiento
-- **WHEN** el Chapter Lead ve el pie de la card de distribución
-- **THEN** encuentra cuántas personas están en el nivel Principiante, presentadas como las que requieren acompañamiento
+- **WHEN** el Chapter Lead busca cuántas personas requieren acompañamiento
+- **THEN** el conteo de Junior se lee en la leyenda de la distribución, junto a su punto de acento
 
 #### Scenario: El nivel viste el mismo color en la card y en el listado
-- **WHEN** el Chapter Lead compara el segmento o el punto de leyenda de un nivel en la card de distribución con el medidor de ese mismo nivel en una fila del listado
-- **THEN** ambos usan el mismo matiz del vocabulario ordinal del sistema de diseño, sin que la pantalla tenga dos códigos de color para el mismo dato
+- **WHEN** el Chapter Lead compara la card de distribución con la columna Nivel del listado
+- **THEN** cada escala usa el vocabulario ordinal del sistema de diseño de forma consistente consigo misma: la card recorre los tres seniorities de menor a mayor y el medidor de Nivel sus cuatro escalones, sin colores definidos localmente en ninguna de las dos
 
 #### Scenario: Un cambio de matiz en la escala llega solo
 - **WHEN** el sistema de diseño cambia el matiz de un nivel de la escala ordinal
@@ -54,13 +56,13 @@ Debajo de la distribución, la card SHALL mostrar dos lecturas calculadas de las
 - **THEN** el resumen de los 3 indicadores sigue reflejando el total de personas registradas, sin cambiar según la búsqueda o los filtros activos
 
 ### Requirement: Listar personas
-El sistema SHALL mostrar un listado paginado de las personas **a cargo del Chapter Lead**, con al menos avatar, nombre, correo corporativo, cargo, rol, seniority y modalidad visibles por fila, y SHALL exponer por fila un menú de acciones que permite editar o eliminar esa persona. El avatar SHALL mostrar las iniciales de la persona (primera letra del primer nombre y primera letra del primer apellido, derivadas del nombre completo) sobre un color propio de esa persona, estable en el tiempo y entre pantallas. El correo corporativo SHALL mostrarse bajo el nombre, con menor jerarquía visual que éste. El seniority SHALL mostrarse con el nombre de su nivel en la escala Tuya (Principiante, Competente, Avanzado, Experto), sin mostrar el número del nivel.
+El sistema SHALL mostrar un listado paginado de las personas **a cargo del Chapter Lead**, con al menos avatar, nombre, correo corporativo, cargo, rol, nivel, seniority y modalidad visibles por fila, y SHALL exponer por fila un menú de acciones que permite editar o eliminar esa persona. El avatar SHALL mostrar las iniciales de la persona (primera letra del primer nombre y primera letra del primer apellido, derivadas del nombre completo) sobre un color propio de esa persona, estable en el tiempo y entre pantallas. El correo corporativo SHALL mostrarse bajo el nombre, con menor jerarquía visual que éste. El **Nivel** y el **Seniority** SHALL ser columnas separadas: el Nivel con el nombre de su escalón en la escala Tuya (Principiante, Competente, Avanzado, Experto), sin número; el Seniority con uno de sus tres valores —Junior, Intermedio, Senior—, sin mezclar los vocabularios de las dos escalas.
 
 El nombre SHALL ser un enlace a la pantalla de detalle de esa persona. Ese enlace NO SHALL mostrarse en el color de marca: SHALL tomar el color de texto neutro del listado, de modo que la primera columna no quede teñida por repetir un enlace destacado en cada fila. En reposo el nombre NO SHALL distinguirse del texto plano de la fila; SHALL revelar su condición de enlace al pasar el puntero sobre él y al recibir el foco por teclado. El sistema NO SHALL definir localmente el tratamiento visual del enlace: lo toma del componente de enlace del sistema de diseño, eligiendo su tono neutro.
 
-El seniority SHALL mostrarse con el componente de nivel del sistema de diseño —el que presenta el nombre del nivel junto a un medidor de cuatro segmentos teñido según la posición del nivel en la escala— y NO SHALL mostrarse con el componente de estado que el sistema usa para comunicar la situación de un elemento. La representación SHALL ocupar la misma dimensión en todas las filas, cualquiera sea el nivel y tenga o no la persona un nivel asignado, de modo que los niveles de personas distintas queden comparables entre sí de un vistazo. El sistema NO SHALL definir localmente los colores, medidas ni segmentos de esa representación: los toma del componente del sistema de diseño.
+El **nivel** SHALL mostrarse con el componente de nivel del sistema de diseño —el que presenta el nombre del escalón junto a un medidor de cuatro segmentos teñido según su posición en la escala— y NO SHALL mostrarse con el componente de estado. La representación SHALL ocupar la misma dimensión en todas las filas, cualquiera sea el nivel y tenga o no la persona uno asignado, de modo que los niveles de personas distintas queden comparables de un vistazo. El **seniority** SHALL mostrarse como texto plano en su propia columna —Junior, Intermedio o Senior—, sin medidor y sin componente de estado. El sistema NO SHALL definir localmente los colores, medidas ni segmentos del medidor: los toma del componente del sistema de diseño.
 
-El sistema SHALL permitir buscar personas por nombre o cargo (coincidencia parcial, sin distinguir mayúsculas) y filtrar por seniority (selección múltiple), combinable con la paginación; al cambiar la búsqueda o el filtro, el listado vuelve a la primera página.
+El sistema SHALL permitir buscar personas por nombre o cargo (coincidencia parcial, sin distinguir mayúsculas) y filtrar por **nivel** (la escala de 4) y por **seniority** (Junior/Intermedio/Senior), cada uno de selección múltiple y combinables con la paginación; al cambiar la búsqueda o un filtro, el listado vuelve a la primera página.
 
 La **utilización** de cada fila SHALL mostrarse como una cantidad: el medidor del sistema de diseño relleno con el tono azul de la escala de acento sobre la pista neutra, sin cambiar de color por umbral (ni al 85 % ni al 100 %); la cifra es la señal numérica. Es el mismo azul que el resto de la pantalla usa para la escala ordinal.
 
@@ -78,9 +80,9 @@ Cada fila SHALL mostrar además el FTE disponible de la persona como número, y 
 
 El nombre SHALL ser un enlace a la pantalla de detalle de esa persona. Ese enlace NO SHALL mostrarse en el color de marca: SHALL tomar el color de texto neutro del listado, de modo que la primera columna no quede teñida por repetir un enlace destacado en cada fila. En reposo el nombre NO SHALL distinguirse del texto plano de la fila; SHALL revelar su condición de enlace al pasar el puntero sobre él y al recibir el foco por teclado. El sistema NO SHALL definir localmente el tratamiento visual del enlace: lo toma del componente de enlace del sistema de diseño, eligiendo su tono neutro.
 
-El seniority SHALL mostrarse con el componente de nivel del sistema de diseño —el que presenta el nombre del nivel junto a un medidor de cuatro segmentos teñido según la posición del nivel en la escala— y NO SHALL mostrarse con el componente de estado que el sistema usa para comunicar la situación de un elemento. La representación SHALL ocupar la misma dimensión en todas las filas, cualquiera sea el nivel y tenga o no la persona un nivel asignado, de modo que los niveles de personas distintas queden comparables entre sí de un vistazo. El sistema NO SHALL definir localmente los colores, medidas ni segmentos de esa representación: los toma del componente del sistema de diseño.
+El **nivel** SHALL mostrarse con el componente de nivel del sistema de diseño —el que presenta el nombre del escalón junto a un medidor de cuatro segmentos teñido según su posición en la escala— y NO SHALL mostrarse con el componente de estado. La representación SHALL ocupar la misma dimensión en todas las filas, cualquiera sea el nivel y tenga o no la persona uno asignado, de modo que los niveles de personas distintas queden comparables de un vistazo. El **seniority** SHALL mostrarse como texto plano en su propia columna —Junior, Intermedio o Senior—, sin medidor y sin componente de estado. El sistema NO SHALL definir localmente los colores, medidas ni segmentos del medidor: los toma del componente del sistema de diseño.
 
-El sistema SHALL permitir buscar personas por nombre o cargo (coincidencia parcial, sin distinguir mayúsculas) y filtrar por seniority (selección múltiple), combinable con la paginación; al cambiar la búsqueda o el filtro, el listado vuelve a la primera página.
+El sistema SHALL permitir buscar personas por nombre o cargo (coincidencia parcial, sin distinguir mayúsculas) y filtrar por **nivel** (la escala de 4) y por **seniority** (Junior/Intermedio/Senior), cada uno de selección múltiple y combinables con la paginación; al cambiar la búsqueda o un filtro, el listado vuelve a la primera página.
 
 #### Scenario: Stacks en la fila
 - **WHEN** una persona tiene cinco stacks con ".NET" como principal
@@ -92,23 +94,23 @@ El sistema SHALL permitir buscar personas por nombre o cargo (coincidencia parci
 
 #### Scenario: Listado con datos
 - **WHEN** el Chapter Lead abre la pantalla de Personas y existen personas registradas
-- **THEN** el sistema muestra una página de resultados con una fila por cada persona de esa página, su avatar con iniciales, nombre, correo corporativo, cargo, rol, seniority y modalidad, junto con el total de personas y la navegación entre páginas
+- **THEN** el sistema muestra una página de resultados con una fila por cada persona de esa página, su avatar con iniciales, nombre, correo corporativo, cargo, rol, nivel, seniority y modalidad, junto con el total de personas y la navegación entre páginas
 
 #### Scenario: Presentación del seniority en la fila
-- **WHEN** el sistema muestra la fila de una persona con seniority "Avanzado"
-- **THEN** la celda de seniority presenta el nombre del nivel junto a su medidor de cuatro segmentos, con tres de ellos llenos, y no como una etiqueta de estado
+- **WHEN** el sistema muestra la fila de una persona de nivel "Avanzado" y seniority "Senior"
+- **THEN** la celda de nivel presenta "Avanzado" junto a su medidor de cuatro segmentos con tres llenos, y la celda de seniority dice "Senior" como texto plano — dos columnas, dos vocabularios, ninguna como etiqueta de estado
 
 #### Scenario: Los niveles se comparan entre filas
 - **WHEN** el listado muestra personas de niveles distintos en filas sucesivas
-- **THEN** todas las representaciones de seniority ocupan el mismo ancho y sus medidores quedan alineados, de modo que la diferencia de nivel se lee sin leer las etiquetas
+- **THEN** todas las celdas de nivel ocupan el mismo ancho y sus medidores quedan alineados, de modo que la diferencia de nivel se lee sin leer las etiquetas
 
 #### Scenario: El seniority no comparte vocabulario con el estado
-- **WHEN** una fila muestra a la vez el seniority de la persona y algún dato suyo que sí es un estado
-- **THEN** cada uno usa un componente distinto, sin que dos elementos de naturaleza distinta compartan la misma forma en la misma fila
+- **WHEN** una fila muestra a la vez el seniority y el nivel de la persona y algún dato suyo que sí es un estado
+- **THEN** cada uno usa una forma distinta —texto plano el seniority, medidor el nivel, componente de estado el estado— sin que dos elementos de naturaleza distinta compartan la misma forma en la misma fila
 
 #### Scenario: Una persona sin nivel asignado no desalinea la columna
-- **WHEN** el listado muestra una persona cuyo seniority no pertenece a la escala o no está asignado
-- **THEN** su celda muestra el estado vacío que define el componente, con la misma dimensión que las demás
+- **WHEN** el listado muestra una persona cuyo nivel no pertenece a la escala o no está asignado
+- **THEN** su celda de nivel muestra el estado vacío que define el componente, con la misma dimensión que las demás; la de seniority muestra un guion neutro cuando falta
 
 #### Scenario: Listado vacío
 - **WHEN** el Chapter Lead abre la pantalla de Personas y no existe ninguna persona registrada
@@ -143,12 +145,12 @@ El sistema SHALL permitir buscar personas por nombre o cargo (coincidencia parci
 - **THEN** el sistema muestra solo las personas cuyo nombre o cargo contiene ese texto (sin distinguir mayúsculas), junto con el total y la paginación recalculados sobre ese subconjunto
 
 #### Scenario: Filtrar por seniority
-- **WHEN** el Chapter Lead selecciona uno o más valores en el filtro de Seniority
+- **WHEN** el Chapter Lead selecciona uno o más valores en el filtro de Seniority (Junior, Intermedio, Senior)
 - **THEN** el sistema muestra solo las personas cuyo seniority está entre los valores seleccionados, junto con el total y la paginación recalculados sobre ese subconjunto
 
 #### Scenario: Filtrar por nivel SFIA
-- **WHEN** el Chapter Lead busca el filtro de "Nivel SFIA" que existía como campo separado antes de este cambio
-- **THEN** encuentra el mismo filtro bajo el nombre "Seniority" — ambos campos se fusionaron en uno solo (ver el escenario "Filtrar por seniority" de este mismo requisito) y "Nivel SFIA" ya no existe como filtro propio
+- **WHEN** el Chapter Lead busca el filtro de la escala de 4 niveles (el que antes se llamó "Nivel SFIA" y luego "Seniority")
+- **THEN** lo encuentra bajo el nombre **Nivel**, con los valores Principiante, Competente, Avanzado y Experto; "Seniority" es ahora un filtro distinto con Junior, Intermedio y Senior, y "Nivel SFIA" no existe como filtro
 
 #### Scenario: Combinar búsqueda y filtros
 - **WHEN** el Chapter Lead tiene texto en el buscador y el filtro de seniority activo al mismo tiempo
@@ -302,17 +304,17 @@ El sistema SHALL permitir eliminar una persona existente solo tras una confirmac
 - **THEN** el sistema muestra el motivo del error y mantiene la persona visible en el listado
 
 ### Requirement: Selección de seniority y modalidad desde catálogo
-El sistema SHALL ofrecer seniority, modalidad y **rol** como selecciones restringidas a los valores vigentes de los catálogos expuestos por el backend (mockeados), no como texto libre. El seniority SHALL mostrarse con el nombre de su nivel en la escala Tuya (Principiante, Competente, Avanzado, Experto), sin mostrar el número del nivel.
+El sistema SHALL ofrecer **nivel**, **seniority**, modalidad y **rol** como selecciones restringidas a los valores vigentes de los catálogos expuestos por el backend (mockeados), no como texto libre. El catálogo de **niveles** SHALL contener la escala Tuya de 4 —Principiante, Competente, Avanzado, Experto—, mostrada por nombre y sin número; el catálogo de **seniorities** SHALL contener Junior, Intermedio y Senior. El formulario de alta y edición SHALL ofrecer los dos selectores, uno por escala, sin mezclar sus vocabularios.
 
 El catálogo de roles SHALL contener los roles con los que se participa en la aplicación —Administrador, Líder Técnico, Líder de Expertise, Product Owner y Colaborador— y SHALL mostrarlos en español. **Colaborador** SHALL ser el de quien participa sin liderar, y SHALL existir porque el rol es obligatorio: sin él, la mayoría de las personas quedarían con un liderazgo que no tienen, y la pantalla lo mostraría como un hecho. En el código y en el contrato sus nombres SHALL escribirse en inglés: lo que se lee y lo que se programa son dos vocabularios, y confundirlos obliga a traducir en cada punto de contacto.
 
 #### Scenario: Opciones de seniority
 - **WHEN** el Chapter Lead abre el selector de seniority en el formulario de alta o edición
-- **THEN** el sistema muestra los cuatro niveles con el nombre de su nivel en la escala Tuya, sin el número
+- **THEN** el sistema muestra únicamente Junior, Intermedio y Senior, obtenidos del catálogo
 
 #### Scenario: Opciones de nivel SFIA
-- **WHEN** el Chapter Lead busca el selector de "Nivel SFIA" que existía como campo separado antes de este cambio
-- **THEN** encuentra los mismos cuatro niveles dentro del selector de "Seniority" — ambos campos se fusionaron en uno solo y "Nivel SFIA" ya no existe como selector propio
+- **WHEN** el Chapter Lead busca la escala de 4 (la que antes se llamó "Nivel SFIA" y luego se fusionó en "Seniority")
+- **THEN** la encuentra en el selector **Nivel** —Principiante, Competente, Avanzado, Experto, por nombre y sin número— como campo propio, separado del selector de Seniority
 
 #### Scenario: Opciones de modalidad
 - **WHEN** el Chapter Lead abre el selector de modalidad en el formulario de alta o edición
@@ -330,85 +332,111 @@ El sistema SHALL permitir marcar una persona como externa, y SHALL mostrar en es
 - **THEN** el sistema no muestra el selector de proveedor y no lo incluye en la petición al confirmar
 
 ### Requirement: Detalle de persona
-El sistema SHALL exponer una página de detalle por persona en `/app/lead/personas/:id`, accesible desde el nombre de la persona en el listado, con la entrada "Personas" activa en la navegación lateral y el breadcrumb `Plataforma / Gestionar Personas / <nombre de la persona>`. La página SHALL tener la misma anatomía que el detalle de célula: un enlace de vuelta al listado, un encabezado, tres indicadores y dos columnas de paneles.
+El sistema SHALL exponer una página de detalle por persona en `/app/lead/personas/:id`, accesible desde el nombre de la persona en el listado, con la entrada "Personas" activa en la navegación lateral y el breadcrumb `Plataforma / Gestionar Personas / <nombre de la persona>`. La página SHALL ser el **perfil profesional** de la persona y SHALL NOT mostrar nada de su asignación: ni célula, ni dedicación, ni mix BAU / Transformación, ni FTE declarado o libre, ni células que pidan su capacidad — la asignación se gestiona en la Torre de control y en Células.
 
-Cada dato de la persona SHALL aparecer una sola vez en la página. El **encabezado** SHALL mostrar el avatar (mismas iniciales y color que en el listado), el nombre, el seniority con el medidor de nivel del sistema de diseño seguido de su nivel SFIA ("Avanzado · SFIA 3"), la vinculación ("Interna" o "Externa · <proveedor>"), la marca de estado "Sin célula" cuando la persona no tiene asignación, y debajo el cargo y el rol, la modalidad en español (Remoto, Híbrido, Presencial), el correo corporativo y el estado de su identidad DevOps ("DevOps vinculado" o "Sin identidad DevOps", este último con el rol de color de peligro). Ninguno de esos datos SHALL repetirse en la ficha.
+El **encabezado** SHALL ser mínimo: el avatar (mismas iniciales y color que el listado), el nombre, y debajo una sola línea con el cargo y el **stack principal** como chip. SHALL NOT llevar enlace de vuelta (el breadcrumb navega), ni seniority, ni vinculación, ni modalidad, ni correo, ni estado DevOps, ni marca "Sin célula". Las **acciones** SHALL ser exactamente dos: **Editar** (la primaria; mismo formulario y validaciones que el listado) y **Competencias** (sutil; navega al plan de la persona en el módulo Competencias). SHALL NOT haber acción de reasignar, evaluar ni menú con eliminar (eliminar sigue disponible en el listado).
 
-Las **acciones** del encabezado SHALL ser: *Editar persona* (mismo formulario y validaciones que el listado), la acción primaria de capacidad —*Reasignar* cuando tiene célula, *Asignar a una célula* cuando no— que abre el mismo drawer de reasignación de la Torre de control con la misma semántica (asignar = crear, subir = editar, mover = quitar y crear), y un menú con *Eliminar* (mismo diálogo de confirmación que el listado; tras eliminar, el sistema vuelve al listado). Tras asignar, reasignar, quitar o editar, el detalle SHALL refrescarse sin recargar la aplicación.
+El cuerpo SHALL ser dos columnas: la **columna protagonista** (dos tercios) con los paneles Perfil y Stacks, y la **barra lateral** (un tercio) con dos punteros compactos seguidos de Perfil evaluado y Plan de desarrollo.
 
-Los **tres indicadores** SHALL ser: **Asignado vs real** (FTE asignado sobre FTE disponible declarado, el FTE real del último sprint validado y la diferencia en puntos con el asignado, o "Sin sprints reportados" si no hay); **Reporte de horas del sprint actual** (horas reportadas sobre las horas del sprint, si cae dentro del rango de tolerancia, el reparto en horas BAU / Iniciativa / Libre como barra segmentada, el estado del reporte, y el botón **Validar** sólo cuando el estado es "Por validar"; "No aplica · sin célula no reporta" para una persona sin célula); y **Trabajo en DevOps** (items activos con su desglose iniciativa / BAU y los pendientes de curación, con enlace a la cola del Backlog filtrada por esa persona (`/app/lead/backlog?persona=<id>`); o, sin identidad vinculada, "Sus items no cuentan" con la acción *Vincular identidad*).
+El panel **Perfil** ("lo administrativo") SHALL mostrar, una fila por dato: **Nivel** — el nombre del nivel en la escala de cuatro (Principiante, Competente, Avanzado, Experto), sin número SFIA —, **Seniority** — Junior, Intermedio o Senior —, **Modalidad**, **Vinculación** ("Interna", o "Externa · <proveedor>"), **Correo** (en monoespaciada), **Identidad DevOps** ("Vinculada" con punto de éxito, o "Sin vincular" en rol de peligro), **Líder de expertise** —el nombre de la persona que la tiene a cargo, no la unidad—, **Línea de expertise** —a qué línea pertenece, a secas—, **Ingreso**, y **Costo mensual** (la cifra formateada, sin lectura de concordancia). Su acción **Editar** SHALL abrir el mismo formulario de edición. Cada dato SHALL aparecer una sola vez en la página.
 
-El panel **Asignación** SHALL mostrar la célula (enlace a su detalle), su criticidad en español con el mismo componente y rol de color que el listado de Células, la tribu, los nombres de los compañeros, desde cuándo está asignada, el porcentaje de dedicación con la barra segmentada BAU / Transformación y lo libre en porcentaje y FTE, dos señales —el nivel SFIA frente al requerido por la célula para su capacidad (acorde en rol de éxito, insuficiente en rol de advertencia) y si reporta más horas que lo asignado en los últimos sprints— y las acciones *Subir dedicación*, *Mover a otra célula* y *Quitar de la célula*, que abren el drawer de reasignación en el modo correspondiente (quitar, con el diálogo de confirmación de asignaciones). Sin célula, el panel SHALL mostrar el estado vacío con el tiempo que lleva disponible y la lista de células que piden la capacidad de esa persona (nombre, por qué la piden, SFIA requerido, FTE asignado sobre disponible) con la acción *Asignar acá*, que abre el drawer con esa célula preseleccionada.
+El panel **Stacks** SHALL listar los stacks de la persona, cada uno con su nombre y el medidor de nivel del sistema de diseño (sin el nombre del nivel en texto), mostrando **las primeras cinco filas** y, cuando hay más, la acción *Ver N más* que revela el resto (*Ver menos* lo repliega); su acción **Editar** SHALL abrir el drawer de edición de stacks. Sin stacks, el panel SHALL mostrar un estado vacío con la acción de agregar. La página SHALL NOT tener un panel de capacidades con niveles SFIA.
 
-El panel **Horas por sprint** SHALL mostrar, para los últimos seis sprints, una barra apilada por sprint con las horas BAU e Iniciativa (sin las libres), la etiqueta del sprint y sus horas, el sprint aún no validado atenuado, y una línea de referencia con las horas que corresponden a la dedicación asignada; sin sprints reportados SHALL mostrar el estado vacío.
+Los **punteros compactos** SHALL tener la misma anatomía —rótulo, enlace *Ver*, un badge y un dato— y SHALL traer el resumen ya resuelto por su módulo, sin recalcular nada:
+- **Competencias**: el badge con las brechas abiertas ("N brechas abiertas" en rol de advertencia, o "Sin brechas" en rol de éxito) y la fecha de la última evaluación; *Ver* navega al plan de la persona.
+- **Capacidad en el sprint**: el badge con la señal de balance del sprint en curso —una de las cuatro de la capability `real-dedication`, con su rol de color— y "N de 6 señales · <sprint> · <estado>"; *Ver* navega a `/app/lead/dedicacion/<id>`. Sin sprint en curso, "Sin sprint en curso". Sin identidad vinculada, el estado "Sus items no cuentan" con la acción *Vincular con Azure DevOps* (siempre disponible, abre el drawer de vinculación por correo). SHALL NOT mostrar SP, medianas, barras de demanda, capacidad en horas, tolerancias ni foco.
 
-El panel **Capacidades que cubre** SHALL listar las capacidades de la persona con su nivel SFIA (medidor de cuatro segmentos y el número), cuál es la principal, cuántas personas más del chapter cubren cada una y la marca **Bus factor 1** con rol de peligro cuando nadie más la cubre.
+El panel **Perfil evaluado** SHALL listar las habilidades de la última evaluación: nombre, "<nivel> · su cargo pide <nivel requerido>", el medidor de nivel con la **marca** de lo que pide el cargo, y el badge **Brecha** (advertencia) o **Cumple** (éxito), truncando con la misma regla que Stacks: **las primeras cinco filas** y *Ver N más* para el resto. Su acción *Ver evaluación* SHALL navegar al módulo Competencias. El panel **Plan de desarrollo** SHALL listar las acciones acordadas: título, la habilidad de origen con el objetivo y el compromiso, y el badge de estado (*En curso* / *Cumplida*); su acción *Agregar acción* SHALL navegar al módulo Competencias. Ambos paneles SHALL ser de sólo lectura en el detalle: evaluar, agregar y marcar acciones se hace en Competencias. Sin evaluación, ambos SHALL mostrar un estado vacío que invite a evaluar desde Competencias.
 
-El panel **Ficha** SHALL mostrar: chapter y su Chapter Lead; fecha de ingreso con la antigüedad; FTE disponible declarado; costo mensual con la lectura de concordancia con el seniority ("en rango para <nivel>" en rol de éxito, "alto para <nivel>" o "bajo para <nivel>" en rol de advertencia); proveedor y vigencia del contrato sólo para externas; documento; identidad DevOps vinculada y cuándo, o "Sin vincular" en rol de peligro.
-
-Con un id inexistente, el sistema SHALL mostrar un estado de error con un enlace de vuelta al listado. Mientras carga SHALL mostrar un estado de carga sin desplazar la estructura.
-
-El panel **Stacks** SHALL listar los stacks de la persona con su nivel en la escala Tuya (el medidor de nivel del sistema de diseño y el nombre del nivel), cuál es el principal (marca de estado neutra), quiénes más del chapter lo cubren (avatares agrupados y la cuenta) y la marca **Bus factor 1** con rol de peligro cuando nadie más lo cubre; su acción **Editar** SHALL abrir el drawer de edición de stacks. Sin stacks, el panel SHALL mostrar un estado vacío con la acción de agregar.
+Con un id inexistente, el sistema SHALL mostrar un estado de error con un enlace de vuelta al listado. Mientras carga SHALL mostrar un estado de carga sin desplazar la estructura. Tras editar la persona, editar stacks o vincular la identidad, el detalle SHALL refrescarse sin recargar la aplicación.
 
 #### Scenario: Ir a la bandeja desde el detalle
-- **WHEN** el Chapter Lead sigue el enlace "Ir a la bandeja" del indicador de DevOps
-- **THEN** el sistema abre Backlog con la cola filtrada por esa persona
+- **WHEN** el Chapter Lead sigue el enlace "Ver" del puntero Capacidad en el sprint
+- **THEN** el sistema abre el dashboard de balance de ese colaborador en `/app/lead/dedicacion/<id>` con el sprint en curso elegido
 
 #### Scenario: Abrir el detalle desde el listado
 - **WHEN** el Chapter Lead hace clic en el nombre de una persona en el listado
 - **THEN** el sistema navega al detalle sin recargar la aplicación, la entrada "Personas" sigue activa en la navegación y el breadcrumb muestra "Gestionar Personas" seguido del nombre de la persona
 
 #### Scenario: Encabezado de una persona con célula
-- **WHEN** se abre el detalle de una persona interna, híbrida, de nivel Avanzado, con identidad DevOps vinculada y asignada a una célula
-- **THEN** el encabezado muestra su avatar, nombre, "Avanzado · SFIA 3" con el medidor de tres segmentos llenos, "Interna", cargo y rol, "Híbrido", su correo y "DevOps vinculado"; no muestra "Sin célula"; la acción primaria es "Reasignar"
+- **WHEN** se abre el detalle de una persona asignada a una célula
+- **THEN** el encabezado muestra avatar, nombre, cargo y el chip de su stack principal, con las acciones "Editar" y "Competencias"; no menciona la célula ni la dedicación — el encabezado es idéntico al de una persona sin célula
 
 #### Scenario: Encabezado de una persona sin célula
-- **WHEN** se abre el detalle de una persona externa sin asignación y sin identidad DevOps
-- **THEN** el encabezado muestra "Externa · <proveedor>", la marca "Sin célula" y "Sin identidad DevOps" en rol de peligro; la acción primaria es "Asignar a una célula"
+- **WHEN** se abre el detalle de una persona sin asignación
+- **THEN** el encabezado no muestra ninguna marca "Sin célula" ni acción de asignar: la página no habla de asignación; la vinculación de la persona se lee en la fila Vinculación del Perfil
 
 #### Scenario: Ningún dato se repite
 - **WHEN** se muestra el detalle de cualquier persona
-- **THEN** el correo, el cargo, el rol, el seniority, la modalidad y la vinculación aparecen sólo en el encabezado y no en la ficha, y la célula, la dedicación y el mix BAU / Transformación aparecen sólo en el panel Asignación
+- **THEN** el nombre, el cargo y el stack principal aparecen sólo en el encabezado, y el nivel, la modalidad, la vinculación, el correo y la identidad DevOps aparecen sólo en el panel Perfil
+
+#### Scenario: Sin registro de horas
+- **WHEN** se abre el detalle de cualquier persona
+- **THEN** no hay indicador de reporte de horas, ni botón "Validar", ni FTE real ni diferencia derivados de horas; tampoco hay indicador Asignado ni panel Asignación: del sprint sólo existe el puntero compacto de Capacidad
 
 #### Scenario: Reporte del sprint por validar
-- **WHEN** el reporte de horas del sprint actual de la persona está en estado "Por validar"
-- **THEN** el indicador muestra las horas reportadas sobre las del sprint, si está dentro del rango de tolerancia, la barra BAU / Iniciativa / Libre y el botón "Validar"; al validar, el estado pasa a "Validado", el botón desaparece y el indicador "Asignado vs real" se recalcula con ese sprint
+- **WHEN** una persona con célula tiene trabajo en el sprint en curso
+- **THEN** el detalle no ofrece ningún reporte que validar; lo trabajado se lee siguiendo el puntero de Capacidad hacia su dashboard
 
 #### Scenario: Persona sin identidad DevOps
 - **WHEN** la persona no tiene identidad DevOps vinculada
-- **THEN** el indicador de DevOps dice que sus items no cuentan y ofrece "Vincular identidad"; al vincular, el encabezado pasa a "DevOps vinculado" y el indicador muestra sus items
+- **THEN** el puntero Capacidad en el sprint muestra "Sin vincular" en rol de peligro, "Sus items no cuentan" y la acción "Vincular con Azure DevOps" habilitada; al vincular desde el drawer, la fila Identidad DevOps del Perfil pasa a "Vinculada" y el puntero muestra la señal del sprint en curso — o su estado no evaluable mientras no haya histórico suficiente
+
+#### Scenario: Lectura del sprint en la ficha
+- **WHEN** se abre el detalle de una persona con identidad DevOps y un sprint en curso con señal calculada
+- **THEN** el puntero Capacidad muestra el badge de la señal con su rol de color y "N de 6 señales · <sprint> · en curso", sin SP, sin barras y sin capacidad en horas; el detalle completo vive en el dashboard enlazado
+
+#### Scenario: La ficha no ofrece un estado intermedio
+- **WHEN** se abre el detalle de cualquier persona con identidad y sprint
+- **THEN** el puntero muestra una de las cuatro señales de `real-dedication` —Posible sobreasignación, Posible subasignación, Carga habitual o No evaluable— y nunca "Revisar"
+
+#### Scenario: Indicador no evaluable en la ficha
+- **WHEN** la persona tiene identidad DevOps pero histórico insuficiente para evaluar el sprint
+- **THEN** el puntero Capacidad muestra "No evaluable" como badge neutro con su motivo como dato, y conserva el enlace "Ver"
 
 #### Scenario: Señales de la asignación
-- **WHEN** el SFIA de la persona es menor al requerido por su célula para su capacidad, o sus horas validadas superan lo asignado en tres sprints seguidos
-- **THEN** el panel Asignación muestra la señal correspondiente en rol de advertencia; cuando el SFIA es igual o mayor, la muestra en rol de éxito
+- **WHEN** se abre el detalle de una persona cuyo SFIA difiere del requerido por su célula
+- **THEN** el detalle no muestra ninguna señal de asignación: esa lectura pertenece a Células y a la Torre de control
 
 #### Scenario: Reasignar desde el detalle
-- **WHEN** el Chapter Lead usa "Mover a otra célula", "Subir dedicación" o "Reasignar" y confirma un plan válido
-- **THEN** el sistema aplica el cambio con la misma semántica que la Torre de control, muestra la confirmación y el detalle se refresca con la nueva célula o dedicación sin recargar la aplicación
+- **WHEN** el Chapter Lead necesita asignar, subir dedicación o mover a la persona
+- **THEN** el detalle no ofrece esas acciones: la reasignación se hace desde la Torre de control o el listado, con la misma semántica ya especificada
+
+#### Scenario: Perfil evaluado en la ficha
+- **WHEN** la persona tiene una evaluación con dos habilidades por debajo de lo requerido
+- **THEN** el puntero Competencias dice "2 brechas abiertas" con la fecha de la evaluación, el panel Perfil evaluado muestra cada habilidad con su medidor, la marca de lo requerido y el badge Brecha o Cumple, y el panel Plan de desarrollo lista las acciones con su estado; "Ver", "Ver evaluación" y "Agregar acción" llevan al módulo Competencias
 
 #### Scenario: Asignar a una persona sin célula desde una célula sugerida
-- **WHEN** el Chapter Lead hace clic en "Asignar acá" sobre una de las células que piden su capacidad
-- **THEN** el drawer de asignación se abre con esa célula ya elegida como destino
+- **WHEN** el Chapter Lead abre el detalle de una persona sin célula
+- **THEN** el detalle no lista células que pidan su capacidad ni ofrece "Asignar acá": esas sugerencias y la asignación viven en la Torre de control y en Células
 
 #### Scenario: Quitar de la célula
-- **WHEN** el Chapter Lead elige "Quitar de la célula" y confirma
-- **THEN** la asignación se elimina, el encabezado pasa a "Sin célula", la acción primaria a "Asignar a una célula" y el panel Asignación a su estado vacío
+- **WHEN** el Chapter Lead necesita quitar a la persona de su célula
+- **THEN** el detalle no ofrece esa acción: se hace desde la Torre de control o Células, con la semántica ya especificada
 
 #### Scenario: Capacidad con bus factor 1
-- **WHEN** la persona cubre una capacidad que nadie más del chapter cubre
-- **THEN** esa capacidad muestra la marca "Bus factor 1" en rol de peligro y la leyenda "Nadie más en el chapter la cubre"
+- **WHEN** la persona es la única del chapter que cubre un stack o una capacidad
+- **THEN** el detalle no muestra ninguna marca de bus factor: esa lectura vive en el mapa del span del módulo Competencias
 
 #### Scenario: Editar stacks desde el detalle
-- **WHEN** el Chapter Lead sigue "Editar" en el panel Stacks
-- **THEN** se abre el drawer de edición con los stacks actuales de la persona, sus niveles y el principal
+- **WHEN** el Chapter Lead usa "Editar" en el panel Stacks, agrega un stack y guarda
+- **THEN** se abre el drawer de edición de stacks con las mismas validaciones de siempre y, al guardar, el panel refleja la lista nueva sin recargar la aplicación
 
 #### Scenario: Persona inexistente
-- **WHEN** se abre el detalle con un id que no existe
-- **THEN** el sistema muestra un estado de error con un enlace de vuelta al listado de Personas
+- **WHEN** se navega a `/app/lead/personas/<id inexistente>`
+- **THEN** el sistema muestra un estado de error con un enlace de vuelta al listado, sin romper la aplicación
 
 #### Scenario: Eliminar desde el detalle
-- **WHEN** el Chapter Lead elimina la persona desde el menú del encabezado y confirma
-- **THEN** el sistema elimina la persona y vuelve al listado de Personas
+- **WHEN** el Chapter Lead necesita eliminar a la persona
+- **THEN** el detalle no ofrece esa acción: se elimina desde el listado, con el mismo diálogo de confirmación ya especificado
+
+#### Scenario: Nivel en la escala de cuatro
+- **WHEN** se abre el detalle de una persona de nivel Experto
+- **THEN** la fila Nivel del Perfil dice "Experto" — un nombre de la escala Principiante, Competente, Avanzado, Experto — y ningún lugar de la página muestra un número SFIA
+
+#### Scenario: Seniority en la ficha
+- **WHEN** se abre el detalle de una persona de nivel Experto y seniority Senior
+- **THEN** la ficha muestra las dos filas por separado — Nivel "Experto" y Seniority "Senior" — sin usar los nombres de una escala en la otra
 
 ### Requirement: Editar los stacks de una persona
 El sistema SHALL permitir editar los stacks de una persona desde su detalle, en un drawer lateral con el mismo esqueleto que los demás formularios: una sección para **agregar** stacks del catálogo del chapter con un selector de búsqueda de selección múltiple; la lista de **sus stacks**, cada uno con su **nivel** elegible entre los cuatro de la escala Tuya como control segmentado y una acción para **quitarlo**; un selector de **stack principal** (uno solo, obligatorio si hay al menos un stack); y **Guardar** como única acción primaria. Al quitar un stack que ninguna otra persona del chapter cubre, el sistema SHALL avisarlo en rol de advertencia antes de guardar, sin impedirlo. Al guardar, el detalle y el listado SHALL reflejar los cambios sin recargar la aplicación, y el resumen de cobertura por stack SHALL recalcularse.
@@ -476,3 +504,48 @@ La línea de una persona SHALL cambiarse desde la pantalla de Líneas de experti
 #### Scenario: El formulario de persona no captura la línea
 - **WHEN** el Chapter Lead abre el alta o la edición de una persona
 - **THEN** el formulario no ofrece elegir la línea de expertise, y guardar la persona no cambia la línea a la que pertenece
+
+### Requirement: Vincular identidad DevOps por correo
+El sistema SHALL permitir vincular a una persona con su usuario de Azure DevOps desde su detalle, en un drawer lateral con el mismo esqueleto que los demás paneles del detalle: el nombre de la persona como antetítulo, el título *Vincular con Azure DevOps*, la nota de que una identidad sólo puede vincularse a una persona, y el cierre. El drawer SHALL abrirse desde la acción *Vincular con Azure DevOps* del indicador *Backlog en DevOps*, que SHALL estar disponible siempre que la persona no tenga identidad vinculada, sin depender de que exista ninguna coincidencia previa.
+
+El drawer SHALL tener un único campo, **Correo corporativo**, obligatorio, prellenado con el correo corporativo de la persona y editable, y la acción **Buscar**, que también SHALL dispararse con `Enter` en el campo. Buscar SHALL consultar Azure DevOps por ese correo y, mientras responde, SHALL deshabilitar la acción e indicar que está buscando. Con un correo que no tiene forma de correo, el sistema SHALL marcar el campo y no consultar.
+
+Con una coincidencia, el drawer SHALL mostrar el usuario encontrado: su avatar (o sus iniciales si no hay imagen), nombre para mostrar, correo e identificador, la marca "Coincide" en rol de éxito, y sus proyectos, equipos y tableros como listas de etiquetas. Sin coincidencia, SHALL mostrar un aviso en rol de advertencia que nombre el correo buscado y no ofrezca vincular. Si la consulta falla, SHALL mostrar el error en rol de peligro y permitir reintentar. Cambiar el correo después de una búsqueda SHALL descartar el resultado anterior: la acción **Vincular** SHALL estar habilitada únicamente mientras hay un usuario encontrado para el correo que se ve en el campo.
+
+**Vincular** SHALL ser la única acción primaria del drawer, junto a **Cancelar**. Al confirmar, el sistema SHALL guardar la relación entre la persona y el identificador del usuario de Azure DevOps encontrado; con éxito, SHALL cerrar el drawer, confirmar con un toast "Identidad vinculada" y refrescar el detalle sin recargar la aplicación: el encabezado pasa a "DevOps vinculado", el indicador *Backlog en DevOps* muestra sus items y la fila *Identidad DevOps* de la ficha muestra el usuario y la fecha de vinculación. Si el servidor rechaza la vinculación —en particular porque ese usuario ya está vinculado a otra persona—, el drawer SHALL mostrar el mensaje del servidor y permanecer abierto. Cancelar o cerrar SHALL descartar lo buscado sin vincular nada.
+
+#### Scenario: Abrir el drawer de vinculación
+- **WHEN** el Líder de Expertise elige *Vincular con Azure DevOps* en el indicador de una persona sin identidad
+- **THEN** se abre el drawer con el nombre de la persona como antetítulo, el campo de correo prellenado con su correo corporativo, sin resultado todavía y con *Vincular* deshabilitado
+
+#### Scenario: Buscar y encontrar al usuario
+- **WHEN** el Líder de Expertise busca un correo que corresponde a un usuario de Azure DevOps
+- **THEN** el drawer muestra ese usuario —avatar o iniciales, nombre, correo, identificador y "Coincide"— con sus proyectos, equipos y tableros, y *Vincular* queda habilitado
+
+#### Scenario: Correo sin usuario en Azure DevOps
+- **WHEN** el Líder de Expertise busca un correo válido que ningún usuario de Azure DevOps tiene
+- **THEN** el drawer muestra un aviso en rol de advertencia que nombra ese correo, no muestra ningún usuario y *Vincular* sigue deshabilitado
+
+#### Scenario: Corregir el correo y volver a buscar
+- **WHEN** el Líder de Expertise edita el correo después de una búsqueda —con o sin coincidencia— y vuelve a buscar
+- **THEN** el resultado anterior desaparece al editar, *Vincular* se deshabilita, y la nueva búsqueda muestra el resultado del correo corregido
+
+#### Scenario: Correo sin forma de correo
+- **WHEN** el Líder de Expertise intenta buscar con el campo vacío o con un texto sin forma de correo
+- **THEN** el campo se marca con el error y no se consulta Azure DevOps
+
+#### Scenario: Error al consultar Azure DevOps
+- **WHEN** la consulta a Azure DevOps falla por un error de red o del servidor
+- **THEN** el drawer muestra el error en rol de peligro y deja volver a buscar; *Vincular* sigue deshabilitado
+
+#### Scenario: Vincular con éxito
+- **WHEN** el Líder de Expertise confirma *Vincular* con un usuario encontrado
+- **THEN** el sistema guarda la relación con el identificador de ese usuario, cierra el drawer, muestra el toast "Identidad vinculada", y el detalle se refresca con "DevOps vinculado" en el encabezado, los items en el indicador y el usuario con la fecha de hoy en la fila *Identidad DevOps* de la ficha
+
+#### Scenario: Usuario ya vinculado a otra persona
+- **WHEN** el Líder de Expertise confirma *Vincular* y el servidor responde que ese usuario ya está vinculado a otra persona
+- **THEN** el drawer muestra ese mensaje, nombrando a la otra persona, y permanece abierto con el resultado a la vista
+
+#### Scenario: Cancelar la vinculación
+- **WHEN** el Líder de Expertise cancela o cierra el drawer después de buscar
+- **THEN** no se vincula nada y el detalle sigue mostrando "Sin identidad DevOps"

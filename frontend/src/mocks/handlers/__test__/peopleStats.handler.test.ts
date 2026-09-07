@@ -42,11 +42,12 @@ describe("GET /people/stats", () => {
       fetchAllPeople(),
     ]);
 
-    // Los 4 niveles del catálogo siempre están presentes, tenga o no gente
-    // cada uno — es la parte que evita que un nivel vacío desaparezca del
-    // resumen en vez de mostrarse en cero.
+    // Los 3 seniorities del catálogo siempre están presentes, tenga o no
+    // gente cada uno — un escalón vacío se muestra en cero, no desaparece.
     expect(stats.bySeniority.map((s) => s.seniority).sort()).toEqual([
-      1, 2, 3, 4,
+      "Intermediate",
+      "Junior",
+      "Senior",
     ]);
 
     for (const entry of stats.bySeniority) {
@@ -68,7 +69,8 @@ describe("GET /people/stats", () => {
       position: "QA",
       role: "Contributor",
       technicalLeadId: null,
-      seniority: 1,
+      level: 1,
+      seniority: "Junior" as const,
       modality: "Remote",
       availableFte: 0.5,
       monthlyCost: 4000000,

@@ -26,6 +26,8 @@ import type {
   Modality,
   PersonRole,
   RoleOption,
+  LevelOption,
+  Seniority,
   SeniorityOption,
   TechnicalLeadOption,
 } from "../services/personService";
@@ -45,6 +47,7 @@ export interface PersonFormDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   person?: Person;
+  levels: LevelOption[];
   seniorities: SeniorityOption[];
   modalities: Modality[];
   roles: RoleOption[];
@@ -68,6 +71,7 @@ export const PersonFormDrawer: React.FC<PersonFormDrawerProps> = ({
   open,
   onOpenChange,
   person,
+  levels,
   seniorities,
   modalities,
   roles,
@@ -105,9 +109,13 @@ export const PersonFormDrawer: React.FC<PersonFormDrawerProps> = ({
 
   // El nombre del nivel, sin el número adelante: el catálogo ya lo trae
   // resuelto y la escala no se repite en la app.
-  const seniorityOptions = seniorities.map((level) => ({
-    value: String(level.value),
-    label: level.label,
+  const levelOptions = levels.map((option) => ({
+    value: String(option.value),
+    label: option.label,
+  }));
+  const seniorityOptions = seniorities.map((option) => ({
+    value: option.value,
+    label: option.label,
   }));
 
   const companyOptions = companies.map((company) => ({
@@ -274,6 +282,18 @@ export const PersonFormDrawer: React.FC<PersonFormDrawerProps> = ({
             )}
             <div className="grid gap-4 sm:grid-cols-2">
               <Select
+                label="Nivel"
+                required
+                placeholder="Seleccionar nivel"
+                options={levelOptions}
+                loading={catalogsLoading}
+                value={values.level || undefined}
+                error={errors.level}
+                onValueChange={(value) =>
+                  setValues({ ...values, level: value })
+                }
+              />
+              <Select
                 label="Seniority"
                 required
                 placeholder="Seleccionar seniority"
@@ -282,7 +302,7 @@ export const PersonFormDrawer: React.FC<PersonFormDrawerProps> = ({
                 value={values.seniority || undefined}
                 error={errors.seniority}
                 onValueChange={(value) =>
-                  setValues({ ...values, seniority: value })
+                  setValues({ ...values, seniority: value as Seniority })
                 }
               />
               <Select

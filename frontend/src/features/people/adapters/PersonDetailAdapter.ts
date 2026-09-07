@@ -1,18 +1,19 @@
 import type {
   CostReading,
-  CurrentHoursReportDto,
-  DevOpsCandidateDto,
   DevOpsIdentityDto,
   PersonStackDetailDto,
   PersonDetailAllocationDto,
   PersonDetailDto,
-  SprintHoursDto,
   SuggestedSquadDto,
 } from "../services/personDetailService";
 import type { PersonDto } from "../services/personService";
 import { getPersonInitials } from "./PersonAdapter";
 import { CRITICALITY_LABELS } from "@features/squads/adapters/SquadAdapter";
 import type { OverviewPerson } from "@features/control-tower/adapters/CapacityOverviewAdapter";
+import type {
+  BalanceSignalDto,
+  SnapshotStatus,
+} from "@features/dedication/services/dedicationService";
 
 /**
  * Entidad de UI del detalle de persona. Todas las derivaciones viven acá
@@ -25,7 +26,7 @@ export const MODALITY_LABELS: Record<string, string> = {
   OnSite: "Presencial",
 };
 
-export type SfiaGap = "Adequate" | "Insufficient";
+export type LevelGap = "Adequate" | "Insufficient";
 
 export interface PersonDetailStack extends PersonStackDetailDto {
   busFactorOne: boolean;
@@ -40,24 +41,38 @@ export const STACK_LEVEL_LABELS: Record<number, string> = {
   4: "Experto",
 };
 
-export interface PersonDetailSprint extends SprintHoursDto {
-  /** Horas que cuentan (sin libres). */
-  workedHours: number;
-  validated: boolean;
-}
-
 export interface PersonDetailAllocation extends PersonDetailAllocationDto {
   criticalityLabel: string;
   freePercentage: number;
   freeFte: number;
   sinceLabel: string;
-  sfiaGap: SfiaGap;
+  levelGap: LevelGap;
 }
+
+/**
+ * Lo único que la ficha muestra del sprint: el resumen ya resuelto por
+ * Capacidad, como badge + un dato. Nada de SP, barras ni horas — el detalle
+ * vive en `/app/lead/dedicacion/<id>`.
+ */
+export interface SprintPointer {
+  /** `unlinked` = sin identidad DevOps; `noSprint` = identidad sin sprint. */
+  kind: "unlinked" | "noSprint" | "sprint";
+  /** La señal para el badge; sólo en `sprint`. */
+  balance: BalanceSignalDto | null;
+  /** "4 de 6 señales · S18 · en curso"; para No evaluable, sólo sprint y estado. */
+  meta: string | null;
+}
+
+const SPRINT_STATE_LABELS: Record<SnapshotStatus, string> = {
+  Provisional: "en curso",
+  Sealed: "finalizado",
+  Missing: "sin snapshot",
+};
 
 export interface PersonDetail {
   person: PersonDto;
   initials: string;
-  sfiaLevel: number;
+  level: number;
   modalityLabel: string;
   isExternal: boolean;
   providerName: string | null;
@@ -69,20 +84,13 @@ export interface PersonDetail {
   startDateLabel: string;
   tenureLabel: string;
   allocation: PersonDetailAllocation | null;
+  /** FTE asignado = disponible declarado × dedicación. Sin horas no hay "real": el trabajo se lee en DevOps. */
   assignedFte: number;
-  realFte: number | null;
-  /** Diferencia en puntos porcentuales entre el real y el asignado (null sin real). */
-  deltaPoints: number | null;
-  currentReport: CurrentHoursReportDto | null;
-  hoursWithinTolerance: boolean | null;
-  sprints: PersonDetailSprint[];
-  /** Horas que corresponden a la dedicación asignada en un sprint. */
-  expectedHours: number;
-  /** Sprints validados seguidos (desde el último) por encima de las horas esperadas. */
-  overReportingStreak: number;
   devOpsIdentity: DevOpsIdentityDto | null;
-  devOpsCandidates: DevOpsCandidateDto[];
   stacks: PersonDetailStack[];
+  /** El stack marcado como principal; `null` sin stacks. Va como chip en el encabezado. */
+  primaryStackName: string | null;
+  sprintPointer: SprintPointer;
   costReading: CostReading;
   costReadingLabel: string;
   suggestedSquads: SuggestedSquadDto[];
@@ -138,34 +146,37 @@ const COST_LABELS: Record<CostReading, (level: string) => string> = {
   Low: (level) => `bajo para ${level}`,
 };
 
+function toSprintPointer(identity: DevOpsIdentityDto | null): SprintPointer {
+  if (!identity) return { kind: "unlinked", balance: null, meta: null };
+  const current = identity.currentSprint;
+  if (!current) return { kind: "noSprint", balance: null, meta: null };
+  const state =
+    SPRINT_STATE_LABELS[current.sprint.snapshotStatus] ??
+    current.sprint.snapshotStatus;
+  const where = `${current.sprint.name} · ${state}`;
+  return {
+    kind: "sprint",
+    balance: {
+      signal: current.signal,
+      overCount: current.evidenceCount,
+      underCount: 0,
+      squadContext: "NoSquad",
+      notEvaluableReason: current.notEvaluableReason,
+      evidences: [],
+    },
+    // Para No evaluable el motivo lo dice el badge; el conteo no aplica.
+    meta:
+      current.signal === "NotEvaluable"
+        ? where
+        : `${current.evidenceCount} de 6 señales · ${where}`,
+  };
+}
+
 export const personDetailAdapter = {
   toEntity: (dto: PersonDetailDto, today: Date = new Date()): PersonDetail => {
     const { person } = dto;
     const assignedPct = dto.allocation?.dedicationPercentage ?? 0;
     const assignedFte = round2((person.availableFte * assignedPct) / 100);
-    const realFte = dto.realFte;
-    const deltaPoints =
-      realFte === null
-        ? null
-        : Math.round(
-            (realFte / (person.availableFte || 1)) * 100 - assignedPct
-          );
-
-    const sprintHours =
-      dto.sprints[0]?.sprintHours ?? dto.currentReport?.sprintHours ?? 80;
-    const expectedHours = Math.round((sprintHours * assignedPct) / 100);
-    const sprints: PersonDetailSprint[] = dto.sprints.map((s) => ({
-      ...s,
-      workedHours: s.bauHours + s.initiativeHours,
-      validated: s.status === "Validated",
-    }));
-    let overReportingStreak = 0;
-    for (let i = sprints.length - 1; i >= 0; i -= 1) {
-      const s = sprints[i];
-      if (!s.validated) continue;
-      if (s.workedHours > expectedHours) overReportingStreak += 1;
-      else break;
-    }
 
     const allocation: PersonDetailAllocation | null = dto.allocation
       ? {
@@ -183,22 +194,17 @@ export const personDetailAdapter = {
               100
           ),
           sinceLabel: formatDate(dto.allocation.since),
-          sfiaGap:
-            person.seniority >= dto.allocation.requiredSfia
+          levelGap:
+            person.level >= dto.allocation.requiredLevel
               ? "Adequate"
               : "Insufficient",
         }
       : null;
 
-    const report = dto.currentReport;
-    const reported = report
-      ? report.bauHours + report.initiativeHours + report.freeHours
-      : 0;
-
     return {
       person,
       initials: getPersonInitials(person.name),
-      sfiaLevel: person.seniority,
+      level: person.level,
       modalityLabel: MODALITY_LABELS[person.modality] ?? person.modality,
       isExternal: person.providerId !== null,
       providerName: dto.providerName,
@@ -211,25 +217,19 @@ export const personDetailAdapter = {
       tenureLabel: tenureLabel(person.startDate, today),
       allocation,
       assignedFte,
-      realFte,
-      deltaPoints,
-      currentReport: report,
-      hoursWithinTolerance:
-        report && report.status !== "NotReported"
-          ? reported >= report.toleranceMin && reported <= report.toleranceMax
-          : null,
-      sprints,
-      expectedHours,
-      overReportingStreak,
       devOpsIdentity: dto.devOpsIdentity,
-      devOpsCandidates: dto.devOpsCandidates,
       stacks: dto.stacks.map((s) => ({
         ...s,
         busFactorOne: s.otherCoverers === 0,
         levelLabel: STACK_LEVEL_LABELS[s.level] ?? String(s.level),
       })),
+      primaryStackName:
+        dto.stacks.find((s) => s.isPrimary)?.name ??
+        dto.stacks[0]?.name ??
+        null,
+      sprintPointer: toSprintPointer(dto.devOpsIdentity),
       costReading: dto.costReading,
-      costReadingLabel: COST_LABELS[dto.costReading](person.seniorityLabel),
+      costReadingLabel: COST_LABELS[dto.costReading](person.levelLabel),
       suggestedSquads: dto.suggestedSquads,
     };
   },
@@ -242,7 +242,7 @@ export const personDetailAdapter = {
       id: detail.person.id,
       name: detail.person.name,
       position: detail.person.position,
-      seniorityLabel: detail.person.seniorityLabel,
+      levelLabel: detail.person.levelLabel,
       availableFte: detail.person.availableFte,
       allocation: a
         ? {

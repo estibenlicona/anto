@@ -22,8 +22,11 @@ const person: Person = {
   technicalLeadId: null,
   technicalLeadName: null,
   technicalLeadOfCount: 0,
-  seniority: 3,
-  seniorityLabel: "Avanzado",
+  level: 3,
+  levelLabel: "Avanzado",
+
+  seniority: "Intermediate" as const,
+  seniorityLabel: "Intermedio",
   modality: "Hybrid",
   availableFte: 1,
   utilization: 40,
@@ -55,11 +58,18 @@ const pagination = {
 const filters = {
   search: "",
   onSearchChange: noop,
-  seniorityOptions: [
+  levelOptions: [
     { value: 1, label: "Principiante" },
     { value: 2, label: "Competente" },
     { value: 3, label: "Avanzado" },
     { value: 4, label: "Experto" },
+  ],
+  selectedLevels: [],
+  onLevelsChange: () => {},
+  seniorityOptions: [
+    { value: "Junior" as const, label: "Junior" },
+    { value: "Intermediate" as const, label: "Intermedio" },
+    { value: "Senior" as const, label: "Senior" },
   ],
   selectedSeniorities: [],
   onSenioritiesChange: noop,
@@ -326,7 +336,7 @@ describe("PeopleList", () => {
             ...person,
             id: "2",
             name: "Julián Pérez",
-            seniorityLabel: "Senior",
+            levelLabel: "Nivel Z",
           },
         ]}
         loading={false}
@@ -353,8 +363,8 @@ describe("PeopleList", () => {
       <PeopleList
         people={[
           person,
-          { ...person, id: "2", seniorityLabel: "Principiante" },
-          { ...person, id: "3", seniorityLabel: "Experto" },
+          { ...person, id: "2", levelLabel: "Principiante" },
+          { ...person, id: "3", levelLabel: "Experto" },
           { ...person, id: "4", seniorityLabel: "Senior" },
         ]}
         loading={false}

@@ -1,31 +1,76 @@
 import { useEffect, useState } from "react";
 import {
   sprintConfigService,
+  SPRINT_CLOSE_TIME_PATTERN,
   type SprintConfig,
 } from "../services/sprintConfigService";
 
 type FieldErrors = Partial<Record<keyof SprintConfig, string>>;
 
+type NumericField = Exclude<keyof SprintConfig, "sprintCloseTime">;
+
 const FIELD_RANGES: Record<
-  keyof SprintConfig,
+  NumericField,
   { min: number; max: number; label: string }
 > = {
   weeks: { min: 1, max: 4, label: "Semanas por sprint" },
-  hoursPerWeek: { min: 20, max: 48, label: "Horas por semana" },
   sprintsPerQuarter: { min: 4, max: 8, label: "Sprints por quarter" },
-  toleranceHours: { min: 0, max: 16, label: "Tolerancia de reporte" },
+  hoursPerSprint: { min: 20, max: 400, label: "Horas por sprint" },
+  historyWindowSprints: { min: 3, max: 12, label: "Ventana de histórico" },
+  minHistorySprints: {
+    min: 2,
+    max: 6,
+    label: "Mínimo de sprints para evaluar",
+  },
 };
+
+const CLOSE_TIME_LABEL = "Hora de cierre del sprint";
+
+export function isNumericField(
+  field: keyof SprintConfig
+): field is NumericField {
+  return field !== "sprintCloseTime";
+}
 
 function validateField(
   field: keyof SprintConfig,
-  value: number
+  value: number | string
 ): string | null {
+  if (field === "sprintCloseTime") {
+    return SPRINT_CLOSE_TIME_PATTERN.test(String(value))
+      ? null
+      : `${CLOSE_TIME_LABEL} debe tener el formato HH:mm`;
+  }
   const range = FIELD_RANGES[field];
-  if (Number.isNaN(value)) return `${range.label} debe ser un número`;
-  if (value < range.min || value > range.max) {
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) return `${range.label} debe ser un número`;
+  if (numeric < range.min || numeric > range.max) {
     return `${range.label} debe estar entre ${range.min} y ${range.max}`;
   }
   return null;
+}
+
+/**
+ * La única regla que cruza dos campos: no tiene sentido exigir más sprints
+ * sellados para evaluar de los que la ventana llega a mirar. Se reporta sobre
+ * el mínimo, que es el campo que el Administrador acaba de mover.
+ */
+function validateCross(values: SprintConfig): FieldErrors {
+  if (values.minHistorySprints > values.historyWindowSprints) {
+    return {
+      minHistorySprints: `${FIELD_RANGES.minHistorySprints.label} no puede ser mayor que la ventana de histórico`,
+    };
+  }
+  return {};
+}
+
+function validateAll(values: SprintConfig): FieldErrors {
+  const errors: FieldErrors = {};
+  (Object.keys(values) as (keyof SprintConfig)[]).forEach((field) => {
+    const message = validateField(field, values[field]);
+    if (message) errors[field] = message;
+  });
+  return { ...errors, ...validateCross(values) };
 }
 
 export const useSprintConfig = () => {
@@ -51,12 +96,12 @@ export const useSprintConfig = () => {
 
   const setField = (field: keyof SprintConfig, rawValue: string) => {
     if (!values) return;
-    const numericValue = Number(rawValue);
-    setValues({ ...values, [field]: numericValue });
-    setErrors((prev) => ({
-      ...prev,
-      [field]: validateField(field, numericValue) ?? undefined,
-    }));
+    const next: SprintConfig = isNumericField(field)
+      ? { ...values, [field]: Number(rawValue) }
+      : { ...values, sprintCloseTime: rawValue };
+    setValues(next);
+    // Se revalida entero: mover la ventana puede arreglar o romper el mínimo.
+    setErrors(validateAll(next));
   };
 
   const isDirty =
@@ -66,11 +111,7 @@ export const useSprintConfig = () => {
       (field) => values[field] !== savedValues[field]
     );
 
-  const isValid =
-    !!values &&
-    (Object.keys(values) as (keyof SprintConfig)[]).every(
-      (field) => validateField(field, values[field]) === null
-    );
+  const isValid = !!values && Object.keys(validateAll(values)).length === 0;
 
   /** Devuelve el resultado directamente — leer `saveError` del hook justo
    * después del `await` vería el valor de la closure del render anterior,

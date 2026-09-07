@@ -22,8 +22,11 @@ const mockPerson = {
   technicalLeadId: null,
   technicalLeadName: null,
   technicalLeadOfCount: 0,
-  seniority: 3,
-  seniorityLabel: "Avanzado",
+  level: 3,
+  levelLabel: "Avanzado",
+
+  seniority: "Intermediate" as const,
+  seniorityLabel: "Intermedio",
   modality: "Hybrid" as const,
   availableFte: 1,
   monthlyCost: 7900000,
@@ -57,14 +60,14 @@ describe("personService", () => {
     expect(result).toEqual(paged);
   });
 
-  it("list serializes search and repeated seniority without brackets", async () => {
+  it("list serializes search and repeated level without brackets", async () => {
     vi.mocked(httpClient.get).mockResolvedValue({
       data: { items: [], page: 1, pageSize: 10, totalCount: 0, totalPages: 0 },
     });
     await personService.list(1, 10, "maría", [3, 4]);
     const call = vi.mocked(httpClient.get).mock.calls[0];
     expect((call[1]?.params as URLSearchParams).toString()).toBe(
-      "page=1&pageSize=10&search=mar%C3%ADa&seniority=3&seniority=4"
+      "page=1&pageSize=10&search=mar%C3%ADa&level=3&level=4"
     );
   });
 
@@ -90,7 +93,8 @@ describe("personService", () => {
       technicalLeadId: null,
       technicalLeadName: null,
       technicalLeadOfCount: 0,
-      seniority: 1,
+      level: 1,
+      seniority: "Junior" as const,
       modality: "Remote" as const,
       availableFte: 1,
       monthlyCost: 5000000,
@@ -113,7 +117,8 @@ describe("personService", () => {
       technicalLeadId: null,
       technicalLeadName: null,
       technicalLeadOfCount: 0,
-      seniority: 2,
+      level: 2,
+      seniority: "Junior" as const,
       modality: "OnSite" as const,
       availableFte: 0.5,
       monthlyCost: 6000000,

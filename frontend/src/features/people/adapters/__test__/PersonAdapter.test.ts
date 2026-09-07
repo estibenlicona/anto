@@ -13,8 +13,11 @@ const dto: PersonDto = {
   technicalLeadId: null,
   technicalLeadName: null,
   technicalLeadOfCount: 0,
-  seniority: 3,
-  seniorityLabel: "Avanzado",
+  level: 3,
+  levelLabel: "Avanzado",
+
+  seniority: "Intermediate" as const,
+  seniorityLabel: "Intermedio",
   modality: "Hybrid",
   availableFte: 1,
   utilization: 40,
@@ -40,8 +43,11 @@ describe("personAdapter", () => {
       technicalLeadId: null,
       technicalLeadName: null,
       technicalLeadOfCount: 0,
-      seniority: 3,
-      seniorityLabel: "Avanzado",
+      level: 3,
+      levelLabel: "Avanzado",
+
+      seniority: "Intermediate" as const,
+      seniorityLabel: "Intermedio",
       modality: "Hybrid",
       availableFte: 1,
       utilization: 40,
@@ -71,7 +77,8 @@ describe("personAdapter", () => {
   it("maps an entity to form values with numeric fields as strings", () => {
     const entity = personAdapter.toEntity(dto);
     const values = personAdapter.toFormValues(entity);
-    expect(values.seniority).toBe("3");
+    expect(values.level).toBe("3");
+    expect(values.seniority).toBe("Intermediate");
     expect(values.availableFte).toBe("1");
     expect(values.monthlyCost).toBe("7900000");
     expect(values.startDate).toBe("2023-03-01");
@@ -85,7 +92,8 @@ describe("personAdapter", () => {
       position: "  QA  ",
       role: "Contributor" as const,
       technicalLeadId: "",
-      seniority: "1",
+      level: "1",
+      seniority: "Junior" as const,
       modality: "Remote",
       availableFte: "1",
       monthlyCost: "5000000",
@@ -101,7 +109,8 @@ describe("personAdapter", () => {
       position: "QA",
       role: "Contributor" as const,
       technicalLeadId: null,
-      seniority: 1,
+      level: 1,
+      seniority: "Junior",
       modality: "Remote",
       availableFte: 1,
       monthlyCost: 5000000,
@@ -117,7 +126,8 @@ describe("personAdapter", () => {
       position: "QA",
       role: "Contributor" as const,
       technicalLeadId: "",
-      seniority: "3",
+      level: "3",
+      seniority: "Intermediate" as const,
       modality: "OnSite" as const,
       availableFte: "0.5",
       monthlyCost: "6000000",

@@ -8,8 +8,10 @@ import type {
   PersonRole,
   RoleOption,
   SeniorityOption,
+  LevelOption,
   PersonStackDto,
   Seniority,
+  Level,
   TechnicalLeadOption,
 } from "@features/people/services/personService";
 import { clampPagination, paginate } from "@shared/services/pagination";
@@ -135,7 +137,7 @@ const STACK_SEEDS: Record<string, Array<[string, number]>> = {
 function seedStacks(name: string): PersonStackDto[] {
   return (STACK_SEEDS[name] ?? []).map(([stack, level], i) => ({
     name: stack,
-    level: level as Seniority,
+    level: level as Level,
     isPrimary: i === 0,
   }));
 }
@@ -143,19 +145,38 @@ function seedStacks(name: string): PersonStackDto[] {
 // contratado, etc.) es responsabilidad del backend y queda fuera de alcance.
 const ASSUMED_FTE_TARGET = 12;
 const MODALITIES: Modality[] = ["Remote", "Hybrid", "OnSite"];
-// Escala de seniority propia de Tuya (4 niveles) — es la misma escala que
-// antes se llamaba "nivel SFIA"; no existe una escalera de seniority
-// separada, así que ambos campos se fusionaron en uno solo.
-const SENIORITY_LABELS: Record<number, string> = {
+// Escala Tuya de 4 niveles — la que antes se llamó "nivel SFIA" y luego viajó
+// como seniority. Desde la separación es el catálogo de niveles.
+const LEVEL_LABELS: Record<number, string> = {
   1: "Principiante",
   2: "Competente",
   3: "Avanzado",
   4: "Experto",
 };
-const SENIORITIES: SeniorityOption[] = [1, 2, 3, 4].map((value) => ({
+const LEVELS: LevelOption[] = [1, 2, 3, 4].map((value) => ({
+  value,
+  label: LEVEL_LABELS[value],
+}));
+// El seniority propiamente dicho: describe a la persona, no su nivel técnico.
+const SENIORITY_LABELS: Record<Seniority, string> = {
+  Junior: "Junior",
+  Intermediate: "Intermedio",
+  Senior: "Senior",
+};
+const SENIORITY_VALUES: Seniority[] = ["Junior", "Intermediate", "Senior"];
+const SENIORITIES: SeniorityOption[] = SENIORITY_VALUES.map((value) => ({
   value,
   label: SENIORITY_LABELS[value],
 }));
+/** Semilla: el seniority inicial se deriva del nivel (1–2 Junior, 3 Intermedio, 4 Senior) y luego se edita libre. */
+const seniorityForLevel = (level: number): Seniority =>
+  level >= 4 ? "Senior" : level === 3 ? "Intermediate" : "Junior";
+const withSeniority = (level: number, levelLabel: string) => ({
+  level,
+  levelLabel,
+  seniority: seniorityForLevel(level),
+  seniorityLabel: SENIORITY_LABELS[seniorityForLevel(level)],
+});
 
 /**
  * Cómo participa cada quien en la aplicación. Cerrado a propósito: mientras
@@ -249,8 +270,7 @@ const initialPeople: PersonDto[] = [
     technicalLeadName: null,
     // Derivado en la respuesta, no en el estado: ver respond().
     technicalLeadOfCount: 0,
-    seniority: 3,
-    seniorityLabel: "Avanzado",
+    ...withSeniority(3, "Avanzado"),
     modality: "Hybrid",
     availableFte: 1,
     utilization: 40,
@@ -274,8 +294,7 @@ const initialPeople: PersonDto[] = [
     technicalLeadName: null,
     // Derivado en la respuesta, no en el estado: ver respond().
     technicalLeadOfCount: 0,
-    seniority: 2,
-    seniorityLabel: "Competente",
+    ...withSeniority(2, "Competente"),
     modality: "Remote",
     availableFte: 1,
     utilization: 70,
@@ -299,8 +318,7 @@ const initialPeople: PersonDto[] = [
     technicalLeadName: null,
     // Derivado en la respuesta, no en el estado: ver respond().
     technicalLeadOfCount: 0,
-    seniority: 4,
-    seniorityLabel: "Experto",
+    ...withSeniority(4, "Experto"),
     modality: "OnSite",
     availableFte: 0.8,
     utilization: 100,
@@ -335,57 +353,54 @@ const initialPeople: PersonDto[] = [
     ] satisfies ReadonlyArray<
       readonly [string, string, number, string, PersonDto["modality"], number]
     >
-  ).map(
-    (
-      [name, position, seniority, seniorityLabel, modality, utilization],
-      index
-    ) => {
-      // Una letra repetida por persona, con la misma forma que los ids de arriba
-      // pero sin colisionar con ellos, que usan dígitos.
-      const d = String.fromCharCode(97 + index);
-      const slug = name
-        .toLowerCase()
-        .normalize("NFD")
-        // Marcas diacríticas combinantes: las deja fuera del correo, que va sin
-        // tildes ni eñes.
-        .replace(/[̀-ͯ]/g, "")
-        .replace(/ñ/g, "n")
-        .replace(/\s+/g, ".");
-      return {
-        id: `p${d.repeat(7)}-${d.repeat(4)}-${d.repeat(4)}-${d.repeat(4)}-${d.repeat(12)}`,
-        name,
-        documentId: `10368840${String(index + 6).padStart(2, "0")}`,
-        entraObjectId: "",
-        userPrincipalName: `${slug}@tuya.com`,
-        position,
-        // El rol y el líder técnico se resuelven por nombre más abajo, igual
-        // que los stacks y el chapter: acá arrancan en su valor neutro.
-        role: "Contributor" as PersonRole,
-        technicalLeadId: null,
-        technicalLeadName: null,
-        technicalLeadOfCount: 0,
-        seniority,
-        seniorityLabel,
-        modality,
-        availableFte: 1,
-        // Fija y variada a propósito: cubre 0, medios, 100 y >100 para que la
-        // barra del listado muestre todos sus umbrales. No deriva de los mocks
-        // de Capacidades — el backend real la calculará desde las asignaciones.
-        utilization,
-        monthlyCost: 6000000 + index * 350000,
-        startDate: `202${(index % 4) + 1}-0${(index % 9) + 1}-15`,
-        chapterId: null,
-        // Camila es externa (QVision): el detalle de persona necesita una
-        // externa sin célula para su segundo estado. Andrés (TATA) y Paula
-        // (GFT) son externos para que la facturación tenga tres proveedores
-        // con gente.
-        providerId: EXTERNAL_PROVIDERS[name] ?? null,
-        createdAtUtc: now,
-        updatedAtUtc: now,
-        stacks: seedStacks(name),
-      } satisfies PersonDto;
-    }
-  ),
+  ).map(([name, position, level, levelLabel, modality, utilization], index) => {
+    // Una letra repetida por persona, con la misma forma que los ids de arriba
+    // pero sin colisionar con ellos, que usan dígitos.
+    const d = String.fromCharCode(97 + index);
+    const slug = name
+      .toLowerCase()
+      .normalize("NFD")
+      // Marcas diacríticas combinantes: las deja fuera del correo, que va sin
+      // tildes ni eñes.
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/ñ/g, "n")
+      .replace(/\s+/g, ".");
+    return {
+      id: `p${d.repeat(7)}-${d.repeat(4)}-${d.repeat(4)}-${d.repeat(4)}-${d.repeat(12)}`,
+      name,
+      documentId: `10368840${String(index + 6).padStart(2, "0")}`,
+      entraObjectId: "",
+      userPrincipalName: `${slug}@tuya.com`,
+      position,
+      // El rol y el líder técnico se resuelven por nombre más abajo, igual
+      // que los stacks y el chapter: acá arrancan en su valor neutro.
+      role: "Contributor" as PersonRole,
+      technicalLeadId: null,
+      technicalLeadName: null,
+      technicalLeadOfCount: 0,
+      ...withSeniority(level, levelLabel),
+      modality,
+      // Isabella trabaja media jornada: hace falta una persona a tiempo
+      // parcial para que la capacidad del balance de carga se lea
+      // "0.50 / 0.50 FTE" y no siempre sobre 1.0.
+      availableFte: name === "Isabella Moreno" ? 0.5 : 1,
+      // Fija y variada a propósito: cubre 0, medios, 100 y >100 para que la
+      // barra del listado muestre todos sus umbrales. No deriva de los mocks
+      // de Capacidades — el backend real la calculará desde las asignaciones.
+      utilization,
+      monthlyCost: 6000000 + index * 350000,
+      startDate: `202${(index % 4) + 1}-0${(index % 9) + 1}-15`,
+      chapterId: null,
+      // Camila es externa (QVision): el detalle de persona necesita una
+      // externa sin célula para su segundo estado. Andrés (TATA) y Paula
+      // (GFT) son externos para que la facturación tenga tres proveedores
+      // con gente.
+      providerId: EXTERNAL_PROVIDERS[name] ?? null,
+      createdAtUtc: now,
+      updatedAtUtc: now,
+      stacks: seedStacks(name),
+    } satisfies PersonDto;
+  }),
 ];
 
 // Las tres personas escritas a mano también reciben sus stacks por nombre.
@@ -470,9 +485,11 @@ function isValidCreateRequest(value: unknown): value is CreatePersonRequest {
     (v.technicalLeadId === null ||
       v.technicalLeadId === undefined ||
       typeof v.technicalLeadId === "string") &&
-    typeof v.seniority === "number" &&
-    v.seniority >= 1 &&
-    v.seniority <= 4 &&
+    typeof v.level === "number" &&
+    v.level >= 1 &&
+    v.level <= 4 &&
+    typeof v.seniority === "string" &&
+    SENIORITY_VALUES.includes(v.seniority as Seniority) &&
     typeof v.modality === "string" &&
     MODALITIES.includes(v.modality as Modality) &&
     typeof v.availableFte === "number" &&
@@ -509,7 +526,8 @@ function respond(person: PersonDto, visibles: PersonDto[]): PersonDto {
 function filterPeople(
   source: PersonDto[],
   search: string | null,
-  seniorities: number[],
+  levels: number[],
+  seniorities: string[],
   stacks: string[] = []
 ): PersonDto[] {
   let filtered = source;
@@ -520,6 +538,9 @@ function filterPeople(
         p.name.toLowerCase().includes(term) ||
         p.position.toLowerCase().includes(term)
     );
+  }
+  if (levels.length > 0) {
+    filtered = filtered.filter((p) => levels.includes(p.level));
   }
   if (seniorities.length > 0) {
     filtered = filtered.filter((p) => seniorities.includes(p.seniority));
@@ -641,13 +662,20 @@ export const peopleHandlers = [
       Number(url.searchParams.get("pageSize")) || null
     );
     const search = url.searchParams.get("search");
-    const seniorities = url.searchParams
-      .getAll("seniority")
+    const levels = url.searchParams
+      .getAll("level")
       .map(Number)
       .filter((n) => !Number.isNaN(n));
+    const seniorities = url.searchParams.getAll("seniority");
     const stacks = url.searchParams.getAll("stack");
     const visibles = peopleFor(request);
-    const filtered = filterPeople(visibles, search, seniorities, stacks);
+    const filtered = filterPeople(
+      visibles,
+      search,
+      levels,
+      seniorities,
+      stacks
+    );
     const pagina = paginate(filtered, page, pageSize);
     return HttpResponse.json({
       ...pagina,
@@ -675,6 +703,8 @@ export const peopleHandlers = [
       technicalLeadId: body.technicalLeadId ?? null,
       technicalLeadName: nameOfPerson(body.technicalLeadId),
       technicalLeadOfCount: 0,
+      level: body.level,
+      levelLabel: LEVEL_LABELS[body.level] ?? "",
       seniority: body.seniority,
       seniorityLabel: SENIORITY_LABELS[body.seniority] ?? "",
       modality: body.modality,
@@ -729,6 +759,8 @@ export const peopleHandlers = [
       technicalLeadId: body.technicalLeadId ?? null,
       technicalLeadName: nameOfPerson(body.technicalLeadId),
       technicalLeadOfCount: 0,
+      level: body.level,
+      levelLabel: LEVEL_LABELS[body.level] ?? "",
       seniority: body.seniority,
       seniorityLabel: SENIORITY_LABELS[body.seniority] ?? "",
       modality: body.modality,
@@ -790,6 +822,10 @@ export const peopleHandlers = [
         : p
     );
     return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.get("/catalogs/levels", () => {
+    return HttpResponse.json(LEVELS);
   }),
 
   http.get("/catalogs/seniorities", () => {

@@ -53,11 +53,9 @@ describe("GET /squads/:id/team-stats", () => {
 
     expect(stats.memberCount).toBe(allocations.length);
     expect(stats.members).toHaveLength(allocations.length);
-    expect(stats.expertCount).toBe(
-      members.filter((p) => p.seniority === 4).length
-    );
+    expect(stats.expertCount).toBe(members.filter((p) => p.level === 4).length);
     expect(stats.beginnerCount).toBe(
-      members.filter((p) => p.seniority === 1).length
+      members.filter((p) => p.level === 1).length
     );
     expect(stats.allocatedFte).toBeCloseTo(
       sum((a) => a.dedicationPercentage),
@@ -112,8 +110,8 @@ describe("GET /squads/:id/allocations (campos de persona y filtros)", () => {
       personName: "María González",
       personPosition: "Backend Dev",
       personModality: "Hybrid",
-      personSeniority: 3,
-      personSeniorityLabel: "Avanzado",
+      personLevel: 3,
+      personLevelLabel: "Avanzado",
     });
   });
 
@@ -172,7 +170,7 @@ describe("GET /squads/:id/allocations (campos de persona y filtros)", () => {
       [4]
     );
     expect(experts.totalCount).toBe(1);
-    expect(experts.items.every((a) => a.personSeniority === 4)).toBe(true);
+    expect(experts.items.every((a) => a.personLevel === 4)).toBe(true);
   });
 
   it("el alta sale con los campos de persona ya completos", async () => {

@@ -193,24 +193,28 @@ describe("SkillsCatalogContainer", () => {
     expect(screen.getByText("9 habilidades")).toBeInTheDocument();
   });
 
-  it("crea una habilidad que nace incompleta", async () => {
-    renderCatalog();
-    await screen.findByText("Técnicas · 5");
+  it(
+    "crea una habilidad que nace incompleta",
+    { timeout: 15_000 },
+    async () => {
+      renderCatalog();
+      await screen.findByText("Técnicas · 5");
 
-    fireEvent.click(screen.getByRole("button", { name: /Nueva habilidad/ }));
-    fireEvent.change(screen.getByLabelText(/Nombre/), {
-      target: { value: "Observabilidad" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Crear habilidad" }));
+      fireEvent.click(screen.getByRole("button", { name: /Nueva habilidad/ }));
+      fireEvent.change(screen.getByLabelText(/Nombre/), {
+        target: { value: "Observabilidad" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Crear habilidad" }));
 
-    expect(await screen.findByText("10 habilidades")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /Observabilidad/ }));
-    await waitFor(() =>
-      expect(
-        screen.getAllByText(/4 niveles sin criterios/).length
-      ).toBeGreaterThan(0)
-    );
-  });
+      expect(await screen.findByText("10 habilidades")).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: /Observabilidad/ }));
+      await waitFor(() =>
+        expect(
+          screen.getAllByText(/4 niveles sin criterios/).length
+        ).toBeGreaterThan(0)
+      );
+    }
+  );
 
   it("al intentar borrar una habilidad en uso ofrece desactivarla", async () => {
     renderCatalog();

@@ -1,0 +1,6 @@
+schema: spec-driven
+created: 2026-08-29
+# La capability `backlog` se retira entera: el módulo era una cola de triage
+# manual que Dedicación real reemplaza. Al archivar, su spec principal
+# desaparece (ver proposal.md — Modified Capabilities y design.md — Capabilities).
+retire_capabilities: true

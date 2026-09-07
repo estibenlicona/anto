@@ -27,7 +27,7 @@ export function computeCapacityOverview(request: Request): CapacityOverviewDto {
       id: p.id,
       name: p.name,
       position: p.position,
-      seniorityLabel: p.seniorityLabel,
+      levelLabel: p.levelLabel,
       availableFte: p.availableFte,
       allocation: a
         ? {

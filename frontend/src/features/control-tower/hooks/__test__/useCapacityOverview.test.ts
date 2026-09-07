@@ -22,7 +22,7 @@ const dto = {
       id: "p",
       name: "P",
       position: "",
-      seniorityLabel: "",
+      levelLabel: "",
       availableFte: 1,
       allocation: null,
       marginPercentage: 100,

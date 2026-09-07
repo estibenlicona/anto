@@ -148,7 +148,7 @@ export const SquadsList: React.FC<SquadsListProps> = ({
             placeholder="Buscar por nombre o equipo"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="max-w-xs"
+            className="w-96"
           />
           <FilterButton
             label="Criticidad"

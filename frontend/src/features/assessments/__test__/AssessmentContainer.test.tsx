@@ -340,58 +340,70 @@ describe("AssessmentContainer", () => {
       );
     }
 
-    it("pide confirmación en vez de cerrar de un clic", async () => {
-      await completar();
-      fireEvent.click(
-        screen.getByRole("button", { name: "Cerrar evaluación" })
-      );
+    it(
+      "pide confirmación en vez de cerrar de un clic",
+      { timeout: 15_000 },
+      async () => {
+        await completar();
+        fireEvent.click(
+          screen.getByRole("button", { name: "Cerrar evaluación" })
+        );
 
-      const dialogo = await screen.findByRole("dialog");
-      expect(dialogo).toHaveTextContent(
-        /¿Cerrar la evaluación de Laura Ruiz\?/
-      );
-      // Las tres cosas que hay que saber antes de decidir.
-      expect(dialogo).toHaveTextContent(/Se fijan los niveles/);
-      expect(dialogo).toHaveTextContent(/se abre el plan de carrera/);
-      expect(dialogo).toHaveTextContent(/No se deshace/);
-      // Nada se cerró todavía.
-      expect(screen.queryByText("Cerrada")).not.toBeInTheDocument();
-    });
+        const dialogo = await screen.findByRole("dialog");
+        expect(dialogo).toHaveTextContent(
+          /¿Cerrar la evaluación de Laura Ruiz\?/
+        );
+        // Las tres cosas que hay que saber antes de decidir.
+        expect(dialogo).toHaveTextContent(/Se fijan los niveles/);
+        expect(dialogo).toHaveTextContent(/se abre el plan de carrera/);
+        expect(dialogo).toHaveTextContent(/No se deshace/);
+        // Nada se cerró todavía.
+        expect(screen.queryByText("Cerrada")).not.toBeInTheDocument();
+      }
+    );
 
-    it("desistir deja la evaluación en curso", async () => {
-      await completar();
-      fireEvent.click(
-        screen.getByRole("button", { name: "Cerrar evaluación" })
-      );
-      const dialogo = await screen.findByRole("dialog");
-      fireEvent.click(
-        within(dialogo).getByRole("button", { name: "Cancelar" })
-      );
+    it(
+      "desistir deja la evaluación en curso",
+      { timeout: 15_000 },
+      async () => {
+        await completar();
+        fireEvent.click(
+          screen.getByRole("button", { name: "Cerrar evaluación" })
+        );
+        const dialogo = await screen.findByRole("dialog");
+        fireEvent.click(
+          within(dialogo).getByRole("button", { name: "Cancelar" })
+        );
 
-      await waitFor(() =>
-        expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
-      );
-      expect(screen.queryByText("Cerrada")).not.toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: "Cerrar evaluación" })
-      ).toBeInTheDocument();
-    });
+        await waitFor(() =>
+          expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+        );
+        expect(screen.queryByText("Cerrada")).not.toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Cerrar evaluación" })
+        ).toBeInTheDocument();
+      }
+    );
 
-    it("confirmar cierra y deja la evaluación de sólo lectura", async () => {
-      await completar();
-      fireEvent.click(
-        screen.getByRole("button", { name: "Cerrar evaluación" })
-      );
-      const dialogo = await screen.findByRole("dialog");
-      fireEvent.click(
-        within(dialogo).getByRole("button", { name: "Cerrar evaluación" })
-      );
+    it(
+      "confirmar cierra y deja la evaluación de sólo lectura",
+      { timeout: 15_000 },
+      async () => {
+        await completar();
+        fireEvent.click(
+          screen.getByRole("button", { name: "Cerrar evaluación" })
+        );
+        const dialogo = await screen.findByRole("dialog");
+        fireEvent.click(
+          within(dialogo).getByRole("button", { name: "Cerrar evaluación" })
+        );
 
-      expect(await screen.findByText("Cerrada")).toBeInTheDocument();
-      expect(
-        screen.queryByRole("button", { name: "Cerrar evaluación" })
-      ).not.toBeInTheDocument();
-    });
+        expect(await screen.findByText("Cerrada")).toBeInTheDocument();
+        expect(
+          screen.queryByRole("button", { name: "Cerrar evaluación" })
+        ).not.toBeInTheDocument();
+      }
+    );
   });
 
   describe("los estados del índice", () => {

@@ -6,6 +6,7 @@ const authenticated: Session = {
   status: "authenticated",
   user: { id: "u1", name: "Ana", username: "ana@tuya.com" },
   roles: ["chapter-lead"],
+  permissions: ["Celulas", "Dedicacion"],
   scopes: ["capacidad.read", "capacidad.write"],
   claims: { oid: "u1" },
   accessToken: "token",

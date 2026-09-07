@@ -12,6 +12,8 @@
  * Traducir de claims a estos nombres es trabajo del adaptador del host.
  */
 
+import type { CapacityPermission } from "./capacityPermissions";
+
 /** Los roles de negocio de la plataforma. */
 export const APP_ROLES = ["admin", "chapter-lead"] as const;
 
@@ -34,6 +36,12 @@ export interface AuthenticatedSession {
   status: "authenticated";
   user: SessionUser;
   roles: AppRole[];
+  /**
+   * Permisos de sección del módulo de Gestión de Capacidad, derivados del
+   * claim `roles` del token dirigido a la API del módulo (sub-claims). Los
+   * roles dicen a qué shell se entra; los permisos, qué secciones ofrece.
+   */
+  permissions: CapacityPermission[];
   scopes: string[];
   /** Claims crudos, por si alguna pantalla necesita uno que el puerto no modela. */
   claims: Record<string, unknown>;
@@ -66,5 +74,6 @@ export interface AuthSession {
   isLoading: boolean;
   isAuthenticated: boolean;
   hasRole: (...roles: AppRole[]) => boolean;
+  hasPermission: (...permissions: CapacityPermission[]) => boolean;
   hasScope: (scope: string) => boolean;
 }

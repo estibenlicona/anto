@@ -1,12 +1,8 @@
 import { defineConfig, loadEnv, type Plugin } from "vite";
-import { join, dirname } from "path";
-import { createRequire } from "module";
+import { join } from "path";
 import { rm } from "fs/promises";
 import react from "@vitejs/plugin-react";
-
-const require = createRequire(import.meta.url);
-const reactDir = dirname(require.resolve("react/package.json"));
-const reactDomDir = dirname(require.resolve("react-dom/package.json"));
+import { federation } from "@module-federation/vite";
 
 /**
  * public/mockServiceWorker.js es inerte en producción (nada en el bundle lo
@@ -31,10 +27,48 @@ export default defineConfig(({ mode }) => {
   const outDir = "./dist";
 
   return {
-    plugins: [react(), removeMockWorkerInProduction(mode, outDir)],
+    plugins: [
+      react(),
+      // Gestión de Capacidad se publica como remote federado: el host carga
+      // "capacidad/module" en runtime. React y el router viajan como
+      // singletons — con dos copias, los hooks y el contexto del router se
+      // rompen — y las versiones exigidas son exactamente las del host.
+      federation({
+        name: "capacidad",
+        filename: "remoteEntry.js",
+        manifest: true,
+        exposes: {
+          "./module": "./src/module/CapacityModule.tsx",
+        },
+        shared: {
+          react: { singleton: true, requiredVersion: "19.2.8" },
+          "react-dom": { singleton: true, requiredVersion: "19.2.8" },
+          "react-router-dom": { singleton: true, requiredVersion: "7.18.2" },
+        },
+      }),
+      removeMockWorkerInProduction(mode, outDir),
+    ],
+    // El host (otro origen en desarrollo) importa el remote por URL absoluta:
+    // los assets del dev server deben anunciarse con su propio origen y
+    // aceptar CORS.
+    server: {
+      port: 4300,
+      strictPort: true,
+      cors: true,
+      origin: "http://localhost:4300",
+    },
+    // Un build servido con `vite preview` también entrega el remote a otro
+    // origen (el host): mismo CORS que el dev server.
+    preview: {
+      port: 4300,
+      strictPort: true,
+      cors: true,
+    },
     build: {
       outDir,
       emptyOutDir: true,
+      // Module Federation emite top-level await en el remote entry.
+      target: "esnext",
       reportCompressedSize: true,
       commonjsOptions: {
         transformMixedEsModules: true,
@@ -49,8 +83,6 @@ export default defineConfig(({ mode }) => {
       // rompen.
       dedupe: ["react", "react-dom"],
       alias: [
-        { find: "react-dom", replacement: reactDomDir },
-        { find: "react", replacement: reactDir },
         { find: "@app", replacement: join(import.meta.dirname, "src/app") },
         {
           find: "@features",
@@ -73,18 +105,6 @@ export default defineConfig(({ mode }) => {
     base: env.VITE_BASE_PUBLIC_URL,
     define: {
       "import.meta.vitest": undefined,
-      // El simulador de autenticación se apaga en duro en producción, no se
-      // confía en que la variable venga vacía. Con el literal forzado, la
-      // condición de `main.tsx` queda muerta y Rollup no emite el chunk de
-      // `src/dev/`, así que el simulador no existe en el artefacto ni aunque
-      // alguien construya con VITE_AUTH_SIMULATOR=true.
-      //
-      // Es más fuerte que borrar un archivo del output como se hace con el
-      // worker de MSW: allá el archivo podía existir e igual quedaba inerte;
-      // acá directamente no se genera.
-      ...(mode === "production"
-        ? { "import.meta.env.VITE_AUTH_SIMULATOR": '"false"' }
-        : {}),
     },
   };
 });

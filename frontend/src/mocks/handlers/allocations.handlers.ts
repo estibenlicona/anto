@@ -20,8 +20,8 @@ type StoredAllocation = Omit<
   AllocationDto,
   | "personPosition"
   | "personModality"
-  | "personSeniority"
-  | "personSeniorityLabel"
+  | "personLevel"
+  | "personLevelLabel"
   | "personAvailablePercentage"
 >;
 
@@ -103,8 +103,8 @@ function enrich(allocation: StoredAllocation): AllocationDto {
     personName: person?.name ?? allocation.personName,
     personPosition: person?.position ?? "",
     personModality: person?.modality ?? "Hybrid",
-    personSeniority: person?.seniority ?? 0,
-    personSeniorityLabel: person?.seniorityLabel ?? "",
+    personLevel: person?.level ?? 0,
+    personLevelLabel: person?.levelLabel ?? "",
     // Una persona tiene una sola asignación: su margen es lo que no dedica acá.
     personAvailablePercentage: Math.max(
       0,
@@ -116,7 +116,7 @@ function enrich(allocation: StoredAllocation): AllocationDto {
 function filterAllocations(
   source: AllocationDto[],
   search: string | null,
-  seniorities: number[]
+  levels: number[]
 ): AllocationDto[] {
   let filtered = source;
   if (search) {
@@ -127,8 +127,8 @@ function filterAllocations(
         a.personPosition.toLowerCase().includes(term)
     );
   }
-  if (seniorities.length > 0) {
-    filtered = filtered.filter((a) => seniorities.includes(a.personSeniority));
+  if (levels.length > 0) {
+    filtered = filtered.filter((a) => levels.includes(a.personLevel));
   }
   return filtered;
 }
@@ -197,8 +197,8 @@ export const allocationsHandlers = [
       Number(url.searchParams.get("pageSize")) || null
     );
     const search = url.searchParams.get("search");
-    const seniorities = url.searchParams
-      .getAll("seniority")
+    const levels = url.searchParams
+      .getAll("level")
       .map(Number)
       .filter((n) => !Number.isNaN(n));
     // Sólo las asignaciones de la gente a cargo de quien pide. Acá se usa
@@ -209,7 +209,7 @@ export const allocationsHandlers = [
       .filter((a) => a.squadId === squadId && visibles.has(a.personId))
       .map(enrich);
     return HttpResponse.json(
-      paginate(filterAllocations(bySquad, search, seniorities), page, pageSize)
+      paginate(filterAllocations(bySquad, search, levels), page, pageSize)
     );
   }),
 

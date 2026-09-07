@@ -3,10 +3,7 @@ import type {
   CreateAllocationRequest,
   UpdateAllocationRequest,
 } from "../services/allocationService";
-import type {
-  Modality,
-  Seniority,
-} from "@features/people/services/personService";
+import type { Modality } from "@features/people/services/personService";
 
 export interface Allocation {
   id: string;
@@ -19,8 +16,8 @@ export interface Allocation {
   transformationPercentage: number;
   personPosition: string;
   personModality: Modality;
-  personSeniority: Seniority;
-  personSeniorityLabel: string;
+  personLevel: number;
+  personLevelLabel: string;
   personAvailablePercentage: number;
   createdAtUtc: string;
   updatedAtUtc: string | null;
@@ -54,8 +51,8 @@ export const allocationAdapter = {
     // campos de persona ni la disponibilidad.
     personPosition: dto.personPosition ?? "",
     personModality: dto.personModality ?? "Hybrid",
-    personSeniority: dto.personSeniority ?? 0,
-    personSeniorityLabel: dto.personSeniorityLabel ?? "",
+    personLevel: dto.personLevel ?? 0,
+    personLevelLabel: dto.personLevelLabel ?? "",
     personAvailablePercentage: dto.personAvailablePercentage ?? 0,
     createdAtUtc: dto.createdAtUtc,
     updatedAtUtc: dto.updatedAtUtc,

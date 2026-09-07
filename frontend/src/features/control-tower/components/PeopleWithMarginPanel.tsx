@@ -86,7 +86,7 @@ export const PeopleWithMarginPanel: React.FC<PeopleWithMarginPanelProps> = ({
                       </span>
                       <span className={SECONDARY_TEXT}>
                         {person.position}
-                        {person.seniorityLabel && ` · ${person.seniorityLabel}`}
+                        {person.levelLabel && ` · ${person.levelLabel}`}
                       </span>
                     </div>
                   </div>

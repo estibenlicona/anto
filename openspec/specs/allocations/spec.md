@@ -3,13 +3,13 @@
 La capacidad `allocations` permite al Chapter Lead asignar personas ya registradas a una célula, con su porcentaje de dedicación, como base para conocer la capacidad de cada célula.
 ## Requirements
 ### Requirement: Listar las asignaciones de una célula
-El sistema SHALL mostrar, para la célula del detalle, un listado paginado de sus asignaciones vigentes, con por fila: la persona (avatar con las mismas iniciales y color que en Personas, nombre, y debajo cargo y modalidad con menor jerarquía), su seniority (con el componente de nivel del sistema de diseño, igual que el listado de Personas), su % de dedicación en esta célula (barra pequeña y porcentaje), su desglose BAU/Transformación (barra segmentada pequeña y porcentajes) y cuánto margen le queda a la persona (100 menos su dedicación en esta célula, que es la única que tiene), y SHALL exponer por fila un menú de acciones que permite editar o quitar esa asignación.
+El sistema SHALL mostrar, para la célula del detalle, un listado paginado de sus asignaciones vigentes, con por fila: la persona (avatar con las mismas iniciales y color que en Personas, nombre, y debajo cargo y modalidad con menor jerarquía), su nivel (con el componente de nivel del sistema de diseño, igual que la columna Nivel del listado de Personas), su % de dedicación en esta célula (barra pequeña y porcentaje), su desglose BAU/Transformación (barra segmentada pequeña y porcentajes) y cuánto margen le queda a la persona (100 menos su dedicación en esta célula, que es la única que tiene), y SHALL exponer por fila un menú de acciones que permite editar o quitar esa asignación.
 
-El sistema SHALL permitir buscar asignaciones por nombre o cargo de la persona (coincidencia parcial, sin distinguir mayúsculas) y filtrar por seniority (selección múltiple), combinables con la paginación; al cambiar la búsqueda o el filtro, el listado vuelve a la primera página.
+El sistema SHALL permitir buscar asignaciones por nombre o cargo de la persona (coincidencia parcial, sin distinguir mayúsculas) y filtrar por **nivel** (la escala de 4 — el filtro que antes se llamaba Seniority; no hay filtro por el nuevo Seniority en esta pantalla) con selección múltiple, combinable con la paginación; al cambiar la búsqueda o el filtro, el listado vuelve a la primera página.
 
 #### Scenario: Listado con datos
 - **WHEN** la célula del detalle tiene asignaciones vigentes
-- **THEN** el sistema muestra una página de resultados con una fila por cada asignación de esa página, con persona, seniority, % de dedicación, desglose BAU/Transformación y margen de la persona, junto con el total de asignaciones y la navegación entre páginas
+- **THEN** el sistema muestra una página de resultados con una fila por cada asignación de esa página, con persona, nivel, % de dedicación, desglose BAU/Transformación y margen de la persona, junto con el total de asignaciones y la navegación entre páginas
 
 #### Scenario: Disponibilidad de la persona
 - **WHEN** una persona tiene 80% en esta célula
@@ -24,7 +24,7 @@ El sistema SHALL permitir buscar asignaciones por nombre o cargo de la persona (
 - **THEN** el sistema muestra sólo las asignaciones cuya persona tiene ese texto en el nombre o el cargo, vuelve a la primera página y actualiza el total sobre el subconjunto filtrado
 
 #### Scenario: Filtrar por seniority
-- **WHEN** el Chapter Lead selecciona uno o más niveles de seniority
+- **WHEN** el Chapter Lead selecciona uno o más valores en el filtro **Nivel** (Principiante, Competente, Avanzado, Experto; el que antes se llamaba Seniority)
 - **THEN** el sistema muestra sólo las asignaciones de personas con alguno de esos niveles, vuelve a la primera página y actualiza el total sobre el subconjunto filtrado
 
 #### Scenario: Sin resultados para la búsqueda o el filtro

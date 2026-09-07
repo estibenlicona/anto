@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Alert,
   Badge,
@@ -8,8 +8,11 @@ import {
   CardHeader,
   Icon,
   Input,
+  useToast,
 } from "@tuya-ui/components";
 import { AdminPageHeader } from "@features/admin-shell/components/AdminPageHeader";
+import { useDedicationSync } from "@features/dedication/hooks/useDedicationSync";
+import { syncedAtLabel } from "@features/dedication/adapters/DedicationAdapter";
 
 const pipeline = [
   { title: "Azure DevOps", detail: "fuente externa" },
@@ -24,8 +27,10 @@ const conexion = [
   { label: "Dirección", value: "Solo lectura · DevOps → Plataforma" },
 ];
 
+// "Última ejecución" se muestra aparte porque es el único dato real de esta
+// pantalla — el resto sigue siendo de ejemplo hasta que exista un espejo
+// local real de boards/work items/identidades.
 const jobStatus = [
-  { label: "Última ejecución", value: "Hoy 02:00 · OK" },
   { label: "Próxima programada", value: "Mañana 02:00" },
   { label: "Tableros espejados", value: "14" },
   { label: "Work items espejados", value: "1.240" },
@@ -37,6 +42,23 @@ const jobStatus = [
 ];
 
 export const AdminDevOpsPage: React.FC = () => {
+  const { toast } = useToast();
+  const sync = useDedicationSync();
+  // Ejemplo inicial hasta la primera ingesta real de la sesión — el resto de
+  // "Job de ingesta diaria" sigue siendo de ejemplo (ver comentario de jobStatus).
+  const [lastIngestedAt, setLastIngestedAt] = useState<string | null>(null);
+
+  const handleIngest = async () => {
+    const result = await sync.syncAll();
+    if (result.success && result.lastSyncedAt) {
+      setLastIngestedAt(result.lastSyncedAt);
+      toast({
+        message: "Actualizado desde Azure DevOps",
+        icon: <Icon name="status-success" size={16} />,
+      });
+    }
+  };
+
   return (
     <div>
       <AdminPageHeader title="Integración con Azure DevOps" />
@@ -86,13 +108,6 @@ export const AdminDevOpsPage: React.FC = () => {
                 readOnly
                 disabled
               />
-              <Input
-                label="Secreto"
-                type="password"
-                defaultValue="••••••••••••"
-                readOnly
-                disabled
-              />
             </div>
             <div className="flex flex-col gap-2">
               {conexion.map((row) => (
@@ -117,6 +132,14 @@ export const AdminDevOpsPage: React.FC = () => {
           <CardHeader>Job de ingesta diaria</CardHeader>
           <CardBody className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between text-body-sm">
+                <span className="text-neutral-subtle">Última ejecución</span>
+                <span className="font-medium text-neutral-default">
+                  {lastIngestedAt
+                    ? syncedAtLabel(lastIngestedAt)
+                    : "Hoy 02:00 · OK"}
+                </span>
+              </div>
               {jobStatus.map((row) => (
                 <div
                   key={row.label}
@@ -129,9 +152,32 @@ export const AdminDevOpsPage: React.FC = () => {
                 </div>
               ))}
             </div>
-            <Button variant="primary" disabled className="self-start">
-              Ejecutar ingesta ahora
+            <Button
+              variant="primary"
+              isLoading={sync.syncing}
+              onClick={handleIngest}
+              className="self-start"
+            >
+              {sync.syncing ? "Ejecutando…" : "Ejecutar ingesta ahora"}
             </Button>
+            {sync.error && (
+              <Alert
+                variant="danger"
+                title="No se pudo ejecutar la ingesta"
+                action={
+                  <Button
+                    variant="secondary"
+                    size="small"
+                    onClick={handleIngest}
+                    isLoading={sync.syncing}
+                  >
+                    Reintentar
+                  </Button>
+                }
+              >
+                {sync.error}
+              </Alert>
+            )}
             <Alert variant="info">
               Las novedades con asignación entran a la bandeja de curación. Un
               cambio de asignación en un item ya curado lo devuelve a curación.

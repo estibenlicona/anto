@@ -1,11 +1,9 @@
 import { http, HttpResponse } from "msw";
 import type {
   CostReading,
-  CurrentHoursReportDto,
   DevOpsIdentityDto,
   PersonDetailAllocationDto,
   PersonDetailDto,
-  SprintHoursDto,
   SuggestedSquadDto,
 } from "@features/people/services/personDetailService";
 // Lectura en un solo sentido de los tres mocks, como chapter.handlers.ts: la
@@ -13,131 +11,69 @@ import type {
 // en memoria, para que asignar / mover / quitar se vea en el siguiente GET.
 import { getAllocationsSnapshot } from "./allocations.handlers";
 import { findChapter } from "./chapters";
+// La lectura del sprint en curso sale del mock de dedicación real, que a su
+// vez lee de acá las identidades: dependencia de ida y vuelta, pero sólo
+// dentro de funciones (ver la nota en dedication.handlers.ts).
+import { getBalanceSignalsSnapshot } from "./dedication.handlers";
 import { getLineOfPerson } from "./expertise-lines.handlers";
 import { getCompaniesSnapshot, getPeopleSnapshot } from "./people.handlers";
 import { getSquadsSnapshot } from "./squads.handlers";
 import {
-  CANDIDATE_IDENTITIES,
   CONTRACT_ENDS_AT,
   COST_BANDS,
-  CURRENT_SPRINT,
-  CURRENT_SPRINT_CLOSES_AT,
-  CURRENT_SPRINT_SUBMITTED_AT,
-  HOURS_BY_PERSON,
+  DEVOPS_USERS,
   LINKED_IDENTITIES,
   REQUIRED_SFIA_BY_SQUAD,
-  SPRINTS,
-  SPRINT_HOURS,
-  TOLERANCE,
   WANTED_POSITIONS_BY_SQUAD,
   type SeedIdentity,
-  type SeedSprintHours,
 } from "./personDetail.seeds";
 
 const DETAIL_URL = "/people/:id/detail";
-const VALIDATE_URL = "/people/:id/hours/:sprint/validate";
 const LINK_URL = "/people/:id/devops-identity";
+const DEVOPS_USERS_URL = "/devops/users";
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
 
-let hours: Record<string, SeedSprintHours[]> = clone(HOURS_BY_PERSON);
 let identities: Record<string, SeedIdentity> = clone(LINKED_IDENTITIES);
-let candidates = clone(CANDIDATE_IDENTITIES);
+// El directorio de DevOps no cambia durante la sesión: vincular no lo consume
+// (a diferencia de las candidatas de antes), sólo crea la relación.
+const devOpsUsers = clone(DEVOPS_USERS);
 
 /**
  * Identidades DevOps vinculadas, por persona: lectura en un solo sentido para
- * el mock del backlog, que resuelve el usuario DevOps de cada historia a una
- * persona por acá (ver chapter.handlers.ts para el mismo patrón).
+ * el mock de dedicación real, que resuelve por el identificador del usuario
+ * de DevOps los sprints y la actividad de cada persona (ver chapter.handlers.ts
+ * para el mismo patrón).
  */
 export function getDevOpsIdentitiesSnapshot(): Array<{
   personId: string;
+  id: string;
   userName: string;
 }> {
   return Object.entries(identities).map(([personId, i]) => ({
     personId,
+    id: i.id,
     userName: i.userName,
   }));
 }
 
 export function resetPersonDetailMock() {
-  hours = clone(HOURS_BY_PERSON);
   identities = clone(LINKED_IDENTITIES);
-  candidates = clone(CANDIDATE_IDENTITIES);
 }
 
 function round1(value: number): number {
   return Math.round(value * 10) / 10;
 }
-function round2(value: number): number {
-  return Math.round(value * 100) / 100;
-}
 
-function sprintsOf(personId: string): SprintHoursDto[] {
-  const rows = hours[personId] ?? [];
-  return rows.map((r, i) => ({
-    sprint: SPRINTS[i],
-    sprintHours: SPRINT_HOURS,
-    bauHours: r.bau,
-    initiativeHours: r.initiative,
-    freeHours: r.free,
-    status: r.status,
-  }));
-}
-
-function currentReportOf(
-  personId: string,
-  hasAllocation: boolean
-): CurrentHoursReportDto | null {
-  if (!hasAllocation) return null;
-  const all = sprintsOf(personId);
-  const current = all.find((s) => s.sprint === CURRENT_SPRINT);
-  if (!current) {
-    return {
-      sprint: CURRENT_SPRINT,
-      sprintHours: SPRINT_HOURS,
-      bauHours: 0,
-      initiativeHours: 0,
-      freeHours: 0,
-      status: "NotReported",
-      toleranceMin: TOLERANCE.min,
-      toleranceMax: TOLERANCE.max,
-      submittedAt: null,
-      closesAt: CURRENT_SPRINT_CLOSES_AT,
-    };
-  }
-  return {
-    ...current,
-    toleranceMin: TOLERANCE.min,
-    toleranceMax: TOLERANCE.max,
-    submittedAt:
-      current.status === "Submitted" || current.status === "Validated"
-        ? CURRENT_SPRINT_SUBMITTED_AT
-        : null,
-    closesAt: CURRENT_SPRINT_CLOSES_AT,
-  };
-}
-
-/** FTE real = horas sin libres / horas del sprint, del último sprint validado. */
-function realFteOf(personId: string): number | null {
-  const validatedOnes = sprintsOf(personId).filter(
-    (s) => s.status === "Validated"
-  );
-  const validated = validatedOnes[validatedOnes.length - 1];
-  if (!validated) return null;
-  return round2(
-    (validated.bauHours + validated.initiativeHours) / validated.sprintHours
-  );
-}
-
-function costReadingOf(seniority: number, monthlyCost: number): CostReading {
-  const band = COST_BANDS[seniority];
+function costReadingOf(level: number, monthlyCost: number): CostReading {
+  const band = COST_BANDS[level];
   if (!band) return "InRange";
   if (monthlyCost > band.max) return "High";
   if (monthlyCost < band.min) return "Low";
   return "InRange";
 }
 
-function requiredSfia(squadId: string, position: string): number {
+function requiredLevel(squadId: string, position: string): number {
   return REQUIRED_SFIA_BY_SQUAD[squadId]?.[position] ?? 2;
 }
 
@@ -181,7 +117,7 @@ export function computePersonDetail(personId: string): PersonDetailDto | null {
       bauPercentage: own.bauPercentage,
       transformationPercentage: own.transformationPercentage,
       since: own.createdAtUtc.slice(0, 10),
-      requiredSfia: requiredSfia(own.squadId, person.position),
+      requiredLevel: requiredLevel(own.squadId, person.position),
     };
   }
 
@@ -214,7 +150,7 @@ export function computePersonDetail(personId: string): PersonDetailDto | null {
               team.length === 0
                 ? "Sin equipo"
                 : `Sin ${person.position} en el equipo`,
-            requiredSfia: requiredSfia(s.id, person.position),
+            requiredLevel: requiredLevel(s.id, person.position),
             allocatedFte: round1(
               team.reduce((acc, a) => acc + a.dedicationPercentage / 100, 0)
             ),
@@ -226,17 +162,13 @@ export function computePersonDetail(personId: string): PersonDetailDto | null {
 
   const linked = identities[person.id];
   const devOpsIdentity: DevOpsIdentityDto | null = linked
-    ? { ...linked }
+    ? {
+        ...linked,
+        // La misma cuenta que el listado de Dedicación real, para que la
+        // ficha y el listado digan lo mismo de la misma persona.
+        currentSprint: getBalanceSignalsSnapshot()[person.id] ?? null,
+      }
     : null;
-  const devOpsCandidates = linked
-    ? []
-    : candidates
-        .filter((c) => c.forPersonId === person.id)
-        .map(({ id, userName, displayName }) => ({
-          id,
-          userName,
-          displayName,
-        }));
 
   const line = getLineOfPerson(person.id);
   const provider = person.providerId
@@ -271,11 +203,7 @@ export function computePersonDetail(personId: string): PersonDetailDto | null {
     expertiseLineName: line?.line.name ?? null,
     expertiseLineLeadName: line?.leadName ?? null,
     allocation,
-    realFte: realFteOf(person.id),
-    currentReport: currentReportOf(person.id, Boolean(own)),
-    sprints: sprintsOf(person.id),
     devOpsIdentity,
-    devOpsCandidates,
     stacks: person.stacks.map((s) => {
       // Cobertura derivada del resto del chapter de esta persona, no sembrada.
       const others = people.filter(
@@ -289,7 +217,7 @@ export function computePersonDetail(personId: string): PersonDetailDto | null {
         coverers: others.slice(0, 3).map((p) => ({ id: p.id, name: p.name })),
       };
     }),
-    costReading: costReadingOf(person.seniority, person.monthlyCost),
+    costReading: costReadingOf(person.level, person.monthlyCost),
     suggestedSquads,
   };
 }
@@ -306,46 +234,60 @@ export const personDetailHandlers = [
     return HttpResponse.json(detail);
   }),
 
-  http.post(VALIDATE_URL, ({ params }) => {
-    const personId = String(params.id);
-    const sprint = String(params.sprint);
-    const index = SPRINTS.indexOf(sprint as (typeof SPRINTS)[number]);
-    const row = hours[personId]?.[index];
-    if (!row) {
+  // La búsqueda es contra el directorio de DevOps, no contra la persona: por
+  // eso no cuelga de /people/:id. Sin coincidencia responde 404, que el
+  // frontend lee como "no hay usuario con ese correo", no como falla.
+  http.get(DEVOPS_USERS_URL, ({ request }) => {
+    const email = new URL(request.url).searchParams.get("email")?.trim();
+    if (!email) {
       return HttpResponse.json(
-        { message: "Reporte no encontrado" },
+        { message: "Falta el correo a buscar" },
+        { status: 400 }
+      );
+    }
+    const user = devOpsUsers.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase()
+    );
+    if (!user) {
+      return HttpResponse.json(
+        { message: "Ningún usuario de Azure DevOps tiene ese correo" },
         { status: 404 }
       );
     }
-    if (row.status !== "Submitted") {
-      return HttpResponse.json(
-        { message: "Sólo se valida un reporte enviado" },
-        { status: 409 }
-      );
-    }
-    row.status = "Validated";
-    return HttpResponse.json({ ok: true });
+    return HttpResponse.json(user);
   }),
 
   http.post(LINK_URL, async ({ params, request }) => {
     const personId = String(params.id);
     const body = (await request.json()) as { identityId?: string };
-    const candidate = candidates.find(
-      (c) => c.id === body.identityId && c.forPersonId === personId
-    );
-    if (!candidate) {
+    const user = devOpsUsers.find((u) => u.id === body.identityId);
+    if (!user) {
       return HttpResponse.json(
-        { message: "Identidad no encontrada" },
+        { message: "Ese usuario ya no existe en Azure DevOps" },
         { status: 404 }
       );
     }
+    // Una identidad, una persona: la regla la aplica el servidor, y el mensaje
+    // dice quién la tiene para que el lead sepa a quién mirar.
+    const takenBy = Object.entries(identities).find(
+      ([otherPersonId, i]) => i.id === user.id && otherPersonId !== personId
+    );
+    if (takenBy) {
+      const owner = getPeopleSnapshot().find((p) => p.id === takenBy[0]);
+      return HttpResponse.json(
+        {
+          message: `Esa identidad ya está vinculada a ${owner?.name ?? "otra persona"}`,
+        },
+        { status: 409 }
+      );
+    }
     identities[personId] = {
-      id: candidate.id,
-      userName: candidate.userName,
+      // El identificador es la clave con la que la dedicación real resuelve
+      // los sprints y la actividad de esta persona.
+      id: user.id,
+      userName: user.email,
       linkedAt: new Date().toISOString().slice(0, 10),
-      ...candidate.items,
     };
-    candidates = candidates.filter((c) => c.id !== candidate.id);
     return HttpResponse.json({ ok: true });
   }),
 ];

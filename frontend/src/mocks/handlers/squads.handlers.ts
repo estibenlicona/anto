@@ -128,7 +128,11 @@ function activeInitiativeOf(squadId: string): SquadActiveInitiativeDto | null {
   // Sólo se activa lo evaluado, así que la talla está; el `?? ""` es para el
   // tipo, no para un caso que el mock pueda producir.
   return active
-    ? { id: active.id, name: active.name, talla: active.evaluation?.talla ?? "" }
+    ? {
+        id: active.id,
+        name: active.name,
+        talla: active.evaluation?.talla ?? "",
+      }
     : null;
 }
 
@@ -171,8 +175,8 @@ function computeTeamStats(squad: StoredSquad, vista: Vista): SquadTeamStats {
     members: [...own]
       .sort((a, b) => a.personName.localeCompare(b.personName))
       .map((a) => ({ id: a.personId, name: a.personName })),
-    expertCount: members.filter((p) => p.seniority === 4).length,
-    beginnerCount: members.filter((p) => p.seniority === 1).length,
+    expertCount: members.filter((p) => p.level === 4).length,
+    beginnerCount: members.filter((p) => p.level === 1).length,
     allocatedFte: sum((a) => a.dedicationPercentage),
     bauFte: sum((a) => a.bauPercentage),
     transformationFte: sum((a) => a.transformationPercentage),

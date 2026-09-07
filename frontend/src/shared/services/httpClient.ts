@@ -9,11 +9,11 @@ export const httpClient = axios.create({
   },
 });
 
-httpClient.interceptors.request.use((config) => {
+httpClient.interceptors.request.use(async (config) => {
   // El token sale de quien provee la sesión, no de localStorage: esta
   // aplicación ya no inicia sesión ni la guarda — la recibe del host, o del
   // simulador en desarrollo.
-  const token = getAccessToken();
+  const token = await getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

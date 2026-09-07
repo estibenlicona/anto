@@ -32,6 +32,78 @@ describe("AdminSprintsPage", () => {
     const weeksInput = await screen.findByLabelText("Semanas por sprint");
     expect(weeksInput).not.toBeDisabled();
     expect(weeksInput).toHaveValue(2);
+    expect(screen.getByLabelText("Sprints por quarter")).toHaveValue(6);
+    expect(screen.getByLabelText("Horas por sprint")).toHaveValue(80);
+    expect(screen.getByLabelText("Hora de cierre del sprint")).toHaveValue(
+      "23:00"
+    );
+    expect(screen.getByLabelText("Ventana de histórico")).toHaveValue(6);
+    expect(screen.getByLabelText("Mínimo de sprints para evaluar")).toHaveValue(
+      3
+    );
+    // Cinco numéricos más la hora: nada de tolerancia ni de puntos por FTE.
+    expect(screen.getAllByRole("spinbutton")).toHaveLength(5);
+    expect(
+      screen.queryByLabelText("Puntos por FTE por sprint")
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Guardar configuración" })
+    ).toBeDisabled();
+  });
+
+  it("guarda la ventana de histórico y la rechaza fuera de 3–12", async () => {
+    renderPage();
+    const windowInput = await screen.findByLabelText("Ventana de histórico");
+    fireEvent.change(windowInput, { target: { value: "20" } });
+    expect(
+      screen.getByText(/Ventana de histórico debe estar entre 3 y 12/i)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Guardar configuración" })
+    ).toBeDisabled();
+
+    fireEvent.change(windowInput, { target: { value: "10" } });
+    fireEvent.click(
+      screen.getByRole("button", { name: "Guardar configuración" })
+    );
+    await waitFor(() =>
+      expect(screen.getByText("Configuración guardada")).toBeInTheDocument()
+    );
+    expect(windowInput).toHaveValue(10);
+  });
+
+  it("rechaza un mínimo de sprints mayor que la ventana de histórico", async () => {
+    renderPage();
+    const minInput = await screen.findByLabelText(
+      "Mínimo de sprints para evaluar"
+    );
+    // La ventana por defecto es 6; pedir 6 cabe, y no debe marcar error…
+    fireEvent.change(minInput, { target: { value: "6" } });
+    expect(
+      screen.queryByText(/no puede ser mayor que la ventana de histórico/i)
+    ).not.toBeInTheDocument();
+
+    // …pero bajar la ventana por debajo del mínimo sí.
+    fireEvent.change(screen.getByLabelText("Ventana de histórico"), {
+      target: { value: "5" },
+    });
+    expect(
+      screen.getByText(
+        /Mínimo de sprints para evaluar no puede ser mayor que la ventana de histórico/i
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Guardar configuración" })
+    ).toBeDisabled();
+  });
+
+  it("rechaza una hora de cierre mal formada", async () => {
+    renderPage();
+    const timeInput = await screen.findByLabelText("Hora de cierre del sprint");
+    fireEvent.change(timeInput, { target: { value: "25:00" } });
+    expect(
+      screen.getByText(/Hora de cierre del sprint debe tener el formato HH:mm/i)
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Guardar configuración" })
     ).toBeDisabled();
@@ -95,5 +167,10 @@ describe("AdminSprintsPage", () => {
     await screen.findByLabelText("Semanas por sprint");
     expect(screen.getByText("¿Qué usa este calendario?")).toBeInTheDocument();
     expect(screen.getByText("Roadmap")).toBeInTheDocument();
+    expect(screen.getByText("Capacidad")).toBeInTheDocument();
+    // Las horas del calendario son capacidad, no un parte de trabajo: la
+    // tarjeta puede nombrarlas, pero ningún reporte de horas.
+    expect(screen.queryByText(/reporte de horas/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/horas por semana/i)).not.toBeInTheDocument();
   });
 });

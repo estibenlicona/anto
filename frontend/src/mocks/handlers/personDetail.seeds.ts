@@ -1,13 +1,10 @@
-import type {
-  DevOpsCandidateDto,
-  DevOpsIdentityDto,
-  HoursReportStatus,
-} from "@features/people/services/personDetailService";
+import type { DevOpsUserDto } from "@features/people/services/personDetailService";
 
 /**
  * Datos de ejemplo del detalle de persona que NO existen en el dominio todavía
- * (horas por sprint, identidades DevOps, capacidades, chapter). Son ficción
- * hasta que exista backend: los tests verifican derivaciones, no estas cifras.
+ * (identidades DevOps, capacidades, chapter). Son ficción hasta que exista
+ * backend: los tests verifican derivaciones, no estas cifras. No hay horas:
+ * la plataforma no las registra.
  */
 
 export const MARIA = "p1111111-1111-1111-1111-111111111111";
@@ -16,141 +13,202 @@ export const LAURA = "p2222222-2222-2222-2222-222222222222";
 export const VALENTINA = "pddddddd-dddd-dddd-dddd-dddddddddddd";
 export const CAMILA = "pfffffff-ffff-ffff-ffff-ffffffffffff";
 export const DIEGO = "pccccccc-cccc-cccc-cccc-cccccccccccc";
+export const JULIAN = "pggggggg-gggg-gggg-gggg-gggggggggggg";
+export const DANIELA = "plllllll-llll-llll-llll-llllllllllll";
+export const ANDRES = "paaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+export const PAULA = "pbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+export const SEBASTIAN = "peeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+export const ISABELLA = "phhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh";
+export const MATEO = "piiiiiii-iiii-iiii-iiii-iiiiiiiiiiii";
+export const SOFIA = "pjjjjjjj-jjjj-jjjj-jjjj-jjjjjjjjjjjj";
 
-export const SPRINT_HOURS = 80;
-export const TOLERANCE = { min: 76, max: 84 };
-/** Del más antiguo al más reciente; el último es el sprint en curso. */
-export const SPRINTS = ["S11", "S12", "S13", "S14", "S15", "S16"] as const;
-export const CURRENT_SPRINT = "S16";
-export const CURRENT_SPRINT_CLOSES_AT = "2026-08-22";
-export const CURRENT_SPRINT_SUBMITTED_AT = "2026-08-08";
-
-export interface SeedSprintHours {
-  bau: number;
-  initiative: number;
-  free: number;
-  status: HoursReportStatus;
+/** Lo que el mock guarda de una identidad vinculada: el usuario de DevOps y cuándo. */
+export interface SeedIdentity {
+  /** Identificador del usuario en Azure DevOps. */
+  id: string;
+  /** Su correo: la clave con la que se lo busca en el directorio. */
+  userName: string;
+  linkedAt: string;
 }
 
-/** Horas por persona y sprint, alineadas con SPRINTS. Sin entrada = sin reportes. */
-export const HOURS_BY_PERSON: Record<string, SeedSprintHours[]> = {
-  // María: 80 % asignado (64 h esperadas); tres últimos sprints por encima.
-  [MARIA]: [
-    { bau: 34, initiative: 27, free: 19, status: "Validated" },
-    { bau: 40, initiative: 24, free: 16, status: "Validated" },
-    { bau: 36, initiative: 30, free: 14, status: "Validated" },
-    { bau: 42, initiative: 28, free: 10, status: "Validated" },
-    { bau: 40, initiative: 32, free: 8, status: "Validated" },
-    { bau: 42, initiative: 32, free: 4, status: "Submitted" },
-  ],
-  // Carlos: 100 % asignado, reporta parejo.
-  [CARLOS]: [
-    { bau: 48, initiative: 32, free: 0, status: "Validated" },
-    { bau: 46, initiative: 34, free: 0, status: "Validated" },
-    { bau: 50, initiative: 30, free: 0, status: "Validated" },
-    { bau: 47, initiative: 33, free: 0, status: "Validated" },
-    { bau: 48, initiative: 32, free: 0, status: "Validated" },
-    { bau: 48, initiative: 30, free: 2, status: "Validated" },
-  ],
-  // Laura: 100 % en Canales; el sprint actual sin reportar.
-  [LAURA]: [
-    { bau: 24, initiative: 56, free: 0, status: "Validated" },
-    { bau: 26, initiative: 54, free: 0, status: "Validated" },
-    { bau: 24, initiative: 54, free: 2, status: "Validated" },
-    { bau: 22, initiative: 58, free: 0, status: "Validated" },
-    { bau: 24, initiative: 56, free: 0, status: "Validated" },
-    { bau: 0, initiative: 0, free: 0, status: "NotReported" },
-  ],
-  // Valentina: 60 % asignado (48 h), reporta por debajo.
-  [VALENTINA]: [
-    { bau: 16, initiative: 28, free: 36, status: "Validated" },
-    { bau: 14, initiative: 30, free: 36, status: "Validated" },
-    { bau: 16, initiative: 26, free: 38, status: "Validated" },
-    { bau: 14, initiative: 30, free: 36, status: "Validated" },
-    { bau: 12, initiative: 30, free: 38, status: "Validated" },
-    { bau: 14, initiative: 30, free: 36, status: "Draft" },
-  ],
-};
+/**
+ * Los usuarios de Azure DevOps que la búsqueda por correo puede encontrar. La
+ * dedicación real (dedication.seeds.ts) se siembra por el `id` de estos
+ * usuarios, así que vincular una identidad hace aparecer sus sprints sin
+ * tocar aquellas semillas.
+ */
+export const DEVOPS_USERS: DevOpsUserDto[] = [
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a61",
+    displayName: "María González",
+    email: "maria.gonzalez@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: ["Backend Platform"],
+    boards: ["Backend Core"],
+  },
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a62",
+    displayName: "Carlos López",
+    email: "carlos.lopez@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: ["Backend Platform"],
+    boards: ["Backend Core"],
+  },
+  // Andrés, Isabella, Sebastián y Paula completan dos células con más de un
+  // colaborador medido. Hace falta: la mediana de la célula sólo dice algo
+  // cuando hay varios, y el modificador de "la célula se comporta igual" no se
+  // puede ver con una célula de una sola persona.
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a66",
+    displayName: "Andrés Martínez",
+    email: "andres.martinez@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: ["Backend Platform"],
+    boards: ["Backend Core"],
+  },
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a67",
+    displayName: "Isabella Moreno",
+    email: "isabella.moreno@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: ["Backend Platform"],
+    boards: ["Frontend Web"],
+  },
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a68",
+    displayName: "Sebastián Cárdenas",
+    email: "sebastian.cardenas@tuya.com",
+    avatarUrl: null,
+    projects: ["Analítica"],
+    teams: ["Plataforma de Datos"],
+    boards: ["Data Platform"],
+  },
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a6a",
+    displayName: "Paula Ramírez",
+    email: "paula.ramirez@tuya.com",
+    avatarUrl: null,
+    projects: ["Analítica"],
+    teams: ["Plataforma de Datos"],
+    boards: ["Data Platform"],
+  },
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a63",
+    displayName: "Valentina Ospina",
+    email: "valentina.ospina@tuya.com",
+    avatarUrl: null,
+    projects: ["Canales Digitales"],
+    teams: ["Fraude Tarjetas"],
+    boards: ["Fraude Board"],
+  },
+  // Julián: vinculado y sin célula, con historias a su nombre. Es el caso
+  // "Sin célula" de la dedicación real: hay comprometido pero nada asignado
+  // contra qué leerlo.
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a64",
+    displayName: "Julián Peña",
+    email: "julian.pena@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: ["Backend Platform"],
+    boards: ["Backend Core"],
+  },
+  // Daniela: vinculada, pero DevOps no le devuelve sprints. Es el caso "Sin
+  // sprint": la identidad existe y no hay nada que leer todavía.
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a65",
+    displayName: "Daniela Castaño",
+    email: "daniela.castano@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: [],
+    boards: [],
+  },
+  // Camila: la persona sin identidad del detalle; su correo corporativo es el
+  // que el drawer trae prellenado, así que buscar sin tocar nada la encuentra.
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a69",
+    displayName: "Camila Restrepo",
+    email: "camila.restrepo@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario", "Canales Digitales"],
+    teams: ["Pagos Instantáneos", "Fraude Tarjetas"],
+    boards: ["Pagos · Stories", "Fraude · Backlog"],
+  },
+  // Diego: sin identidad, con sprints sembrados a su nombre que aparecen en
+  // la dedicación real en cuanto se lo vincula.
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a6b",
+    displayName: "Diego Salazar",
+    email: "diego.salazar@tuya.com",
+    avatarUrl: null,
+    projects: ["Canales Digitales"],
+    teams: ["Canales Digitales"],
+    boards: ["Canales"],
+  },
+  // Laura, Mateo y Sofía completan el cuadro de sobreasignación del chapter:
+  // con una sola fila en peligro no se ve si la tabla se lee cuando son
+  // varias, ni si el indicador que las nombra aguanta más de un puñado.
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a6c",
+    displayName: "Laura Ruiz",
+    email: "laura.ruiz@tuya.com",
+    avatarUrl: null,
+    projects: ["Canales Digitales"],
+    teams: ["Canales Digitales"],
+    boards: ["Canales · QA"],
+  },
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a6d",
+    displayName: "Mateo Vargas",
+    email: "mateo.vargas@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: ["Plataforma de Datos"],
+    boards: ["Datos · Analítica"],
+  },
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a6e",
+    displayName: "Sofía Herrera",
+    email: "sofia.herrera@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: ["Backend Platform"],
+    boards: ["Backend Core"],
+  },
+];
 
-export interface SeedIdentity extends Omit<DevOpsIdentityDto, "linkedAt"> {
-  linkedAt: string;
+/** El usuario de DevOps con ese correo; las semillas se escriben por correo porque se leen mejor. */
+export function devOpsUserByEmail(email: string): DevOpsUserDto {
+  const user = DEVOPS_USERS.find((u) => u.email === email);
+  if (!user) throw new Error(`No hay usuario de DevOps sembrado con ${email}`);
+  return user;
+}
+
+function linkedFrom(email: string, linkedAt: string): SeedIdentity {
+  const user = devOpsUserByEmail(email);
+  return { id: user.id, userName: user.email, linkedAt };
 }
 
 /** Identidades ya vinculadas, por persona. */
 export const LINKED_IDENTITIES: Record<string, SeedIdentity> = {
-  [MARIA]: {
-    id: "i1",
-    userName: "mgonzalez@tuya",
-    linkedAt: "2026-07-25",
-    activeItems: 11,
-    initiativeItems: 7,
-    bauItems: 4,
-    pendingCuration: 2,
-  },
-  [CARLOS]: {
-    id: "i2",
-    userName: "clopez@tuya",
-    linkedAt: "2026-07-25",
-    activeItems: 6,
-    initiativeItems: 5,
-    bauItems: 1,
-    pendingCuration: 0,
-  },
-  [VALENTINA]: {
-    id: "i3",
-    userName: "vospina@tuya",
-    linkedAt: "2026-07-28",
-    activeItems: 4,
-    initiativeItems: 4,
-    bauItems: 0,
-    pendingCuration: 1,
-  },
+  [MARIA]: linkedFrom("maria.gonzalez@tuya.com", "2026-07-25"),
+  [CARLOS]: linkedFrom("carlos.lopez@tuya.com", "2026-07-25"),
+  [VALENTINA]: linkedFrom("valentina.ospina@tuya.com", "2026-07-28"),
+  [JULIAN]: linkedFrom("julian.pena@tuya.com", "2026-08-03"),
+  [DANIELA]: linkedFrom("daniela.castano@tuya.com", "2026-08-19"),
+  [ANDRES]: linkedFrom("andres.martinez@tuya.com", "2026-07-25"),
+  [ISABELLA]: linkedFrom("isabella.moreno@tuya.com", "2026-07-20"),
+  [SEBASTIAN]: linkedFrom("sebastian.cardenas@tuya.com", "2026-07-25"),
+  [PAULA]: linkedFrom("paula.ramirez@tuya.com", "2026-07-25"),
+  [LAURA]: linkedFrom("laura.ruiz@tuya.com", "2026-07-25"),
+  [MATEO]: linkedFrom("mateo.vargas@tuya.com", "2026-07-27"),
+  [SOFIA]: linkedFrom("sofia.herrera@tuya.com", "2026-07-27"),
 };
-
-/** Identidades del espejo de Entra ID todavía sin persona, candidatas por nombre. */
-export const CANDIDATE_IDENTITIES: Array<
-  DevOpsCandidateDto & {
-    forPersonId: string;
-    items: Omit<SeedIdentity, "id" | "userName" | "linkedAt">;
-  }
-> = [
-  {
-    id: "i9",
-    userName: "crestrepo@tuya",
-    displayName: "Camila Restrepo",
-    forPersonId: CAMILA,
-    items: {
-      activeItems: 3,
-      initiativeItems: 3,
-      bauItems: 0,
-      pendingCuration: 3,
-    },
-  },
-  {
-    id: "i10",
-    userName: "camila.restrepo@globant",
-    displayName: "Restrepo, Camila (Globant)",
-    forPersonId: CAMILA,
-    items: {
-      activeItems: 0,
-      initiativeItems: 0,
-      bauItems: 0,
-      pendingCuration: 0,
-    },
-  },
-  {
-    id: "i11",
-    userName: "dsalazar@tuya",
-    displayName: "Diego Salazar",
-    forPersonId: DIEGO,
-    items: {
-      activeItems: 2,
-      initiativeItems: 0,
-      bauItems: 2,
-      pendingCuration: 2,
-    },
-  },
-];
 
 /**
  * Nivel SFIA que cada célula pide por capacidad principal (nombre de cargo).
@@ -197,7 +255,7 @@ export const WANTED_POSITIONS_BY_SQUAD: Record<string, string[]> = {
   "55555555-5555-5555-5555-555555555555": ["Data Analyst"],
 };
 
-/** Bandas de costo mensual por seniority (escala Tuya 1–4), en COP. */
+/** Bandas de costo mensual por nivel (escala Tuya 1–4), en COP. */
 export const COST_BANDS: Record<number, { min: number; max: number }> = {
   1: { min: 4_000_000, max: 6_500_000 },
   2: { min: 5_500_000, max: 8_500_000 },

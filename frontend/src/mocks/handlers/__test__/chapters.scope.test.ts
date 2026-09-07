@@ -7,7 +7,7 @@ import { squadService } from "@features/squads/services/squadService";
 import { careerPlanService } from "@features/career-plan/services/careerPlanService";
 import { absenceService } from "@features/absences/services/absenceService";
 import { billingService } from "@features/billing/services/billingService";
-import { backlogService } from "@features/backlog/services/backlogService";
+import { dedicationService } from "@features/dedication/services/dedicationService";
 import { CHAPTERS } from "../chapters";
 import { getPeopleSnapshot, resetPeopleMock } from "../people.handlers";
 import { resetSquadsMock } from "../squads.handlers";
@@ -137,9 +137,10 @@ describe("el acotado lo hace el servidor", () => {
     await expect(
       absenceService.getByMonth(MES_CON_AUSENCIAS)
     ).resolves.toMatchObject({ items: [] });
-    // Y el backlog, que es la otra cola de trabajo del rol.
-    await expect(backlogService.getQueue({})).resolves.toMatchObject({
+    // Y la dedicación real, que lee sobre la misma gente.
+    await expect(dedicationService.listCollaborators()).resolves.toMatchObject({
       items: [],
+      summary: { total: 0 },
     });
   });
 
@@ -148,7 +149,7 @@ describe("el acotado lo hace el servidor", () => {
     const mios = (await personService.list(1, 1000)).items;
     const idsMios = new Set(mios.map((p) => p.id));
 
-    const [stats, overview, squadStats, span, resumen, ausencias, cola] =
+    const [stats, overview, squadStats, span, resumen, ausencias, dedicacion] =
       await Promise.all([
         personService.getStats(),
         capacityOverviewService.getOverview(),
@@ -156,7 +157,7 @@ describe("el acotado lo hace el servidor", () => {
         careerPlanService.getSpan(),
         careerPlanService.getSpanSummary(),
         absenceService.getByMonth(MES_CON_AUSENCIAS),
-        backlogService.getQueue({}),
+        dedicationService.listCollaborators({}, { page: 1, pageSize: 100 }),
       ]);
 
     // Los tres indicadores de Personas, la Torre y Células cuentan lo mismo.
@@ -171,13 +172,14 @@ describe("el acotado lo hace el servidor", () => {
     // Competencias, sobre la misma gente.
     expect(span.people).toHaveLength(mios.length);
     expect(resumen.totalPeople).toBe(mios.length);
-    // Y las ausencias del mes y las historias de la cola son de gente suya,
-    // no de cualquiera. Se exige que haya algo que mirar: `every` sobre una
-    // lista vacía es verdad y no probaría nada.
+    // Y las ausencias del mes y las capacidades de la dedicación real son de
+    // gente suya, no de cualquiera. Se exige que haya algo que mirar: `every`
+    // sobre una lista vacía es verdad y no probaría nada.
     expect(ausencias.items).not.toHaveLength(0);
     expect(ausencias.items.every((a) => idsMios.has(a.personId))).toBe(true);
-    expect(cola.items).not.toHaveLength(0);
-    expect(cola.items.every((s) => idsMios.has(s.personId!))).toBe(true);
+    expect(dedicacion.items).toHaveLength(mios.length);
+    expect(dedicacion.items.every((r) => idsMios.has(r.person.id))).toBe(true);
+    expect(dedicacion.summary.total).toBe(mios.length);
   });
 
   it("acota las asignaciones junto con las personas, para que las cifras cierren", async () => {

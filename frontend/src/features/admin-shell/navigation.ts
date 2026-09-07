@@ -1,5 +1,5 @@
 import type { IconName } from "@tuya-ui/components";
-import type { AppRole } from "@features/auth-session";
+import type { AppRole, CapacityPermission } from "@features/auth-session";
 
 export interface AdminNavEntry {
   id: string;
@@ -8,6 +8,8 @@ export interface AdminNavEntry {
   icon: IconName;
   /** Ver la nota equivalente en `LeadNavEntry`. */
   roles?: AppRole[];
+  /** Permiso de sección del módulo que la entrada exige. "Inicio" no lleva. */
+  permission?: CapacityPermission;
 }
 
 export interface AdminNavGroupConfig {
@@ -17,6 +19,18 @@ export interface AdminNavGroupConfig {
 }
 
 export const ADMIN_HOME_ID = "admin-home";
+
+/**
+ * El permiso de sección que cada pantalla de Admin exige. Menú y rutas leen
+ * de acá: si divergieran, el menú ofrecería pantallas que el guard niega.
+ */
+export const ADMIN_SECTION_PERMISSION = {
+  "admin-sprints": "Sprints",
+  "admin-parametros": "Parametros",
+  "admin-habilidades": "Habilidades",
+  "admin-lineas": "Lineas",
+  "admin-devops": "DevOps",
+} as const satisfies Record<string, CapacityPermission>;
 
 /**
  * Takes its structure and order from `NAV.admin` in
@@ -43,24 +57,28 @@ export const adminNavGroups: AdminNavGroupConfig[] = [
     items: [
       {
         id: "admin-sprints",
+        permission: ADMIN_SECTION_PERMISSION["admin-sprints"],
         label: "Sprints",
         href: "/app/admin/sprints",
         icon: "calendar",
       },
       {
         id: "admin-parametros",
+        permission: ADMIN_SECTION_PERMISSION["admin-parametros"],
         label: "Parámetros",
         href: "/app/admin/parametros",
         icon: "settings",
       },
       {
         id: "admin-habilidades",
+        permission: ADMIN_SECTION_PERMISSION["admin-habilidades"],
         label: "Habilidades",
         href: "/app/admin/habilidades",
         icon: "expertise",
       },
       {
         id: "admin-lineas",
+        permission: ADMIN_SECTION_PERMISSION["admin-lineas"],
         label: "Líneas",
         href: "/app/admin/lineas",
         // `team` y no `expertise`: ese ya es el de Habilidades, y dos entradas
@@ -74,6 +92,7 @@ export const adminNavGroups: AdminNavGroupConfig[] = [
     items: [
       {
         id: "admin-devops",
+        permission: ADMIN_SECTION_PERMISSION["admin-devops"],
         label: "Ingesta",
         href: "/app/admin/devops",
         icon: "integration",

@@ -35,7 +35,7 @@ describe("GET /people/:id/detail", () => {
     resetExpertiseLinesMock();
   });
 
-  it("persona con célula: asignación derivada de los mocks, horas, DevOps, capacidades", async () => {
+  it("persona con célula: asignación derivada de los mocks, DevOps, capacidades", async () => {
     const d = await personDetailService.getDetail(MARIA);
     expect(d.person.name).toBe("María González");
     expect(d.allocation).toMatchObject({
@@ -46,7 +46,7 @@ describe("GET /people/:id/detail", () => {
       dedicationPercentage: 80,
       bauPercentage: 50,
       transformationPercentage: 30,
-      requiredSfia: 3,
+      requiredLevel: 3,
     });
     // Compañeros de célula: los de su chapter. Andrés e Isabella también están
     // asignados a Backend Platform, pero son de Canales Digitales y nombrarlos
@@ -54,19 +54,20 @@ describe("GET /people/:id/detail", () => {
     // fuga, por otra puerta, que el acotado del listado cierra.
     expect(d.allocation!.teammates).toEqual(["Carlos López"]);
     expect(d.allocation!.teammates).not.toContain("María González");
-    expect(d.currentReport).toMatchObject({
-      sprint: "S16",
-      status: "Submitted",
-      sprintHours: 80,
-    });
-    expect(d.sprints).toHaveLength(6);
-    // Último validado: S15 → (40 + 32) / 80
-    expect(d.realFte).toBe(0.9);
+    // La identidad trae la señal del sprint en curso que calcula el mock de
+    // balance de carga: 18 SP contra sus 22 habituales, con 0.80 FTE
+    // disponible de 1.0 tras el festivo y su día de ausencia.
     expect(d.devOpsIdentity).toMatchObject({
-      userName: "mgonzalez@tuya",
-      pendingCuration: 2,
+      userName: "maria.gonzalez@tuya.com",
+      currentSprint: {
+        sprint: { name: "S18", snapshotStatus: "Provisional" },
+        committedPoints: 18,
+        ownMedianPoints: 22,
+        capacity: { contractualFte: 1, availableFte: 0.8 },
+        signal: "Usual",
+        notEvaluableReason: null,
+      },
     });
-    expect(d.devOpsCandidates).toEqual([]);
     // AS400 sólo lo tiene María: bus factor 1 derivado de los stacks del mock de personas.
     expect(d.stacks.find((s) => s.name === "AS400")?.otherCoverers).toBe(0);
     expect(d.stacks.find((s) => s.name === ".NET")?.coverers.length).toBe(3);
@@ -109,21 +110,20 @@ describe("GET /people/:id/detail", () => {
     expect(d.expertiseLineLeadName).toBeNull();
   });
 
-  it("persona sin célula: sin asignación ni reporte, con sugerencias y candidatas DevOps", async () => {
+  it("persona sin célula: sin asignación, con sugerencias y sin identidad DevOps", async () => {
     const d = await personDetailService.getDetail(CAMILA);
     expect(d.allocation).toBeNull();
-    expect(d.currentReport).toBeNull();
-    expect(d.realFte).toBeNull();
     expect(d.providerName).toBe("QVision");
     expect(d.devOpsIdentity).toBeNull();
-    expect(d.devOpsCandidates.length).toBeGreaterThan(0);
+    // Ya no viajan candidatas: la identidad se busca por correo.
+    expect(d).not.toHaveProperty("devOpsCandidates");
     const pagos = d.suggestedSquads.find((s) => s.id === PAGOS);
     expect(pagos).toMatchObject({
       reason: "Sin equipo",
-      requiredSfia: 3,
+      requiredLevel: 3,
       allocatedFte: 0,
     });
-    expect(d.suggestedSquads.every((s) => s.requiredSfia >= 1)).toBe(true);
+    expect(d.suggestedSquads.every((s) => s.requiredLevel >= 1)).toBe(true);
   });
 
   it("sigue a los cambios de asignación de la sesión", async () => {
@@ -136,30 +136,111 @@ describe("GET /people/:id/detail", () => {
     const d = await personDetailService.getDetail(CAMILA);
     expect(d.allocation?.squadId).toBe(PAGOS);
     expect(d.suggestedSquads).toEqual([]);
-    expect(d.currentReport?.status).toBe("NotReported");
   });
 
-  it("validar: 200 sobre Submitted y recalcula el FTE real; 409 si no está enviado", async () => {
-    await personDetailService.validateHours(MARIA, "S16");
+  it("la señal del sprint en curso no depende de lo que la célula declara", async () => {
+    const before = await personDetailService.getDetail(MARIA);
+    expect(before.devOpsIdentity?.currentSprint).toMatchObject({
+      signal: "Usual",
+      committedPoints: 18,
+      ownMedianPoints: 22,
+    });
+    await allocationService.update(before.allocation!.id, {
+      dedicationPercentage: 50,
+      bauPercentage: 20,
+      transformationPercentage: 30,
+    });
+    const after = await personDetailService.getDetail(MARIA);
+    // Bajar la dedicación declarada de 80 % a 50 % no mueve la señal: ese dato
+    // es un reporte de la célula y no participa en ninguna evidencia.
+    expect(after.devOpsIdentity?.currentSprint).toMatchObject({
+      signal: "Usual",
+      committedPoints: 18,
+      ownMedianPoints: 22,
+    });
+    expect(after.devOpsIdentity?.currentSprint?.capacity).toMatchObject({
+      contractualFte: 1,
+      availableFte: 0.8,
+    });
+  });
+
+  it("sin datos de horas: el detalle no trae reporte, sprints ni FTE real, y no existe el POST de validación", async () => {
     const d = await personDetailService.getDetail(MARIA);
-    expect(d.currentReport?.status).toBe("Validated");
-    // (42 + 32) / 80
-    expect(d.realFte).toBe(0.93);
+    expect(d).not.toHaveProperty("realFte");
+    expect(d).not.toHaveProperty("currentReport");
+    expect(d).not.toHaveProperty("sprints");
+    // Ningún handler lo atiende: la petición no llega a un 2xx.
     expect(
-      await status(() => personDetailService.validateHours(MARIA, "S16"))
-    ).toBe(409);
+      await status(() => httpClient.post(`/people/${MARIA}/hours/S16/validate`))
+    ).not.toBe(200);
   });
 
-  it("vincular identidad: 200 con candidata, 404 con desconocida", async () => {
-    const before = await personDetailService.getDetail(DIEGO);
-    const candidate = before.devOpsCandidates[0];
-    await personDetailService.linkDevOpsIdentity(DIEGO, candidate.id);
-    const after = await personDetailService.getDetail(DIEGO);
-    expect(after.devOpsIdentity?.userName).toBe(candidate.userName);
-    expect(after.devOpsCandidates).toEqual([]);
+  it("buscar en DevOps por correo: encuentra sin distinguir mayúsculas, 404 sin usuario, 400 sin correo", async () => {
+    const user = await personDetailService.searchDevOpsUser(
+      "Camila.Restrepo@TUYA.com"
+    );
+    expect(user).toMatchObject({
+      displayName: "Camila Restrepo",
+      email: "camila.restrepo@tuya.com",
+      projects: ["Core Bancario", "Canales Digitales"],
+      teams: ["Pagos Instantáneos", "Fraude Tarjetas"],
+      boards: ["Pagos · Stories", "Fraude · Backlog"],
+    });
+    expect(user.id).toBeTruthy();
     expect(
-      await status(() => personDetailService.linkDevOpsIdentity(CAMILA, "nope"))
+      await status(() => personDetailService.searchDevOpsUser("nadie@tuya.com"))
     ).toBe(404);
+    expect(await status(() => httpClient.get("/devops/users"))).toBe(400);
+  });
+
+  it("vincular por id de usuario: 200 y la identidad queda con el correo, la fecha de hoy y su lectura del sprint; 404 con id desconocido", async () => {
+    const user = await personDetailService.searchDevOpsUser(
+      "camila.restrepo@tuya.com"
+    );
+    await personDetailService.linkDevOpsIdentity(CAMILA, user.id);
+    const after = await personDetailService.getDetail(CAMILA);
+    expect(after.devOpsIdentity).toMatchObject({
+      id: user.id,
+      userName: "camila.restrepo@tuya.com",
+      linkedAt: new Date().toISOString().slice(0, 10),
+      // Recién vinculada: DevOps ya le devuelve el sprint en curso, pero con
+      // un solo sprint sellado no hay contra qué comparar y la señal es
+      // "No evaluable · histórico insuficiente".
+      currentSprint: {
+        sprint: { name: "S18", snapshotStatus: "Provisional" },
+        committedPoints: 10,
+        ownMedianPoints: 12,
+        signal: "NotEvaluable",
+        notEvaluableReason: "InsufficientHistory",
+      },
+    });
+    expect(after.devOpsIdentity).not.toHaveProperty("activeItems");
+    expect(
+      await status(() => personDetailService.linkDevOpsIdentity(DIEGO, "nope"))
+    ).toBe(404);
+  });
+
+  it("vincular un usuario que ya es de otra persona responde 409 nombrándola y no cambia nada", async () => {
+    const maria = await personDetailService.searchDevOpsUser(
+      "maria.gonzalez@tuya.com"
+    );
+    let message = "";
+    try {
+      await personDetailService.linkDevOpsIdentity(CAMILA, maria.id);
+    } catch (e) {
+      const err = e as {
+        response?: { status: number; data?: { message?: string } };
+      };
+      expect(err.response?.status).toBe(409);
+      message = err.response?.data?.message ?? "";
+    }
+    expect(message).toContain("María González");
+    expect(
+      (await personDetailService.getDetail(CAMILA)).devOpsIdentity
+    ).toBeNull();
+    expect(
+      (await personDetailService.getDetail(MARIA)).devOpsIdentity?.id
+    ).toBe(maria.id);
   });
 
   it("404 para una persona inexistente", async () => {

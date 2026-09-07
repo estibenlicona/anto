@@ -20,8 +20,9 @@ import type { PeopleStats } from "../services/personService";
 // con la sola actualización del paquete. Es lo contrario del color de los
 // avatares de esta misma pantalla, que se reparte desde el id porque ahí el
 // color no significa nada, sólo distingue personas.
-const toneForSeniority = (seniority: number): AccentTone =>
-  accentTones[seniority - 1] ?? accentTones[0];
+const SENIORITY_ORDER = ["Junior", "Intermediate", "Senior"];
+const toneForSeniority = (seniority: string): AccentTone =>
+  accentTones[SENIORITY_ORDER.indexOf(seniority)] ?? accentTones[0];
 
 /** Lo que la card de personas activas toma del overview de capacidad del chapter. */
 export interface PeopleAssignmentSummary {
@@ -61,10 +62,10 @@ export const PeopleStatsCards: React.FC<PeopleStatsCardsProps> = ({
   const backed = Math.max(distinct - atRisk.length, 0);
 
   const total = stats.activeCount;
-  const advanced = stats.bySeniority
-    .filter((e) => e.seniority >= 3)
+  const senior = stats.bySeniority
+    .filter((e) => e.seniority === "Senior")
     .reduce((sum, e) => sum + e.count, 0);
-  const advancedPct = total > 0 ? Math.round((advanced / total) * 100) : 0;
+  const seniorPct = total > 0 ? Math.round((senior / total) * 100) : 0;
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.3fr]">
@@ -140,8 +141,8 @@ export const PeopleStatsCards: React.FC<PeopleStatsCardsProps> = ({
       <DistributionCard
         title="DISTRIBUCIÓN POR SENIORITY"
         headline={{
-          value: `${advancedPct}%`,
-          note: `${advanced} de ${total} en avanzado o superior`,
+          value: `${seniorPct}%`,
+          note: `${senior} de ${total} en Senior`,
         }}
         legend="inline"
         items={stats.bySeniority.map((entry) => ({

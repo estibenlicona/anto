@@ -153,7 +153,7 @@ export function resetInitiativesMock() {
   initiatives = INITIATIVE_SEEDS.map(fromSeed);
 }
 
-/** Sólo lectura para otros handlers (backlog, asignaciones): misma fuente de ids y nombres. */
+/** Sólo lectura para otros handlers (dedicación real, células): misma fuente de ids y nombres. */
 export function getInitiativesSnapshot(): StoredInitiative[] {
   return all();
 }
@@ -269,7 +269,9 @@ export const initiativesHandlers = [
       Number(url.searchParams.get("page")) || null,
       Number(url.searchParams.get("pageSize")) || null
     );
-    return HttpResponse.json(paginate(filterInitiatives(url).map(respond), page, pageSize));
+    return HttpResponse.json(
+      paginate(filterInitiatives(url).map(respond), page, pageSize)
+    );
   }),
 
   http.get(`${BASE}/:id`, ({ params }) => {

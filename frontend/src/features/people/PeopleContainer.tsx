@@ -28,6 +28,8 @@ export const PeopleContainer: React.FC = () => {
     onPageSizeChange,
     search,
     onSearchChange,
+    levels: selectedLevels,
+    onLevelsChange,
     seniorities: selectedSeniorities,
     onSenioritiesChange,
     stacks: selectedStacks,
@@ -35,6 +37,7 @@ export const PeopleContainer: React.FC = () => {
   } = usePeople();
   const { catalog: stackCatalog } = useStackCatalog();
   const {
+    levels,
     seniorities,
     modalities,
     companies,
@@ -164,6 +167,9 @@ export const PeopleContainer: React.FC = () => {
         onPageSizeChange={onPageSizeChange}
         search={search}
         onSearchChange={onSearchChange}
+        levelOptions={levels}
+        selectedLevels={selectedLevels}
+        onLevelsChange={onLevelsChange}
         seniorityOptions={seniorities}
         selectedSeniorities={selectedSeniorities}
         onSenioritiesChange={onSenioritiesChange}
@@ -176,6 +182,7 @@ export const PeopleContainer: React.FC = () => {
         open={formOpen}
         onOpenChange={setFormOpen}
         person={editingPerson}
+        levels={levels}
         seniorities={seniorities}
         modalities={modalities}
         roles={roles}

@@ -15,8 +15,8 @@ const dto: AllocationDto = {
   transformationPercentage: 30,
   personPosition: "Backend Dev",
   personModality: "Hybrid" as const,
-  personSeniority: 3,
-  personSeniorityLabel: "Avanzado",
+  personLevel: 3,
+  personLevelLabel: "Avanzado",
   personAvailablePercentage: 20,
   createdAtUtc: "2026-01-01T00:00:00Z",
   updatedAtUtc: "2026-01-02T00:00:00Z",
@@ -36,8 +36,8 @@ describe("allocationAdapter", () => {
       transformationPercentage: 30,
       personPosition: "Backend Dev",
       personModality: "Hybrid",
-      personSeniority: 3,
-      personSeniorityLabel: "Avanzado",
+      personLevel: 3,
+      personLevelLabel: "Avanzado",
       personAvailablePercentage: 20,
       createdAtUtc: "2026-01-01T00:00:00Z",
       updatedAtUtc: "2026-01-02T00:00:00Z",
@@ -48,14 +48,14 @@ describe("allocationAdapter", () => {
     const bare = { ...dto } as Partial<AllocationDto>;
     delete bare.personPosition;
     delete bare.personModality;
-    delete bare.personSeniority;
-    delete bare.personSeniorityLabel;
+    delete bare.personLevel;
+    delete bare.personLevelLabel;
     delete bare.personAvailablePercentage;
     expect(allocationAdapter.toEntity(bare as AllocationDto)).toMatchObject({
       personPosition: "",
       personModality: "Hybrid",
-      personSeniority: 0,
-      personSeniorityLabel: "",
+      personLevel: 0,
+      personLevelLabel: "",
       personAvailablePercentage: 0,
     });
   });

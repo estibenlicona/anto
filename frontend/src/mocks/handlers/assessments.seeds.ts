@@ -145,7 +145,12 @@ export const assessmentSeeds: AssessmentSeed[] = [
       // Dos brechas más, y una de ellas de dos niveles: el chapter necesita
       // tener al menos una brecha crítica y una persona con tres brechas, o los
       // indicadores de la pantalla no se pueden ver funcionando.
-      { skillId: CICLO, level: 2, metCounts: full(2, [0, 5, 1, 0]), note: "Su rol pide Avanzado: participa del ciclo pero todavía no lo ordena." },
+      {
+        skillId: CICLO,
+        level: 2,
+        metCounts: full(2, [0, 5, 1, 0]),
+        note: "Su rol pide Avanzado: participa del ciclo pero todavía no lo ordena.",
+      },
       {
         skillId: CALIDAD,
         level: 1,
@@ -288,7 +293,12 @@ export const assessmentSeeds: AssessmentSeed[] = [
     closed: true,
     cyclesAgo: 1,
     skills: [
-      { skillId: NEGOCIO, level: 1, metCounts: full(1, [4, 1, 0, 0]), note: "" },
+      {
+        skillId: NEGOCIO,
+        level: 1,
+        metCounts: full(1, [4, 1, 0, 0]),
+        note: "",
+      },
       {
         skillId: DESARROLLO,
         level: 2,
@@ -296,7 +306,12 @@ export const assessmentSeeds: AssessmentSeed[] = [
         note: "",
       },
       { skillId: CICLO, level: 2, metCounts: full(2, [0, 4, 0, 0]), note: "" },
-      { skillId: CALIDAD, level: 1, metCounts: full(1, [4, 0, 0, 0]), note: "" },
+      {
+        skillId: CALIDAD,
+        level: 1,
+        metCounts: full(1, [4, 0, 0, 0]),
+        note: "",
+      },
       {
         skillId: ARQUITECTURA,
         level: 1,
@@ -317,7 +332,12 @@ export const assessmentSeeds: AssessmentSeed[] = [
         metCounts: full(2, [0, 4, 0, 0]),
         note: "",
       },
-      { skillId: CALIDAD, level: 2, metCounts: full(2, [0, 4, 0, 0]), note: "" },
+      {
+        skillId: CALIDAD,
+        level: 2,
+        metCounts: full(2, [0, 4, 0, 0]),
+        note: "",
+      },
       {
         skillId: COMUNICACION,
         level: 1,
@@ -332,7 +352,12 @@ export const assessmentSeeds: AssessmentSeed[] = [
     closed: true,
     cyclesAgo: 2,
     skills: [
-      { skillId: NEGOCIO, level: 1, metCounts: full(1, [3, 0, 0, 0]), note: "" },
+      {
+        skillId: NEGOCIO,
+        level: 1,
+        metCounts: full(1, [3, 0, 0, 0]),
+        note: "",
+      },
       {
         skillId: DESARROLLO,
         level: 1,
@@ -340,7 +365,12 @@ export const assessmentSeeds: AssessmentSeed[] = [
         note: "",
       },
       { skillId: CICLO, level: 1, metCounts: full(1, [4, 0, 0, 0]), note: "" },
-      { skillId: CALIDAD, level: 1, metCounts: full(1, [3, 0, 0, 0]), note: "" },
+      {
+        skillId: CALIDAD,
+        level: 1,
+        metCounts: full(1, [3, 0, 0, 0]),
+        note: "",
+      },
       {
         skillId: ARQUITECTURA,
         level: 1,

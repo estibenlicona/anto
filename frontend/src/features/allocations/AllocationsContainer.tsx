@@ -40,7 +40,7 @@ export const AllocationsContainer: React.FC<AllocationsContainerProps> = ({
     loading: peopleLoading,
     refetch: refetchOverview,
   } = useCapacityOverview();
-  const { seniorities: seniorityOptions } = useCatalogs();
+  const { levels: levelOptions } = useCatalogs();
   const {
     allocations,
     loading,
@@ -54,8 +54,8 @@ export const AllocationsContainer: React.FC<AllocationsContainerProps> = ({
     onPageSizeChange,
     search,
     onSearchChange,
-    seniorities,
-    onSenioritiesChange,
+    levels,
+    onLevelsChange,
   } = useAllocations(squadId);
   const { create, update, remove, creating, updating, removing } =
     useAllocationMutations();
@@ -158,9 +158,9 @@ export const AllocationsContainer: React.FC<AllocationsContainerProps> = ({
         onPageSizeChange={onPageSizeChange}
         search={search}
         onSearchChange={onSearchChange}
-        seniorityOptions={seniorityOptions}
-        selectedSeniorities={seniorities}
-        onSenioritiesChange={onSenioritiesChange}
+        levelOptions={levelOptions}
+        selectedLevels={levels}
+        onLevelsChange={onLevelsChange}
       />
       <AllocationFormDrawer
         key={formKey}

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- helpers junto al componente, patrón previo del archivo (mismo criterio que routes.tsx) */
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import {
@@ -88,7 +89,7 @@ export const BillingList: React.FC<BillingListProps> = ({
             placeholder="Buscar persona o proveedor"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="max-w-xs"
+            className="w-96"
           />
           {/* El proveedor deja de ser la unidad pero sigue siendo con quien
               se reclama: filtrar por él es cómo se arma la conversación con

@@ -160,7 +160,7 @@ const LARGE = answersFrom([
   2, 3, 2, 2,
 ]);
 
-/** Mismos ids y nombres que usan el backlog y las asignaciones. */
+/** Mismos ids y nombres que usan la dedicación real (Epic → iniciativa) y las células. */
 export const INITIATIVE_SEEDS: InitiativeSeed[] = [
   {
     id: "ini-kafka",

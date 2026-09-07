@@ -12,23 +12,50 @@ import { AdminPageHeader } from "@features/admin-shell/components/AdminPageHeade
 import { useSprintConfig } from "@features/admin-shell/hooks/useSprintConfig";
 import type { SprintConfig } from "@features/admin-shell/services/sprintConfigService";
 
-const fieldMeta: { field: keyof SprintConfig; label: string }[] = [
-  { field: "weeks", label: "Semanas por sprint" },
-  { field: "hoursPerWeek", label: "Horas por semana" },
-  { field: "sprintsPerQuarter", label: "Sprints por quarter" },
-  { field: "toleranceHours", label: "Tolerancia de reporte (± h)" },
+// Sólo lo que define el calendario: las horas por semana y la tolerancia de
+// reporte se fueron con el registro de horas, y los puntos por FTE con el
+// balance de carga —el FTE mide capacidad y los SP demanda, sin conversión—.
+const fieldMeta: {
+  field: keyof SprintConfig;
+  label: string;
+  type: "number" | "time";
+  hint?: string;
+}[] = [
+  { field: "weeks", label: "Semanas por sprint", type: "number" },
+  { field: "sprintsPerQuarter", label: "Sprints por quarter", type: "number" },
+  {
+    field: "hoursPerSprint",
+    label: "Horas por sprint",
+    type: "number",
+    hint: "Con cuántas horas se expresa la capacidad; nadie las reporta",
+  },
+  {
+    field: "sprintCloseTime",
+    label: "Hora de cierre del sprint",
+    type: "time",
+    hint: "Cuándo se sella el snapshot, antes de que los equipos limpien las HUs",
+  },
+  {
+    field: "historyWindowSprints",
+    label: "Ventana de histórico",
+    type: "number",
+    hint: "Sprints sellados que entran en la mediana y la tendencia",
+  },
+  {
+    field: "minHistorySprints",
+    label: "Mínimo de sprints para evaluar",
+    type: "number",
+    hint: "Por debajo, la señal de balance es «No evaluable»",
+  },
 ];
 
 const usedBy = [
-  {
-    title: "Reporte de horas por sprint",
-    detail: "Valida el total contra horas ± tolerancia",
-  },
-  {
-    title: "Dashboard de capacidad",
-    detail: "Convierte horas → FTE con la duración vigente",
-  },
   { title: "Roadmap", detail: "Posiciona iniciativas por sprint y quarter" },
+  {
+    title: "Capacidad",
+    detail:
+      "Decide cuándo sellar el snapshot de cada sprint, sobre qué ventana calcula el histórico y la señal de balance, y con cuántas horas expresa la capacidad",
+  },
 ];
 
 export const AdminSprintsPage: React.FC = () => {
@@ -65,12 +92,13 @@ export const AdminSprintsPage: React.FC = () => {
               </p>
             ) : (
               <>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {fieldMeta.map(({ field, label }) => (
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {fieldMeta.map(({ field, label, type, hint }) => (
                     <Input
                       key={field}
-                      type="number"
+                      type={type}
                       label={label}
+                      hint={hint}
                       value={values[field]}
                       error={errors[field]}
                       onChange={(e) => setField(field, e.target.value)}

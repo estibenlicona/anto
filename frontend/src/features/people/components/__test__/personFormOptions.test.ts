@@ -22,8 +22,11 @@ function persona(role: PersonRole, technicalLeadOfCount: number): Person {
     technicalLeadId: null,
     technicalLeadName: null,
     technicalLeadOfCount,
-    seniority: 4,
-    seniorityLabel: "Experto",
+    level: 4,
+    levelLabel: "Experto",
+
+    seniority: "Senior" as const,
+    seniorityLabel: "Senior",
     modality: "OnSite",
     availableFte: 1,
     utilization: 100,

@@ -10,7 +10,8 @@
  * El token viaja para que la puerta de enlace lo valide — el backend, por
  * diseño, no procesa identidad.
  */
-type AccessTokenProvider = () => string | null;
+// Puede ser asíncrono: contra MSAL el token se renueva en silencio al pedirlo.
+type AccessTokenProvider = () => string | null | Promise<string | null>;
 
 let provider: AccessTokenProvider | null = null;
 
@@ -28,6 +29,6 @@ export function setAccessTokenProvider(next: AccessTokenProvider): () => void {
  * que es exactamente lo que se quiere poder ejercitar. No se inventa un token
  * ni se bloquea la llamada desde el cliente.
  */
-export function getAccessToken(): string | null {
-  return provider?.() ?? null;
+export async function getAccessToken(): Promise<string | null> {
+  return (await provider?.()) ?? null;
 }

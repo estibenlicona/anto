@@ -25,7 +25,7 @@ const person = (
   id,
   name: id,
   position: "",
-  seniorityLabel: "",
+  levelLabel: "",
   availableFte,
   allocation,
   marginPercentage,

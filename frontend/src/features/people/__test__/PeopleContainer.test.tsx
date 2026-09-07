@@ -153,8 +153,11 @@ describe("PeopleContainer", () => {
     );
     expect(screen.getByText("María González")).toBeInTheDocument();
     expect(
-      (await personService.list(1, 1, undefined, undefined, ["AS400"]))
-        .totalCount
+      (
+        await personService.list(1, 1, undefined, undefined, undefined, [
+          "AS400",
+        ])
+      ).totalCount
     ).toBeLessThan(totalBefore);
   });
 });

@@ -22,8 +22,8 @@ const mockDto = {
   transformationPercentage: 30,
   personPosition: "Backend Dev",
   personModality: "Hybrid" as const,
-  personSeniority: 3,
-  personSeniorityLabel: "Avanzado",
+  personLevel: 3,
+  personLevelLabel: "Avanzado",
   personAvailablePercentage: 20,
   createdAtUtc: "2026-01-01T00:00:00Z",
   updatedAtUtc: "2026-01-01T00:00:00Z",
@@ -176,7 +176,7 @@ describe("useAllocations", () => {
     );
 
     act(() => {
-      result.current.onSenioritiesChange([4]);
+      result.current.onLevelsChange([4]);
     });
     expect(result.current.page).toBe(1);
     await waitFor(() =>

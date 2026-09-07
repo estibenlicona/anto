@@ -40,7 +40,7 @@ const valentina: OverviewPerson = {
   id: "v",
   name: "Valentina Ospina",
   position: "UX Designer",
-  seniorityLabel: "Avanzado",
+  levelLabel: "Avanzado",
   availableFte: 1,
   allocation: {
     id: "a1",
@@ -57,7 +57,7 @@ const diego: OverviewPerson = {
   id: "d",
   name: "Diego Salazar",
   position: "Backend Dev",
-  seniorityLabel: "Principiante",
+  levelLabel: "Principiante",
   availableFte: 1,
   allocation: null,
   marginPercentage: 100,
@@ -119,7 +119,9 @@ describe("ReassignPersonDrawer", () => {
     const onSubmit = renderDrawer(valentina);
     fireEvent.click(screen.getByRole("button", { name: "Reasignar" }));
     expect(onSubmit).not.toHaveBeenCalled();
-    expect(screen.getByText("Selecciona la célula destino")).toBeInTheDocument();
+    expect(
+      screen.getByText("Selecciona la célula destino")
+    ).toBeInTheDocument();
     expect(
       screen.getByText("1 campo obligatorio sin llenar")
     ).toBeInTheDocument();

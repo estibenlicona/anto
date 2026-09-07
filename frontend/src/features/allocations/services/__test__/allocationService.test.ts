@@ -49,14 +49,14 @@ describe("allocationService", () => {
     expect(result).toEqual(paged);
   });
 
-  it("listBySquad serializes search and repeated seniority params", async () => {
+  it("listBySquad serializes search and repeated level params", async () => {
     vi.mocked(httpClient.get).mockResolvedValue({
       data: { items: [], page: 1, pageSize: 10, totalCount: 0, totalPages: 0 },
     });
     await allocationService.listBySquad("s1", 2, 20, "dev", [3, 4]);
     const [, config] = vi.mocked(httpClient.get).mock.calls[0];
     expect((config!.params as URLSearchParams).toString()).toBe(
-      "page=2&pageSize=20&search=dev&seniority=3&seniority=4"
+      "page=2&pageSize=20&search=dev&level=3&level=4"
     );
   });
 

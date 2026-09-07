@@ -119,8 +119,8 @@ function toDetail(line: StoredLine): ExpertiseLineDetailDto {
         id: p.id,
         name: p.name,
         position: p.position,
-        seniority: p.seniority,
-        seniorityLabel: p.seniorityLabel,
+        level: p.level,
+        levelLabel: p.levelLabel,
         availableFte: p.availableFte,
         isLead: p.id === line.leadPersonId,
         allocation: a
@@ -243,8 +243,8 @@ export const expertiseLinesHandlers = [
           id: p.id,
           name: p.name,
           position: p.position,
-          seniority: p.seniority,
-          seniorityLabel: p.seniorityLabel,
+          level: p.level,
+          levelLabel: p.levelLabel,
           availableFte: p.availableFte,
           line: line ? { id: line.id, name: line.name } : null,
         };

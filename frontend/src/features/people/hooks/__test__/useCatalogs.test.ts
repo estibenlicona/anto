@@ -5,6 +5,7 @@ import { useCatalogs } from "../useCatalogs";
 
 vi.mock("../../services/personService", () => ({
   personService: {
+    getLevels: vi.fn(),
     getSeniorities: vi.fn(),
     getModalities: vi.fn(),
     getCompanies: vi.fn(),
@@ -13,11 +14,17 @@ vi.mock("../../services/personService", () => ({
   },
 }));
 
-const seniorities = [
+const levels = [
   { value: 1, label: "Principiante" },
   { value: 2, label: "Competente" },
   { value: 3, label: "Avanzado" },
   { value: 4, label: "Experto" },
+];
+
+const seniorities = [
+  { value: "Junior" as const, label: "Junior" },
+  { value: "Intermediate" as const, label: "Intermedio" },
+  { value: "Senior" as const, label: "Senior" },
 ];
 
 const companies = [{ id: "c1", name: "GFT" }];
@@ -35,6 +42,7 @@ describe("useCatalogs", () => {
   });
 
   it("loads every catalog the form needs on mount", async () => {
+    vi.mocked(personService.getLevels).mockResolvedValue(levels);
     vi.mocked(personService.getSeniorities).mockResolvedValue(seniorities);
     vi.mocked(personService.getModalities).mockResolvedValue([
       "Remote",
@@ -51,6 +59,7 @@ describe("useCatalogs", () => {
 
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.levels).toEqual(levels);
     expect(result.current.seniorities).toEqual(seniorities);
     expect(result.current.modalities).toEqual(["Remote", "Hybrid", "OnSite"]);
     expect(result.current.companies).toEqual(companies);

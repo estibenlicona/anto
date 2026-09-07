@@ -3,6 +3,7 @@ import {
   personService,
   type CompanyDto,
   type Modality,
+  type LevelOption,
   type RoleOption,
   type SeniorityOption,
   type TechnicalLeadOption,
@@ -13,6 +14,7 @@ import {
 // técnicos van acá y no aparte porque son eso mismo — una lista cerrada que el
 // servidor resuelve— aunque salgan de las personas y no de un maestro propio.
 export const useCatalogs = () => {
+  const [levels, setLevels] = useState<LevelOption[]>([]);
   const [seniorities, setSeniorities] = useState<SeniorityOption[]>([]);
   const [modalities, setModalities] = useState<Modality[]>([]);
   const [companies, setCompanies] = useState<CompanyDto[]>([]);
@@ -26,6 +28,7 @@ export const useCatalogs = () => {
   useEffect(() => {
     let cancelled = false;
     Promise.all([
+      personService.getLevels(),
       personService.getSeniorities(),
       personService.getModalities(),
       personService.getCompanies(),
@@ -34,6 +37,7 @@ export const useCatalogs = () => {
     ])
       .then(
         ([
+          levelValues,
           seniorityValues,
           modalityValues,
           companyValues,
@@ -41,6 +45,7 @@ export const useCatalogs = () => {
           leadValues,
         ]) => {
           if (cancelled) return;
+          setLevels(levelValues);
           setSeniorities(seniorityValues);
           setModalities(modalityValues);
           setCompanies(companyValues);
@@ -62,6 +67,7 @@ export const useCatalogs = () => {
   }, []);
 
   return {
+    levels,
     seniorities,
     modalities,
     companies,

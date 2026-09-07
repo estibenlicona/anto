@@ -14,7 +14,7 @@ export interface OverviewPersonDto {
   id: string;
   name: string;
   position: string;
-  seniorityLabel: string;
+  levelLabel: string;
   availableFte: number;
   /** Su única asignación, o ninguna. */
   allocation: OverviewAllocationDto | null;

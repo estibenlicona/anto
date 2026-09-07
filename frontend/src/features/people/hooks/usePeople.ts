@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDebouncedValue } from "@shared/hooks/useDebouncedValue";
-import { personService, type Seniority } from "../services/personService";
+import {
+  personService,
+  type Level,
+  type Seniority,
+} from "../services/personService";
 import { personAdapter, type Person } from "../adapters/PersonAdapter";
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -22,6 +26,7 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 300);
+  const [levels, setLevels] = useState<Level[]>([]);
   const [seniorities, setSeniorities] = useState<Seniority[]>([]);
   const [stacks, setStacks] = useState<string[]>([]);
 
@@ -33,6 +38,7 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
         page,
         pageSize,
         debouncedSearch,
+        levels,
         seniorities,
         stacks
       );
@@ -46,14 +52,15 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, debouncedSearch, seniorities, stacks]);
+  }, [page, pageSize, debouncedSearch, levels, seniorities, stacks]);
 
   useEffect(() => {
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset síncrono anterior a la regla; se mantiene tal cual (deuda ajena a este change)
     setLoading(true);
     setError(null);
     personService
-      .list(page, pageSize, debouncedSearch, seniorities, stacks)
+      .list(page, pageSize, debouncedSearch, levels, seniorities, stacks)
       .then(
         (result) => {
           if (cancelled) return;
@@ -73,7 +80,7 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     return () => {
       cancelled = true;
     };
-  }, [page, pageSize, debouncedSearch, seniorities, stacks]);
+  }, [page, pageSize, debouncedSearch, levels, seniorities, stacks]);
 
   const onPageSizeChange = useCallback((newPageSize: number) => {
     setPage(1);
@@ -88,6 +95,11 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
   const onStacksChange = useCallback((values: string[]) => {
     setPage(1);
     setStacks(values);
+  }, []);
+
+  const onLevelsChange = useCallback((values: Level[]) => {
+    setPage(1);
+    setLevels(values);
   }, []);
 
   const onSenioritiesChange = useCallback((values: Seniority[]) => {
@@ -108,6 +120,8 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     onPageSizeChange,
     search,
     onSearchChange,
+    levels,
+    onLevelsChange,
     seniorities,
     onSenioritiesChange,
     stacks,

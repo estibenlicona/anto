@@ -16,7 +16,7 @@ import {
 } from "@features/absences/services/businessDays";
 // Tercera excepción al "cada mock vive solo": los impactos se derivan de las
 // personas (FTE disponible, proveedor) y de sus asignaciones (dedicación por
-// célula), no se digitan. Lectura en un solo sentido, como backlog.handlers.
+// célula), no se digitan. Lectura en un solo sentido, como dedication.handlers.
 import { getCompaniesSnapshot, getPeopleSnapshot } from "./people.handlers";
 import { getAllocationsSnapshot } from "./allocations.handlers";
 import { vistaDe } from "./scope";
@@ -214,6 +214,51 @@ export function getApprovedAbsencesSnapshot(month: string): {
     })
     .filter((a) => a.businessDaysInMonth > 0);
   return { monthBusinessDays, items };
+}
+
+/** Una ausencia aprobada vista desde el balance de carga: el rango y sus medias jornadas. */
+export interface ApprovedAbsenceRange {
+  personId: string;
+  type: AbsenceType;
+  startDate: string;
+  endDate: string;
+  startsHalfDay: boolean;
+  endsHalfDay: boolean;
+}
+
+/**
+ * Ausencias **aprobadas** que tocan un rango de fechas cualquiera —el sprint,
+ * en el balance de carga—. Devuelve el rango completo y sus marcas de media
+ * jornada, no un conteo: quien pregunta lo recorta contra sus propias fechas
+ * (`absenceDaysInSprint`), que es lo mismo que hace la facturación contra el
+ * mes. La cuenta de días vive en `features/absences`, una sola vez.
+ */
+export function getApprovedAbsencesInRange(
+  startIso: string,
+  endIso: string
+): ApprovedAbsenceRange[] {
+  const start = parseIsoDate(startIso);
+  const end = parseIsoDate(endIso);
+  if (!start || !end) return [];
+  return absences
+    .filter((a) => a.status === "Approved")
+    .filter(
+      (a) =>
+        clampRange(
+          parseIsoDate(a.startDate)!,
+          parseIsoDate(a.endDate)!,
+          start,
+          end
+        ) !== null
+    )
+    .map((a) => ({
+      personId: a.personId,
+      type: a.type,
+      startDate: a.startDate,
+      endDate: a.endDate,
+      startsHalfDay: a.startsHalfDay,
+      endsHalfDay: a.endsHalfDay,
+    }));
 }
 
 // ── Derivaciones ────────────────────────────────────────────────────────────

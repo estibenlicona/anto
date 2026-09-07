@@ -1,7 +1,8 @@
 /* ✅ src/styles/base/typography.css */
 
-/* Importar fuentes de Google Fonts */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+/* La fuente la sirve la app desde @fontsource (ver styles.css): IBM Plex Sans,
+   la del sistema de diseño. Inter salió — es la familia que DESIGN.md descarta
+   y además se pedía a Google Fonts en cada carga. */
 
 /* Headings */
 h1,

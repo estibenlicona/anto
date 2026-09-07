@@ -10,10 +10,9 @@ const stats: PeopleStats = {
   fteAvailable: 17.8,
   fteTarget: 12,
   bySeniority: [
-    { seniority: 1, label: "Principiante", count: 2 },
-    { seniority: 2, label: "Competente", count: 5 },
-    { seniority: 3, label: "Avanzado", count: 7 },
-    { seniority: 4, label: "Experto", count: 4 },
+    { seniority: "Junior" as const, label: "Junior", count: 7 },
+    { seniority: "Intermediate" as const, label: "Intermedio", count: 7 },
+    { seniority: "Senior" as const, label: "Senior", count: 4 },
   ],
   sample: [{ id: "p-1", name: "María González" }],
   stackCoverage: { distinct: 0, atRisk: [] },
@@ -27,10 +26,9 @@ const stats: PeopleStats = {
 // y el test sigue verificando lo que importa — que la card usa la misma clase
 // que el medidor para el mismo nivel.
 const EXPECTED_DOT_CLASS: Record<string, string> = {
-  Principiante: segmentFillClass({ tone: accentTones[0] }),
-  Competente: segmentFillClass({ tone: accentTones[1] }),
-  Avanzado: segmentFillClass({ tone: accentTones[2] }),
-  Experto: segmentFillClass({ tone: accentTones[3] }),
+  Junior: segmentFillClass({ tone: accentTones[0] }),
+  Intermedio: segmentFillClass({ tone: accentTones[1] }),
+  Senior: segmentFillClass({ tone: accentTones[2] }),
 };
 
 function legendItemFor(label: string): HTMLElement {
@@ -59,8 +57,8 @@ describe("PeopleStatsCards — distribución por seniority", () => {
     const segments = container.querySelectorAll(
       '[class*="bg-accent-"][style*="width"]'
     );
-    // Cuatro segmentos, uno por nivel, todos de acento.
-    expect(segments).toHaveLength(4);
+    // Tres segmentos, uno por seniority, todos de acento.
+    expect(segments).toHaveLength(3);
     const boldSegments = container.querySelectorAll(
       '[class*="-bold"][style*="width"]'
     );
@@ -81,15 +79,11 @@ describe("PeopleStatsCards — distribución por seniority", () => {
   it("abre con el % en avanzado o superior y la leyenda en línea lleva cada conteo", () => {
     render(<PeopleStatsCards stats={stats} loading={false} />);
 
-    // (7 + 4) / 18 = 61.1 → 61%, con su lectura al lado.
-    expect(screen.getByText("61%")).toBeInTheDocument();
-    expect(
-      screen.getByText("11 de 18 en avanzado o superior")
-    ).toBeInTheDocument();
-    expect(screen.getByText("Principiante").closest("li")).toHaveTextContent(
-      "2"
-    );
-    expect(screen.getByText("Experto").closest("li")).toHaveTextContent("4");
+    // 4 / 18 = 22.2 → 22%, con su lectura al lado.
+    expect(screen.getByText("22%")).toBeInTheDocument();
+    expect(screen.getByText("4 de 18 en Senior")).toBeInTheDocument();
+    expect(screen.getByText("Intermedio").closest("li")).toHaveTextContent("7");
+    expect(screen.getByText("Senior").closest("li")).toHaveTextContent("4");
   });
 
   it("con el resumen de asignación muestra cuántas están en células y el enlace", () => {
@@ -114,19 +108,16 @@ describe("PeopleStatsCards — distribución por seniority", () => {
       ...stats,
       activeCount: 0,
       bySeniority: [
-        { seniority: 1, label: "Principiante", count: 1 },
-        { seniority: 2, label: "Competente", count: 0 },
-        { seniority: 3, label: "Avanzado", count: 0 },
-        { seniority: 4, label: "Experto", count: 0 },
+        { seniority: "Junior" as const, label: "Junior", count: 1 },
+        { seniority: "Intermediate" as const, label: "Intermedio", count: 0 },
+        { seniority: "Senior" as const, label: "Senior", count: 0 },
       ],
     };
     render(<PeopleStatsCards stats={one} loading={false} />);
 
     // Total 0 → 0% sin NaN.
     expect(screen.getByText("0%")).toBeInTheDocument();
-    expect(
-      screen.getByText("0 de 0 en avanzado o superior")
-    ).toBeInTheDocument();
+    expect(screen.getByText("0 de 0 en Senior")).toBeInTheDocument();
   });
   it("la cobertura por stack marca en riesgo los que dependen de una sola persona", () => {
     render(

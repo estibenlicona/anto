@@ -28,9 +28,8 @@ export interface RejectAbsenceDrawerProps {
 }
 
 /**
- * Rechazo con motivo obligatorio y trazado — el mismo patrón del rechazo en
- * la curación del backlog. Una rechazada no cuenta en nada; registrar de
- * nuevo es el camino de corrección.
+ * Rechazo con motivo obligatorio y trazado. Una rechazada no cuenta en nada;
+ * registrar de nuevo es el camino de corrección.
  */
 export const RejectAbsenceDrawer: React.FC<RejectAbsenceDrawerProps> = ({
   open,

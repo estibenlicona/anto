@@ -74,7 +74,7 @@ export const AssignPeopleDrawer: React.FC<AssignPeopleDrawerProps> = ({
           {person.name}
         </span>
         <span className="block text-body-sm text-neutral-subtle">
-          {person.position} · {person.seniorityLabel}
+          {person.position} · {person.levelLabel}
           {person.lineName && ` · en ${person.lineName}`}
         </span>
       </span>

@@ -20,6 +20,8 @@ export interface Person {
   technicalLeadName: string | null;
   /** De cuántas personas es líder técnico; sólo lectura. */
   technicalLeadOfCount: number;
+  level: number;
+  levelLabel: string;
   seniority: Seniority;
   seniorityLabel: string;
   modality: Modality;
@@ -44,7 +46,8 @@ export interface PersonFormValues {
   role: PersonRole | "";
   /** Id de la persona elegida como líder técnico; vacío = sin asignar. */
   technicalLeadId: string;
-  seniority: string;
+  level: string;
+  seniority: Seniority | "";
   modality: Modality | "";
   availableFte: string;
   monthlyCost: string;
@@ -60,6 +63,7 @@ export const emptyPersonFormValues: PersonFormValues = {
   position: "",
   role: "",
   technicalLeadId: "",
+  level: "",
   seniority: "",
   modality: "",
   availableFte: "",
@@ -91,6 +95,8 @@ export const personAdapter = {
     technicalLeadId: dto.technicalLeadId,
     technicalLeadName: dto.technicalLeadName,
     technicalLeadOfCount: dto.technicalLeadOfCount,
+    level: dto.level,
+    levelLabel: dto.levelLabel,
     seniority: dto.seniority,
     seniorityLabel: dto.seniorityLabel,
     modality: dto.modality,
@@ -116,7 +122,8 @@ export const personAdapter = {
     position: person.position,
     role: person.role,
     technicalLeadId: person.technicalLeadId ?? "",
-    seniority: String(person.seniority),
+    level: String(person.level),
+    seniority: person.seniority,
     modality: person.modality,
     availableFte: String(person.availableFte),
     monthlyCost: String(person.monthlyCost),
@@ -141,7 +148,8 @@ export const personAdapter = {
     // Vacío es "sin líder técnico", que es un valor válido y no un dato que
     // falta: viaja como null y no como cadena vacía.
     technicalLeadId: values.technicalLeadId || null,
-    seniority: Number(values.seniority),
+    level: Number(values.level),
+    seniority: values.seniority as Seniority,
     modality: values.modality as Modality,
     availableFte: Number(values.availableFte),
     monthlyCost: Number(values.monthlyCost),

@@ -14,7 +14,7 @@ const unassigned: OverviewPerson = {
   id: "none",
   name: "Diego Salazar",
   position: "Backend Dev",
-  seniorityLabel: "Principiante",
+  levelLabel: "Principiante",
   availableFte: 1,
   allocation: null,
   marginPercentage: 100,
@@ -24,7 +24,7 @@ const partial: OverviewPerson = {
   id: "half",
   name: "Valentina Ospina",
   position: "UX Designer",
-  seniorityLabel: "Avanzado",
+  levelLabel: "Avanzado",
   availableFte: 1,
   allocation: {
     id: "a1",

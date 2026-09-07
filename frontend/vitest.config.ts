@@ -14,6 +14,10 @@ export default defineConfig(() => {
     test: {
       watch: false,
       globals: true,
+      // Los .env.* de Vite no se cargan en modo test; el httpClient necesita
+      // la base definida como en cualquier build (los mocks usan rutas
+      // relativas, así que "/" es también lo que MSW espera).
+      env: { VITE_BASE_URL: "/" },
       setupFiles: ["./vitest-setup.ts"],
       environment: "jsdom",
       include: ["{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],

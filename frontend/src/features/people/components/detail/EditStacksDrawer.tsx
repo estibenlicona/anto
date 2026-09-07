@@ -13,7 +13,7 @@ import {
 } from "@tuya-ui/components";
 import { FormSection } from "@shared/components/FormSection";
 import type { PersonStackDto } from "../../services/personService";
-import type { Seniority } from "../../services/personService";
+import type { Level } from "../../services/personService";
 import type { PersonDetailStack } from "../../adapters/PersonDetailAdapter";
 import { validateStacks, type StacksErrors } from "./stacksValidation";
 
@@ -36,7 +36,7 @@ const LEVELS: Array<{ value: string; label: string }> = [
   { value: "4", label: "Exp." },
 ];
 
-const DEFAULT_LEVEL: Seniority = 2;
+const DEFAULT_LEVEL: Level = 2;
 
 /**
  * Editar los stacks de una persona: agregar del catálogo, nivel por stack,
@@ -55,7 +55,7 @@ export const EditStacksDrawer: React.FC<EditStacksDrawerProps> = ({
   const [stacks, setStacks] = useState<PersonStackDto[]>(() =>
     current.map(({ name, level, isPrimary }) => ({
       name,
-      level: level as Seniority,
+      level: level as Level,
       isPrimary,
     }))
   );
@@ -86,7 +86,7 @@ export const EditStacksDrawer: React.FC<EditStacksDrawerProps> = ({
     setStacks(next);
   };
 
-  const setLevel = (name: string, level: Seniority) =>
+  const setLevel = (name: string, level: Level) =>
     setStacks((prev) =>
       prev.map((s) => (s.name === name ? { ...s, level } : s))
     );
@@ -160,7 +160,7 @@ export const EditStacksDrawer: React.FC<EditStacksDrawerProps> = ({
                         options={LEVELS}
                         value={String(s.level)}
                         onValueChange={(v) =>
-                          setLevel(s.name, Number(v) as Seniority)
+                          setLevel(s.name, Number(v) as Level)
                         }
                       />
                       <Button

@@ -46,8 +46,8 @@ export interface LinePersonDto {
   id: string;
   name: string;
   position: string;
-  seniority: number;
-  seniorityLabel: string;
+  level: number;
+  levelLabel: string;
   availableFte: number;
   isLead: boolean;
   allocation: LinePersonAllocationDto | null;
@@ -85,8 +85,8 @@ export interface RosterPersonDto {
   id: string;
   name: string;
   position: string;
-  seniority: number;
-  seniorityLabel: string;
+  level: number;
+  levelLabel: string;
   availableFte: number;
   line: { id: string; name: string } | null;
 }

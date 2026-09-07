@@ -20,8 +20,11 @@ const mockDto = {
   technicalLeadId: null,
   technicalLeadName: null,
   technicalLeadOfCount: 0,
-  seniority: 3,
-  seniorityLabel: "Avanzado",
+  level: 3,
+  levelLabel: "Avanzado",
+
+  seniority: "Intermediate" as const,
+  seniorityLabel: "Intermedio",
   modality: "Hybrid" as const,
   availableFte: 1,
   utilization: 40,
@@ -55,7 +58,7 @@ describe("usePeople", () => {
 
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(personService.list).toHaveBeenCalledWith(1, 10, "", [], []);
+    expect(personService.list).toHaveBeenCalledWith(1, 10, "", [], [], []);
     expect(result.current.people).toHaveLength(1);
     expect(result.current.people[0].name).toBe("María González");
     expect(result.current.error).toBeNull();
@@ -95,7 +98,7 @@ describe("usePeople", () => {
     });
 
     await waitFor(() =>
-      expect(personService.list).toHaveBeenLastCalledWith(2, 10, "", [], [])
+      expect(personService.list).toHaveBeenLastCalledWith(2, 10, "", [], [], [])
     );
   });
 
@@ -108,7 +111,7 @@ describe("usePeople", () => {
       result.current.onPageChange(2);
     });
     await waitFor(() =>
-      expect(personService.list).toHaveBeenLastCalledWith(2, 10, "", [], [])
+      expect(personService.list).toHaveBeenLastCalledWith(2, 10, "", [], [], [])
     );
 
     act(() => {
@@ -116,7 +119,7 @@ describe("usePeople", () => {
     });
 
     await waitFor(() =>
-      expect(personService.list).toHaveBeenLastCalledWith(1, 20, "", [], [])
+      expect(personService.list).toHaveBeenLastCalledWith(1, 20, "", [], [], [])
     );
   });
 
@@ -125,7 +128,7 @@ describe("usePeople", () => {
     renderHook(() => usePeople(100));
 
     await waitFor(() =>
-      expect(personService.list).toHaveBeenCalledWith(1, 100, "", [], [])
+      expect(personService.list).toHaveBeenCalledWith(1, 100, "", [], [], [])
     );
   });
 
@@ -138,7 +141,7 @@ describe("usePeople", () => {
       result.current.onPageChange(2);
     });
     await waitFor(() =>
-      expect(personService.list).toHaveBeenLastCalledWith(2, 10, "", [], [])
+      expect(personService.list).toHaveBeenLastCalledWith(2, 10, "", [], [], [])
     );
 
     act(() => {
@@ -152,6 +155,7 @@ describe("usePeople", () => {
         10,
         "maría",
         [],
+        [],
         []
       )
     );
@@ -163,10 +167,17 @@ describe("usePeople", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     act(() => {
-      result.current.onSenioritiesChange([3]);
+      result.current.onSenioritiesChange(["Intermediate"]);
     });
     await waitFor(() =>
-      expect(personService.list).toHaveBeenLastCalledWith(1, 10, "", [3], [])
+      expect(personService.list).toHaveBeenLastCalledWith(
+        1,
+        10,
+        "",
+        [],
+        ["Intermediate"],
+        []
+      )
     );
   });
   it("onStacksChange filters by stack and resets to page 1", async () => {
@@ -181,6 +192,7 @@ describe("usePeople", () => {
         1,
         10,
         "",
+        [],
         [],
         ["Azure", "AS400"]
       )

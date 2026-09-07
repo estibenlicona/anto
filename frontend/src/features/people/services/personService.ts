@@ -1,10 +1,12 @@
 import { httpClient } from "@shared/services/httpClient";
 import type { PagedResult } from "@shared/services/pagination";
 
-// Escala de seniority propia de Tuya (4 niveles) — es la misma escala que
-// antes se llamaba "nivel SFIA"; no existe una escalera de seniority
-// separada, así que ambos campos se fusionaron en uno solo.
-export type Seniority = number;
+// Escala Tuya de 4 niveles (1 Principiante … 4 Experto) — la que antes se
+// llamó "nivel SFIA" y luego viajó bajo el nombre seniority. Desde la
+// separación, el nivel y el seniority son dos escalas distintas.
+export type Level = number;
+/** La escalera de seniority, separada del nivel: describe a la persona. */
+export type Seniority = "Junior" | "Intermediate" | "Senior";
 export type Modality = "Remote" | "Hybrid" | "OnSite";
 
 /**
@@ -38,10 +40,10 @@ export interface TechnicalLeadOption {
   name: string;
 }
 
-/** Nivel por stack: la misma escala Tuya del seniority (1 Principiante … 4 Experto). */
+/** Nivel por stack: la misma escala Tuya del nivel de la persona (1 Principiante … 4 Experto). */
 export interface PersonStackDto {
   name: string;
-  level: Seniority;
+  level: Level;
   isPrimary: boolean;
 }
 
@@ -66,7 +68,11 @@ export interface PersonDto {
    * cuántas afecta antes de quitarle el rol.
    */
   technicalLeadOfCount: number;
+  /** Escala Tuya de 4; `levelLabel` trae el nombre (Principiante … Experto). */
+  level: Level;
+  levelLabel: string;
   seniority: Seniority;
+  /** Junior, Intermedio o Senior. */
   seniorityLabel: string;
   modality: Modality;
   availableFte: number;
@@ -95,6 +101,7 @@ export interface CreatePersonRequest {
   position: string;
   role: PersonRole;
   technicalLeadId: string | null;
+  level: Level;
   seniority: Seniority;
   modality: Modality;
   availableFte: number;
@@ -105,7 +112,12 @@ export interface CreatePersonRequest {
 export type UpdatePersonRequest = CreatePersonRequest;
 
 export interface SeniorityOption {
-  value: number;
+  value: Seniority;
+  label: string;
+}
+
+export interface LevelOption {
+  value: Level;
   label: string;
 }
 
@@ -118,7 +130,7 @@ export interface PeopleStats {
   activeCount: number;
   fteAvailable: number;
   fteTarget: number;
-  bySeniority: { seniority: number; label: string; count: number }[];
+  bySeniority: { seniority: Seniority; label: string; count: number }[];
   /** Primeras personas (por nombre) para mostrar como avatares — no es el listado completo. */
   sample: { id: string; name: string }[];
   /** Cobertura por stack sobre todas las personas: cuántos distintos y cuáles tiene una sola persona. */
@@ -128,6 +140,7 @@ export interface PeopleStats {
 const PEOPLE_URL = "/people";
 const PEOPLE_STATS_URL = "/people/stats";
 const SENIORITIES_URL = "/catalogs/seniorities";
+const LEVELS_URL = "/catalogs/levels";
 const ROLES_URL = "/catalogs/roles";
 const TECHNICAL_LEADS_URL = "/people/technical-leads";
 const EXPERTISE_LINE_URL = "/people/:id/expertise-line";
@@ -140,6 +153,7 @@ export const personService = {
     page: number,
     pageSize: number,
     search?: string,
+    levels?: Level[],
     seniorities?: Seniority[],
     stacks?: string[]
   ): Promise<PagedResult<PersonDto>> => {
@@ -150,7 +164,8 @@ export const personService = {
     params.set("page", String(page));
     params.set("pageSize", String(pageSize));
     if (search) params.set("search", search);
-    seniorities?.forEach((s) => params.append("seniority", String(s)));
+    levels?.forEach((l) => params.append("level", String(l)));
+    seniorities?.forEach((s) => params.append("seniority", s));
     stacks?.forEach((s) => params.append("stack", s));
 
     const response = await httpClient.get<PagedResult<PersonDto>>(PEOPLE_URL, {
@@ -208,6 +223,11 @@ export const personService = {
     const response = await httpClient.get<{ id: string; name: string } | null>(
       EXPERTISE_LINE_URL.replace(":id", id)
     );
+    return response.data;
+  },
+
+  getLevels: async (): Promise<LevelOption[]> => {
+    const response = await httpClient.get<LevelOption[]>(LEVELS_URL);
     return response.data;
   },
 

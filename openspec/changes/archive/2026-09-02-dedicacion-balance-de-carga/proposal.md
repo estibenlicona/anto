@@ -1,0 +1,52 @@
+## Why
+
+*Dedicación real* respondió una pregunta que resultó ser la equivocada. Traduce los puntos comprometidos a FTE con una tasa (26 puntos = 1.0 FTE) y los compara contra el FTE que la célula declaró en la asignación, para decir si la persona está "por encima" o "por debajo". Pero ese FTE asignado **es un dato reportado por la célula**, no una medición: si la célula reporta mal, la lectura miente, y la pantalla termina emitiendo una sentencia sobre una persona a partir de un número que nadie verificó. Peor: castiga a un colaborador cuando el problema es de la célula —un colaborador con 9 SP contra una mediana de célula de 22 SP se lee igual que uno con 9 SP en una célula que también hace 9—.
+
+La pregunta que el Líder de Expertise necesita responder no es *"¿cuánto FTE tiene asignado esta persona?"* sino: **dada la capacidad que tenía, el trabajo que recibió, lo que históricamente suele manejar y lo que realmente ocurrió, ¿hay señales de que esté sub o sobreasignada?** Esa sí se puede responder con evidencia: Azure DevOps (historias comprometidas y completadas, estados, épicas), el calendario y las ausencias de la plataforma (capacidad real del sprint) y snapshots históricos sellados al cierre de cada sprint.
+
+Este change reemplaza la lectura FTE-contra-asignación por un **modelo de balance de capacidad**: el FTE queda como *capacidad* y nada más; la *demanda* se mide en SP; la *referencia* es el histórico del propio colaborador con el histórico de su célula al lado; y el tablero termina en una **señal**, no en una sentencia, sintetizada de varias evidencias concurrentes —nunca de un solo indicador—.
+
+## What Changes
+
+- **El FTE deja de traducir puntos.** Desaparecen la tasa *Puntos por FTE por sprint*, el FTE comprometido, el FTE asignado como referencia de la lectura y la barra "comprometido sobre asignado". El FTE se queda donde sí es medible: **capacidad**. Cada colaborador tiene **FTE contractual** (1.0) y **FTE disponible** del sprint (0.8), este último derivado de los días laborales del sprint menos festivos, vacaciones, ausencias aprobadas y otras indisponibilidades conocidas, con el desglose siempre visible.
+- **La demanda se mide en SP y se compara contra el propio colaborador.** El **histórico del colaborador** (mediana de SP comprometidos en sus últimos sprints cerrados) es la referencia principal; el **histórico de la célula** va al lado como contexto, nunca como referencia única. Cuando la desviación del colaborador va en la misma dirección que la de su célula, la señal se atenúa: el problema es de la célula, no de la persona.
+- **La lectura de seis valores se retira y nace la señal de balance** de cuatro estados —**Balanceado**, **Revisar**, **Posible sobreasignación**, **Posible subasignación**— más **No evaluable** (sin identidad DevOps, sin sprint o sin histórico suficiente). La señal se sintetiza de hasta seis evidencias concurrentes (demanda vs histórico propio, demanda por FTE disponible, cumplimiento, carry-over, trabajo no planificado, multitarea) con el modificador de célula: **ningún indicador individual puede por sí solo determinar la categoría**, y una sola evidencia nunca llega a los estados fuertes.
+- **Métricas de ejecución por sprint**: SP comprometidos, completados, no completados, **% de cumplimiento** y **carry-over** (SP y %), con su **tendencia** de los últimos sprints, que es más informativa que un sprint aislado.
+- **Snapshot sellado al cierre del sprint**: el carry-over y el cumplimiento sólo son ciertos si se miden **antes de que los equipos limpien y cierren las HUs**. Se define el contrato del snapshot (`Sealed` / `Provisional` / `Missing`) y el Calendario de sprints gana la **hora de cierre** que le dice al backend cuándo sellarlo. La pantalla siempre dice de qué procedencia es el dato, y sólo los sprints sellados alimentan el histórico.
+- **Trabajo no planificado**: lo comprometido al inicio, lo agregado durante el sprint y el total trabajado, para que "se comprometió a 22 y entregó 20" no se lea como incumplimiento cuando en realidad recibió 8 SP más en el camino.
+- **Multitarea**: HUs simultáneas (WIP, por el estado en DevOps) e **iniciativas simultáneas** (épicas distintas en las HUs del sprint, con el nombre de la iniciativa cuando la épica está mapeada). 28 SP en una iniciativa no cargan igual que 28 SP repartidos en cuatro.
+- **El dashboard por colaborador se reordena en tres niveles**: la cabecera de cuatro tarjetas —**Capacidad** (FTE disponible), **Demanda** (SP comprometidos), **Referencia** (mediana histórica del colaborador) y **Balance** (la señal)— con la línea de resumen debajo ("28 SP comprometidos vs 22 SP habituales · 3 iniciativas activas · 18 % carry-over histórico"); luego los paneles de **explicación** —por qué esta señal, referencia colaborador vs célula, ejecución, trabajo no planificado, multitarea— y al final los de **análisis** —tendencia de 5 a 10 sprints, evolución del carry-over y del cumplimiento—. Se conservan el selector de sprints, las historias del sprint, el mapa de actividad y reasignar.
+- **El listado** pasa de columnas en FTE a: Colaborador · Célula e iniciativa · Sprint · Capacidad (FTE disponible sobre contractual) · Demanda (SP con su referencia) · Multitarea · Balance (la señal como icono, con su detalle en el tooltip); los indicadores de cabecera cuentan por señal y el filtro es por señal.
+- **"Capacidad" deja de nombrar a la persona.** En este modelo *capacidad* significa FTE; la persona es **colaborador** —el módulo aplica a desarrolladores, ingenieros de calidad y cualquier otro perfil bajo un Líder de Expertise—.
+- La **ficha de la persona** y el **badge de navegación** hablan el vocabulario nuevo: el indicador *Dedicación real* muestra la señal de balance y la comparación con el histórico; el badge cuenta los colaboradores con señal de sobre o subasignación.
+
+### Fuera de alcance
+
+- **El backend .NET.** Los contratos —snapshot al cierre, capacidad del sprint, trabajo no planificado— quedan escritos y servidos por el mock, con nota explícita de qué debe implementar backend. El job que sella el snapshot es trabajo de backend.
+- **El calendario de festivos y las indisponibilidades distintas de las ausencias** no se administran en este change: viajan en el contrato de capacidad del sprint y el mock los siembra.
+- La **vinculación épica ↔ iniciativa** y que una persona o célula esté en **varias iniciativas a la vez** siguen pendientes (changes aparte). Aquí las iniciativas simultáneas se cuentan por épicas distintas y se muestra el nombre de la iniciativa sólo cuando la épica ya está mapeada.
+- **Escribir en Azure DevOps**: la integración sigue siendo de sólo lectura.
+- Pantallas para Colaborador o Líder Técnico.
+
+## Capabilities
+
+### New Capabilities
+
+Ninguna. El módulo ya existe como `real-dedication`; este change corrige el modelo con el que mide, no introduce una superficie nueva.
+
+### Modified Capabilities
+
+- `real-dedication`: **Dedicación real de las capacidades** pasa a **Balance de carga de los colaboradores** y **Dedicación real de una capacidad por sprint** a **Dashboard de balance de un colaborador**; **Sincronización con Azure DevOps** incorpora el snapshot del sprint. Se retira **Lectura de dedicación real frente a la asignada** y se agregan **Señal de balance de capacidad**, **Capacidad del sprint en FTE**, **Referencia histórica del colaborador y de la célula**, **Métricas de ejecución y snapshot de cierre de sprint** y **Trabajo no planificado y multitarea**.
+- `admin-shell`: el **Calendario de sprints** cambia de campos —se retira *Puntos por FTE por sprint* y entran *Hora de cierre del sprint*, *Ventana de histórico* y *Mínimo de sprints para evaluar*—.
+- `api-mocking`: el **Handler de mock para la dedicación real** sirve el modelo nuevo (capacidad, ejecución, snapshot, no planificado, multitarea, señal); el **Handler de mock para la configuración de sprints** cambia sus campos; el **Handler de mock para el detalle de una persona** cambia lo que viaja en la identidad DevOps.
+- `people`: **Detalle de persona** cambia el indicador *Dedicación real* a la señal de balance.
+- `chapter-lead-shell`: **Navegación lateral del rol Chapter Lead** cambia qué cuenta el badge de "Dedicación".
+
+## Impact
+
+- **Se apoya en `dedicacion-real`, ya archivado.** Este change escribe deltas sobre la capability `real-dedication`, cuyos requisitos ya viven en `openspec/specs/real-dedication/spec.md`. Al archivar `dedicacion-real` se retiró además la capability `backlog`, que quedó sin requisitos.
+- **Contrato de API** — `GET /dedication/collaborators` y `GET /dedication/collaborators/{personId}?sprint=` reemplazan a `/dedication/capacities…` con una forma nueva (capacidad del sprint con su desglose, ejecución con su procedencia de snapshot, histórico propio y de célula, trabajo no planificado, multitarea, señal de balance con sus evidencias, serie de tendencia); `POST …/sync` conserva su forma. `GET/PUT /admin/sprint-config` pierde `pointsPerFtePerSprint` y gana `sprintCloseTime`, `historyWindowSprints` y `minHistorySprints`. Es un acuerdo con quien implemente el backend.
+- **Frontend** — `features/dedication` se reescribe casi entero: el servicio y sus DTOs, el adapter, el módulo de reglas (`dedicationReading` → `balanceSignal`), los componentes de barra e icono (`DedicationBar` → `CapacityFteBar` y `DemandBar`; `ReadingIcon` → `BalanceSignalIcon`), la tabla, las tarjetas y los paneles nuevos (ejecución, no planificado, multitarea, tendencia, por qué esta señal); se conservan `SprintTabs`, `SprintStoriesPanel` y `ActivityCalendarPanel`. También `features/admin-shell` y `pages/AdminSprintsPage`, `features/people` (indicador y mock del detalle), `features/chapter-lead-shell` (badge) y `mocks/handlers/dedication.*`.
+- **Lo que cambia de significado** — "capacidad" deja de nombrar a la persona y nombra al FTE; "colaborador" entra; "FTE comprometido", "FTE asignado como referencia" y "lectura" (En línea / Por encima / Por debajo) salen del vocabulario; entran "señal de balance", "referencia histórica", "carry-over", "trabajo no planificado", "multitarea" y "snapshot sellado".
+- **Diseño** — sistema de diseño tuip (skill `tuya-ui-design-system`); dos pantallas rehechas y sus estados, con lienzo hi-fi para revisar antes de implementar.
+- **Docs** — `context/docs/Roles_y_Permisos_Plataforma.md` describe la pantalla en el vocabulario viejo; se actualiza.

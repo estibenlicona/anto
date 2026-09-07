@@ -31,6 +31,7 @@ export const useSquads = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
 
   useEffect(() => {
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset síncrono anterior a la regla; se mantiene tal cual (deuda ajena a este change)
     setLoading(true);
     setError(null);
     squadService

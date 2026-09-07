@@ -3,7 +3,8 @@ import { initiativeService } from "@features/initiatives/services/initiativeServ
 import { computeEvaluation } from "@features/initiatives/services/evaluationModel";
 import { questionPoolService } from "@features/admin-shell/services/questionPoolService";
 import { tallaBandsService } from "@features/admin-shell/services/tallaBandsService";
-import { backlogService } from "@features/backlog/services/backlogService";
+import { dedicationService } from "@features/dedication/services/dedicationService";
+import { CARLOS } from "../personDetail.seeds";
 import { resetInitiativesMock } from "../initiatives.handlers";
 import { resetQuestionPoolMock } from "../question-pool.handlers";
 import { resetTallaBandsMock } from "../talla-bands.handlers";
@@ -252,21 +253,29 @@ describe("mock de iniciativas", () => {
     expect(model.bands[0].maxPct).toBe(10);
   });
 
-  it("el catálogo del backlog sale del mismo mock", async () => {
-    await initiativeService.create({
-      name: "Nueva del lead",
-      squadId: CANALES,
-      productOwner: "PO",
-      targetMonths: 6,
+  it("la dedicación real resuelve la iniciativa de cada historia y la activa de la célula en este mismo mock", async () => {
+    const before = await dedicationService.getCollaborator(CARLOS);
+    expect(before.allocation?.activeInitiative).toMatchObject({
+      id: "ini-kafka",
+      name: "Kafka Migration",
     });
-    const catalogs = await backlogService.getCatalogs();
     expect(
-      catalogs.initiatives.some(
-        (i) => i.id === "ini-kafka" && i.name === "Kafka Migration"
+      before.selectedSprint?.workItems.some(
+        (w) =>
+          w.initiativeId === "ini-kafka" &&
+          w.initiativeName === "Kafka Migration"
       )
     ).toBe(true);
-    expect(catalogs.initiatives.some((i) => i.name === "Nueva del lead")).toBe(
-      true
-    );
+
+    // Cerrar la iniciativa la saca de "activa" en la célula; el Epic de las
+    // historias sigue mapeado a ella, porque la iniciativa sigue existiendo.
+    await initiativeService.setStatus("ini-kafka", "Closed");
+    const after = await dedicationService.getCollaborator(CARLOS);
+    expect(after.allocation?.activeInitiative).toBeNull();
+    expect(
+      after.selectedSprint?.workItems.some(
+        (w) => w.initiativeName === "Kafka Migration"
+      )
+    ).toBe(true);
   });
 });

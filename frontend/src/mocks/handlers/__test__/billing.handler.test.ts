@@ -265,7 +265,9 @@ describe("mock de prefacturas", () => {
       doc({ receivedAt: `${futuro}-05` })
     );
 
-    expect(await status(() => billingService.object(target.id, "  "))).toBe(400);
+    expect(await status(() => billingService.object(target.id, "  "))).toBe(
+      400
+    );
 
     const objetada = await billingService.object(
       target.id,

@@ -2,11 +2,11 @@ import { absencesHandlers } from "./absences.handlers";
 import { allocationsHandlers } from "./allocations.handlers";
 import { assessmentsHandlers } from "./assessments.handlers";
 import { authHandlers } from "./auth.handlers";
-import { backlogHandlers } from "./backlog.handlers";
 import { billingHandlers } from "./billing.handlers";
 import { capabilityMixHandlers } from "./capability-mix.handlers";
 import { careerPlanHandlers } from "./career-plan.handlers";
 import { chapterHandlers } from "./chapter.handlers";
+import { dedicationHandlers } from "./dedication.handlers";
 import { expertiseLinesHandlers } from "./expertise-lines.handlers";
 import { gatewayHandlers } from "./gateway.handlers";
 import { initiativesHandlers } from "./initiatives.handlers";
@@ -28,11 +28,11 @@ export const handlers = [
   ...allocationsHandlers,
   ...assessmentsHandlers,
   ...authHandlers,
-  ...backlogHandlers,
   ...billingHandlers,
   ...capabilityMixHandlers,
   ...careerPlanHandlers,
   ...chapterHandlers,
+  ...dedicationHandlers,
   ...expertiseLinesHandlers,
   ...initiativesHandlers,
   ...peopleHandlers,

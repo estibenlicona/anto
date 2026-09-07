@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { httpClient } from "../httpClient";
 import { setAccessTokenProvider } from "../accessToken";
-import axios from "axios";
+import { AxiosHeaders } from "axios";
 
 describe("httpClient", () => {
   it("is configured with correct baseURL from environment variable", () => {
@@ -33,7 +33,7 @@ describe("httpClient", () => {
     // Simula una petición para disparar el interceptor
     // Crea un objeto que cumpla con InternalAxiosRequestConfig y usa AxiosHeaders
     const config = {
-      headers: new axios.AxiosHeaders(),
+      headers: new AxiosHeaders(),
       method: "get",
       url: "",
       baseURL: "",
@@ -92,13 +92,13 @@ describe("httpClient", () => {
     const handler = httpClient.interceptors.request.handlers?.[0];
     const interceptor = handler?.fulfilled;
     const config = {
-      headers: new axios.AxiosHeaders(),
+      headers: new AxiosHeaders(),
       method: "get",
       url: "",
     } as never;
     const result = interceptor ? await interceptor(config) : config;
     expect(
-      (result as { headers: axios.AxiosHeaders }).headers.get("Authorization")
+      (result as { headers: AxiosHeaders }).headers.get("Authorization")
     ).toBeFalsy();
     restore();
   });

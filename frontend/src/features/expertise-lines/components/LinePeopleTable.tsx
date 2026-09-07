@@ -64,7 +64,7 @@ export const LinePeopleTable: React.FC<LinePeopleTableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead>Persona</TableHead>
-            <TableHead>Seniority</TableHead>
+            <TableHead>Nivel</TableHead>
             <TableHead align="right">FTE</TableHead>
             <TableHead>Célula</TableHead>
             <TableHead align="right">Acciones</TableHead>
@@ -84,7 +84,7 @@ export const LinePeopleTable: React.FC<LinePeopleTableProps> = ({
                   {person.position}
                 </span>
               </TableCell>
-              <TableCell>{person.seniorityLabel}</TableCell>
+              <TableCell>{person.levelLabel}</TableCell>
               <TableCell align="right">{person.availableFteLabel}</TableCell>
               <TableCell>
                 {person.squadName ? (

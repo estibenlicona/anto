@@ -38,10 +38,8 @@
  *   en capacidad. La cola de aprobación es trabajo de ese lead.
  * - Asignaciones: el listado de cada célula.
  * - Facturación: las prefacturas, que son una por persona externa.
- * - Backlog: la cola. Ojo: la identidad de cada historia se resuelve contra el
- *   conjunto completo, si no una historia ajena se contaría como "sin
- *   identidad DevOps", que es otro problema y mandaría a alguien a resolverlo
- *   en vano.
+ * - Dedicación real: una fila por persona a cargo, con su resumen; la
+ *   dedicación real de una persona ajena responde 404, como su ficha no.
  * - Ficha de una persona: la cobertura de sus stacks ("nadie más lo cubre"),
  *   calculada sobre el chapter de ella y no sobre el de quien mira, para que
  *   diga lo mismo la abra quien la abra.
@@ -62,12 +60,6 @@
  * - Resolver una persona por id (su ficha, su evaluación): lo que la regla
  *   acota es enumerar y contar, no la lectura puntual a la que sólo se llega
  *   desde el propio listado.
- *
- * UN CASO QUE NO SE PUEDE ACOTAR, y por eso queda como está: el conteo de
- * "historias de personas sin identidad DevOps" del backlog. Son justamente las
- * historias que no se pudieron atribuir a nadie, así que no tienen chapter al
- * que pertenecer: acotarlas sería inventar. Cada lead ve el mismo número, y es
- * el único de esa pantalla que no habla sólo de su gente.
  *
  * QUEDA ANOTADO COMO DEUDA: `ASSUMED_FTE_TARGET` en people.handlers es una
  * capacidad objetivo fija de 12 que viaja en el DTO y que hoy no muestra

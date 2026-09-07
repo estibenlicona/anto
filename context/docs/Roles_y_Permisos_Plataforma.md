@@ -31,15 +31,15 @@ Cinco roles. El catálogo `PersonRole` del código ya los nombra (`Administrator
 | **Líder de Expertise** *(Chapter Lead)* | Lead de una línea de expertise (Backend, QA, Datos…) | Su **línea**: las personas de la línea estén en la célula que estén | ✅ shell `/app/lead` · rol `chapter-lead` |
 | **Líder Técnico** | Líder técnico de una célula, designado por el Líder de Expertise | Su **célula**: el equipo que la integra, venga de la línea que venga | ❌ sólo un dato informativo de la ficha (`technicalLeadId`) |
 | **Product Owner** | Dueño de una o más iniciativas | Sus **iniciativas**: las ve como demanda, no como capacidad | ❌ sólo texto libre en la iniciativa |
-| **Colaborador** *(QA, Dev, arquitecto que no lidera)* | Quien ejecuta el trabajo | Lo **propio**: sus horas, sus work items, sus ausencias, su plan | ❌ shell `colab` sólo en el MVP v7 |
+| **Colaborador** *(QA, Dev, arquitecto que no lidera)* | Quien ejecuta el trabajo | Lo **propio**: sus work items, sus ausencias, su plan | ❌ shell `colab` sólo en el MVP v7 |
 
 ```mermaid
 flowchart LR
     ADM["Administrador<br/><small>configura</small>"] --> PLAT[("Plataforma<br/><small>parámetros · catálogos<br/>líneas · ingesta</small>")]
-    LE["Líder de Expertise<br/><small>gestiona su línea</small>"] --> LIN["Línea de expertise<br/><small>personas · células · ausencias<br/>backlog · prefacturas · competencias</small>"]
-    LT["Líder Técnico<br/><small>sostiene el trabajo</small>"] --> EQ["Su célula<br/><small>backlog · sprint<br/>iniciativa activa</small>"]
+    LE["Líder de Expertise<br/><small>gestiona su línea</small>"] --> LIN["Línea de expertise<br/><small>personas · células · ausencias<br/>dedicación real · prefacturas · competencias</small>"]
+    LT["Líder Técnico<br/><small>sostiene el trabajo</small>"] --> EQ["Su célula<br/><small>dedicación real · sprint<br/>iniciativa activa</small>"]
     PO["Product Owner<br/><small>pide capacidad</small>"] --> INI["Sus iniciativas<br/><small>talla · cobertura · avance</small>"]
-    CO["Colaborador<br/><small>reporta la realidad</small>"] --> YO["Lo propio<br/><small>horas · work items<br/>ausencias · plan</small>"]
+    CO["Colaborador<br/><small>trabaja en DevOps</small>"] --> YO["Lo propio<br/><small>dedicación real<br/>ausencias · plan</small>"]
     PLAT -.->|"instrumento"| LIN
     LIN -.->|"contiene"| EQ
     EQ -.->|"contiene"| YO
@@ -49,7 +49,7 @@ flowchart LR
 Reglas del modelo:
 
 - **Dos ejes que no se confunden.** La línea es vertical (transversal a células) y la gestiona el Líder de Expertise: es el dueño de las **personas**. La célula es horizontal y la sostiene el Líder Técnico: es el dueño del **trabajo**. Mover a alguien de línea no toca su célula, y al revés (decisión de `add-expertise-lines`). Cuando el trabajo necesita gente, el Líder Técnico o el Product Owner **piden capacidad** y el Líder de Expertise la resuelve (§9).
-- **Colaborador es la capa base.** Todo el que existe como persona en la plataforma reporta horas, cura sus work items y solicita ausencias. Líder Técnico y Líder de Expertise heredan esas pantallas (un lead asignado a una célula también reporta); el Administrador y el Product Owner no necesariamente son capacidad de una línea.
+- **Colaborador es la capa base.** Todo el que existe como persona en la plataforma ve su dedicación real y solicita ausencias. Líder Técnico y Líder de Expertise heredan esas pantallas (un lead asignado a una célula también reporta); el Administrador y el Product Owner no necesariamente son capacidad de una línea.
 - **Un rol de negocio por persona** (`Person.role`), **roles de sesión acumulables** (claims de Entra). Quién puede entrar como qué lo dice el token; qué alcanza a ver lo resuelve el backend a partir del `oid` (§11).
 - **Sin rol Arquitecto.** El doc maestro lo lista para firmar «arquitectura definida»; aquí esa firma la absorbe el Líder Técnico (⚠ R-05). Un arquitecto que no lidera es Colaborador.
 
@@ -78,7 +78,7 @@ Descartados: *Ejecutor* (mecánico), *Talento* (jerga de RR. HH., no dice qué h
 
 | Función | Estado |
 |---|:---:|
-| Configurar el calendario de sprints (semanas, horas, sprints por quarter, tolerancia de reporte) | ✅ |
+| Configurar el calendario de sprints (semanas y sprints por quarter, y las **horas por sprint** con las que el balance de carga traduce el FTE a horas) | ✅ |
 | Editar el modelo de estimación: bandas de talla, mix de capacidades por talla, pool de preguntas y pesos | ✅ |
 | Versionar los parámetros con autor, fecha y nota; las evaluaciones cerradas conservan su versión (RN-44) | ❌ placeholder |
 | Administrar el catálogo de habilidades: criterios por nivel, nivel esperado por cargo, activar / desactivar / eliminar | ✅ |
@@ -140,14 +140,14 @@ sequenceDiagram
     PL->>DO: Leer boards · work items · identidades
     DO-->>PL: Espejo local (sólo lectura, RN-47)
     PL-->>AD: KPIs de ingesta
-    Note over PL: Las historias de personas con identidad vinculada entran a curación
+    Note over PL: Los sprints, historias etiquetadas y actividad de personas con identidad vinculada alimentan la dedicación real
 ```
 
 ---
 
 ## 4. Líder de Expertise
 
-**Quién es.** El *Chapter Lead* del doc maestro: la persona que el Administrador designa lead de una línea de expertise. Es el rol protagonista, el dueño de las personas y el aprobador único de ausencias, horas, rebalanceos y prefacturas de su gente. Todo lo que ve —personas, células, ausencias, backlog, prefacturas, competencias— llega acotado a su línea; las células se listan completas porque son de la organización, pero su equipo y sus cifras salen sólo de su gente.
+**Quién es.** El *Chapter Lead* del doc maestro: la persona que el Administrador designa lead de una línea de expertise. Es el rol protagonista, el dueño de las personas y el aprobador único de ausencias, horas, rebalanceos y prefacturas de su gente. Todo lo que ve —personas, células, ausencias, dedicación real, prefacturas, competencias— llega acotado a su línea; las células se listan completas porque son de la organización, pero su equipo y sus cifras salen sólo de su gente.
 
 ### Funciones
 
@@ -157,8 +157,7 @@ sequenceDiagram
 | Células: crear, editar, eliminar; asignar, editar y quitar personas (BAU + Transformación = dedicación) | ✅ |
 | Personas: crear, editar, eliminar; marcar externas con proveedor; asignar líder técnico; editar stacks; vincular identidad DevOps | ✅ |
 | Iniciativas: crear, editar, evaluar (tamizaje + 7 dimensiones + plazo), activar (una activa por célula) y cerrar | ✅ |
-| Backlog: clasificar (Iniciativa / BAU / Descartar), saltar, rechazar con motivo y reasignar, deshacer | ✅ |
-| Horas: validar el reporte de cada persona; devolverlo con observación; recordar a quien no envió | 🟡 botón por persona; sin cola, devolución ni recordatorio |
+| Capacidad: leer, por colaborador y por sprint —el listado entero se mueve con el **navegador de sprint**—, el **balance de carga**: capacidad (FTE disponible sobre el contractual, y esa misma capacidad en **horas** derivadas del parámetro *Horas por sprint* del Calendario, con lo que descuentan las ausencias), demanda (SP comprometidos contra su histórico, con su desviación y la **tolerancia** de ±25 %), referencia (su mediana y la de su célula) y la **señal de balance** de cuatro valores —*Posible sobreasignación*, *Posible subasignación*, *Carga habitual* y *No evaluable*—. En la **ficha del colaborador** la señal encabeza la pantalla con su frase y cuántas evidencias la sostienen, acompañada de la capacidad y la demanda; debajo, cuatro métricas —cumplimiento, trabajo no planificado, carry-over y **foco**— y **cuatro pestañas**: *Señales* (las seis evidencias con su valor, su tolerancia y su veredicto en palabras, más la referencia comparada y el trabajo que entró después del inicio), *Historias*, *Actividad* (commits, releases, features) y *Tendencia*, desde la cual se salta a cualquier sprint; actualizar desde Azure DevOps; reasignar desde ahí | ✅ |
 | Células: designar el Líder Técnico de cada célula | ❌ ⚠ R-03 |
 | Atender solicitudes de capacidad de Líderes Técnicos y Product Owners: simular en la Torre, aplicar o rechazar con motivo | ❌ |
 | Ausencias: registrar en nombre de alguien, aprobar, rechazar, revertir con motivo | ✅ |
@@ -177,10 +176,9 @@ sequenceDiagram
 | Gestionar Células · Detalle | `/app/lead/celulas` · `/:id` | gestiona | ✅ |
 | Gestionar Personas · Detalle · Evaluación | `/app/lead/personas` · `/:id` · `/:id/evaluacion` | gestiona | ✅ |
 | Gestionar Ausencias | `/app/lead/ausencias` | gestiona | ✅ |
-| Gestionar Backlog | `/app/lead/backlog` | gestiona | ✅ |
+| Capacidad · Dedicación de una capacidad | `/app/lead/dedicacion` · `/:personId` | gestiona | ✅ |
 | Prefacturación · Detalle | `/app/lead/facturacion` · `/:id` | gestiona | ✅ |
 | Competencias · Plan de una persona | `/app/lead/competencias` · `/:personId` | gestiona | ✅ |
-| Reporte de horas del sprint (cola: sin enviar, fuera de tolerancia, validar, devolver, recordar) | `/app/lead/horas` | gestiona | ❌ |
 | Solicitudes de capacidad recibidas | `/app/lead/solicitudes` | gestiona | ❌ |
 | Portafolio · Capacidad vs demanda · Calibración | `/app/lead/portafolio` · `/demanda` · `/calibracion` | gestiona | ❌ |
 | Tablero DevOps de la célula (pestaña del detalle) | `/app/lead/celulas/:id` | gestiona | ❌ |
@@ -259,10 +257,9 @@ stateDiagram-v2
 | Función | Estado |
 |---|:---:|
 | Ver su célula: equipo, dedicación BAU / Transformación, capacidad, criticidad, iniciativa activa, estado del reporte del sprint de cada persona | ❌ |
-| Clasificar y curar el backlog de su célula (Iniciativa / BAU / Descartar; saltar; rechazar con motivo y reasignar). El Líder de Expertise conserva la cola global y *Deshacer* | ❌ ⚠ R-04 |
+| Leer el balance de carga de su célula (capacidad en FTE y horas, demanda con su tolerancia, el foco, y la señal de cuatro valores, por persona y sprint) y actualizarlo desde Azure DevOps. Reasignar sigue siendo del Líder de Expertise | ❌ ⚠ R-04 |
 | Marcar «arquitectura definida» y mapear Epics del tablero a la iniciativa de la célula (gate de Etapa 2, doc §8.6). Absorbe al Arquitecto | ❌ ⚠ R-05 |
 | Solicitar capacidad al Líder de Expertise: cargo, FTE, desde cuándo, motivo; ver la respuesta | ❌ |
-| Seguir el reporte de horas de su equipo y recordar a quien no envió. Validar sigue siendo del Líder de Expertise | ❌ ⚠ R-06 |
 | Abrir y diligenciar la evaluación de habilidades de su equipo; proponer acciones del plan. Cerrar sigue siendo del Líder de Expertise | ❌ ⚠ R-07 |
 | Editar descripción y criticidad de su célula; ver el tablero DevOps vinculado | ❌ |
 | Todo lo del Colaborador para sí mismo (§7) | ❌ |
@@ -272,7 +269,7 @@ stateDiagram-v2
 | Pantalla | Ruta | Acceso | Estado |
 |---|---|---|:---:|
 | Mi célula (home): equipo, capacidad, iniciativa, pendientes | `/app/tech` | propio | ❌ (reutiliza `SquadDetail` y `SquadTeamStatsCards`) |
-| Backlog de mi célula (misma cola de triage, acotada a la célula) | `/app/tech/backlog` | propio | ❌ (reutiliza `BacklogContainer`) |
+| Capacidad de mi célula (mismo listado, acotado a la célula) | `/app/tech/dedicacion` | propio | ❌ (reutiliza `DedicationContainer`) |
 | Iniciativa de la célula: resultado, arquitectura definida, Epic mapeado | `/app/tech/iniciativas/:id` | propio | ❌ |
 | Personas de mi célula · Evaluación de habilidades | `/app/tech/equipo/:id` · `/:id/evaluacion` | propio | ❌ (reutiliza detalle y `AssessmentContainer`) |
 | Solicitudes de capacidad | `/app/tech/solicitudes` | propio | ❌ |
@@ -284,18 +281,18 @@ stateDiagram-v2
 
 ```mermaid
 flowchart TD
-    H["Mi célula"] --> B["Historias por clasificar"]
-    H --> S["Reportes del sprint sin enviar"]
+    H["Mi célula"] --> B["Capacidad del equipo"]
+    H --> S["Capacidades por encima o por debajo"]
     H --> I["Iniciativa activa"]
     H --> C["Capacidad vs demanda de la célula"]
-    B --> B1["Clasificar · rechazar con motivo"]
-    S --> S1["Recordar a quien falta"]
+    B --> B1["Comprometido vs asignado · actualizar desde DevOps"]
+    S --> S1["Pedir reasignar al Líder de Expertise"]
     I --> I1["Marcar arquitectura definida"]
     I --> I2["Mapear Epic a la iniciativa"]
     C --> C1["Solicitar capacidad al<br/>Líder de Expertise"]
 ```
 
-**Curación en la célula.** La misma cola del Líder de Expertise, acotada a su equipo; saca al lead del cuello de botella.
+**Capacidad en la célula.** El mismo listado del Líder de Expertise, acotado a su equipo; las historias, sus épicas y sus estados llegan de Azure DevOps y no hay nada que clasificar ni curar: lo que está mal asignado se corrige en DevOps.
 
 ```mermaid
 sequenceDiagram
@@ -303,13 +300,13 @@ sequenceDiagram
     participant LT as Líder Técnico
     participant CO as Colaborador
     participant LE as Líder de Expertise
-    DO->>LT: historia espejada, asignada a alguien del equipo
-    CO-->>LT: "no es mío" (curación propia)
-    LT->>LT: Iniciativa · BAU · Descartar
-    alt no corresponde a esa persona
-        LT->>CO: Rechazar con motivo y reasignar
+    LT->>DO: Actualizar
+    DO-->>LT: sprints · historias etiquetadas con puntos · actividad
+    LT->>LT: capacidad (FTE y horas) · demanda vs histórico y tolerancia · señal de balance, por persona
+    alt una historia no es de esa persona
+        CO->>DO: se corrige en DevOps
     end
-    LT-->>LE: cola del equipo al día · Deshacer sigue en la cola global
+    LT-->>LE: pide reasignar a quien da señal de sobre o subasignación
 ```
 
 **Gate de Etapa 2 de estimación.**
@@ -338,7 +335,7 @@ flowchart LR
 | Solicitar activación y capacidad para su iniciativa; ver la respuesta y el motivo si se rechaza (célula con otra activa) | ❌ |
 | Ver talla, PM, FTE esperado y mix de capacidades de cada iniciativa suya | ❌ |
 | Seguir el estado (evaluación · activa · cerrada), la célula asignada y la cobertura: FTE asignado vs demandado, alerta SFIA | ❌ |
-| Ver las historias clasificadas a su iniciativa y el avance por sprint | ❌ |
+| Ver las historias etiquetadas a su iniciativa en Azure DevOps y el avance por sprint | ❌ |
 | Ver portafolio y capacidad vs demanda de la organización (lectura) | ❌ |
 
 ### Pantallas
@@ -366,13 +363,13 @@ flowchart TD
     LE --> A["Activa · demanda de capacidad"]
 ```
 
-**Seguir mi iniciativa.** Una ficha que junta lo pedido (mix de la talla) con lo real (equipo de la célula, historias clasificadas).
+**Seguir mi iniciativa.** Una ficha que junta lo pedido (mix de la talla) con lo real (equipo de la célula, historias etiquetadas a la iniciativa en DevOps).
 
 ```mermaid
 flowchart LR
     P["Mi portafolio"] --> F["Ficha de la iniciativa"]
     F --> M["Mix pedido vs equipo real"]
-    F --> H["Historias clasificadas a la iniciativa"]
+    F --> H["Historias etiquetadas a la iniciativa"]
     F --> E["Estado · arquitectura definida"]
     M --> C["Cobertura y alerta SFIA<br/><small>RN-58 · RN-59</small>"]
 ```
@@ -381,15 +378,14 @@ flowchart LR
 
 ## 7. Colaborador
 
-**Quién es.** Cualquier persona que ejecuta sin liderar: Dev, QA, arquitecto sin liderazgo (rol `Contributor`). Su ámbito es lo propio; de los demás sólo ve los nombres de sus compañeros de célula. Cierra el ciclo de la realidad: sin su reporte de horas y su curación no hay FTE real (doc §7.2, §7.3). Es la capa que heredan Líder Técnico y Líder de Expertise.
+**Quién es.** Cualquier persona que ejecuta sin liderar: Dev, QA, arquitecto sin liderazgo (rol `Contributor`). Su ámbito es lo propio; de los demás sólo ve los nombres de sus compañeros de célula. Su realidad se lee en Azure DevOps —historias comprometidas por sprint, con su etiqueta, y actividad— sin reporte de horas ni curación manual: la plataforma no registra horas. Las horas que el balance de carga muestra son capacidad derivada de los días del sprint, no esfuerzo reportado. Es la capa que heredan Líder Técnico y Líder de Expertise.
 
 ### Funciones
 
 | Función | Estado |
 |---|:---:|
-| Ver su sprint: célula, dedicación, BAU / Transformación, horas esperadas, fecha de cierre | ❌ |
-| Reportar horas del sprint (Iniciativa · BAU · libre): guardar borrador, enviar dentro de la tolerancia (RN-43); corregir y reenviar si el lead lo devuelve con observación | ❌ (estados sólo en semillas) |
-| Curar sus work items: confirmar o «no es mío» con motivo (RN-51 a RN-53) | ❌ (hoy lo hace el lead en la cola) |
+| Ver su sprint: célula, dedicación, BAU / Transformación, fecha de cierre | ❌ |
+| Ver su dedicación real: sus historias del sprint con su etiqueta y su actividad en Azure DevOps frente a lo asignado | ❌ (hoy la ve el lead por capacidad) |
 | Ver su ficha: asignación, stacks (editar los propios ⚠), identidad DevOps, utilización histórica | ❌ |
 | Ver su evaluación cerrada y su plan de carrera; marcar acciones cumplidas ⚠ | ❌ |
 | Solicitar ausencias y ver su estado y el motivo de rechazo | ❌ ⚠ R-09 |
@@ -399,40 +395,20 @@ flowchart LR
 | Pantalla | Ruta | Acceso | Estado |
 |---|---|---|:---:|
 | Mi trabajo (home): sprint, pendientes, utilización | `/app/colab` | propio | ❌ |
-| Mi reporte de horas | `/app/colab/horas` | propio | ❌ |
-| Mi backlog (items por confirmar · confirmados) | `/app/colab/backlog` | propio | ❌ |
+| Mi dedicación real (historias del sprint · actividad · capacidad y demanda del sprint) | `/app/colab/dedicacion` | propio | ❌ |
 | Mi capacidad (ficha, stacks, evaluación, plan, identidad DevOps) | `/app/colab/perfil` | propio | ❌ |
 | Mis ausencias | `/app/colab/ausencias` | propio | ❌ |
 
 ### Flujos
 
-**Reportar horas del sprint** (doc §8.1).
-
-```mermaid
-stateDiagram-v2
-    state "Sin reportar" as SR
-    state "Borrador" as B
-    state "Enviado · por validar" as E
-    state "Devuelto · con observación" as D
-    state "Validado" as V
-    [*] --> SR : cierre del sprint
-    SR --> B : capturar Iniciativa · BAU · libre
-    B --> B : guardar
-    B --> E : enviar · total en horas_sprint ± tolerancia ⚠ R-14
-    E --> V : Líder de Expertise valida
-    E --> D : Líder de Expertise devuelve
-    D --> B : corregir
-    V --> [*] : FTE real del sprint
-```
-
-**Curar mis work items** (doc §8.3).
+**Mi dedicación real.** La plataforma observa a DevOps; no lo corrige ni lo duplica.
 
 ```mermaid
 flowchart LR
-    I["Mi backlog<br/><small>PendingReview</small>"] --> Q{"¿Es mío?"}
-    Q -->|sí| C["Confirmar<br/><small>cuenta en board y FTE real</small>"]
-    Q -->|no| R["Rechazar con motivo<br/><small>trazado · no cuenta</small>"]
-    R -.-> L["Vuelve a la cola del<br/>Líder Técnico / de Expertise"]
+    D["Azure DevOps<br/><small>historias etiquetadas · actividad</small>"] --> M["Mi dedicación real<br/><small>capacidad y demanda del sprint</small>"]
+    M --> Q{"¿Una historia<br/>no es mía?"}
+    Q -->|no| OK["Se lee tal cual"]
+    Q -->|sí| F["Se corrige en DevOps<br/><small>la siguiente actualización la refleja</small>"]
 ```
 
 **Mis ausencias** (autoservicio, ⚠ R-09).
@@ -480,11 +456,8 @@ Leyenda: **●** gestiona · **◐** en su ámbito (su célula / sus iniciativas
 | Activar y cerrar iniciativa | — | ● ⚠ R-16 | ○ | ◐ solicita | — | ✅ · solicitud ❌ |
 | Marcar arquitectura definida · mapear Epic | — | ● | ◐ ⚠ R-05 | ○ | — | ❌ |
 | **Realidad del sprint** | | | | | | |
-| Clasificar backlog (Iniciativa / BAU / Descartar) | — | ● | ◐ ⚠ R-04 | ○ de su iniciativa | — | ✅ · LT ❌ |
-| Curar work items (confirmar / «no es mío») | — | ● | ◐ | — | ◐ | 🟡 sólo en la cola del LE |
-| Reportar horas del sprint | — | ◐ | ◐ | — | ◐ | ❌ |
-| Validar reportes de horas · devolver con observación | — | ● | ○ ⚠ R-06 | — | ◐ corregir | 🟡 por persona · devolver ❌ |
-| Recordar reporte pendiente | — | ● | ◐ | — | — | ❌ |
+| Leer la dedicación real (capacidad en FTE y horas y demanda con su tolerancia, por sprint navegable, señal de balance de cuatro valores con sus evidencias, ejecución, trabajo no planificado, foco, actividad) | — | ● | ◐ su célula ⚠ R-04 | ○ de su iniciativa | ◐ la propia | ✅ · LT / CO ❌ |
+| Actualizar la dedicación real desde Azure DevOps | — | ● | ◐ su célula | — | — | ✅ · LT ❌ |
 | **Personas** | | | | | | |
 | Registrar ausencia en nombre de otro | — | ● | — | — | — | ✅ |
 | Solicitar ausencia propia | — | ◐ | ◐ | — | ◐ | ❌ ⚠ R-09 |
@@ -508,8 +481,7 @@ Leyenda: **●** gestiona · **◐** en su ámbito (su célula / sus iniciativas
 | Flujo | Quién inicia | Quién decide | Efecto | Estado |
 |---|---|---|---|:---:|
 | Ausencia | Colaborador solicita ❌ · LE registra ✅ | Líder de Expertise aprueba / rechaza / revierte | Descuenta capacidad del mes y prefactura del proveedor | 🟡 |
-| Reporte de horas | Colaborador envía ❌ | Líder de Expertise valida o devuelve con observación | FTE real del sprint | 🟡 |
-| Curación de work items | Ingesta → Colaborador o Líder Técnico confirma / rechaza ❌ | Líder de Expertise en la cola global (Deshacer) ✅ | Cuenta en board y FTE real | 🟡 |
+| Capacidad | Actualización desde Azure DevOps: LE ✅ · Líder Técnico ❌ | Nadie: las historias y sus épicas llegan de DevOps; una historia mal asignada se corrige allá | Lectura de la señal de balance con sus evidencias; reasignar si hace falta | ✅ |
 | Iniciativa | PO registra, evalúa y solicita activación ❌ · LE ✅ | Líder de Expertise activa (una activa por célula) ⚠ R-16 | Demanda de capacidad | 🟡 |
 | Solicitud de capacidad | Líder Técnico (para su célula) o PO (para su iniciativa) ❌ | Líder de Expertise simula en la Torre y aplica, o rechaza con motivo | Allocations; queda trazado el pedido y la respuesta | ❌ |
 | Gate de Etapa 2 | Líder Técnico marca arquitectura definida · Epic mapeado ❌ | Automático (3 prerequisitos) | Habilita la estimación refinada | ❌ |
@@ -522,37 +494,31 @@ Leyenda: **●** gestiona · **◐** en su ámbito (su célula / sus iniciativas
 
 ```mermaid
 sequenceDiagram
+    participant DO as Azure DevOps
     participant PL as Plataforma
-    participant CO as Colaborador
-    participant LT as Líder Técnico
     participant LE as Líder de Expertise
-    PL->>CO: work items espejados por la ingesta
-    CO->>PL: confirmar · "no es mío" con motivo
-    LT->>PL: clasificar Iniciativa · BAU · Descartar
-    Note over PL: cierre del sprint
-    CO->>PL: enviar reporte de horas
-    LT-->>CO: recordar si falta
-    LE->>PL: validar reportes
-    PL-->>LE: FTE real vs asignado · semáforos · rebalanceo
+    LE->>PL: Actualizar
+    PL->>DO: sprints · historias etiquetadas con puntos · actividad, por identidad vinculada
+    DO-->>PL: sólo lectura (RN-47)
+    PL-->>LE: capacidad · demanda vs histórico · señal de balance · reasignar
 ```
 
 ---
 
 ## 10. Pantallas para cerrar los roles
 
-Prioridad por lo que desbloquea: sin sesión para los tres roles nuevos nada de lo demás se puede probar; sin reporte de horas y curación propia no existe el FTE real.
+Prioridad por lo que desbloquea: sin sesión para los tres roles nuevos nada de lo demás se puede probar; sin identidad DevOps vinculada no existe la dedicación real.
 
 | Prio | Rol | Pantalla | Qué resuelve | Reutiliza |
 |:---:|---|---|---|---|
 | 1 | Todos | Sesión para 5 roles: claims, `APP_ROLES`, guards, redirección post-login al shell del rol | Hoy sólo entran Admin y Líder de Expertise; el login legacy cae en `/app/dashboard` | `auth-session`, `AuthGuard`, simulador |
 | 1 | Todos | Llaves de ámbito en el contrato: `Squad.technicalLeadId` (lo designa el LE en el drawer de célula) e `Initiative.productOwnerId` (select en lugar del texto libre); el backend resuelve `oid` → persona → célula / iniciativas / lo propio | Sin estas dos referencias no existe «mi célula» ni «mis iniciativas»; hoy el mock sólo acota por línea | `SquadFormDrawer`, `InitiativeFormDrawer`, `scope.ts` |
-| 1 | Colaborador | Mi trabajo · Mi reporte de horas · Mi backlog | La mitad del FTE real que hoy sólo existe en semillas; la curación que el doc asigna al colaborador | `HoursBySprintPanel`, cola de triage |
-| 1 | Líder de Expertise | Reporte de horas del sprint (cola: sin enviar, fuera de tolerancia, validar en lote, recordar) | Sin cola el flujo del colaborador no cierra | botón «Validar» del detalle de persona |
-| 1 | Líder Técnico | Mi célula · Backlog de mi célula | Saca al Líder de Expertise del cuello de botella de la curación | `BacklogContainer` con filtro, `SquadDetail` en lectura |
+| 1 | Colaborador | Mi trabajo · Mi dedicación real | Que cada persona lea su comprometido frente a lo asignado | `CapacityDedicationContainer` |
+| 1 | Líder Técnico | Mi célula · Capacidad de mi célula | Que el dueño del trabajo lea el balance de carga de su equipo sin pasar por el lead | `DedicationContainer` acotado, `SquadDetail` en lectura |
 | 1 | Product Owner | Mi portafolio · Nueva iniciativa · Evaluar | Cierra al «Evaluador de iniciativa» del doc | `InitiativesList` filtrada, asistente de evaluación |
 | 2 | LT · PO · LE | Solicitudes de capacidad: pedir (cargo, FTE, desde cuándo, motivo) y bandeja del LE con simular en la Torre, aplicar o rechazar | Formaliza el pedido entre dueño del trabajo y dueño de las personas, hoy negociado por fuera | `ReassignPersonDrawer` |
 | 2 | Líder Técnico | Iniciativa de la célula: arquitectura definida, Epic mapeado | Flags que ya existen en la entidad `Initiative` del backend sin UI | `EvaluationHeader` |
-| 2 | Product Owner | Ficha y seguimiento de la iniciativa | Talla y mix pedido vs equipo real; historias clasificadas | `SquadTeamStatsCards` |
+| 2 | Product Owner | Ficha y seguimiento de la iniciativa | Talla y mix pedido vs equipo real; historias etiquetadas a la iniciativa | `SquadTeamStatsCards` |
 | 2 | Colaborador | Mi capacidad · Mis ausencias | Ficha sin datos de terceros ni costo; solicitar y ver motivo de rechazo (`rejectReason` hoy no se muestra) | `PersonDetail`, `RegisterAbsenceDrawer` |
 | 2 | Líder Técnico | Personas de mi célula · Evaluación | Diligenciar la evaluación de su gente (cerrar queda en el LE) | `AssessmentContainer` |
 | 3 | LE · PO · Admin | Portafolio · Capacidad vs demanda · Calibración: un solo contenedor montado en cada shell, con nombres y costos sólo para el LE | Módulos 1.2–1.4 del doc, hoy sin pantalla | mix de capacidades de Admin |
@@ -593,9 +559,9 @@ flowchart LR
 Reglas de implementación:
 
 - **Claim decide acceso, `Person.role` dice qué es la persona en el negocio.** Deben coincidir; la incoherencia (alguien con claim de Líder Técnico cuyo rol en la ficha es Colaborador) se reporta en *Accesos*, no se resuelve en silencio (⚠ R-02).
-- **Roles acumulables, shell único.** Quien tiene varios claims entra al shell del rol más alto; las entradas de «Mi trabajo» (horas, backlog propio, ausencias) se agregan a su menú con `roles?` en `LeadNavEntry` / `filterNavByRole`, que existen para esto y hoy no filtran nada (⚠ R-10).
-- **Scopes existentes:** `capacidad.read`, `capacidad.write`, `parametros.write`. Propuesta mínima para los nuevos roles: `capacidad.read` + `horas.write` (Colaborador), + `backlog.write` (Líder Técnico), `iniciativas.write` (Product Owner).
-- **Filtrar las dos puntas.** Al acotar por ámbito hay que acotar personas *y* lo indexado por persona (asignaciones, ausencias, prefacturas, historias); acotar sólo una punta produce FTE negativos y porcentajes > 100 (`scope.ts`).
+- **Roles acumulables, shell único.** Quien tiene varios claims entra al shell del rol más alto; las entradas de «Mi trabajo» (dedicación real propia, ausencias) se agregan a su menú con `roles?` en `LeadNavEntry` / `filterNavByRole`, que existen para esto y hoy no filtran nada (⚠ R-10).
+- **Permisos de sección (resuelto, change `add-capacity-section-permissions`).** Las secciones internas de Gestión de Capacidad no se autorizan con scopes sino con **app roles de la app registration de la API del módulo** (`api://capacidad`), que viajan como sub-claims en el claim `roles` del access token dirigido a esa API — permisos **por persona**, cosa que `scp` (por aplicación cliente) no puede expresar. Catálogo: `Capacidad.{Iniciativas,Celulas,Personas,Ausencias,Dedicacion,Prefacturacion,Competencias,Sprints,Parametros,Habilidades,Lineas,DevOps}` — uno por entrada del sidebar; «Inicio» no exige permiso. El menú (`filterNav`) y los guards de ruta exigen el mismo permiso desde un mapa compartido por shell. Asignaciones de la semilla local (`pnpm entra:seed`): Administrador los 12; Líder de Expertise los 7 de su shell; Líder Técnico `Iniciativas`, `Celulas`, `Dedicacion`, `Competencias`; sin rol, ninguno. Los scopes (`capacidad.read`…) quedan para lo que son: lo que la app cliente puede pedir, no lo que la persona puede ver.
+- **Filtrar las dos puntas.** Al acotar por ámbito hay que acotar personas *y* lo indexado por persona (asignaciones, ausencias, prefacturas, dedicación real); acotar sólo una punta produce FTE negativos y porcentajes > 100 (`scope.ts`).
 - **Lectura puntual no se acota; enumerar y contar sí.** Una ficha se puede abrir por id llegando desde el propio listado; lo que el ámbito restringe es listar y sumar (`chapters.ts`).
 - **Frontera de datos sensibles.** Costo mensual, documento, proveedor, prefacturas y evaluaciones cerradas de terceros: sólo el Líder de Expertise. El Líder Técnico ve de su equipo nombre, cargo, seniority, stacks y dedicación; el Administrador ve el padrón básico que ya usa Líneas; el Product Owner ve cobertura agregada, no personas. El contrato lo garantiza con DTOs distintos por rol, no ocultando columnas.
 - **Nomenclatura.** El código dice `chapter` (`chapterId`, `chapter-lead`, `/app/lead`) y la UI «línea de expertise». Renombrar el claim a `expertise-lead` y la ruta es un refactor sin valor observable; se hace en un change propio o no se hace (⚠ R-17).
@@ -608,10 +574,9 @@ Reglas de implementación:
 |---|---|---|---|:---:|
 | **R-01** | Nombre del rol QA / Dev | Colaborador · Integrante · Especialista | **Colaborador** (§2) | Bajo |
 | **R-02** | Fuente única del rol de sesión | Claims de Entra (decisión vigente) · tabla local · derivar de `Person.role` | Claims deciden; `Person.role` debe coincidir; pantalla *Accesos* en lectura para ver incoherencias | Alto |
-| **R-03** | Ámbito del Líder Técnico | Célula que lidera vía `Squad.technicalLeadId` (nuevo) · personas con `Person.technicalLeadId` (existe, declarado informativo) · ambas | **Por célula**: su trabajo (backlog, iniciativa, tablero, sprint) está indexado por célula y «una persona, una célula» lo hace limpio. `Person.technicalLeadId` sigue siendo acompañamiento informativo. Una célula tiene a lo sumo un LT; decidir si un LT puede liderar varias | Alto |
-| **R-04** | ¿El Líder Técnico clasifica el backlog o sólo cura? | Clasifica su célula · sólo cura y el LE decide (doc §4.2) | Clasifica su célula; la cola global y *Deshacer* quedan en el LE | Medio |
+| **R-03** | Ámbito del Líder Técnico | Célula que lidera vía `Squad.technicalLeadId` (nuevo) · personas con `Person.technicalLeadId` (existe, declarado informativo) · ambas | **Por célula**: su trabajo (dedicación real, iniciativa, tablero, sprint) está indexado por célula y «una persona, una célula» lo hace limpio. `Person.technicalLeadId` sigue siendo acompañamiento informativo. Una célula tiene a lo sumo un LT; decidir si un LT puede liderar varias | Alto |
+| **R-04** | ¿El Líder Técnico lee la dedicación real de su célula? | Lectura acotada a su célula, con actualizar desde DevOps · sólo el LE la ve | Lectura acotada a su célula y actualizar desde DevOps; reasignar queda en el LE. Clasificar y curar ya no existen: la etiqueta llega de Azure | Medio |
 | **R-05** | Rol Arquitecto | Rol propio · lo absorbe el Líder Técnico · lo absorbe el LE | Líder Técnico marca «arquitectura definida»; un arquitecto que no lidera es Colaborador | Medio |
-| **R-06** | Validación de horas | LE (doc §8.1) · Líder Técnico · ambos | LE valida (en lote por sprint); el Líder Técnico recuerda | Medio |
 | **R-07** | Evaluación de competencias | Sólo LE · LT diligencia y LE cierra | LT diligencia y propone acciones; cerrar y trayectoria son del LE (el chapter «gestiona trayectoria de carrera y permisos», decisión 4b del doc) | Medio |
 | **R-08** | Product Owner y la iniciativa | Registra y evalúa (propuesta) · sólo evalúa lo que creó el LE (doc §4.2 lectura) | Registra y evalúa; nace sin célula; el LE asigna célula y activa. Ve cobertura agregada, no personas | Alto |
 | **R-09** | Ausencias | Autoservicio del Colaborador + aprobación del LE · el LE registra en nombre de la persona (hoy) | Autoservicio; mostrar `rejectReason` (hoy se persiste y no se ve) | Medio |
@@ -619,7 +584,6 @@ Reglas de implementación:
 | **R-11** | Administrador y datos de negocio | Cero acceso (mocks: sin pantallas) · lectura global de portafolio y capacidad vs demanda (doc §4.2 👁) | Lectura de portafolio y capacidad vs demanda; nada de personas | Bajo |
 | **R-12** | Rebalanceo entre líneas | Aplica directo · visto bueno del LE receptor (propuesta §8.7 del doc, A-08) | Visto bueno del receptor | Medio |
 | **R-13** | El LE y su propia línea | `/app/lead/linea` en lectura · darle acceso a `/app/admin/lineas` | Lectura en su shell; los enlaces cruzados a `/app/admin/*` hoy le dan 403 | Bajo |
-| **R-14** | RN-43 (76–84 h) en el reporte del Colaborador | Bloquea el envío · avisa y el LE decide al validar | Bloquea: el doc lo define como gate de *Enviado* | Bajo |
 | **R-15** | Lo propio editable por el Colaborador | Stacks y «marcar cumplida» editables · sólo lectura | Stacks editables (los conoce él); acciones del plan las cierra el LE, el Colaborador propone | Bajo |
 | **R-16** | Dueño de activar / cerrar la iniciativa | LE (doc §4.2) · Líder Técnico (la regla «una activa por célula» es de la célula) | LE: activar consume FTE de la línea. El PO solicita, el LT informa que la célula está lista | Medio |
 | **R-17** | Renombrar `chapter-lead` → `expertise-lead` y `/app/lead` | Ahora · al archivar `add-auth-port-and-simulator` · nunca | Change propio, sin mezclar con los roles nuevos | Bajo |

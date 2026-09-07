@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebouncedValue } from "@shared/hooks/useDebouncedValue";
-import type { Seniority } from "@features/people/services/personService";
+import type { Level } from "@features/people/services/personService";
 import { allocationService } from "../services/allocationService";
 import {
   allocationAdapter,
@@ -21,7 +21,7 @@ export const useAllocations = (squadId: string | undefined) => {
 
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 300);
-  const [seniorities, setSeniorities] = useState<Seniority[]>([]);
+  const [levels, setLevels] = useState<Level[]>([]);
 
   // Un solo camino de carga (ver useSquads): el efecto lo dispara al cambiar
   // los parámetros y `refetch` lo vuelve a correr tras una mutación.
@@ -29,6 +29,7 @@ export const useAllocations = (squadId: string | undefined) => {
 
   useEffect(() => {
     if (!squadId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset síncrono anterior a la regla; se mantiene tal cual (deuda ajena a este change)
       setAllocations([]);
       setError(null);
       setLoading(false);
@@ -56,7 +57,7 @@ export const useAllocations = (squadId: string | undefined) => {
         page,
         pageSize,
         debouncedSearch || undefined,
-        seniorities
+        levels
       )
       .then(
         (result) => {
@@ -79,7 +80,7 @@ export const useAllocations = (squadId: string | undefined) => {
     return () => {
       cancelled = true;
     };
-  }, [squadId, page, pageSize, debouncedSearch, seniorities, reloadTick]);
+  }, [squadId, page, pageSize, debouncedSearch, levels, reloadTick]);
 
   const refetch = useCallback(() => {
     setReloadTick((tick) => tick + 1);
@@ -95,9 +96,9 @@ export const useAllocations = (squadId: string | undefined) => {
     setSearch(value);
   }, []);
 
-  const onSenioritiesChange = useCallback((values: Seniority[]) => {
+  const onLevelsChange = useCallback((values: Level[]) => {
     setPage(1);
-    setSeniorities(values);
+    setLevels(values);
   }, []);
 
   return {
@@ -113,7 +114,7 @@ export const useAllocations = (squadId: string | undefined) => {
     onPageSizeChange,
     search,
     onSearchChange,
-    seniorities,
-    onSenioritiesChange,
+    levels,
+    onLevelsChange,
   };
 };

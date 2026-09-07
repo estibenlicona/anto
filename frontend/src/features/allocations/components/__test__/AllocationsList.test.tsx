@@ -18,8 +18,8 @@ const allocation: Allocation = {
   transformationPercentage: 30,
   personPosition: "Backend Dev",
   personModality: "Hybrid",
-  personSeniority: 3,
-  personSeniorityLabel: "Avanzado",
+  personLevel: 3,
+  personLevelLabel: "Avanzado",
   personAvailablePercentage: 20,
   createdAtUtc: "2026-01-01T00:00:00Z",
   updatedAtUtc: "2026-01-01T00:00:00Z",
@@ -43,12 +43,14 @@ const baseProps: AllocationsListProps = {
   onPageSizeChange: noop,
   search: "",
   onSearchChange: noop,
-  seniorityOptions: [
+  levelOptions: [
     { value: 1, label: "Principiante" },
+    { value: 2, label: "Competente" },
+    { value: 3, label: "Avanzado" },
     { value: 4, label: "Experto" },
   ],
-  selectedSeniorities: [],
-  onSenioritiesChange: noop,
+  selectedLevels: [],
+  onLevelsChange: noop,
 };
 
 function renderList(overrides: Partial<AllocationsListProps> = {}) {
@@ -82,9 +84,7 @@ describe("AllocationsList", () => {
     expect(
       screen.getByPlaceholderText("Buscar por nombre o cargo")
     ).toHaveValue("ana");
-    expect(
-      screen.getByRole("button", { name: /Seniority/ })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Nivel/ })).toBeInTheDocument();
     expect(screen.queryByText(/Mostrando/)).not.toBeInTheDocument();
     loading.unmount();
 
@@ -190,11 +190,11 @@ describe("AllocationsList", () => {
 
   it("forwards search input and seniority filter changes", async () => {
     const onSearchChange = vi.fn();
-    const onSenioritiesChange = vi.fn();
+    const onLevelsChange = vi.fn();
     renderList({
       allocations: [allocation],
       onSearchChange,
-      onSenioritiesChange,
+      onLevelsChange,
     });
 
     fireEvent.change(screen.getByPlaceholderText("Buscar por nombre o cargo"), {
@@ -202,8 +202,8 @@ describe("AllocationsList", () => {
     });
     expect(onSearchChange).toHaveBeenCalledWith("dev");
 
-    fireEvent.click(screen.getByRole("button", { name: /Seniority/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Nivel/ }));
     fireEvent.click(await screen.findByLabelText("Experto"));
-    expect(onSenioritiesChange).toHaveBeenCalledWith([4]);
+    expect(onLevelsChange).toHaveBeenCalledWith([4]);
   });
 });

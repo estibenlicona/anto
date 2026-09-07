@@ -34,7 +34,7 @@ export const AbsencesContainer: React.FC = () => {
   // mes: el endpoint devuelve el mes entero y no hay nada que volver a pedir.
   // Las cards siguen leyendo el mes completo, no lo filtrado.
   const filters = useAbsencesFilters(month?.items ?? [], monthKey);
-  // Las personas del alta salen del resumen del chapter, como en el backlog.
+  // Las personas del alta salen del resumen del chapter, como en la Torre.
   const { overview, loading: peopleLoading } = useCapacityOverview();
   const { saving, create, approve, reject } = useAbsenceMutations();
   const { toast } = useToast();

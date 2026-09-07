@@ -99,7 +99,7 @@ export const AbsencesTable: React.FC<AbsencesTableProps> = ({
           placeholder="Buscar por persona"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="max-w-xs"
+          className="w-96"
         />
         <FilterButton
           label="Tipo"

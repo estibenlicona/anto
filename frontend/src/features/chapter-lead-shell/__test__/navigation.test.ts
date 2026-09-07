@@ -15,11 +15,20 @@ describe("chapter-lead navigation", () => {
       "/app/lead/celulas",
       "/app/lead/personas",
       "/app/lead/ausencias",
-      "/app/lead/backlog",
+      "/app/lead/dedicacion",
       "/app/lead/facturacion",
       "/app/lead/competencias",
     ]);
-    expect(leadRouteTitles["lead-backlog"]).toBe("Gestionar Backlog");
+    // Capacidad ocupa el lugar de Backlog, con el mismo nombre en el menú y
+    // en el breadcrumb, y ningún "Backlog" en ninguna parte.
+    expect(leadRouteTitles["lead-dedicacion"]).toBe("Capacidad");
+    expect(
+      leadNavGroups
+        .flatMap((g) => g.items)
+        .find((i) => i.id === "lead-dedicacion")?.label
+    ).toBe("Capacidad");
+    expect(hrefs).not.toContain("/app/lead/backlog");
+    expect(Object.values(leadRouteTitles).join(" ")).not.toMatch(/backlog/i);
     expect(leadRouteTitles["lead-facturacion"]).toBe("Prefacturación");
     expect(leadRouteTitles["lead-ausencias"]).toBe("Gestionar Ausencias");
     expect(leadNavGroups.map((g) => g.label)).toEqual([
@@ -50,6 +59,8 @@ describe("chapter-lead navigation", () => {
     expect(resolveLeadNavId("/app/lead/facturacion/bill-2026-07-gft")).toBe(
       "lead-facturacion"
     );
+    expect(resolveLeadNavId("/app/lead/dedicacion")).toBe("lead-dedicacion");
+    expect(resolveLeadNavId("/app/lead/dedicacion/p3")).toBe("lead-dedicacion");
   });
 
   it("no confunde prefijos parciales ni rutas desconocidas", () => {

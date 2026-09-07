@@ -8,13 +8,18 @@ vi.mock("../../services/sprintConfigService", () => ({
     getConfig: vi.fn(),
     saveConfig: vi.fn(),
   },
+  // El hook valida la hora de cierre con este patrón: sin él, el mock deja el
+  // formulario colgado en "cargando".
+  SPRINT_CLOSE_TIME_PATTERN: /^([01]\d|2[0-3]):[0-5]\d$/,
 }));
 
 const mockConfig = {
   weeks: 2,
-  hoursPerWeek: 40,
   sprintsPerQuarter: 6,
-  toleranceHours: 4,
+  hoursPerSprint: 80,
+  sprintCloseTime: "23:00",
+  historyWindowSprints: 6,
+  minHistorySprints: 3,
 };
 
 describe("useSprintConfig", () => {
@@ -44,6 +49,87 @@ describe("useSprintConfig", () => {
 
     expect(result.current.errors.weeks).toBeTruthy();
     expect(result.current.canSave).toBe(false);
+  });
+
+  it("valida la ventana de histórico entre 3 y 12", async () => {
+    vi.mocked(sprintConfigService.getConfig).mockResolvedValue(mockConfig);
+    const { result } = renderHook(() => useSprintConfig());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    act(() => {
+      result.current.setField("historyWindowSprints", "20");
+    });
+    expect(result.current.errors.historyWindowSprints).toBe(
+      "Ventana de histórico debe estar entre 3 y 12"
+    );
+    expect(result.current.canSave).toBe(false);
+
+    act(() => {
+      result.current.setField("historyWindowSprints", "10");
+    });
+    expect(result.current.errors.historyWindowSprints).toBeUndefined();
+    expect(result.current.canSave).toBe(true);
+  });
+
+  it("valida las horas por sprint entre 20 y 400", async () => {
+    vi.mocked(sprintConfigService.getConfig).mockResolvedValue(mockConfig);
+    const { result } = renderHook(() => useSprintConfig());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    act(() => {
+      result.current.setField("hoursPerSprint", "500");
+    });
+    expect(result.current.errors.hoursPerSprint).toBe(
+      "Horas por sprint debe estar entre 20 y 400"
+    );
+    expect(result.current.canSave).toBe(false);
+
+    act(() => {
+      result.current.setField("hoursPerSprint", "100");
+    });
+    expect(result.current.errors.hoursPerSprint).toBeUndefined();
+    expect(result.current.canSave).toBe(true);
+  });
+
+  it("rechaza un mínimo de sprints mayor que la ventana de histórico", async () => {
+    vi.mocked(sprintConfigService.getConfig).mockResolvedValue(mockConfig);
+    const { result } = renderHook(() => useSprintConfig());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // La ventana por defecto es 6: pedir 6 cabe.
+    act(() => {
+      result.current.setField("minHistorySprints", "6");
+    });
+    expect(result.current.errors.minHistorySprints).toBeUndefined();
+
+    // Bajar la ventana por debajo del mínimo sí es contradictorio.
+    act(() => {
+      result.current.setField("historyWindowSprints", "5");
+    });
+    expect(result.current.errors.minHistorySprints).toBe(
+      "Mínimo de sprints para evaluar no puede ser mayor que la ventana de histórico"
+    );
+    expect(result.current.canSave).toBe(false);
+  });
+
+  it("valida el formato HH:mm de la hora de cierre", async () => {
+    vi.mocked(sprintConfigService.getConfig).mockResolvedValue(mockConfig);
+    const { result } = renderHook(() => useSprintConfig());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    act(() => {
+      result.current.setField("sprintCloseTime", "25:00");
+    });
+    expect(result.current.errors.sprintCloseTime).toBe(
+      "Hora de cierre del sprint debe tener el formato HH:mm"
+    );
+    expect(result.current.canSave).toBe(false);
+
+    act(() => {
+      result.current.setField("sprintCloseTime", "18:30");
+    });
+    expect(result.current.errors.sprintCloseTime).toBeUndefined();
+    expect(result.current.canSave).toBe(true);
   });
 
   it("saves successfully when the form is valid and dirty", async () => {

@@ -42,6 +42,8 @@ export function validate(values: PersonFormValues): FieldErrors {
   // elección. No se valida el largo porque no hay dónde escribirlo.
   if (!values.role) errors.role = "Selecciona un rol";
 
+  if (!values.level) errors.level = "Selecciona un nivel";
+
   if (!values.seniority) errors.seniority = "Selecciona una seniority";
 
   if (!values.modality) errors.modality = "Selecciona una modalidad";
@@ -78,6 +80,7 @@ export function countMissingRequiredFields(values: PersonFormValues): number {
     values.userPrincipalName,
     values.position,
     values.role,
+    values.level,
     values.seniority,
     values.modality,
     values.startDate,

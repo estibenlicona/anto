@@ -1,8 +1,7 @@
 import React from "react";
-import { Link as RouterLink } from "react-router-dom";
-import { Badge, Link } from "@tuya-ui/components";
+import { Link } from "@tuya-ui/components";
 import {
-  formatDate,
+  STACK_LEVEL_LABELS,
   type PersonDetail,
 } from "../../adapters/PersonDetailAdapter";
 import { DetailPanel, SECONDARY_TEXT } from "./DetailPanel";
@@ -34,7 +33,12 @@ const Row: React.FC<{
   );
 };
 
-/** Lo administrativo. Nada de lo que está en el encabezado se repite acá. */
+/**
+ * La ficha administrativa — el panel protagonista del perfil. Acá vive toda la
+ * identidad que el encabezado ya no muestra: nivel, modalidad, vinculación,
+ * correo e identidad DevOps, junto con lo organizacional. Cada dato aparece
+ * una sola vez en la página.
+ */
 export const PersonProfilePanel: React.FC<PersonProfilePanelProps> = ({
   detail,
   onEdit,
@@ -45,125 +49,96 @@ export const PersonProfilePanel: React.FC<PersonProfilePanelProps> = ({
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(person.monthlyCost);
-  const costVariant = detail.costReading === "InRange" ? "success" : "warning";
 
   const rows: Array<{ label: string; content: React.ReactNode }> = [
     {
-      label: "Chapter",
-      // Quien figura acá es quien tiene a esta persona a su cargo, y es el
-      // mismo que la ve en su listado: sale de la relación que decide el
-      // alcance. Antes salía del líder de su línea de expertise, que es otra
-      // jerarquía y podía nombrar a alguien que no la ve.
-      content: detail.chapterName ? (
-        <>
-          {detail.chapterName}
-          <span className={SECONDARY_TEXT}>
-            {detail.chapterLeadName === null
-              ? "· Sin lead"
-              : detail.chapterLeadName === person.name
-                ? "· Lidera este chapter"
-                : `· Lead: ${detail.chapterLeadName}`}
-          </span>
-        </>
-      ) : (
-        <span className={SECONDARY_TEXT}>Sin chapter asignado</span>
+      // La escala de cuatro niveles — Principiante, Competente, Avanzado,
+      // Experto — sin número SFIA: el número no se muestra en esta vista.
+      label: "Nivel",
+      content:
+        person.levelLabel ??
+        STACK_LEVEL_LABELS[detail.level] ??
+        String(detail.level),
+    },
+    {
+      // La otra escala, separada a propósito: Junior, Intermedio o Senior.
+      label: "Seniority",
+      content: person.seniorityLabel,
+    },
+    { label: "Modalidad", content: detail.modalityLabel },
+    {
+      label: "Vinculación",
+      content: detail.isExternal
+        ? `Externa · ${detail.providerName ?? "proveedor"}`
+        : "Interna",
+    },
+    {
+      label: "Correo",
+      content: (
+        <span className="font-mono text-[13px]">
+          {person.userPrincipalName}
+        </span>
       ),
     },
     {
-      label: "Línea de expertise",
-      content: detail.expertiseLineName ? (
+      label: "Identidad DevOps",
+      content: detail.devOpsIdentity ? (
         <>
-          {detail.expertiseLineName}
-          <span className={SECONDARY_TEXT}>
-            {/*
-              Tres lecturas distintas, y ninguna se puede dar por la otra: la
-              línea sin lead todavía no tiene quién responda, y la persona que
-              lidera la suya no se anuncia como si el lead fuera otro.
-            */}
-            {detail.expertiseLineLeadName === null
-              ? "· Sin lead"
-              : detail.expertiseLineLeadName === person.name
-                ? "· Lidera esta línea"
-                : `· Lead: ${detail.expertiseLineLeadName}`}
-          </span>
+          <span
+            aria-hidden="true"
+            className="size-1.5 rounded-pill bg-success-bold"
+          />
+          Vinculada
         </>
       ) : (
-        <>
-          <span className={SECONDARY_TEXT}>Sin línea asignada</span>
-          <Link asChild tone="neutral" className="ml-2 text-body-sm">
-            <RouterLink to="/app/admin/lineas">Asignar una línea</RouterLink>
-          </Link>
-        </>
+        <span className="text-danger-default">Sin vincular</span>
+      ),
+    },
+    {
+      // La fila lleva a la persona, no a la unidad: quién es su Líder de
+      // Expertise. La unidad se lee en la fila de la línea, abajo.
+      label: "Líder de expertise",
+      content: detail.chapterLeadName ? (
+        detail.chapterLeadName === person.name ? (
+          <>
+            {person.name}
+            <span className={SECONDARY_TEXT}>· lidera este chapter</span>
+          </>
+        ) : (
+          detail.chapterLeadName
+        )
+      ) : (
+        <span className={SECONDARY_TEXT}>Sin líder de expertise</span>
+      ),
+    },
+    {
+      // A qué línea pertenece, a secas.
+      label: "Línea de expertise",
+      content: detail.expertiseLineName ?? (
+        <span className={SECONDARY_TEXT}>Sin línea asignada</span>
       ),
     },
     {
       label: "Ingreso",
       content: (
         <>
-          <span className="tabular-nums">{detail.startDateLabel}</span>
+          {detail.startDateLabel}
           <span className={SECONDARY_TEXT}>· {detail.tenureLabel}</span>
         </>
       ),
     },
     {
-      label: "FTE disponible",
-      content: (
-        <>
-          <span className="tabular-nums">{person.availableFte.toFixed(1)}</span>
-          <span className={SECONDARY_TEXT}>· declarado, base del asignado</span>
-        </>
-      ),
-    },
-    {
+      // La cifra sola: la lectura de concordancia con el nivel salió de la
+      // ficha con el rediseño.
       label: "Costo mensual",
-      content: (
-        <>
-          <span className="tabular-nums">{cost}</span>
-          <Badge variant={costVariant}>{detail.costReadingLabel}</Badge>
-        </>
-      ),
+      content: <span className="tabular-nums">{cost}</span>,
     },
   ];
-  if (detail.isExternal) {
-    rows.push({
-      label: "Proveedor",
-      content: (
-        <>
-          {detail.providerName ?? "—"}
-          {detail.contractEndsAt && (
-            <span className={SECONDARY_TEXT}>
-              · contrato hasta {formatDate(detail.contractEndsAt)}
-            </span>
-          )}
-        </>
-      ),
-    });
-  }
-  rows.push(
-    {
-      label: "Documento",
-      content: <span className="tabular-nums">{person.documentId}</span>,
-    },
-    {
-      label: "Identidad DevOps",
-      content: detail.devOpsIdentity ? (
-        <>
-          <span className="font-mono text-[13px]">
-            {detail.devOpsIdentity.userName}
-          </span>
-          <span className={SECONDARY_TEXT}>
-            · vinculada el {formatDate(detail.devOpsIdentity.linkedAt)}
-          </span>
-        </>
-      ) : (
-        <span className="text-danger-default">Sin vincular</span>
-      ),
-    }
-  );
 
   return (
     <DetailPanel
-      title="Ficha"
+      title="Perfil"
+      subtitle="lo administrativo"
       right={
         <Link
           href="#"
@@ -178,10 +153,10 @@ export const PersonProfilePanel: React.FC<PersonProfilePanelProps> = ({
         </Link>
       }
     >
-      <dl className="grid grid-cols-[10rem_minmax(0,1fr)]">
-        {rows.map((r, i) => (
-          <Row key={r.label} label={r.label} last={i === rows.length - 1}>
-            {r.content}
+      <dl className="grid grid-cols-[190px_minmax(0,1fr)]">
+        {rows.map((row, i) => (
+          <Row key={row.label} label={row.label} last={i === rows.length - 1}>
+            {row.content}
           </Row>
         ))}
       </dl>

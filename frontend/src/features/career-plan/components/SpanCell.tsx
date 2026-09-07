@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- helpers junto al componente, patrón previo del archivo (mismo criterio que routes.tsx) */
 import React from "react";
 import type {
   AttentionStep,

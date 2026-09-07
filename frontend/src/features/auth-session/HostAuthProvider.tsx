@@ -17,7 +17,7 @@ import { ANONYMOUS_SESSION, type Session } from "./types";
  * compartido, no.
  *
  * **El transporte todavía no está definido** (ver el change
- * `add-auth-port-and-simulator`). Lo que sí está definido es el contenido: la
+ * el change que definió este contrato). El contenido: la
  * autorización de negocio se maneja con Entra ID, así que la sesión llega
  * como claims del token. Esta interfaz es lo que hay que negociar contra el
  * host cuando se defina cómo lo entrega.

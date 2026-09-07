@@ -1,314 +1,311 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { PersonDetailHeader } from "../PersonDetailHeader";
-import { PersonDetailStatsCards } from "../PersonDetailStatsCards";
-import { PersonAssignmentPanel } from "../PersonAssignmentPanel";
-import { PersonUnassignedPanel } from "../PersonUnassignedPanel";
-import { HoursBySprintPanel } from "../HoursBySprintPanel";
+import { PersonPointerCards } from "../PersonPointerCards";
+import { PersonSkillProfilePanel } from "../PersonSkillProfilePanel";
+import { PersonPlanPanel } from "../PersonPlanPanel";
 import { PersonStacksPanel } from "../PersonStacksPanel";
 import { PersonProfilePanel } from "../PersonProfilePanel";
+import { toPersonPlanView } from "@features/career-plan/adapters/PersonPlanAdapter";
+import type { PersonPlanDto } from "@features/career-plan/services/careerPlanService";
 import { assigned, unassigned } from "./fixtures";
 
-const wrap = (ui: React.ReactElement) =>
+const inRouter = (ui: React.ReactElement) =>
   render(<MemoryRouter>{ui}</MemoryRouter>);
 
+const PLAN_HREF = "/app/lead/competencias/p1";
+
+const planDto: PersonPlanDto = {
+  personId: "p1",
+  personName: "María González",
+  position: "Backend Dev",
+  assessmentClosedAtUtc: "2026-08-12T10:00:00Z",
+  cycle: "2026-H2",
+  skills: [
+    {
+      skillId: "sk1",
+      skillName: "Diseño de soluciones",
+      group: "technical",
+      level: 3,
+      expectedLevel: 4,
+      gap: 1,
+      metCriteria: ["Diseña componentes"],
+      levelTotal: 4,
+      missingCriteria: ["Lidera diseños de dominio"],
+      expectedTotal: 5,
+      note: "",
+    },
+    {
+      skillId: "sk2",
+      skillName: "Comunicación",
+      group: "human",
+      level: 3,
+      expectedLevel: 3,
+      gap: 0,
+      metCriteria: [],
+      levelTotal: 3,
+      missingCriteria: [],
+      expectedTotal: 3,
+      note: "",
+    },
+  ],
+  actions: [
+    {
+      id: "ac1",
+      personId: "p1",
+      skillId: "sk1",
+      skillName: "Diseño de soluciones",
+      fromLevel: 3,
+      targetLevel: 4,
+      dueMonth: "2026-11",
+      title: "Liderar el diseño del dominio de pagos",
+      status: "InProgress",
+    },
+    {
+      id: "ac2",
+      personId: "p1",
+      skillId: "sk1",
+      skillName: "Diseño de soluciones",
+      fromLevel: 3,
+      targetLevel: 4,
+      dueMonth: "2026-06",
+      title: "Certificación Azure Solutions Architect",
+      status: "Done",
+    },
+  ],
+};
+const plan = toPersonPlanView(planDto);
+
 describe("PersonDetailHeader", () => {
-  it("con célula: identidad completa, sin 'Sin célula', acción Reasignar", () => {
-    const onReassign = vi.fn();
-    wrap(
+  it("encabezado mínimo: nombre, cargo y stack principal; sin identidad ni asignación", () => {
+    inRouter(
       <PersonDetailHeader
         detail={assigned}
-        roleLabel="Colaborador"
         onEdit={vi.fn()}
-        onReassign={onReassign}
-        onDelete={vi.fn()}
-        onAssess={vi.fn()}
         onCareerPlan={vi.fn()}
       />
     );
     expect(
       screen.getByRole("heading", { name: "María González" })
     ).toBeInTheDocument();
-    expect(screen.getByText("Avanzado · SFIA 3")).toBeInTheDocument();
-    expect(screen.getByText("Interna")).toBeInTheDocument();
-    expect(screen.getByText("Híbrido")).toBeInTheDocument();
-    expect(screen.getByText("maria.gonzalez@tuya.com")).toBeInTheDocument();
-    expect(screen.getByText("DevOps vinculado")).toBeInTheDocument();
-    expect(screen.queryByText("Sin célula")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Reasignar" }));
-    expect(onReassign).toHaveBeenCalled();
-    expect(screen.getByRole("link", { name: /Personas/ })).toHaveAttribute(
-      "href",
-      "/app/lead/personas"
-    );
-  });
-
-  it("ofrece evaluar habilidades sin competir con la acción primaria de la ficha", () => {
-    const onAssess = vi.fn();
-    wrap(
-      <PersonDetailHeader
-        detail={assigned}
-        roleLabel="Colaborador"
-        onEdit={vi.fn()}
-        onReassign={vi.fn()}
-        onDelete={vi.fn()}
-        onAssess={onAssess}
-        onCareerPlan={vi.fn()}
-      />
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: /Evaluar habilidades/ })
-    );
-    expect(onAssess).toHaveBeenCalled();
-  });
-
-  it("ofrece el plan de carrera junto a evaluar, en ese orden", () => {
-    const onCareerPlan = vi.fn();
-    wrap(
-      <PersonDetailHeader
-        detail={assigned}
-        roleLabel="Colaborador"
-        onEdit={vi.fn()}
-        onReassign={vi.fn()}
-        onDelete={vi.fn()}
-        onAssess={vi.fn()}
-        onCareerPlan={onCareerPlan}
-      />
-    );
-    fireEvent.click(screen.getByRole("button", { name: /Competencias/ }));
-    expect(onCareerPlan).toHaveBeenCalled();
-  });
-
-  it("sin célula: externa con proveedor, 'Sin célula', sin identidad, acción Asignar", () => {
-    wrap(
-      <PersonDetailHeader
-        detail={unassigned}
-        roleLabel="Colaborador"
-        onEdit={vi.fn()}
-        onReassign={vi.fn()}
-        onDelete={vi.fn()}
-        onAssess={vi.fn()}
-        onCareerPlan={vi.fn()}
-      />
-    );
-    expect(screen.getByText("Externa · Globant")).toBeInTheDocument();
-    expect(screen.getByText("Sin célula")).toBeInTheDocument();
-    expect(screen.getByText("Sin identidad DevOps")).toBeInTheDocument();
-    // El cargo y el rol dicen cosas distintas: "Product Owner" es a qué se
-    // dedica; "Colaborador", cómo participa en la aplicación.
-    expect(screen.getByText("Product Owner · Colaborador")).toBeInTheDocument();
+    expect(screen.getByText("Backend Dev")).toBeInTheDocument();
+    expect(screen.getByText(".NET")).toBeInTheDocument();
+    // Nada de la identidad que ahora vive en el Perfil, ni de asignación.
     expect(
-      screen.getByRole("button", { name: "Asignar a una célula" })
-    ).toBeInTheDocument();
-  });
-});
-
-describe("PersonDetailStatsCards", () => {
-  it("las cards van separadas con la medida del detalle", () => {
-    const { container } = wrap(
-      <PersonDetailStatsCards
-        detail={assigned}
-        onValidateHours={vi.fn()}
-        onLinkIdentity={vi.fn()}
-        validating={false}
-      />
-    );
-    // gap-3 como los bloques y las columnas del detalle; antes gap-4.
-    const grid = container.querySelector(".grid")!;
-    expect(grid).toHaveClass("gap-3");
-    expect(grid).not.toHaveClass("gap-4");
-  });
-
-  it("con reporte por validar muestra Validar; real y delta", () => {
-    const onValidate = vi.fn();
-    wrap(
-      <PersonDetailStatsCards
-        detail={assigned}
-        onValidateHours={onValidate}
-        onLinkIdentity={vi.fn()}
-        validating={false}
-      />
-    );
-    expect(screen.getByText("0.90 FTE")).toBeInTheDocument();
-    expect(screen.getByText("+10 pts sobre lo asignado")).toBeInTheDocument();
-    expect(screen.getByText("Por validar")).toBeInTheDocument();
-    // 42 BAU + 32 Iniciativa + 6 libres del fixture
-    expect(screen.getByText("80")).toBeInTheDocument();
-    expect(screen.getByText("dentro de 76–84 h")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Validar" }));
-    expect(onValidate).toHaveBeenCalled();
-    expect(screen.getByText("11")).toBeInTheDocument();
+      screen.queryByText("maria.gonzalez@tuya.com")
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText(/Híbrido/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/DevOps/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Avanzado/)).not.toBeInTheDocument();
     expect(
-      screen.getByText("pendientes de curación", { exact: false })
-    ).toBeInTheDocument();
-  });
-
-  it("validado: sin botón Validar", () => {
-    wrap(
-      <PersonDetailStatsCards
-        detail={{
-          ...assigned,
-          currentReport: { ...assigned.currentReport!, status: "Validated" },
-        }}
-        onValidateHours={vi.fn()}
-        onLinkIdentity={vi.fn()}
-        validating={false}
-      />
-    );
-    expect(screen.getByText("Validado")).toBeInTheDocument();
+      screen.queryByRole("button", { name: /Reasignar|Asignar/ })
+    ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "Validar" })
+      screen.queryByRole("button", { name: /Eliminar|Más acciones/ })
     ).not.toBeInTheDocument();
   });
 
-  it("sin célula: 'No aplica', sin sprints, y DevOps sin vincular con acción", () => {
-    const onLink = vi.fn();
-    wrap(
-      <PersonDetailStatsCards
+  it("dos acciones: Competencias (sutil) y Editar (primaria)", () => {
+    const onEdit = vi.fn();
+    const onCareerPlan = vi.fn();
+    inRouter(
+      <PersonDetailHeader
         detail={unassigned}
-        onValidateHours={vi.fn()}
-        onLinkIdentity={onLink}
-        validating={false}
+        onEdit={onEdit}
+        onCareerPlan={onCareerPlan}
       />
     );
-    expect(screen.getByText("No aplica")).toBeInTheDocument();
-    expect(screen.getByText("Sin célula no reporta")).toBeInTheDocument();
-    expect(screen.getByText("Sin sprints reportados")).toBeInTheDocument();
-    expect(screen.getByText("Sus items no cuentan")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Vincular identidad" }));
-    expect(onLink).toHaveBeenCalled();
+    // Sin célula el encabezado es idéntico: la página no habla de asignación.
+    expect(screen.queryByText(/Sin célula/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Competencias/ }));
+    expect(onCareerPlan).toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: /Editar/ }));
+    expect(onEdit).toHaveBeenCalled();
   });
 });
 
-describe("PersonAssignmentPanel", () => {
-  it("célula, dedicación, señales y acciones con su modo", () => {
-    const onRaise = vi.fn();
-    const onMove = vi.fn();
-    const onRemove = vi.fn();
-    wrap(
-      <PersonAssignmentPanel
+describe("PersonPointerCards", () => {
+  it("con señal: badge de la señal y el conteo, con Ver hacia el dashboard; sin SP ni horas", () => {
+    inRouter(
+      <PersonPointerCards
         detail={assigned}
-        onRaise={onRaise}
-        onMove={onMove}
-        onRemove={onRemove}
+        plan={plan}
+        planHref={PLAN_HREF}
+        onLinkIdentity={vi.fn()}
       />
     );
+    expect(screen.getByText("Posible sobreasignación")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Backend Platform" })
-    ).toHaveAttribute("href", "/app/lead/celulas/s1");
-    expect(screen.getByText("Alta")).toBeInTheDocument();
-    expect(screen.getByText("80%")).toBeInTheDocument();
-    expect(
-      screen.getByText(/con Carlos y Andrés · desde el 12 mar 2024/)
+      screen.getByText("2 de 6 señales · S18 · en curso")
     ).toBeInTheDocument();
-    expect(screen.getByText("20% libre · 0.2 FTE")).toBeInTheDocument();
-    expect(screen.getByText("SFIA 3 acorde al requerido")).toBeInTheDocument();
-    expect(screen.getByText("Reporta más de lo asignado")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Subir dedicación" }));
-    fireEvent.click(
-      screen.getByRole("button", { name: "Mover a otra célula" })
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: "Quitar de la célula" })
-    );
-    expect(onRaise).toHaveBeenCalled();
-    expect(onMove).toHaveBeenCalled();
-    expect(onRemove).toHaveBeenCalled();
+    const links = screen.getAllByRole("link", { name: "Ver" });
+    expect(
+      links.some((l) => l.getAttribute("href") === "/app/lead/dedicacion/p1")
+    ).toBe(true);
+    // El resumen no trae cifras del sprint: eso vive en Capacidad.
+    expect(screen.queryByText(/SP/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/FTE/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\bh\b/)).not.toBeInTheDocument();
   });
 
-  it("SFIA insuficiente en advertencia", () => {
-    wrap(
-      <PersonAssignmentPanel
+  it("competencias: brechas abiertas con la fecha de evaluación y Ver hacia el plan", () => {
+    inRouter(
+      <PersonPointerCards
+        detail={assigned}
+        plan={plan}
+        planHref={PLAN_HREF}
+        onLinkIdentity={vi.fn()}
+      />
+    );
+    expect(screen.getByText("1 brecha abierta")).toBeInTheDocument();
+    expect(
+      screen.getByText(/evaluado el 12 de agosto de 2026/)
+    ).toBeInTheDocument();
+    const links = screen.getAllByRole("link", { name: "Ver" });
+    expect(links.some((l) => l.getAttribute("href") === PLAN_HREF)).toBe(true);
+  });
+
+  it("sin identidad: Sin vincular en peligro, sus items no cuentan y la acción de vincular", () => {
+    const onLink = vi.fn();
+    inRouter(
+      <PersonPointerCards
+        detail={unassigned}
+        plan={null}
+        planHref={PLAN_HREF}
+        onLinkIdentity={onLink}
+      />
+    );
+    expect(screen.getByText("Sin vincular")).toBeInTheDocument();
+    expect(screen.getByText("Sus items no cuentan")).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: /Vincular con Azure DevOps/ })
+    );
+    expect(onLink).toHaveBeenCalled();
+    // Sin plan, el puntero de competencias degrada a su estado vacío.
+    expect(screen.getByText("Sin evaluación")).toBeInTheDocument();
+  });
+
+  it("con identidad pero sin sprint dice Sin sprint en curso", () => {
+    inRouter(
+      <PersonPointerCards
         detail={{
           ...assigned,
-          allocation: {
-            ...assigned.allocation!,
-            requiredSfia: 4,
-            sfiaGap: "Insufficient",
-          },
+          sprintPointer: { kind: "noSprint", balance: null, meta: null },
         }}
-        onRaise={vi.fn()}
-        onMove={vi.fn()}
-        onRemove={vi.fn()}
+        plan={plan}
+        planHref={PLAN_HREF}
+        onLinkIdentity={vi.fn()}
       />
     );
-    expect(
-      screen.getByText("SFIA 3 por debajo del requerido")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Sin sprint en curso")).toBeInTheDocument();
   });
 });
 
-describe("PersonUnassignedPanel", () => {
-  it("estado vacío y 'Asignar acá' con el id de la célula", () => {
-    const onAssignTo = vi.fn();
-    wrap(<PersonUnassignedPanel detail={unassigned} onAssignTo={onAssignTo} />);
+describe("PersonSkillProfilePanel", () => {
+  it("cada habilidad con su nivel, lo que pide el cargo y el badge Brecha/Cumple", () => {
+    inRouter(<PersonSkillProfilePanel plan={plan} planHref={PLAN_HREF} />);
+    expect(screen.getByText("Diseño de soluciones")).toBeInTheDocument();
     expect(
-      screen.getByText("Camila no está en ninguna célula")
+      screen.getByText("Avanzado · su cargo pide Experto")
     ).toBeInTheDocument();
+    expect(screen.getByText("Brecha")).toBeInTheDocument();
+    expect(screen.getByText("Cumple")).toBeInTheDocument();
     expect(
-      screen.getByText("DÓNDE HACE FALTA PRODUCT OWNER")
-    ).toBeInTheDocument();
-    expect(screen.getByText("Sin equipo · pide SFIA 3")).toBeInTheDocument();
-    // Cada célula sugerida es una fila de panel: py-3, como la cabecera del
-    // panel y las filas del perfil; antes py-2.5.
-    const row = screen.getAllByRole("listitem")[0];
-    expect(row).toHaveClass("py-3");
-    expect(row).not.toHaveClass("py-2.5");
-    fireEvent.click(screen.getByRole("button", { name: "Asignar acá" }));
-    expect(onAssignTo).toHaveBeenCalledWith("pagos");
+      screen.getByRole("link", { name: "Ver evaluación" })
+    ).toHaveAttribute("href", PLAN_HREF);
+  });
+
+  it("trunca a cinco habilidades con 'Ver más', igual que Stacks", () => {
+    const bigPlan = toPersonPlanView({
+      ...planDto,
+      skills: Array.from({ length: 8 }, (_, i) => ({
+        ...planDto.skills[1],
+        skillId: `sk${i + 10}`,
+        skillName: `Habilidad ${i + 1}`,
+      })),
+    });
+    inRouter(<PersonSkillProfilePanel plan={bigPlan} planHref={PLAN_HREF} />);
+    expect(screen.getByText("Habilidad 5")).toBeInTheDocument();
+    expect(screen.queryByText("Habilidad 6")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Ver 3 más" }));
+    expect(screen.getByText("Habilidad 8")).toBeInTheDocument();
+  });
+
+  it("sin plan degrada al estado vacío sin romper", () => {
+    inRouter(<PersonSkillProfilePanel plan={null} planHref={PLAN_HREF} />);
+    expect(screen.getByText("Sin evaluación")).toBeInTheDocument();
   });
 });
 
-describe("HoursBySprintPanel", () => {
-  it("con datos: una barra por sprint, el no validado marcado, y la línea de lo asignado", () => {
-    render(<HoursBySprintPanel detail={assigned} />);
+describe("PersonPlanPanel", () => {
+  it("acciones con su brecha, objetivo, compromiso y estado; Agregar acción navega", () => {
+    inRouter(<PersonPlanPanel plan={plan} planHref={PLAN_HREF} />);
     expect(
-      screen.getByRole("img", { name: /S14 70 h, S15 72 h, S16 74 h/ })
+      screen.getByText("Liderar el diseño del dominio de pagos")
     ).toBeInTheDocument();
-    expect(screen.getByText(/74 h · por validar/)).toBeInTheDocument();
-    expect(screen.getByText("Asignado 80 %")).toBeInTheDocument();
+    expect(screen.getByText("En curso")).toBeInTheDocument();
+    expect(screen.getByText("Cumplida")).toBeInTheDocument();
     expect(
-      screen.getByText(/corresponden 64 h: los 2 últimos sprints/)
+      screen.getByRole("link", { name: "Agregar acción" })
+    ).toHaveAttribute("href", PLAN_HREF);
+    // La regla del módulo acompaña la lista.
+    expect(
+      screen.getByText(/Cerrar una brecha no es marcar la acción/)
     ).toBeInTheDocument();
   });
 
-  it("vacío sin sprints", () => {
-    render(<HoursBySprintPanel detail={unassigned} />);
+  it("sin acciones muestra el estado vacío que apunta a Competencias", () => {
+    inRouter(<PersonPlanPanel plan={null} planHref={PLAN_HREF} />);
     expect(
-      screen.getByText("Todavía no hay sprints reportados")
+      screen.getByText("Todavía no hay acciones acordadas")
     ).toBeInTheDocument();
   });
 });
 
 describe("PersonStacksPanel", () => {
-  it("marca principal y bus factor 1 sólo donde corresponde; Editar abre el drawer", () => {
+  it("cada stack con su medidor y sin el nombre del nivel en texto; Editar abre el drawer", () => {
     const onEdit = vi.fn();
-    render(<PersonStacksPanel detail={assigned} onEdit={onEdit} />);
-    const items = screen.getAllByRole("listitem");
-    // Cada stack es una fila de panel: py-3, como la cabecera del panel y
-    // las filas del perfil; antes py-2.5.
-    expect(items[0]).toHaveClass("py-3");
-    expect(items[0]).not.toHaveClass("py-2.5");
-    expect(within(items[0]).getByText("Principal")).toBeInTheDocument();
+    inRouter(<PersonStacksPanel detail={assigned} onEdit={onEdit} />);
+    expect(screen.getByText(".NET")).toBeInTheDocument();
+    expect(screen.getByText("AS400")).toBeInTheDocument();
+    // El nivel va en el label accesible del medidor, no como texto visible.
+    expect(screen.queryByText("Avanzado")).not.toBeInTheDocument();
     expect(
-      within(items[0]).queryByText("Bus factor 1")
-    ).not.toBeInTheDocument();
-    expect(
-      within(items[0]).getByText("6 personas más lo cubren")
+      screen.getByRole("meter", { name: ".NET: Avanzado" })
     ).toBeInTheDocument();
-    expect(within(items[0]).getByText("Avanzado")).toBeInTheDocument();
-    expect(within(items[1]).getByText("Bus factor 1")).toBeInTheDocument();
-    expect(
-      within(items[1]).getByText("Nadie más en el chapter lo cubre")
-    ).toBeInTheDocument();
+    // Sin bus factor ni cobertura: eso se lee en el mapa del span.
+    expect(screen.queryByText(/Bus factor/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("link", { name: "Editar" }));
     expect(onEdit).toHaveBeenCalled();
   });
 
+  it("muestra las primeras cinco y 'Ver más' revela el resto", () => {
+    const many = {
+      ...assigned,
+      stacks: Array.from({ length: 7 }, (_, i) => ({
+        name: `Stack ${i + 1}`,
+        level: 2,
+        isPrimary: i === 0,
+        otherCoverers: 1,
+        coverers: [],
+        busFactorOne: false,
+        levelLabel: "Competente",
+      })),
+    };
+    inRouter(<PersonStacksPanel detail={many} onEdit={vi.fn()} />);
+    expect(screen.getByText("Stack 5")).toBeInTheDocument();
+    expect(screen.queryByText("Stack 6")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Ver 2 más" }));
+    expect(screen.getByText("Stack 7")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Ver menos" })
+    ).toBeInTheDocument();
+  });
+
   it("sin stacks muestra el estado vacío con la acción de agregar", () => {
     const onEdit = vi.fn();
-    render(
+    inRouter(
       <PersonStacksPanel detail={{ ...assigned, stacks: [] }} onEdit={onEdit} />
     );
     expect(screen.getByText("Sin stacks registrados")).toBeInTheDocument();
@@ -318,117 +315,53 @@ describe("PersonStacksPanel", () => {
 });
 
 describe("PersonProfilePanel", () => {
-  it("interna: sin proveedor; nada del encabezado repetido", () => {
-    render(<PersonProfilePanel detail={assigned} onEdit={vi.fn()} />);
+  it("interna: las nueve filas de la ficha, con el nivel en la escala de cuatro y sin número SFIA", () => {
+    const { container } = inRouter(
+      <PersonProfilePanel detail={assigned} onEdit={vi.fn()} />
+    );
+    const dl = container.querySelector("dl")!;
+    for (const label of [
+      "Nivel",
+      "Modalidad",
+      "Vinculación",
+      "Correo",
+      "Identidad DevOps",
+      "Líder de expertise",
+      "Línea de expertise",
+      "Ingreso",
+      "Costo mensual",
+    ]) {
+      expect(within(dl).getByText(label)).toBeInTheDocument();
+    }
+    expect(screen.getByText("Avanzado")).toBeInTheDocument();
+    expect(screen.queryByText(/SFIA/)).not.toBeInTheDocument();
+    expect(screen.getByText("Híbrido")).toBeInTheDocument();
+    expect(screen.getByText("Interna")).toBeInTheDocument();
+    expect(screen.getByText("maria.gonzalez@tuya.com")).toBeInTheDocument();
+    expect(screen.getByText("Vinculada")).toBeInTheDocument();
+    // Chapter lleva a la persona (su Líder de Expertise), no a la unidad; la
+    // línea dice a cuál pertenece, a secas.
+    expect(screen.getByText("Tomás Giraldo")).toBeInTheDocument();
+    expect(screen.queryByText("Core y Datos")).not.toBeInTheDocument();
     expect(screen.getByText("Backend")).toBeInTheDocument();
+    expect(screen.queryByText(/Lead:/)).not.toBeInTheDocument();
     expect(screen.getByText("15 may 2023")).toBeInTheDocument();
-    expect(screen.getByText("en rango para Avanzado")).toBeInTheDocument();
-    expect(screen.getByText("mgonzalez@tuya")).toBeInTheDocument();
-    expect(screen.queryByText("Proveedor")).not.toBeInTheDocument();
-    expect(
-      screen.queryByText("maria.gonzalez@tuya.com")
-    ).not.toBeInTheDocument();
-    expect(screen.queryByText("Híbrido")).not.toBeInTheDocument();
-    expect(screen.queryByText("Avanzado")).not.toBeInTheDocument();
+    // La cifra sola, sin lectura de concordancia.
+    expect(screen.getByText(/7\.900\.000/)).toBeInTheDocument();
+    expect(screen.queryByText(/en rango/)).not.toBeInTheDocument();
   });
 
-  it("externa: proveedor con vigencia, costo alto, identidad sin vincular", () => {
-    render(<PersonProfilePanel detail={unassigned} onEdit={vi.fn()} />);
-    expect(screen.getByText("Proveedor")).toBeInTheDocument();
-    expect(screen.getByText("Globant")).toBeInTheDocument();
-    expect(screen.getByText(/contrato hasta 31 dic 2026/)).toBeInTheDocument();
-    expect(screen.getByText("alto para Experto")).toBeInTheDocument();
+  it("externa sin identidad: proveedor en la vinculación y DevOps sin vincular en peligro", () => {
+    inRouter(<PersonProfilePanel detail={unassigned} onEdit={vi.fn()} />);
+    expect(screen.getByText("Externa · Globant")).toBeInTheDocument();
     expect(screen.getByText("Sin vincular")).toBeInTheDocument();
+    expect(screen.getByText("Remoto")).toBeInTheDocument();
   });
 
-  it("con línea y lead: nombra a los dos", () => {
-    wrap(
-      <PersonProfilePanel
-        detail={{ ...assigned, expertiseLineLeadName: "Esteban Licona" }}
-        onEdit={vi.fn()}
-      />
-    );
-    expect(screen.getByText("Línea de expertise")).toBeInTheDocument();
-    expect(screen.getByText("Backend")).toBeInTheDocument();
-    expect(screen.getByText("· Lead: Esteban Licona")).toBeInTheDocument();
-  });
-
-  it("el chapter nombra a quien tiene a cargo a la persona, aparte de la línea", () => {
-    wrap(<PersonProfilePanel detail={assigned} onEdit={vi.fn()} />);
-    // Las dos filas conviven y nombran a responsables distintos: el del
-    // chapter es el que la ve en su listado; el de la línea, no.
-    expect(screen.getByText("Chapter")).toBeInTheDocument();
-    expect(screen.getByText("Core y Datos")).toBeInTheDocument();
-    expect(screen.getByText("· Lead: Tomás Giraldo")).toBeInTheDocument();
-    expect(screen.getByText("Línea de expertise")).toBeInTheDocument();
-    expect(screen.getByText("· Lead: Esteban Licona")).toBeInTheDocument();
-  });
-
-  it("la persona lidera su chapter: no se anuncia como si el lead fuera otro", () => {
-    wrap(
-      <PersonProfilePanel
-        detail={{ ...assigned, chapterLeadName: assigned.person.name }}
-        onEdit={vi.fn()}
-      />
-    );
-    expect(screen.getByText("· Lidera este chapter")).toBeInTheDocument();
-  });
-
-  it("sin chapter: lo dice en vez de dejar la fila muda", () => {
-    wrap(
-      <PersonProfilePanel
-        detail={{ ...assigned, chapterName: null, chapterLeadName: null }}
-        onEdit={vi.fn()}
-      />
-    );
-    expect(screen.getByText("Sin chapter asignado")).toBeInTheDocument();
-  });
-
-  it("sin línea: lo dice y enlaza a la pantalla de Líneas", () => {
-    wrap(
-      <PersonProfilePanel
-        detail={{
-          ...assigned,
-          expertiseLineName: null,
-          expertiseLineLeadName: null,
-        }}
-        onEdit={vi.fn()}
-      />
-    );
-    expect(screen.getByText("Sin línea asignada")).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Asignar una línea" })
-    ).toHaveAttribute("href", "/app/admin/lineas");
-    // Sin línea no hay lead de línea que nombrar. Se nombra al de la línea y
-    // no a cualquiera que diga "Lead:", porque la fila del chapter sigue
-    // nombrando —con razón— a quien tiene a cargo a la persona.
-    expect(
-      screen.queryByText("· Lead: Esteban Licona")
-    ).not.toBeInTheDocument();
-    expect(screen.getByText("· Lead: Tomás Giraldo")).toBeInTheDocument();
-  });
-
-  it("línea sin lead: muestra la línea y dice que falta", () => {
-    wrap(
-      <PersonProfilePanel
-        detail={{ ...assigned, expertiseLineLeadName: null }}
-        onEdit={vi.fn()}
-      />
-    );
-    expect(screen.getByText("Backend")).toBeInTheDocument();
-    expect(screen.getByText("· Sin lead")).toBeInTheDocument();
-  });
-
-  it("la persona lidera su propia línea: no se anuncia como si el lead fuera otro", () => {
-    wrap(
-      <PersonProfilePanel
-        detail={{ ...assigned, expertiseLineLeadName: assigned.person.name }}
-        onEdit={vi.fn()}
-      />
-    );
-    expect(screen.getByText("· Lidera esta línea")).toBeInTheDocument();
-    expect(
-      screen.queryByText(`· Lead: ${assigned.person.name}`)
-    ).not.toBeInTheDocument();
+  it("nada de asignación en la ficha", () => {
+    inRouter(<PersonProfilePanel detail={assigned} onEdit={vi.fn()} />);
+    expect(screen.queryByText(/Backend Platform/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/dedicación/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/BAU/)).not.toBeInTheDocument();
   });
 });

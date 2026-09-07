@@ -9,5 +9,15 @@ export {
   type SessionUser,
 } from "./types";
 export { deriveAuthSession } from "./deriveAuthSession";
-export { filterNavByRole } from "./filterNavByRole";
+export {
+  CAPACITY_PERMISSIONS,
+  mapCapacityRoles,
+  type CapacityPermission,
+} from "./capacityPermissions";
+export {
+  filterNav,
+  filterNavByRole,
+  type NavPredicates,
+  type RoleRestrictedEntry,
+} from "./filterNavByRole";
 export { HostAuthProvider, type HostSessionSource } from "./HostAuthProvider";

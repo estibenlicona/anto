@@ -70,6 +70,8 @@ const EXCEPCIONES = new Map<string, string>([
   ["sí", "afirmación"],
   ["después", "adverbio de tiempo"],
   ["comité", "sustantivo"],
+  // Abreviaturas de los días de la semana en el calendario de actividad.
+  ["mié", "abreviatura de miércoles"],
   // El futuro de tercera persona termina en `á` como el imperativo del voseo
   // —`contará` y `registrá` se escriben igual de terminadas—, y no hay forma
   // de separarlos sin un diccionario: `contar`+`á` y `registr`+`á`. Van uno

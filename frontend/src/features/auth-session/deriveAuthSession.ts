@@ -1,3 +1,4 @@
+import type { CapacityPermission } from "./capacityPermissions";
 import { type AppRole, type AuthSession, type Session } from "./types";
 
 /**
@@ -22,6 +23,12 @@ export function deriveAuthSession(
     hasRole: (...roles: AppRole[]) =>
       session.status === "authenticated" &&
       roles.some((role) => session.roles.includes(role)),
+    // Mismo criterio que los roles: cualquiera de los permisos pedidos alcanza.
+    hasPermission: (...permissions: CapacityPermission[]) =>
+      session.status === "authenticated" &&
+      permissions.some((permission) =>
+        session.permissions.includes(permission)
+      ),
     hasScope: (scope: string) =>
       session.status === "authenticated" && session.scopes.includes(scope),
   };

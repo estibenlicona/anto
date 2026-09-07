@@ -3,53 +3,48 @@ import { personDetailService } from "../services/personDetailService";
 
 type MutationResult = { success: boolean; error?: string };
 
-function extractErrorMessage(err: unknown, fallback: string): string {
-  const status = (err as { response?: { status?: number } })?.response?.status;
-  if (status === 409) return "El reporte ya no está pendiente de validar";
-  if (status === 404) return "La identidad ya no está disponible";
-  return err instanceof Error ? err.message : fallback;
+type HttpError = {
+  response?: { status?: number; data?: { message?: string } };
+};
+
+/**
+ * El 409 trae el mensaje del servidor porque dice *quién* tiene esa identidad:
+ * "ya está vinculada" a secas no le dice al lead a quién mirar.
+ */
+function linkErrorMessage(err: unknown): string {
+  const response = (err as HttpError)?.response;
+  if (response?.status === 409) {
+    return (
+      response.data?.message ?? "Esa identidad ya está vinculada a otra persona"
+    );
+  }
+  if (response?.status === 404) {
+    return "Ese usuario ya no existe en Azure DevOps";
+  }
+  return err instanceof Error
+    ? err.message
+    : "No se pudo vincular la identidad";
 }
 
-/** Mutaciones propias del detalle: validar horas y vincular identidad DevOps. */
+/** Mutaciones propias del detalle: vincular la identidad DevOps. */
 export const usePersonDetailMutations = () => {
-  const [validating, setValidating] = useState(false);
   const [linking, setLinking] = useState(false);
 
-  const validateHours = async (
-    personId: string,
-    sprint: string
-  ): Promise<MutationResult> => {
-    try {
-      setValidating(true);
-      await personDetailService.validateHours(personId, sprint);
-      return { success: true };
-    } catch (err) {
-      return {
-        success: false,
-        error: extractErrorMessage(err, "No se pudo validar el reporte"),
-      };
-    } finally {
-      setValidating(false);
-    }
-  };
-
+  /** `devOpsUserId`: el identificador del usuario de Azure DevOps encontrado por correo. */
   const linkIdentity = async (
     personId: string,
-    identityId: string
+    devOpsUserId: string
   ): Promise<MutationResult> => {
     try {
       setLinking(true);
-      await personDetailService.linkDevOpsIdentity(personId, identityId);
+      await personDetailService.linkDevOpsIdentity(personId, devOpsUserId);
       return { success: true };
     } catch (err) {
-      return {
-        success: false,
-        error: extractErrorMessage(err, "No se pudo vincular la identidad"),
-      };
+      return { success: false, error: linkErrorMessage(err) };
     } finally {
       setLinking(false);
     }
   };
 
-  return { validateHours, linkIdentity, validating, linking };
+  return { linkIdentity, linking };
 };

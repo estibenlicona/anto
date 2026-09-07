@@ -1,5 +1,5 @@
 import type { IconName } from "@tuya-ui/components";
-import type { AppRole } from "@features/auth-session";
+import type { AppRole, CapacityPermission } from "@features/auth-session";
 
 export interface LeadNavEntry {
   id: string;
@@ -13,6 +13,8 @@ export interface LeadNavEntry {
    * entrada futura con otro rol se ofrezca y después el guard la rechace.
    */
   roles?: AppRole[];
+  /** Permiso de sección del módulo que la entrada exige. "Inicio" no lleva. */
+  permission?: CapacityPermission;
 }
 
 export interface LeadNavGroupConfig {
@@ -22,6 +24,21 @@ export interface LeadNavGroupConfig {
 }
 
 export const LEAD_HOME_ID = "lead-home";
+
+/**
+ * El permiso de sección que cada pantalla del Líder de Expertise exige. Menú
+ * y rutas leen de acá: si divergieran, el menú ofrecería pantallas que el
+ * guard niega.
+ */
+export const LEAD_SECTION_PERMISSION = {
+  "lead-iniciativas": "Iniciativas",
+  "lead-celulas": "Celulas",
+  "lead-personas": "Personas",
+  "lead-ausencias": "Ausencias",
+  "lead-dedicacion": "Dedicacion",
+  "lead-facturacion": "Prefacturacion",
+  "lead-competencias": "Competencias",
+} as const satisfies Record<string, CapacityPermission>;
 
 /**
  * Subconjunto de `NAV.lead` de context/mvps/plataforma_dimensionamiento_v7_unificado.html
@@ -48,6 +65,7 @@ export const leadNavGroups: LeadNavGroupConfig[] = [
     items: [
       {
         id: "lead-iniciativas",
+        permission: LEAD_SECTION_PERMISSION["lead-iniciativas"],
         label: "Iniciativas",
         href: "/app/lead/iniciativas",
         icon: "initiative",
@@ -59,36 +77,45 @@ export const leadNavGroups: LeadNavGroupConfig[] = [
     items: [
       {
         id: "lead-celulas",
+        permission: LEAD_SECTION_PERMISSION["lead-celulas"],
         label: "Células",
         href: "/app/lead/celulas",
         icon: "cell",
       },
       {
         id: "lead-personas",
+        permission: LEAD_SECTION_PERMISSION["lead-personas"],
         label: "Personas",
         href: "/app/lead/personas",
         icon: "user",
       },
       {
         id: "lead-ausencias",
+        permission: LEAD_SECTION_PERMISSION["lead-ausencias"],
         label: "Ausencias",
         href: "/app/lead/ausencias",
         icon: "calendar",
       },
       {
-        id: "lead-backlog",
-        label: "Backlog",
-        href: "/app/lead/backlog",
+        // "Capacidad": el módulo se llama por lo que mide. Conserva su id y su
+        // ruta (/dedicacion) para no mover enlaces ya compartidos. Ocupa el
+        // lugar de la antigua entrada Backlog.
+        id: "lead-dedicacion",
+        permission: LEAD_SECTION_PERMISSION["lead-dedicacion"],
+        label: "Capacidad",
+        href: "/app/lead/dedicacion",
         icon: "backlog",
       },
       {
         id: "lead-facturacion",
+        permission: LEAD_SECTION_PERMISSION["lead-facturacion"],
         label: "Prefacturación",
         href: "/app/lead/facturacion",
         icon: "document",
       },
       {
         id: "lead-competencias",
+        permission: LEAD_SECTION_PERMISSION["lead-competencias"],
         label: "Competencias",
         href: "/app/lead/competencias",
         icon: "expertise",
@@ -110,7 +137,7 @@ export const leadRouteTitles: Record<string, string> = {
   "lead-celulas": "Gestionar Células",
   "lead-personas": "Gestionar Personas",
   "lead-ausencias": "Gestionar Ausencias",
-  "lead-backlog": "Gestionar Backlog",
+  "lead-dedicacion": "Capacidad",
   "lead-iniciativas": "Gestionar Iniciativas",
   "lead-facturacion": "Prefacturación",
   // La entrada del menú y el nombre de la pantalla coinciden acá:

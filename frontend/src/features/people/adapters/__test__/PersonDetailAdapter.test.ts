@@ -4,10 +4,7 @@ import {
   personDetailAdapter,
   tenureLabel,
 } from "../PersonDetailAdapter";
-import type {
-  PersonDetailDto,
-  SprintHoursDto,
-} from "../../services/personDetailService";
+import type { PersonDetailDto } from "../../services/personDetailService";
 import type { PersonDto } from "../../services/personService";
 
 const TODAY = new Date("2026-08-22T12:00:00");
@@ -23,8 +20,11 @@ const person: PersonDto = {
   technicalLeadId: null,
   technicalLeadName: null,
   technicalLeadOfCount: 0,
-  seniority: 3,
-  seniorityLabel: "Avanzado",
+  level: 3,
+  levelLabel: "Avanzado",
+
+  seniority: "Intermediate",
+  seniorityLabel: "Intermedio",
   modality: "Hybrid",
   availableFte: 1,
   utilization: 80,
@@ -36,20 +36,6 @@ const person: PersonDto = {
   createdAtUtc: "",
   updatedAtUtc: null,
 };
-
-const sprint = (
-  s: string,
-  bau: number,
-  ini: number,
-  status: SprintHoursDto["status"] = "Validated"
-): SprintHoursDto => ({
-  sprint: s,
-  sprintHours: 80,
-  bauHours: bau,
-  initiativeHours: ini,
-  freeHours: 80 - bau - ini,
-  status,
-});
 
 const base: PersonDetailDto = {
   person,
@@ -71,24 +57,9 @@ const base: PersonDetailDto = {
     bauPercentage: 50,
     transformationPercentage: 30,
     since: "2024-03-12",
-    requiredSfia: 3,
+    requiredLevel: 3,
   },
-  realFte: 0.9,
-  currentReport: {
-    ...sprint("S16", 42, 32, "Submitted"),
-    toleranceMin: 76,
-    toleranceMax: 84,
-    submittedAt: "2026-08-08",
-    closesAt: "2026-08-22",
-  },
-  sprints: [
-    sprint("S13", 30, 30),
-    sprint("S14", 40, 30),
-    sprint("S15", 40, 32),
-    sprint("S16", 42, 32, "Submitted"),
-  ],
   devOpsIdentity: null,
-  devOpsCandidates: [],
   stacks: [
     {
       name: ".NET",
@@ -110,39 +81,39 @@ const base: PersonDetailDto = {
 };
 
 describe("personDetailAdapter.toEntity", () => {
-  it("deriva SFIA, modalidad, antigüedad, FTE asignado / real / delta y tolerancia", () => {
+  it("deriva SFIA, modalidad, antigüedad, FTE asignado y lectura del costo", () => {
     const d = personDetailAdapter.toEntity(base, TODAY);
-    expect(d.sfiaLevel).toBe(3);
+    expect(d.level).toBe(3);
     expect(d.modalityLabel).toBe("Híbrido");
     expect(d.isExternal).toBe(false);
     expect(d.startDateLabel).toBe("15 may 2023");
     expect(d.tenureLabel).toBe("3 años y 3 meses");
     expect(d.assignedFte).toBe(0.8);
-    expect(d.deltaPoints).toBe(10);
-    expect(d.hoursWithinTolerance).toBe(true);
     expect(d.costReadingLabel).toBe("en rango para Avanzado");
+    // Sin registro de horas no hay nada "real" que derivar.
+    expect(d).not.toHaveProperty("realFte");
+    expect(d).not.toHaveProperty("deltaPoints");
+    expect(d).not.toHaveProperty("sprints");
+    expect(d).not.toHaveProperty("overReportingStreak");
   });
 
-  it("asignación: criticidad en español, libre, SFIA acorde; racha de exceso sólo sobre validados", () => {
+  it("asignación: criticidad en español, libre y SFIA acorde", () => {
     const d = personDetailAdapter.toEntity(base, TODAY);
     expect(d.allocation).toMatchObject({
       criticalityLabel: "Alta",
       freePercentage: 20,
       freeFte: 0.2,
       sinceLabel: "12 mar 2024",
-      sfiaGap: "Adequate",
+      levelGap: "Adequate",
     });
-    expect(d.expectedHours).toBe(64);
-    // S15 (72) y S14 (70) superan 64; S13 (60) corta; S16 no está validado.
-    expect(d.overReportingStreak).toBe(2);
   });
 
   it("SFIA insuficiente cuando la célula pide más", () => {
     const d = personDetailAdapter.toEntity(
-      { ...base, allocation: { ...base.allocation!, requiredSfia: 4 } },
+      { ...base, allocation: { ...base.allocation!, requiredLevel: 4 } },
       TODAY
     );
-    expect(d.allocation?.sfiaGap).toBe("Insufficient");
+    expect(d.allocation?.levelGap).toBe("Insufficient");
   });
 
   it("bus factor 1 cuando nadie más cubre el stack", () => {
@@ -154,7 +125,7 @@ describe("personDetailAdapter.toEntity", () => {
     ]);
   });
 
-  it("sin célula ni sprints: sin real, sin delta, sin tolerancia, externa con proveedor", () => {
+  it("sin célula: sin asignado, externa con proveedor", () => {
     const d = personDetailAdapter.toEntity(
       {
         ...base,
@@ -162,28 +133,97 @@ describe("personDetailAdapter.toEntity", () => {
           ...person,
           providerId: "c1",
           startDate: "2026-08-04",
-          seniority: 4,
-          seniorityLabel: "Experto",
+          level: 4,
+          levelLabel: "Experto",
+
+          seniority: "Senior",
+          seniorityLabel: "Senior",
         },
         providerName: "Globant",
         allocation: null,
-        realFte: null,
-        currentReport: null,
-        sprints: [],
         costReading: "High",
       },
       TODAY
     );
     expect(d.allocation).toBeNull();
     expect(d.assignedFte).toBe(0);
-    expect(d.realFte).toBeNull();
-    expect(d.deltaPoints).toBeNull();
-    expect(d.hoursWithinTolerance).toBeNull();
-    expect(d.overReportingStreak).toBe(0);
     expect(d.isExternal).toBe(true);
     expect(d.providerName).toBe("Globant");
     expect(d.tenureLabel).toBe("hace 18 días");
     expect(d.costReadingLabel).toBe("alto para Experto");
+  });
+
+  it("stack principal para el encabezado; sin identidad el puntero es unlinked", () => {
+    const d = personDetailAdapter.toEntity(base, TODAY);
+    expect(d.primaryStackName).toBe(".NET");
+    expect(d.sprintPointer).toEqual({
+      kind: "unlinked",
+      balance: null,
+      meta: null,
+    });
+    expect(
+      personDetailAdapter.toEntity({ ...base, stacks: [] }, TODAY)
+        .primaryStackName
+    ).toBeNull();
+  });
+
+  it("con sprint el puntero resume la señal con su conteo, sin SP", () => {
+    const d = personDetailAdapter.toEntity(
+      {
+        ...base,
+        devOpsIdentity: {
+          id: "i1",
+          userName: "m@tuya",
+          linkedAt: "2026-07-25",
+          currentSprint: {
+            sprint: {
+              name: "S18",
+              startDate: "2026-08-17",
+              endDate: "2026-08-30",
+              snapshotStatus: "Provisional",
+              sealedAt: null,
+            },
+            committedPoints: 28,
+            ownMedianPoints: 22,
+            ownDeviationRate: 27.3,
+            capacity: {
+              contractualFte: 1,
+              availableFte: 0.8,
+              breakdown: {
+                businessDays: 10,
+                holidays: 1,
+                vacationDays: 0,
+                absenceDays: 1,
+                otherUnavailableDays: 0,
+              },
+              availableHours: 64,
+              deductedHours: 16,
+            },
+            signal: "PossibleOverload",
+            notEvaluableReason: null,
+            evidenceCount: 2,
+          },
+        },
+      },
+      TODAY
+    );
+    expect(d.sprintPointer.kind).toBe("sprint");
+    expect(d.sprintPointer.balance?.signal).toBe("PossibleOverload");
+    expect(d.sprintPointer.meta).toBe("2 de 6 señales · S18 · en curso");
+    // Con identidad pero sin sprint, el puntero lo dice sin inventar señal.
+    const noSprint = personDetailAdapter.toEntity(
+      {
+        ...base,
+        devOpsIdentity: {
+          id: "i1",
+          userName: "m@tuya",
+          linkedAt: "2026-07-25",
+          currentSprint: null,
+        },
+      },
+      TODAY
+    );
+    expect(noSprint.sprintPointer.kind).toBe("noSprint");
   });
 
   it("toOverviewPerson produce lo que el drawer de la Torre espera", () => {

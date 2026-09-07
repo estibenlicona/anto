@@ -122,7 +122,7 @@ export const InitiativesList: React.FC<InitiativesListProps> = ({
             placeholder="Buscar iniciativa"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="max-w-xs"
+            className="w-96"
           />
           <FilterButton
             label="Estado"

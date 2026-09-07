@@ -3,6 +3,18 @@
 /* Importar Tailwind CSS v4 */
 @import "tailwindcss";
 
+/* La tipografía del sistema, servida por la app: IBM Plex Sans en los cuatro
+   pesos de la escala (regular, medium, semibold y el bold de `metric`) y IBM
+   Plex Mono para lo literal. Antes se cargaba Inter desde Google Fonts, que es
+   justo la familia que DESIGN.md descarta, y ninguna pantalla se veía como el
+   catálogo. Los woff2 viajan con el bundle: nada sale a un tercero. */
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-sans/700.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
 /* Tuya UI (tuip) — tokens + utilidades pre-generadas del design system */
 @import "@tuya-ui/components/styles.css";
 
@@ -39,7 +51,9 @@
 }
 
 body {
-  font-family: var(--font-family-base);
+  /* La familia la fija tuip (`--font-sans`, IBM Plex Sans): una sola fuente
+     para el shell y para los componentes, sin que la app la redeclare. */
+  font-family: var(--font-sans);
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
   color: var(--color-text-primary);

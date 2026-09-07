@@ -3,7 +3,7 @@
 Capa de mocking de red compartida por dos modos:
 
 - **Node (`server.ts`)** — para los tests de Vitest. Arranca automáticamente para toda la suite desde `vitest-setup.ts`.
-- **Navegador (`browser.ts`)** — para probar la app manualmente en `pnpm dev` sin backend real. Se activa a demanda (ver abajo), nunca en producción.
+- **Navegador (`browser.ts`)** — para probar el módulo bajo el host con `pnpm dev` sin backend real. Se activa por variable de build (ver abajo), nunca en producción.
 
 Ambos modos usan los mismos handlers de `src/mocks/handlers/` — path relativo (no origen hardcodeado), para que matcheen sin importar el modo.
 
@@ -33,13 +33,14 @@ server.use(
 
 `server.resetHandlers()` corre en `afterEach` (ver `vitest-setup.ts`), así que el override solo aplica a ese test — el resto de la suite sigue usando el handler por defecto.
 
-## Modo navegador (probar la app sin backend)
+## Modo navegador (el módulo bajo el host, sin backend)
 
 ```
-pnpm dev:mock
+pnpm dev
 ```
 
-Arranca Vite con `VITE_USE_MOCKS=true`. `main.tsx` detecta esa variable, registra el Service Worker (`setupWorker` de `browser.ts`) y solo entonces renderiza la app — desde ahí, cualquier request que haga `httpClient` queda interceptada por los mismos handlers que usan los tests.
+Arranca el dev server del remote con `VITE_USE_MOCKS=true`. `src/module/CapacityModule.tsx` detecta esa variable al montarse dentro del host y registra el Service Worker (`setupWorker` de `browser.ts`) — desde ahí, cualquier request que haga `httpClient` queda interceptada por los mismos handlers que usan los tests.
 
-- `pnpm dev` (sin `:mock`) se comporta exactamente igual que siempre: llama al backend real. `VITE_USE_MOCKS` nunca debe agregarse a un `.env.*` versionado — es algo que cada quien activa localmente.
-- En un build de producción, el código de `browser.ts` se elimina por tree-shaking (el `import()` que lo trae es dinámico y condicional) y el archivo `mockServiceWorker.js` se borra explícitamente del output (`vite.config.ts`) — no queda ningún rastro del modo mock en producción.
+- El worker se registra **contra el origen del host** (`${window.location.origin}/mockServiceWorker.js`): los service workers son por origen, y el módulo corre en la página del host (`http://localhost:4400`). Por eso el host sirve una copia de `public/mockServiceWorker.js` en su propio `public/` (ver `../../../host/README.md`). Si se regenera el worker (`npx msw init public`), hay que copiarlo también al host.
+- `VITE_USE_MOCKS` nunca debe agregarse a un `.env.*` versionado: lo fija el script `dev` y, para un build de verificación, se pasa a mano (`VITE_USE_MOCKS=true vite build --mode development`).
+- En un build de producción la condición se resuelve en compilación: la rama muere, ningún chunk de `src/mocks` entra al remote y `mockServiceWorker.js` se borra explícitamente del output (`vite.config.ts`) — no queda ningún rastro del modo mock en producción.

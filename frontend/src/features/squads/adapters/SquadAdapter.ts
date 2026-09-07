@@ -80,9 +80,7 @@ export const squadAdapter = {
     // así que si el backend manda una, la fila se lee como "sin iniciativa"
     // antes que mostrar una etiqueta vacía: el listado no es el lugar para
     // denunciar esa inconsistencia.
-    activeInitiative: dto.activeInitiative?.talla
-      ? dto.activeInitiative
-      : null,
+    activeInitiative: dto.activeInitiative?.talla ? dto.activeInitiative : null,
     createdAtUtc: dto.createdAtUtc,
     updatedAtUtc: dto.updatedAtUtc,
   }),
