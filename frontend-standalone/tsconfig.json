@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "types": ["@types/node", "react/jsx-runtime", "vite/client"],
+    "paths": {
+      "@front/*": ["../frontend/src/*"],
+      "@shared/*": ["../frontend/src/shared/*"],
+      "@app/*": ["../frontend/src/app/*"],
+      "@layouts/*": ["../frontend/src/layouts/*"],
+      "@pages/*": ["../frontend/src/pages/*"],
+      "@features/*": ["../frontend/src/features/*"]
+    },
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src"]
+}

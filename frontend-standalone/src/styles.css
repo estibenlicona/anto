@@ -1,0 +1,9 @@
+/*
+ * La hoja del módulo, tal cual (Tailwind v4, fuentes, tuip, tokens y base).
+ * Tailwind detecta las fuentes de clases desde la raíz de ESTE proyecto, así
+ * que hay que decirle explícitamente que escanee también el código
+ * compartido; sin el @source ninguna utilidad de las pantallas existiría.
+ * Va después del import: antes, Tailwind todavía no está cargado y lo ignora.
+ */
+@import "../../frontend/src/styles/styles.css";
+@source "../../frontend/src";
