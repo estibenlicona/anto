@@ -15,12 +15,22 @@ export const tabsContent: ComponentContent = {
       {
         do: "Mantener el número de pestañas en una sola fila, sin que se envuelvan a una segunda línea.",
         dont: "Dejar que las pestañas se acomoden en dos filas cuando no caben.",
-        why: "Dos filas rompen la lectura de \"todas las opciones visibles a la vez\" que hace útil a Tabs frente a un menú desplegable.",
+        why: 'Dos filas rompen la lectura de "todas las opciones visibles a la vez" que hace útil a Tabs frente a un menú desplegable.',
       },
       {
         do: "Usar el contador solo cuando el número ayuda a decidir qué sección abrir primero.",
-        dont: "Agregar un contador a pestañas donde la cantidad no importa (como \"Resumen\").",
+        dont: 'Agregar un contador a pestañas donde la cantidad no importa (como "Resumen").',
         why: "Un contador en cada pestaña sin excepción se vuelve ruido visual — es útil justo donde el volumen es parte de la decisión.",
+      },
+      {
+        do: 'Dar una descripción a cada pestaña cuando las pestañas guardan evidencia que el lector consulta solo a veces: "6 historias · 30 SP", "3 de 6 fuera de tolerancia".',
+        dont: "Repetir la etiqueta en la descripción, o describir unas pestañas sí y otras no.",
+        why: "La descripción es lo que impide que las pestañas escondan su contenido: el lector elige cuál abrir con un dato, no a ciegas. A medias, las pestañas sin descripción parecen vacías al lado de las que la tienen.",
+      },
+      {
+        do: "Usar la variante surface cuando la lista de pestañas es el encabezado de una card.",
+        dont: "Poner una lista en variante line pegada al borde superior de una card, o forzar el fondo y el relleno con clases sueltas.",
+        why: "Sobre la superficie sutilísima y con el relleno interior de la card, la primera etiqueta alinea con el contenido de abajo y la lista se lee como parte de la card. Con clases sueltas, cn concatena y el gap propio de la lista sigue mandando.",
       },
     ],
   },
@@ -52,7 +62,8 @@ export const tabsContent: ComponentContent = {
         </TabsContent>
       </Tabs>
     ),
-    partsCaption: "lista de pestañas + panel de contenido — un TabsContent por TabsTrigger, unidos por value",
+    partsCaption:
+      "lista de pestañas + panel de contenido — un TabsContent por TabsTrigger, unidos por value",
     partsDescription:
       "Las cuatro partes son un espejo directo de Root, List, Trigger y Content de Radix. No hay una prop `tabs: { label, content }[]`: cada TabsContent es JSX de página normal, así que puede llevar cualquier contenido — un formulario, una tabla, un gráfico — sin pasar por una prop de datos.",
     parts: [
@@ -70,6 +81,16 @@ export const tabsContent: ComponentContent = {
         name: "Contador",
         measure: "font-mono, text-label",
         note: "Se distingue tipográficamente de la etiqueta sin depender solo del color.",
+      },
+      {
+        name: "Descripción",
+        measure: "text-label font-normal tracking-normal, bajo la etiqueta",
+        note: "Una segunda línea con lo que la sección guarda. En regular y sin tracking para que no se ponga en negrita con la etiqueta activa; con ella el disparador apila y toma su relleno (pt-3 pb-2.5 px-3).",
+      },
+      {
+        name: "Lista en variante surface",
+        measure: "bg-neutral-subtlest px-4 gap-1",
+        note: "La lista que encabeza una card: el escalón casi blanco, el relleno interior de la card y los disparadores apretados, porque con descripción cada uno ya trae el suyo.",
       },
     ],
     renderState: (state) => (
@@ -93,11 +114,19 @@ export const tabsContent: ComponentContent = {
       </Tabs>
     ),
     states: [
-      { name: "Activa", note: "Ilustrada en el diagrama de partes de arriba (\"Capacidades\")." },
-      { name: "Inactiva", note: "\"Resumen\" y \"Historial\" en el mismo diagrama: mismo peso de fuente, sin línea de marca." },
-      { name: "Deshabilitada", disabled: true, note: "\"Capacidades\" deshabilitada — no recibe foco ni se puede activar." },
+      { name: "Activa", note: 'Ilustrada en el diagrama de partes de arriba ("Capacidades").' },
+      {
+        name: "Inactiva",
+        note: '"Resumen" y "Historial" en el mismo diagrama: mismo peso de fuente, sin línea de marca.',
+      },
+      {
+        name: "Deshabilitada",
+        disabled: true,
+        note: '"Capacidades" deshabilitada — no recibe foco ni se puede activar.',
+      },
     ],
-    statesCaption: "Activa, inactiva y deshabilitada — exactamente una pestaña está activa en todo momento",
+    statesCaption:
+      "Activa, inactiva y deshabilitada — exactamente una pestaña está activa en todo momento",
   },
 
   accessibility: [

@@ -52,6 +52,7 @@ import { fileUploaderContent } from "./file-uploader";
 import { navbarContent } from "./navbar";
 import { sidebarContent } from "./sidebar";
 import { appShellContent } from "./app-shell";
+import { moduleShellContent } from "./module-shell";
 
 export type {
   ComponentContent,
@@ -117,6 +118,7 @@ const contentByComponent: Record<string, ComponentContent> = {
   navbar: navbarContent,
   sidebar: sidebarContent,
   "app-shell": appShellContent,
+  "module-shell": moduleShellContent,
 };
 
 /**

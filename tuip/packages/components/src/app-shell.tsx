@@ -1,5 +1,6 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import { cn } from "@/lib/cn";
+import { useCollapsedNavigation } from "@/lib/use-collapsed-navigation";
 import { Icon } from "./icon";
 import { Sidebar, type SidebarDensity, type SidebarNavGroup } from "./sidebar";
 import {
@@ -28,6 +29,8 @@ export interface AppShellProps {
   utilities?: NavbarUtilityLink[];
   /** Pending notifications. Defaults to `[]`. */
   notifications?: NavbarNotification[];
+  /** Whether the notifications button and its panel are rendered at all. Defaults to `true`; with `false`, `notifications` is ignored. */
+  showNotifications?: boolean;
   /** Opens the app's own command palette. Without a handler, the search box isn't rendered at all. */
   onSearch?: () => void;
   /** Called when "Marcar leídas" is activated. Without a handler, that action isn't shown. */
@@ -54,32 +57,6 @@ export interface AppShellProps {
   children: ReactNode;
 }
 
-/**
- * Contrato compartido con `sidebar.tsx`, a propósito: es la misma preferencia
- * de la misma persona, y las dos piezas nunca conviven en una vista (AppShell
- * usa Sidebar controlado, que no persiste por su cuenta). Compartir la clave
- * hace que migrar una app de Sidebar suelto a AppShell conserve el estado que
- * la persona ya eligió. Si el formato de esta clave cambia, cambia en ambos.
- */
-const STORAGE_KEY = "tuya-ui:sidebar-collapsed";
-
-function readPersistedCollapsed(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.localStorage.getItem(STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-function writePersistedCollapsed(value: boolean) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, String(value));
-  } catch {
-    // Storage deshabilitado — el colapso funciona esta sesión, sin recordarse.
-  }
-}
-
 const defaultUtilities: NavbarUtilityLink[] = [{ label: "Ayuda" }];
 
 type ShellPanel = "notifications" | "account";
@@ -104,6 +81,7 @@ export function AppShell({
   userMenu,
   utilities = defaultUtilities,
   notifications = [],
+  showNotifications = true,
   onSearch,
   onMarkAllNotificationsRead,
   onViewAllNotifications,
@@ -115,33 +93,13 @@ export function AppShell({
   className,
   children,
 }: AppShellProps) {
-  const [collapsed, setCollapsed] = useState(
-    () => defaultCollapsed ?? readPersistedCollapsed(),
-  );
+  // Persistencia y auto-colapso compartidos con ModuleShell: misma clave,
+  // mismo umbral — ver `useCollapsedNavigation`.
+  const { collapsed, toggle: toggleCollapsed } = useCollapsedNavigation(defaultCollapsed);
   // El mismo slot único de paneles que orquesta Navbar: a lo sumo uno abierto
   // entre notificaciones y cuenta. Se hereda también la limitación documentada
   // de Radix — pasar de un panel al otro toma dos activaciones.
   const [openPanel, setOpenPanel] = useState<ShellPanel | null>(null);
-
-  // Auto-colapso bajo 1120px, con la técnica de Sidebar: reacciona al cruce
-  // (evento `change`), no a un chequeo continuo, así re-expandir con la
-  // hamburguesa no es peleado por el siguiente render. El guard de
-  // `matchMedia` cubre SSR y jsdom.
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
-    const mql = window.matchMedia("(max-width: 1119px)");
-    function onChange(event: MediaQueryListEvent) {
-      if (event.matches) setCollapsed(true);
-    }
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-
-  function toggleCollapsed() {
-    const next = !collapsed;
-    setCollapsed(next);
-    writePersistedCollapsed(next);
-  }
 
   function panelProps(panel: ShellPanel) {
     return {
@@ -207,6 +165,7 @@ export function AppShell({
           <NavbarUtilities
             utilities={utilities}
             notifications={notifications}
+            showNotifications={showNotifications}
             user={user}
             userMenu={userMenu}
             variant="light"

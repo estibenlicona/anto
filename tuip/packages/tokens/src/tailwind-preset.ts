@@ -224,7 +224,16 @@ export const tuyaUiTailwindPreset = {
        * reach for (`p-inset`, `gap-stack`), and the numbered step stays
        * available for the cases that genuinely need a specific value.
        */
-      spacing: { ...spacing, ...spaceAlias },
+      spacing: {
+        ...spacing,
+        // En kebab, como el resto del vocabulario y como los documenta
+        // DESIGN.md (`page-top`, `page-bottom`): el objeto los declara en
+        // camelCase, y de pasarlos tal cual salía `pb-pageBottom`, una
+        // utilidad que ninguna guía nombra y que por eso nadie escribía.
+        ...Object.fromEntries(
+          Object.entries(spaceAlias).map(([name, value]) => [toKebabCase(name), value]),
+        ),
+      },
       // `bg-gradient-brand`. Tailwind's own `bg-gradient-to-*` helpers stay out
       // of the vocabulary on purpose: they take their stops from arbitrary
       // colour utilities, which is the open-ended version of exactly what this

@@ -52,6 +52,7 @@ export * from "./file-uploader";
 export * from "./navbar";
 export * from "./sidebar";
 export * from "./app-shell";
+export * from "./module-shell";
 export * from "./icon";
 export * from "./icons/paths";
 export * from "./lib/cn";

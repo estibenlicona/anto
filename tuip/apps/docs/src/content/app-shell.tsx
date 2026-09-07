@@ -40,9 +40,10 @@ export const appShellContent: ComponentContent = {
       "Cuando la app ya usa Navbar + Sidebar sueltos y quiere la composición corregida (el sidebar llegando arriba, el control de colapso a la vista): AppShell conserva la preferencia de colapso guardada, porque persiste bajo la misma clave.",
     ],
     whenNotToUse: [
-      "Una aplicación sin navegación lateral: eso es Navbar suelto.",
-      "Una superficie que necesita navegación lateral sin la barra del sistema: eso es Sidebar suelto.",
-      "Recomponer la fusión a mano con Navbar + Sidebar: el estado que la fusión necesita (colapso, persistencia, auto-colapso, un panel abierto a la vez) habría que recablearlo en cada app — es exactamente lo que AppShell elimina.",
+      "Un módulo que vive debajo de la barra de un host y sólo es dueño de su navegación lateral: eso es ModuleShell — la columna sin barra propia ni cabecera de marca (el título lo pone el host) y con el control de colapso al pie en vez de la hamburguesa. En una plataforma de host y módulos, ninguno de los dos usa AppShell: el host usa Navbar y cada módulo ModuleShell.",
+      "Una aplicación —o un host de módulos— sin navegación lateral: eso es Navbar suelto.",
+      "Sólo la navegación dentro de un layout que la aplicación arma por su cuenta: eso es Sidebar suelto.",
+      "Recomponer cualquiera de las dos fusiones a mano con Navbar + Sidebar: el estado que necesitan (colapso, persistencia, auto-colapso, un panel abierto a la vez) habría que recablearlo en cada app — es exactamente lo que AppShell y ModuleShell eliminan.",
     ],
     pairs: [
       {

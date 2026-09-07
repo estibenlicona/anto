@@ -43,6 +43,14 @@ const SCREEN_ONLY_TOKENS = [
   "text-body-sm",
   "text-label",
   "text-metric",
+  // Los anchos máximos por tipo de contenido (`max-w-prose`, `max-w-page`) y
+  // los alias de espaciado (`gap-group`, `p-inset`, `pb-page-bottom`) son el
+  // vocabulario con el que DESIGN.md dice que se maqueta una pantalla, y las
+  // pantallas viven en las apps: ningún componente de acá topa una prosa ni
+  // cierra un scroll, así que sin esto la hoja publicaba los tokens y ni una
+  // clase que los leyera. Las llaves se expanden como en `@source inline`.
+  "max-w-{prose,form,panel,page}",
+  "{gap,gap-x,gap-y,p,px,py,pt,pb,pl,pr,m,mx,my,mt,mb}-{hug,inline,stack,group,inset,block,section,page-top,page-bottom}",
 ];
 
 /**
@@ -66,6 +74,10 @@ const VOCABULARY_PROBE = [
   "h-md",
   "z-menu",
   "text-metric",
+  // Una de cada familia que sólo llega por `@source inline`: si la expansión
+  // de llaves dejara de funcionar, estas dos son las que lo dirían.
+  "max-w-page",
+  "gap-group",
 ];
 
 // Generated in isolation from `@tuya-ui/tokens/css` (concatenated below) so the
@@ -92,10 +104,10 @@ writeFileSync(
   ].join("\n"),
 );
 
-execSync(
-  `npx @tailwindcss/cli -i "${utilitiesInput}" -o "${utilitiesOutput}" --minify`,
-  { cwd: packageRoot, stdio: "inherit" },
-);
+execSync(`npx @tailwindcss/cli -i "${utilitiesInput}" -o "${utilitiesOutput}" --minify`, {
+  cwd: packageRoot,
+  stdio: "inherit",
+});
 
 const tokensCss = readFileSync(tokensCssPath, "utf8");
 const utilitiesCss = readFileSync(utilitiesOutput, "utf8");
@@ -201,10 +213,7 @@ const utilitiesAnidadas = anidarUtilidades(utilitiesCss);
 // aparición — así que ubicarlas al final no las pone por encima de nada.
 const baseCss = readFileSync(baseCssPath, "utf8");
 
-writeFileSync(
-  join(outDir, "styles.css"),
-  `${tokensCss}\n${utilitiesAnidadas}\n${baseCss}`,
-);
+writeFileSync(join(outDir, "styles.css"), `${tokensCss}\n${utilitiesAnidadas}\n${baseCss}`);
 
 rmSync(utilitiesInput);
 rmSync(utilitiesOutput);

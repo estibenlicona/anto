@@ -4,7 +4,7 @@ import type { ComponentContent } from "./types";
 export const sidebarContent: ComponentContent = {
   usage: {
     whenToUse: [
-      "Para una aplicación con navegación lateral, la composición por defecto es AppShell — trae la fusión con la otra pieza ya resuelta (sidebar a toda altura, hamburguesa en la barra, colapso persistente); esta pieza suelta es para cuando el shell completo no aplica.",
+      "Para una aplicación completa con navegación lateral y barra propias, la composición por defecto es AppShell (sidebar a toda altura, hamburguesa en la barra, colapso persistente); para un módulo que vive debajo de la barra de un host, ModuleShell (la columna fija bajo esa barra, sin cabecera propia, con esta misma franja de colapso al pie en modo controlado). Esta pieza suelta es para colocar sólo la navegación dentro de un layout que la aplicación arma por su cuenta.",
       "Como la navegación de un solo nivel de una app, junto a Navbar en el app shell — Navbar dice en qué producto está la persona, Sidebar dice qué puede hacer dentro.",
       "Con un contador en un ítem solo cuando representa trabajo pendiente de esa persona específica — una solicitud que espera su aprobación, no un total del módulo.",
     ],

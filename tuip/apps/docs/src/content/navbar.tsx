@@ -4,7 +4,8 @@ import type { ComponentContent } from "./types";
 export const navbarContent: ComponentContent = {
   usage: {
     whenToUse: [
-      "Para una aplicación con navegación lateral, la composición por defecto es AppShell — trae la fusión con la otra pieza ya resuelta (sidebar a toda altura, hamburguesa en la barra, colapso persistente); esta pieza suelta es para cuando el shell completo no aplica.",
+      "Para una aplicación completa con navegación lateral y barra propias, la composición por defecto es AppShell — trae la fusión con la otra pieza ya resuelta (sidebar a toda altura, hamburguesa en la barra, colapso persistente). Para un módulo que vive debajo de la barra de un host, ModuleShell. Esta pieza suelta es para una aplicación —o un host de módulos— sin navegación lateral propia.",
+      "Como la barra de un host de módulos: marca, selector de apps y cuenta son del host; cada módulo pone su propia navegación lateral con ModuleShell debajo, con topOffset igual a la altura de esta barra. Mientras el host no ofrezca notificaciones, showNotifications={false} omite la campana en vez de mostrar un control sin función.",
       "Una vez por app, como el elemento fijo que identifica dónde está la persona, hacia dónde puede ir y quién es — igual en todas las pantallas.",
       "Cuando varias apps internas comparten usuarios: la barra idéntica es lo que permite saltar de una a otra sin reaprender dónde está la marca, la búsqueda o la cuenta.",
     ],

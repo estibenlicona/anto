@@ -116,3 +116,19 @@ describe("Navbar · disparador de cuenta", () => {
     expect(screen.getByText("Ayuda").className).toMatch(/hover:bg-/);
   });
 });
+
+describe("Navbar · notificaciones opcionales", () => {
+  it("sin la prop, el botón de notificaciones sigue presente", () => {
+    renderNavbar();
+    expect(screen.getByRole("button", { name: /Notificaciones/ })).toBeInTheDocument();
+  });
+
+  it("con showNotifications={false} no hay campana y el resto sigue en su lugar", () => {
+    renderNavbar({ showNotifications: false });
+
+    expect(screen.queryByRole("button", { name: /Notificaciones/ })).not.toBeInTheDocument();
+    expect(screen.getByText("Dimensionamiento TI")).toBeInTheDocument();
+    expect(screen.getByText("Ayuda")).toBeInTheDocument();
+    expect(accountTrigger()).toBeInTheDocument();
+  });
+});

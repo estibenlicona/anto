@@ -131,3 +131,13 @@ describe("AppShell", () => {
     expect(screen.getByRole("button", { name: /Buscar/ })).toBeInTheDocument();
   });
 });
+
+describe("AppShell · notificaciones opcionales", () => {
+  it("con showNotifications={false} la barra no muestra la campana", () => {
+    window.localStorage.removeItem(STORAGE_KEY);
+    renderShell({ showNotifications: false });
+
+    expect(screen.queryByRole("button", { name: /Notificaciones/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Chapter Lead/ })).toBeInTheDocument();
+  });
+});

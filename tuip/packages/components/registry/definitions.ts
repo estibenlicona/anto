@@ -606,4 +606,15 @@ export const componentDefinitions: ComponentDefinition[] = [
     files: [{ source: "src/app-shell.tsx", target: "components/ui/app-shell.tsx" }],
     extendsElement: "div",
   },
+  {
+    name: "module-shell",
+    category: "layout",
+    status: "beta",
+    description:
+      "The module half of AppShell: full-available-height side navigation under a host's Navbar (via topOffset), with no bar and no brand header of its own — the host's bar owns the title — and Sidebar's own collapse strip at the foot as the only collapse control; the module's content as children.",
+    dependencies: ["utils", "icon", "sidebar"],
+    npmDependencies: ["react"],
+    files: [{ source: "src/module-shell.tsx", target: "components/ui/module-shell.tsx" }],
+    extendsElement: "div",
+  },
 ];

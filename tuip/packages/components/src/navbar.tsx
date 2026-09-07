@@ -71,6 +71,8 @@ export interface NavbarProps {
   onSearch?: () => void;
   /** Pending notifications. Only actionable events belong here — a merely informational event belongs in a history elsewhere. Defaults to `[]`. */
   notifications?: NavbarNotification[];
+  /** Whether the notifications button and its panel are rendered at all. A product that doesn't offer notifications yet passes `false` so the bar shows no control without a function. Defaults to `true`; with `false`, `notifications` is ignored. */
+  showNotifications?: boolean;
   /** Called when "Marcar leídas" is activated. Without a handler, that action isn't shown. */
   onMarkAllNotificationsRead?: () => void;
   /** Called when "Ver todas" is activated. Without a handler, that action isn't shown. */
@@ -166,6 +168,7 @@ export function Navbar({
   apps = [],
   onSearch,
   notifications = [],
+  showNotifications = true,
   onMarkAllNotificationsRead,
   onViewAllNotifications,
   user,
@@ -231,6 +234,7 @@ export function Navbar({
       <NavbarUtilities
         utilities={utilities}
         notifications={notifications}
+        showNotifications={showNotifications}
         user={user}
         userMenu={userMenu}
         variant={variant}
@@ -373,6 +377,8 @@ export interface NavbarUtilitiesProps {
   utilities: NavbarUtilityLink[];
   /** Pending notifications. Defaults to `[]`. */
   notifications?: NavbarNotification[];
+  /** Whether the notifications button and its panel are rendered at all. Defaults to `true`; with `false`, `notifications` is ignored. */
+  showNotifications?: boolean;
   /** The signed-in person. */
   user: NavbarUser;
   /** Actions in the account panel. */
@@ -402,6 +408,7 @@ export interface NavbarUtilitiesProps {
 export function NavbarUtilities({
   utilities,
   notifications = [],
+  showNotifications = true,
   user,
   userMenu,
   variant = "dark",
@@ -457,42 +464,48 @@ export function NavbarUtilities({
           </a>
         ))}
 
-      <NotificationMenu
-        open={notificationsOpen}
-        onOpenChange={onNotificationsOpenChange}
-        trigger={
-          <button
-            type="button"
-            aria-label={hasUnread ? "Notificaciones, hay notificaciones sin leer" : "Notificaciones"}
-            className={cn("relative flex h-8 w-8 items-center justify-center", mutedText, interactive)}
-          >
-            <Icon name="notification" size={20} />
-            {hasUnread && <span aria-hidden="true" className="absolute right-1.5 top-1.5 h-2 w-2 rounded-pill bg-brand-bold" />}
-          </button>
-        }
-      >
-        <NotificationMenuHeader
-          title="Notificaciones"
-          action={onMarkAllNotificationsRead ? "Marcar leídas" : undefined}
-          onActionSelect={onMarkAllNotificationsRead}
-        />
-        <NotificationMenuList>
-          {notifications.map((item) => (
-            <NotificationMenuItem
-              key={item.id}
-              unread={item.unread}
-              label={item.label}
-              detail={item.detail}
-              timestamp={item.timestamp}
-              variant={item.variant}
-              onSelect={item.onSelect}
-            />
-          ))}
-        </NotificationMenuList>
-        {onViewAllNotifications && (
-          <NotificationMenuFooter onSelect={onViewAllNotifications}>Ver todas</NotificationMenuFooter>
-        )}
-      </NotificationMenu>
+      {/* Un producto que todavía no ofrece notificaciones no muestra un
+          control sin función: con `showNotifications={false}` ni el botón ni
+          su panel existen. El slot único de paneles no cambia — el de
+          notificaciones simplemente nunca se abre. */}
+      {showNotifications && (
+        <NotificationMenu
+          open={notificationsOpen}
+          onOpenChange={onNotificationsOpenChange}
+          trigger={
+            <button
+              type="button"
+              aria-label={hasUnread ? "Notificaciones, hay notificaciones sin leer" : "Notificaciones"}
+              className={cn("relative flex h-8 w-8 items-center justify-center", mutedText, interactive)}
+            >
+              <Icon name="notification" size={20} />
+              {hasUnread && <span aria-hidden="true" className="absolute right-1.5 top-1.5 h-2 w-2 rounded-pill bg-brand-bold" />}
+            </button>
+          }
+        >
+          <NotificationMenuHeader
+            title="Notificaciones"
+            action={onMarkAllNotificationsRead ? "Marcar leídas" : undefined}
+            onActionSelect={onMarkAllNotificationsRead}
+          />
+          <NotificationMenuList>
+            {notifications.map((item) => (
+              <NotificationMenuItem
+                key={item.id}
+                unread={item.unread}
+                label={item.label}
+                detail={item.detail}
+                timestamp={item.timestamp}
+                variant={item.variant}
+                onSelect={item.onSelect}
+              />
+            ))}
+          </NotificationMenuList>
+          {onViewAllNotifications && (
+            <NotificationMenuFooter onSelect={onViewAllNotifications}>Ver todas</NotificationMenuFooter>
+          )}
+        </NotificationMenu>
+      )}
 
       <Menu
         open={accountOpen}

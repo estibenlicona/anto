@@ -1,10 +1,13 @@
 /* The system serves its own typefaces: these packages ship the woff2 files and
    their @font-face rules, so the fonts are bundled with the site and no screen
-   makes a request to a third party to render its text. Only the three weights
-   the scale uses are imported. */
+   makes a request to a third party to render its text. Only the four weights
+   the scale uses are imported — `metric` is the one that needs bold; without
+   the 700 file the browser synthesises it, and a faux-bold figure is what a
+   summary card ends up headlined by. */
 @import "@fontsource/ibm-plex-sans/400.css";
 @import "@fontsource/ibm-plex-sans/500.css";
 @import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-sans/700.css";
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 

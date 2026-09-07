@@ -15,6 +15,13 @@ export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement> 
  * for one, so the input line is reimplemented here with the same classes
  * `Input` uses, instead of wrapping `Input` and risking the icon drifting
  * off the input line whenever a label is present.
+ *
+ * `className` lands on the **root**, not on the input: a search field in a
+ * toolbar is sized as one control (`w-96`, `max-w-sm`), and the input fills
+ * whatever box the root gets. Put on the input, a width class fought the
+ * input's own `w-full` and the root kept shrinking to the input's intrinsic
+ * ~20 characters, so the placeholder was cut off no matter what the consumer
+ * wrote — with nothing failing.
  */
 export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
   ({ label, error, className, disabled, id, ...props }, ref) => {
@@ -23,7 +30,7 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
     const errorId = error ? `${inputId}-error` : undefined;
 
     return (
-      <div className="flex flex-col gap-1">
+      <div className={cn("flex flex-col gap-1", className)}>
         {label && (
           <label htmlFor={inputId} className="text-body-sm font-medium text-neutral-default">
             {label}
@@ -48,7 +55,6 @@ export const SearchField = forwardRef<HTMLInputElement, SearchFieldProps>(
               "disabled:cursor-not-allowed disabled:bg-neutral-disabled disabled:text-neutral-disabled",
               !error && "border-neutral-default focus-visible:ring-neutral-focus-ring",
               error && "border-danger-default focus-visible:ring-danger-focus-ring",
-              className,
             )}
             {...props}
           />
