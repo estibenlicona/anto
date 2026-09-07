@@ -63,7 +63,7 @@ describe("mock de iniciativas", () => {
 
   it("lista con filtros por estado y talla, y sirve stats", async () => {
     const all = await initiativeService.list(1, 50);
-    expect(all.totalCount).toBe(7);
+    expect(all.totalCount).toBe(8);
     const active = await initiativeService.list(1, 50, { status: ["Active"] });
     expect(active.items.every((i) => i.status === "Active")).toBe(true);
     const talla = active.items[0].evaluation?.talla ?? "";
@@ -74,7 +74,7 @@ describe("mock de iniciativas", () => {
     expect(byTalla.totalCount).toBeLessThan(all.totalCount);
     const stats = await initiativeService.getStats();
     expect(stats.unevaluated).toBe(2);
-    expect(stats.active).toBe(3);
+    expect(stats.active).toBe(4);
     expect(stats.activeByTalla.map((t) => t.talla)).toEqual([
       "XS",
       "S",
@@ -82,7 +82,7 @@ describe("mock de iniciativas", () => {
       "L",
       "XL",
     ]);
-    expect(stats.activeByTalla.reduce((a, t) => a + t.count, 0)).toBe(3);
+    expect(stats.activeByTalla.reduce((a, t) => a + t.count, 0)).toBe(4);
     const demand = active.items.reduce(
       (a, i) => a + (i.evaluation?.fteExpected ?? 0),
       0
@@ -140,55 +140,27 @@ describe("mock de iniciativas", () => {
     ).toBe(404);
   });
 
-  it("estado: rechaza activar una segunda iniciativa en la misma célula", async () => {
-    // ini-payments está evaluada y su célula (Backend) ya tiene activa a
-    // ini-kafka: una célula sostiene un solo trabajo a la vez.
-    expect(
-      await status(() => initiativeService.setStatus("ini-payments", "Active"))
-    ).toBe(400);
-
-    const backend = await initiativeService.list(1, 50, { squadId: [BACKEND] });
-    expect(
-      backend.items.filter((i) => i.status === "Active").map((i) => i.id)
-    ).toEqual(["ini-kafka"]);
-
-    // Y con la activa cerrada, la que esperaba sí entra.
-    await initiativeService.setStatus("ini-kafka", "Closed");
-    expect(
-      (await initiativeService.setStatus("ini-payments", "Active")).status
-    ).toBe("Active");
-  });
-
   it("estado: reactivar la que ya está activa no choca consigo misma", async () => {
     expect(
       (await initiativeService.setStatus("ini-kafka", "Active")).status
     ).toBe("Active");
   });
 
-  it("squadHasOtherActive se resuelve sobre todas, no sobre la página ni el filtro", async () => {
-    // Página de a una y filtrada por estado: la activa de Backend queda fuera
-    // de lo que se ve, y aun así la que espera sabe que la célula está ocupada.
-    const evaluando = await initiativeService.list(1, 1, {
-      squadId: [BACKEND],
-      status: ["Evaluating"],
-    });
-    expect(evaluando.items.map((i) => i.id)).toEqual(["ini-payments"]);
-    expect(evaluando.items[0].squadHasOtherActive).toBe(true);
+  it("estado: una célula sostiene varias iniciativas activas a la vez", async () => {
+    // Backend ya tiene activa a ini-kafka; activar otra de la misma célula
+    // procede (change estado-asignacion-celulas: la regla de una sola activa
+    // se retiró del dominio; el backend real se alinea en su propio change).
+    const segunda = await initiativeService.setStatus("ini-payments", "Active");
+    expect(segunda.status).toBe("Active");
 
-    // La activa misma no se cuenta a sí misma.
-    const activa = await initiativeService.list(1, 50, {
+    const activas = await initiativeService.list(1, 50, {
       squadId: [BACKEND],
       status: ["Active"],
     });
-    expect(activa.items[0].squadHasOtherActive).toBe(false);
-
-    // Y una célula sin activa deja libres a las suyas.
-    const qr = (await initiativeService.get("ini-qr")).squadHasOtherActive;
-    expect(qr).toBe(true); // Canales tiene activa a ini-onboarding
-    await initiativeService.setStatus("ini-onboarding", "Closed");
-    expect((await initiativeService.get("ini-qr")).squadHasOtherActive).toBe(
-      false
-    );
+    expect(activas.items.map((i) => i.id).sort()).toEqual([
+      "ini-kafka",
+      "ini-payments",
+    ]);
   });
 
   it("guardar la evaluación calcula con el modelo vigente y persiste", async () => {
@@ -255,10 +227,9 @@ describe("mock de iniciativas", () => {
 
   it("la dedicación real resuelve la iniciativa de cada historia y la activa de la célula en este mismo mock", async () => {
     const before = await dedicationService.getCollaborator(CARLOS);
-    expect(before.allocation?.activeInitiative).toMatchObject({
-      id: "ini-kafka",
-      name: "Kafka Migration",
-    });
+    expect(before.allocation?.activeInitiatives).toMatchObject([
+      { id: "ini-kafka", name: "Kafka Migration" },
+    ]);
     expect(
       before.selectedSprint?.workItems.some(
         (w) =>
@@ -271,7 +242,7 @@ describe("mock de iniciativas", () => {
     // historias sigue mapeado a ella, porque la iniciativa sigue existiendo.
     await initiativeService.setStatus("ini-kafka", "Closed");
     const after = await dedicationService.getCollaborator(CARLOS);
-    expect(after.allocation?.activeInitiative).toBeNull();
+    expect(after.allocation?.activeInitiatives).toEqual([]);
     expect(
       after.selectedSprint?.workItems.some(
         (w) => w.initiativeName === "Kafka Migration"

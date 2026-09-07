@@ -461,20 +461,18 @@ function allocationDtoOf(
 ): DedicationAllocationDto | null {
   if (!allocation) return null;
   const squad = getSquadsSnapshot().find((s) => s.id === allocation.squadId);
-  const active = getInitiativesSnapshot().find(
-    (i) => i.squadId === allocation.squadId && i.status === "Active"
-  );
+  const actives = getInitiativesSnapshot()
+    .filter((i) => i.squadId === allocation.squadId && i.status === "Active")
+    .sort((a, b) => a.name.localeCompare(b.name));
   return {
     id: allocation.id,
     squadId: allocation.squadId,
     squadName: squad?.name ?? allocation.squadName,
-    activeInitiative: active
-      ? {
-          id: active.id,
-          name: active.name,
-          talla: active.evaluation?.talla ?? "",
-        }
-      : null,
+    activeInitiatives: actives.map((i) => ({
+      id: i.id,
+      name: i.name,
+      talla: i.evaluation?.talla ?? "",
+    })),
     // Lo que la célula declara. Viaja como contexto y no participa en ninguna
     // evidencia: es un reporte, no una medición.
     declaredDedicationPercentage: allocation.dedicationPercentage,

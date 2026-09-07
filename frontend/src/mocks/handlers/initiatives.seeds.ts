@@ -181,9 +181,9 @@ export const INITIATIVE_SEEDS: InitiativeSeed[] = [
     squadId: BACKEND,
     productOwner: "Ana Restrepo",
     targetMonths: 9,
-    // Evaluada y con talla, pero sin activar: Backend Platform ya tiene su
-    // activa (Kafka Migration) y una célula sostiene una sola. Es el caso que
-    // deja ver "Activar" deshabilitado con su motivo.
+    // Evaluada y con talla, todavía sin activar: es el caso que deja ver
+    // "Activar" disponible junto a otra activa de la misma célula (Kafka
+    // Migration) — una célula sostiene varias iniciativas activas a la vez.
     status: "Evaluating",
     answers: {
       triage: [true, true, true, true, true, false],
@@ -229,6 +229,23 @@ export const INITIATIVE_SEEDS: InitiativeSeed[] = [
       byQuestion: MEDIUM,
     },
     createdAtUtc: "2025-11-03T00:00:00Z",
+  },
+  {
+    // Activa grande sobre una célula con poca capacidad asignada: es la
+    // semilla que deja ver "Sub-asignada" en el listado de Células (change
+    // estado-asignacion-celulas). Convive con Lakehouse cerrada: una cerrada
+    // no cuenta como activa.
+    id: "ini-mesh",
+    name: "Data Mesh Gobernado",
+    squadId: DATOS,
+    productOwner: "Diego Cardona",
+    targetMonths: 3,
+    status: "Active",
+    answers: {
+      triage: [true, true, false, true, false, true],
+      byQuestion: LARGE,
+    },
+    createdAtUtc: "2026-08-25T00:00:00Z",
   },
   {
     id: "ini-qr",

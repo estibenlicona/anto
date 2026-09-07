@@ -11,6 +11,7 @@
   },
   "scripts": {
     "dev": "cross-env VITE_USE_MOCKS=true vite --port 4300",
+    "dev:mock": "cross-env VITE_USE_MOCKS=true VITE_STANDALONE=true vite --port 4300",
     "build:dev": "npm run format && vite build --mode development",
     "build:test": "npm run format && vite build --mode certification",
     "build:prod": "npm run format && vite build --mode production",

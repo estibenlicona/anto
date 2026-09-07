@@ -23,6 +23,8 @@ import {
   TableHeader,
   TableRow,
   Tag,
+  Tooltip,
+  type IconName,
 } from "@tuya-ui/components";
 import { TableStatusRow } from "@shared/components/TableStatusRow";
 import { getPersonInitials } from "@features/people/adapters/PersonAdapter";
@@ -36,6 +38,7 @@ import {
   CRITICALITY_LABELS,
   CRITICALITY_ORDER,
   type Squad,
+  type SquadAssignmentStatus,
 } from "../adapters/SquadAdapter";
 import type { Criticality } from "../services/squadService";
 import { MIX_COLORS } from "./mixColors";
@@ -67,6 +70,70 @@ const CRITICALITY_OPTIONS = CRITICALITY_ORDER.map((value) => ({
 // el tamaño de `text-label` sin su semibold ni su tracking de rúbrica.
 const SECONDARY_TEXT =
   "text-label font-normal tracking-normal text-neutral-subtle";
+
+// La misma señal, con el mismo tratamiento, que el balance de carga de
+// Dedicación (BalanceSignalIcon): **sólo el icono** — forma distinta además
+// de rol de color, nunca sólo el color — y el veredicto completo en el
+// tooltip y en el nombre accesible. La demanda por encima de lo asignado es
+// sobrecarga (tendencia arriba, peligro); lo asignado por encima de la
+// demanda es holgura que conviene mirar (tendencia abajo, advertencia —
+// decisión de carga, no contexto); en rango es la meta (check, éxito); sin
+// demanda no hay nada que evaluar (vacío, neutro).
+const ASSIGNMENT_PRESENTATION: Record<
+  SquadAssignmentStatus["kind"],
+  { tone: string; icon: IconName }
+> = {
+  sub: { tone: "text-danger-default", icon: "trend-up" },
+  "en-rango": { tone: "text-success-default", icon: "check" },
+  sobre: { tone: "text-warning-default", icon: "trend-down" },
+  "sin-demanda": { tone: "text-neutral-subtlest", icon: "status-empty" },
+};
+
+const fte1 = (value: number) => value.toFixed(1);
+
+/** El veredicto entero en una frase: es lo que dicen el tooltip y el lector. */
+function assignmentTooltip(
+  status: SquadAssignmentStatus,
+  allocatedFte: number
+): string {
+  if (status.kind === "sin-demanda") {
+    return "Sin demanda: la célula no tiene iniciativas activas.";
+  }
+  const detalle = `Demanda ${fte1(status.demandMin)}–${fte1(status.demandMax)} FTE · Asignado ${fte1(allocatedFte)} FTE`;
+  if (status.kind === "sub")
+    return `Sub-asignada: faltan ${fte1(status.deltaFte)} FTE. ${detalle}`;
+  if (status.kind === "sobre")
+    return `Sobre-asignada: sobran ${fte1(status.deltaFte)} FTE. ${detalle}`;
+  return `En rango. ${detalle}`;
+}
+
+/**
+ * El estado de asignación reducido a un icono, como la señal del balance de
+ * carga en el listado de colaboradores: la columna es de un vistazo, y la
+ * explicación —estado, desvío y demanda contra lo asignado— vive en el
+ * tooltip y en el nombre accesible. Una señal sin acceso a su explicación
+ * sería una sentencia; por eso el span recibe foco y el tooltip también se
+ * abre con teclado.
+ */
+const AssignmentStatusCell: React.FC<{
+  status: SquadAssignmentStatus;
+  allocatedFte: number;
+}> = ({ status, allocatedFte }) => {
+  const { tone, icon } = ASSIGNMENT_PRESENTATION[status.kind];
+  const text = assignmentTooltip(status, allocatedFte);
+  return (
+    <Tooltip content={text}>
+      <span
+        role="img"
+        aria-label={text}
+        tabIndex={0}
+        className={`inline-flex size-5 items-center justify-center rounded-control outline-none focus-visible:ring-focus focus-visible:ring-neutral-focus-ring ${tone}`}
+      >
+        <Icon name={icon} size={20} />
+      </span>
+    </Tooltip>
+  );
+};
 
 export interface SquadsListProps {
   squads: Squad[];
@@ -183,20 +250,24 @@ export const SquadsList: React.FC<SquadsListProps> = ({
           {/* Singular: la columna muestra una iniciativa o ninguna, y
                     el rótulo es lo que fija la expectativa antes de leer la
                     celda. */}
-          <TableHead>Iniciativa</TableHead>
+          {/* Plural: la columna muestra todas las activas de la célula. */}
+          <TableHead>Iniciativas</TableHead>
           <TableHead>Capacidad</TableHead>
+          {/* Contigua a Capacidad porque se lee contra ella: la demanda de
+                    las activas frente al FTE asignado. */}
+          <TableHead>Asignación</TableHead>
           <TableHead />
         </TableRow>
       </TableHeader>
       <TableBody>
         {loading ? (
-          <TableStatusRow colSpan={7}>
+          <TableStatusRow colSpan={8}>
             <p className="text-body-sm text-neutral-subtle">
               Cargando células…
             </p>
           </TableStatusRow>
         ) : error ? (
-          <TableStatusRow colSpan={7}>
+          <TableStatusRow colSpan={8}>
             <Alert
               variant="danger"
               title="No se pudieron cargar las células"
@@ -210,7 +281,7 @@ export const SquadsList: React.FC<SquadsListProps> = ({
             </Alert>
           </TableStatusRow>
         ) : squads.length === 0 ? (
-          <TableStatusRow colSpan={7}>
+          <TableStatusRow colSpan={8}>
             <EmptyState
               icon={<Icon name="search" size={32} />}
               title="Sin resultados"
@@ -290,45 +361,48 @@ export const SquadsList: React.FC<SquadsListProps> = ({
                   )}
                 </TableCell>
                 <TableCell>
-                  {/* Una célula sostiene un solo trabajo a la vez: la
-                          columna muestra su iniciativa activa, no las que
-                          todavía se están dimensionando. Sin activa da igual
-                          que tenga tres en evaluación: acá no está ejecutando
-                          nada. */}
-                  {/* Talla y nombre en una línea: la talla es una etiqueta
-                          corta y de ancho parejo, así que hace de columna
-                          propia y los nombres quedan alineados entre filas.
-                          Apilarlos daba dos alturas por celda sin ganar nada. */}
-                  <div className="flex max-w-64 items-center gap-2">
-                    {squad.activeInitiative === null ? (
-                      <>
-                        {/* El guion ocupa el lugar de la talla para que el
-                                texto siga alineado con los nombres de arriba;
-                                lo que se lee es "Sin iniciativa". */}
-                        <Tag aria-hidden="true">—</Tag>
-                        <span className={`italic ${SECONDARY_TEXT}`}>
-                          Sin iniciativa
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <Tag color={tallaColor(squad.activeInitiative.talla)}>
-                          {squad.activeInitiative.talla}
-                        </Tag>
-                        {/* Enlace neutro, como el nombre de la célula: con
-                                uno por fila, el rojo teñiría la columna entera. */}
-                        <Link asChild tone="neutral" className="truncate">
-                          <RouterLink
-                            to={evaluationPath(squad.activeInitiative.id)}
-                            title={squad.activeInitiative.name}
-                            className="truncate"
-                          >
-                            {squad.activeInitiative.name}
-                          </RouterLink>
-                        </Link>
-                      </>
-                    )}
-                  </div>
+                  {/* La columna muestra las iniciativas activas —todas: una
+                          célula sostiene varias a la vez—, no las que todavía
+                          se están dimensionando. Una línea por activa, talla
+                          primero: la etiqueta es corta y de ancho parejo, así
+                          que hace de columna propia y los nombres quedan
+                          alineados entre filas y entre líneas. */}
+                  {squad.activeInitiatives.length === 0 ? (
+                    <div className="flex max-w-64 items-center gap-2">
+                      {/* El guion ocupa el lugar de la talla para que el
+                              texto siga alineado con los nombres de arriba;
+                              lo que se lee es "Sin iniciativa". */}
+                      <Tag aria-hidden="true">—</Tag>
+                      <span className={`italic ${SECONDARY_TEXT}`}>
+                        Sin iniciativa
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex max-w-64 flex-col gap-1">
+                      {squad.activeInitiatives.map((initiative) => (
+                        <div
+                          key={initiative.id}
+                          className="flex items-center gap-2"
+                        >
+                          <Tag color={tallaColor(initiative.talla)}>
+                            {initiative.talla}
+                          </Tag>
+                          {/* Enlace neutro, como el nombre de la célula: con
+                                  varios por fila, el rojo teñiría la columna
+                                  entera. */}
+                          <Link asChild tone="neutral" className="truncate">
+                            <RouterLink
+                              to={evaluationPath(initiative.id)}
+                              title={initiative.name}
+                              className="truncate"
+                            >
+                              {initiative.name}
+                            </RouterLink>
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>
                   {/* Sin personas, sin partes: CapacityBar muestra su variante
@@ -357,6 +431,12 @@ export const SquadsList: React.FC<SquadsListProps> = ({
                             },
                           ]
                     }
+                  />
+                </TableCell>
+                <TableCell>
+                  <AssignmentStatusCell
+                    status={squad.assignmentStatus}
+                    allocatedFte={squad.allocatedFte}
                   />
                 </TableCell>
                 <TableCell>

@@ -96,7 +96,7 @@ describe("InitiativesContainer", () => {
     // Sin célula: el drawer valida y no llama al servicio.
     fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
     expect(await screen.findByText(/Selecciona la célula/)).toBeInTheDocument();
-    expect((await initiativeService.list(1, 50)).totalCount).toBe(7);
+    expect((await initiativeService.list(1, 50)).totalCount).toBe(8);
   });
 
   it("activar una evaluada pide confirmación y actualiza la card de activas", async () => {
@@ -105,9 +105,8 @@ describe("InitiativesContainer", () => {
       answers: { N1: 4 },
       targetMonths: 6,
     });
-    // La célula de QR (Canales) ya sostiene una: hay que liberarla antes, o
-    // "Activar" está deshabilitado con ese motivo.
-    await initiativeService.setStatus("ini-onboarding", "Closed");
+    // La célula de QR (Canales) ya sostiene otra activa y no estorba: una
+    // célula lleva varias a la vez (change estado-asignacion-celulas).
     renderAt("/app/lead/iniciativas");
     const row = (await screen.findByText("Pago con QR en App")).closest("tr")!;
     fireEvent.pointerDown(
@@ -120,8 +119,8 @@ describe("InitiativesContainer", () => {
       expect(screen.queryByText("Activar iniciativa")).not.toBeInTheDocument()
     );
     expect((await initiativeService.get("ini-qr")).status).toBe("Active");
-    // Tres activas en la semilla, menos la de Canales que se cerró, más ésta.
-    await waitFor(() => expect(screen.getByText("3")).toBeInTheDocument());
+    // Cuatro activas en la semilla, más ésta — sin cerrar ninguna.
+    await waitFor(() => expect(screen.getByText("5")).toBeInTheDocument());
   });
 });
 

@@ -129,13 +129,8 @@ function fromSeed(seed: InitiativeSeed): StoredInitiative {
   };
 }
 
-/**
- * Lo que el mock persiste. `squadHasOtherActive` no se guarda: depende del
- * resto de las iniciativas de la célula y quedaría desactualizado en cuanto
- * otra se active o se cierre. Se deriva al responder, como los campos
- * calculados de la célula en squads.handlers.
- */
-type StoredInitiative = Omit<InitiativeDto, "squadHasOtherActive">;
+/** Lo que el mock persiste: el DTO completo, sin campos derivados. */
+type StoredInitiative = InitiativeDto;
 
 // El seeding se resuelve al primer uso y no al evaluar el módulo: `fromSeed`
 // resuelve el nombre de la célula contra el mock de células, y ese mock ahora
@@ -158,22 +153,9 @@ export function getInitiativesSnapshot(): StoredInitiative[] {
   return all();
 }
 
-/** ¿La célula de esta iniciativa ya tiene otra activa? Se mira el conjunto, no la página. */
-function squadHasOtherActive(initiative: StoredInitiative): boolean {
-  return all().some(
-    (i) =>
-      i.squadId === initiative.squadId &&
-      i.id !== initiative.id &&
-      i.status === "Active"
-  );
-}
-
-/** Lo guardado más lo derivado: la única forma en que una iniciativa sale del mock. */
+/** La única forma en que una iniciativa sale del mock. */
 function respond(initiative: StoredInitiative): InitiativeDto {
-  return {
-    ...initiative,
-    squadHasOtherActive: squadHasOtherActive(initiative),
-  };
+  return { ...initiative };
 }
 
 function isValidInput(value: unknown): value is InitiativeInput {
@@ -351,20 +333,10 @@ export const initiativesHandlers = [
         { status: 400 }
       );
     }
-    // La regla es del dominio —el backend real la hace cumplir en
-    // ChangeInitiativeStatusUseCase—, así que el mock la sostiene igual: si sólo
-    // la vigilara la pantalla, contra mocks se vería un camino que el servidor
-    // rechaza. Excluir la propia es lo que deja reactivar la que ya está activa
-    // sin que choque consigo misma.
-    if (status === "Active" && squadHasOtherActive(current)) {
-      return HttpResponse.json(
-        {
-          message:
-            "La célula ya tiene una iniciativa activa. Ciérrala antes de activar otra.",
-        },
-        { status: 400 }
-      );
-    }
+    // Una célula sostiene varias iniciativas activas a la vez (change
+    // estado-asignacion-celulas): activar ya no mira al resto de la célula.
+    // El backend real todavía impone una sola activa en
+    // ChangeInitiativeStatusUseCase; su alineación es un change backend aparte.
     if (status === "Closed" && current.status !== "Active") {
       return HttpResponse.json(
         { message: "Sólo se cierra una iniciativa activa" },

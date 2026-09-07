@@ -21,7 +21,7 @@ const mockDto = {
   bauFte: 0,
   transformationFte: 0,
   peopleAvailableFte: 0,
-  activeInitiative: null,
+  activeInitiatives: [],
   createdAtUtc: "2026-01-01T00:00:00Z",
   updatedAtUtc: "2026-01-01T00:00:00Z",
 };
@@ -49,7 +49,11 @@ describe("useSquads", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(squadService.list).toHaveBeenCalledWith(1, 10, undefined, []);
     expect(result.current.squads).toEqual([
-      { ...mockDto, criticalityLabel: "Alta" },
+      {
+        ...mockDto,
+        criticalityLabel: "Alta",
+        assignmentStatus: { kind: "sin-demanda" },
+      },
     ]);
     expect(result.current.error).toBeNull();
     expect(result.current.total).toBe(1);

@@ -22,7 +22,7 @@ const dto: SquadDto = {
   bauFte: 1.7,
   transformationFte: 1,
   peopleAvailableFte: 3.8,
-  activeInitiative: null,
+  activeInitiatives: [],
   createdAtUtc: "2026-01-01T00:00:00Z",
   updatedAtUtc: "2026-01-02T00:00:00Z",
 };
@@ -43,7 +43,8 @@ describe("squadAdapter", () => {
       bauFte: 1.7,
       transformationFte: 1,
       peopleAvailableFte: 3.8,
-      activeInitiative: null,
+      activeInitiatives: [],
+      assignmentStatus: { kind: "sin-demanda" },
       createdAtUtc: "2026-01-01T00:00:00Z",
       updatedAtUtc: "2026-01-02T00:00:00Z",
     });
@@ -62,7 +63,7 @@ describe("squadAdapter", () => {
     delete bare.bauFte;
     delete bare.transformationFte;
     delete bare.peopleAvailableFte;
-    delete bare.activeInitiative;
+    delete bare.activeInitiatives;
     const entity = squadAdapter.toEntity(bare as SquadDto);
     expect(entity).toMatchObject({
       memberCount: 0,
@@ -71,18 +72,93 @@ describe("squadAdapter", () => {
       bauFte: 0,
       transformationFte: 0,
       peopleAvailableFte: 0,
-      activeInitiative: null,
+      activeInitiatives: [],
+      assignmentStatus: { kind: "sin-demanda" },
     });
   });
 
   it("reads an active initiative without a talla as no initiative at all", () => {
-    // Sólo se activa lo evaluado, así que no debería llegar; si llega, la fila
-    // dice "Sin iniciativa" en vez de mostrar una etiqueta vacía.
+    // Sólo se activa lo evaluado, así que no debería llegar; si llega, se
+    // omite de la fila y de la demanda en vez de mostrar una etiqueta vacía.
     const entity = squadAdapter.toEntity({
       ...dto,
-      activeInitiative: { id: "i1", name: "Sin evaluar", talla: "" },
+      activeInitiatives: [
+        { id: "i1", name: "Sin evaluar", talla: "", fteMin: 1, fteMax: 2 },
+      ],
     });
-    expect(entity.activeInitiative).toBeNull();
+    expect(entity.activeInitiatives).toEqual([]);
+    expect(entity.assignmentStatus).toEqual({ kind: "sin-demanda" });
+  });
+
+  const actives = (
+    ranges: Array<[number, number]>
+  ): SquadDto["activeInitiatives"] =>
+    ranges.map(([fteMin, fteMax], i) => ({
+      id: `i${i}`,
+      name: `Iniciativa ${i}`,
+      talla: "M",
+      fteMin,
+      fteMax,
+    }));
+
+  it("derives sub-asignada when coverage falls short of the demand minimum", () => {
+    // Demanda 1.5–2.5 contra 1.0 asignado (escenario de la spec).
+    const entity = squadAdapter.toEntity({
+      ...dto,
+      allocatedFte: 1.0,
+      activeInitiatives: actives([
+        [0.5, 1.0],
+        [1.0, 1.5],
+      ]),
+    });
+    expect(entity.assignmentStatus).toEqual({
+      kind: "sub",
+      demandMin: 1.5,
+      demandMax: 2.5,
+      deltaFte: 0.5,
+    });
+  });
+
+  it("derives en-rango inside the demand range, extremes included", () => {
+    const base = { ...dto, activeInitiatives: actives([[1.5, 2.5]]) };
+    expect(
+      squadAdapter.toEntity({ ...base, allocatedFte: 2.0 }).assignmentStatus
+    ).toMatchObject({ kind: "en-rango", deltaFte: 0 });
+    // Los extremos pertenecen al rango.
+    expect(
+      squadAdapter.toEntity({ ...base, allocatedFte: 1.5 }).assignmentStatus
+    ).toMatchObject({ kind: "en-rango" });
+    expect(
+      squadAdapter.toEntity({ ...base, allocatedFte: 2.5 }).assignmentStatus
+    ).toMatchObject({ kind: "en-rango" });
+  });
+
+  it("derives sobre-asignada above the demand maximum", () => {
+    const entity = squadAdapter.toEntity({
+      ...dto,
+      allocatedFte: 3.0,
+      activeInitiatives: actives([[1.5, 2.5]]),
+    });
+    expect(entity.assignmentStatus).toEqual({
+      kind: "sobre",
+      demandMin: 1.5,
+      demandMax: 2.5,
+      deltaFte: 0.5,
+    });
+  });
+
+  it("derives sub-asignada against the minimum when the squad has no people", () => {
+    const entity = squadAdapter.toEntity({
+      ...dto,
+      allocatedFte: 0,
+      activeInitiatives: actives([[1.0, 1.5]]),
+    });
+    expect(entity.assignmentStatus).toEqual({
+      kind: "sub",
+      demandMin: 1.0,
+      demandMax: 1.5,
+      deltaFte: 1.0,
+    });
   });
 
   it("labels every criticality in the catalog, in scale order", () => {

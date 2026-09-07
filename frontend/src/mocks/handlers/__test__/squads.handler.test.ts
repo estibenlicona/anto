@@ -117,37 +117,61 @@ describe("GET /squads (campos calculados y filtros)", () => {
     });
   });
 
-  it("devuelve la iniciativa activa de cada célula, con su talla", async () => {
+  it("devuelve las iniciativas activas de cada célula, con talla y rango de FTE", async () => {
     resetInitiativesMock();
     const squads = await fetchAllSquads();
 
     // Canales tiene una activa evaluada y otra en evaluación: sale sólo la activa.
     const canales = squads.find((s) => s.id === CANALES)!;
-    expect(canales.activeInitiative).toMatchObject({ name: "Onboarding App" });
-    expect(canales.activeInitiative!.talla).toBeTruthy();
+    expect(canales.activeInitiatives).toHaveLength(1);
+    expect(canales.activeInitiatives[0]).toMatchObject({
+      name: "Onboarding App",
+    });
+    expect(canales.activeInitiatives[0].talla).toBeTruthy();
+    expect(canales.activeInitiatives[0].fteMin).toBeGreaterThan(0);
+    expect(canales.activeInitiatives[0].fteMax).toBeGreaterThanOrEqual(
+      canales.activeInitiatives[0].fteMin
+    );
+  });
+
+  it("una célula con dos activas devuelve las dos, ordenadas por nombre", async () => {
+    resetInitiativesMock();
+    // Backend tiene activa a Kafka; Payment Engine v2 está evaluada: activarla
+    // deja a la célula con dos (varias activas a la vez, change
+    // estado-asignacion-celulas).
+    await initiativeService.setStatus("ini-payments", "Active");
+
+    const backend = (await fetchAllSquads()).find((s) => s.id === BACKEND)!;
+    expect(backend.activeInitiatives.map((i) => i.name)).toEqual([
+      "Kafka Migration",
+      "Payment Engine v2",
+    ]);
+    resetInitiativesMock();
   });
 
   it("no cuenta como activa una iniciativa en evaluación ni una cerrada", async () => {
     resetInitiativesMock();
     const squads = await fetchAllSquads();
 
-    // Datos tiene una sola iniciativa y está cerrada.
-    expect(squads.find((s) => s.id === DATOS)!.activeInitiative).toBeNull();
+    // Datos tiene una cerrada (Lakehouse) y una activa: sale sólo la activa.
+    expect(
+      squads.find((s) => s.id === DATOS)!.activeInitiatives.map((i) => i.name)
+    ).toEqual(["Data Mesh Gobernado"]);
 
     // La célula sin ninguna iniciativa se lee igual que la que sólo tiene
-    // cerradas: null, una sola forma del caso "no está ejecutando nada".
-    expect(squads.find((s) => s.id === PAGOS)!.activeInitiative).toBeNull();
+    // cerradas: lista vacía, una sola forma del caso "no está ejecutando nada".
+    expect(squads.find((s) => s.id === PAGOS)!.activeInitiatives).toEqual([]);
   });
 
   it("refleja en la célula una iniciativa cerrada en la misma sesión", async () => {
     resetInitiativesMock();
     const antes = (await fetchAllSquads()).find((s) => s.id === BACKEND)!;
-    expect(antes.activeInitiative).not.toBeNull();
+    expect(antes.activeInitiatives).toHaveLength(1);
 
-    await initiativeService.setStatus(antes.activeInitiative!.id, "Closed");
+    await initiativeService.setStatus(antes.activeInitiatives[0].id, "Closed");
 
     const despues = (await fetchAllSquads()).find((s) => s.id === BACKEND)!;
-    expect(despues.activeInitiative).toBeNull();
+    expect(despues.activeInitiatives).toEqual([]);
     resetInitiativesMock();
   });
 

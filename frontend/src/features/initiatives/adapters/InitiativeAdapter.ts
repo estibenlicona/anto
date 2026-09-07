@@ -105,10 +105,10 @@ export const initiativeAdapter = {
       tallaColor: tallaColor(ev?.talla ?? ""),
       fteText: ev ? fteText(ev.fteExpected) : "—",
       plazoText: `${dto.targetMonths} m`,
-      // Dos condiciones: sin evaluar no hay nada que activar, y una célula
-      // sostiene un solo trabajo a la vez.
-      canActivate:
-        dto.status !== "Active" && ev !== null && !dto.squadHasOtherActive,
+      // Una sola condición: sin evaluar no hay nada que activar. Que la célula
+      // tenga otras activas ya no importa: sostiene varias a la vez (change
+      // estado-asignacion-celulas).
+      canActivate: dto.status !== "Active" && ev !== null,
       canClose: dto.status === "Active",
     };
   },

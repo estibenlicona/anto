@@ -6,7 +6,16 @@ import prettier from "eslint-plugin-prettier";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "node_modules", "coverage", ".storybook", "public"] },
+  {
+    ignores: [
+      "dist",
+      "dist-smoke*",
+      "node_modules",
+      "coverage",
+      ".storybook",
+      "public",
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

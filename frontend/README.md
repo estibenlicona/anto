@@ -10,7 +10,7 @@ Stack: React 19 + Vite + TypeScript, `@module-federation/vite`, React Router 7, 
 
 | Expose | Archivo | Qué es |
 |---|---|---|
-| `capacidad/module` | `src/module/CapacityModule.tsx` | El componente que el host monta bajo su ruta base |
+| `capacidad/module` | `src/module/CapacityModule.tsx` | El componente que el host monta bajo su ruta base. **Importa la hoja de estilos** (`src/styles/styles.css`): el CSS viaja con el expose y el host lo inyecta al cargarlo. Si sólo lo importara `main.tsx` (arranque standalone), el módulo correría bajo el host sin sus utilidades propias y las diferencias sólo se verían donde tuip o el host no traen la misma clase |
 
 | Compartida | Versión exigida | Por qué |
 |---|---|---|
@@ -60,7 +60,7 @@ pnpm dev                                         # http://localhost:4300/remoteE
 cd C:\Repos\anto\host && pnpm dev                # http://localhost:4400 → entrar a Gestión de Capacidad
 ```
 
-Abrir `http://localhost:4300` directo sólo muestra una página que remite al host: el módulo real se ve en `http://localhost:4400/capacidad`. Los cambios de código del módulo se reflejan sin reiniciar el host (HMR del remote). El dev server anuncia sus assets con origen `http://localhost:4300` y acepta CORS, porque el host es otro origen.
+Abrir `http://localhost:4300` directo sólo muestra una página que remite al host: el módulo real se ve en `http://localhost:4400/capacidad`. Para probar el módulo **solo, sin el trío**, `pnpm dev:mock` lo monta con un host falso de desarrollo (sesión fija con todos los permisos + datos de MSW) en `http://localhost:4300/capacidad`; ese montador vive en `src/dev/` y no entra al build del remote. Los cambios de código del módulo se reflejan sin reiniciar el host (HMR del remote). El dev server anuncia sus assets con origen `http://localhost:4300` y acepta CORS, porque el host es otro origen.
 
 Para verificar sobre un build (por ejemplo cuando el dev server hace pesadas las capturas del navegador): `VITE_USE_MOCKS=true vite build --mode development --outDir dist-smoke` y `vite preview --outDir dist-smoke` (mismo puerto 4300 y CORS, por `preview` en `vite.config.ts`).
 

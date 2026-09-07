@@ -39,14 +39,6 @@ export interface InitiativeDto {
   status: InitiativeStatus;
   evaluation: InitiativeEvaluationDto | null;
   createdAtUtc: string;
-  /**
-   * Si la célula de esta iniciativa ya tiene otra activa: una célula sostiene
-   * un solo trabajo a la vez, así que esto es lo que decide si se puede
-   * activar. Lo resuelve el servidor contra todas las iniciativas de la célula
-   * —no contra la página listada—, porque la activa puede estar en otra página
-   * o fuera del filtro, y ahí el cliente concluiría que no hay ninguna.
-   */
-  squadHasOtherActive: boolean;
 }
 
 export interface InitiativeInput {

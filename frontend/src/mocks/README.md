@@ -33,13 +33,14 @@ server.use(
 
 `server.resetHandlers()` corre en `afterEach` (ver `vitest-setup.ts`), así que el override solo aplica a ese test — el resto de la suite sigue usando el handler por defecto.
 
-## Modo navegador (el módulo bajo el host, sin backend)
+## Modo navegador (sin backend)
 
 ```
-pnpm dev
+pnpm dev        # el remote para el host (trío emulador + host + remote)
+pnpm dev:mock   # standalone: el módulo solo, con sesión fija y todos los permisos
 ```
 
-Arranca el dev server del remote con `VITE_USE_MOCKS=true`. `src/module/CapacityModule.tsx` detecta esa variable al montarse dentro del host y registra el Service Worker (`setupWorker` de `browser.ts`) — desde ahí, cualquier request que haga `httpClient` queda interceptada por los mismos handlers que usan los tests.
+Ambos arrancan el dev server con `VITE_USE_MOCKS=true`; `dev:mock` además monta el módulo con un host falso de desarrollo (`src/dev/StandaloneHost.tsx`) para abrirlo directo en `http://localhost:4300/capacidad`, sin levantar el trío. `src/module/CapacityModule.tsx` detecta esa variable al montarse dentro del host y registra el Service Worker (`setupWorker` de `browser.ts`) — desde ahí, cualquier request que haga `httpClient` queda interceptada por los mismos handlers que usan los tests.
 
 - El worker se registra **contra el origen del host** (`${window.location.origin}/mockServiceWorker.js`): los service workers son por origen, y el módulo corre en la página del host (`http://localhost:4400`). Por eso el host sirve una copia de `public/mockServiceWorker.js` en su propio `public/` (ver `../../../host/README.md`). Si se regenera el worker (`npx msw init public`), hay que copiarlo también al host.
 - `VITE_USE_MOCKS` nunca debe agregarse a un `.env.*` versionado: lo fija el script `dev` y, para un build de verificación, se pasa a mano (`VITE_USE_MOCKS=true vite build --mode development`).

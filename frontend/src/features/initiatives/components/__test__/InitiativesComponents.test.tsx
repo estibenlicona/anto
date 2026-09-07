@@ -18,7 +18,6 @@ const base: InitiativeDto = {
   status: "Evaluating",
   evaluation: null,
   createdAtUtc: "2026-08-01T00:00:00Z",
-  squadHasOtherActive: false,
 };
 
 const evaluated: InitiativeDto = {

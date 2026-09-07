@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { segmentFillClass, Tag } from "@tuya-ui/components";
+import { segmentFillClass, Icon, Tag } from "@tuya-ui/components";
 import { tallaColor } from "@features/initiatives/adapters/InitiativeAdapter";
 import { MIX_COLORS } from "../mixColors";
 import { MemoryRouter } from "react-router-dom";
@@ -8,7 +8,8 @@ import { SquadsList, type SquadsListProps } from "../SquadsList";
 import type { Squad } from "../../adapters/SquadAdapter";
 
 const squad: Squad = {
-  activeInitiative: null,
+  activeInitiatives: [],
+  assignmentStatus: { kind: "sin-demanda" },
   id: "1",
   name: "Backend Platform",
   team: "Ecosistema Digital",
@@ -110,15 +111,24 @@ describe("SquadsList", () => {
     expect(rotulos).toContain("Personas");
   });
 
-  describe("la columna de la iniciativa activa", () => {
-    const conActiva = (activeInitiative: Squad["activeInitiative"]): Squad => ({
+  describe("la columna de las iniciativas activas", () => {
+    const ini = (
+      id: string,
+      name: string,
+      talla: string,
+      fteMin = 1,
+      fteMax = 2
+    ) => ({ id, name, talla, fteMin, fteMax });
+    const conActivas = (
+      activeInitiatives: Squad["activeInitiatives"]
+    ): Squad => ({
       ...squad,
-      activeInitiative,
+      activeInitiatives,
     });
 
     it("muestra su talla y el nombre como enlace a su evaluación", () => {
       renderList({
-        squads: [conActiva({ id: "i1", name: "Kafka", talla: "M" })],
+        squads: [conActivas([ini("i1", "Kafka", "M")])],
       });
       expect(screen.getByText("M")).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Kafka" })).toHaveAttribute(
@@ -131,7 +141,7 @@ describe("SquadsList", () => {
       // Alineación entre filas: la talla hace de columna dentro de la celda.
       // Apiladas, la celda tendría dos alturas y los nombres no alinearían.
       renderList({
-        squads: [conActiva({ id: "i1", name: "Kafka", talla: "M" })],
+        squads: [conActivas([ini("i1", "Kafka", "M")])],
       });
       const talla = screen.getByText("M");
       const nombre = screen.getByRole("link", { name: "Kafka" });
@@ -141,7 +151,7 @@ describe("SquadsList", () => {
     it("sin activa se lee Sin iniciativa, aunque la célula tenga trabajo en evaluación", () => {
       // Las que están en evaluación no llegan a esta columna: el listado
       // responde por lo que la célula ejecuta.
-      renderList({ squads: [conActiva(null)] });
+      renderList({ squads: [conActivas([])] });
       expect(screen.getByText("Sin iniciativa")).toBeInTheDocument();
 
       // El guion sostiene la alineación, pero no es contenido que anunciar.
@@ -150,7 +160,7 @@ describe("SquadsList", () => {
 
     it("la talla usa el mismo color que en el módulo de Iniciativas", () => {
       renderList({
-        squads: [conActiva({ id: "i1", name: "Kafka", talla: "XL" })],
+        squads: [conActivas([ini("i1", "Kafka", "XL")])],
       });
       const enLista = screen.getByText("XL");
 
@@ -159,11 +169,27 @@ describe("SquadsList", () => {
       expect(enLista.className).toBe(container.firstElementChild!.className);
     });
 
-    it("nunca resume varias: ni excedente ni recuento en la celda", () => {
+    it("muestra todas las activas, una línea por iniciativa, sin colapsarlas", () => {
       renderList({
         squads: [
-          conActiva({ id: "i1", name: "Kafka", talla: "S" }),
-          { ...conActiva(null), id: "2" },
+          conActivas([ini("i1", "Kafka", "S"), ini("i2", "Payments", "M")]),
+        ],
+      });
+      expect(screen.getByRole("link", { name: "Kafka" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "Payments" })
+      ).toBeInTheDocument();
+      expect(screen.queryByText(/^\+\d+$/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/\d+ iniciativas/)).not.toBeInTheDocument();
+    });
+
+    it("las que están en evaluación no aparecen ni suman recuento", () => {
+      // El contrato sólo transporta activas: con una activa y otra célula sin
+      // ninguna, la celda muestra exactamente la lista recibida.
+      renderList({
+        squads: [
+          conActivas([ini("i1", "Kafka", "S")]),
+          { ...conActivas([]), id: "2" },
         ],
       });
       expect(screen.getAllByRole("row")).toHaveLength(3); // cabecera + 2 células
@@ -172,13 +198,102 @@ describe("SquadsList", () => {
       expect(screen.queryByText("Sin evaluar")).not.toBeInTheDocument();
     });
 
-    it("el rótulo de la columna está en singular", () => {
+    it("el rótulo de la columna está en plural", () => {
       renderList({ squads: [squad] });
       const rotulos = screen
         .getAllByRole("columnheader")
         .map((h) => h.textContent);
-      expect(rotulos).toContain("Iniciativa");
-      expect(rotulos).not.toContain("Iniciativas");
+      expect(rotulos).toContain("Iniciativas");
+      expect(rotulos).not.toContain("Iniciativa");
+    });
+  });
+
+  describe("la columna de asignación", () => {
+    const con = (assignmentStatus: Squad["assignmentStatus"]): Squad => ({
+      ...squad,
+      assignmentStatus,
+    });
+    const senal = (nombre: RegExp) => screen.getByRole("img", { name: nombre });
+
+    it("sub-asignada es la señal de tendencia arriba en peligro, con el faltante en el nombre", () => {
+      renderList({
+        squads: [
+          con({ kind: "sub", demandMin: 1.5, demandMax: 2.5, deltaFte: 0.5 }),
+        ],
+      });
+      const icono = senal(/Sub-asignada: faltan 0.5 FTE/);
+      expect(icono.className).toContain("text-danger-default");
+
+      // El mismo glifo que la señal de sobrecarga del balance de carga.
+      const { container } = render(<Icon name="trend-up" size={20} />);
+      expect(icono.querySelector("svg")!.innerHTML).toBe(
+        container.querySelector("svg")!.innerHTML
+      );
+    });
+
+    it("en rango es el check en éxito, sin cifra", () => {
+      renderList({
+        squads: [
+          con({
+            kind: "en-rango",
+            demandMin: 1.5,
+            demandMax: 2.5,
+            deltaFte: 0,
+          }),
+        ],
+      });
+      expect(senal(/En rango/).className).toContain("text-success-default");
+      expect(screen.queryByText(/Faltan|Sobran/)).not.toBeInTheDocument();
+    });
+
+    it("sobre-asignada es la tendencia abajo en advertencia, con el sobrante en el nombre", () => {
+      renderList({
+        squads: [
+          con({ kind: "sobre", demandMin: 1.5, demandMax: 2.5, deltaFte: 0.5 }),
+        ],
+      });
+      expect(senal(/Sobre-asignada: sobran 0.5 FTE/).className).toContain(
+        "text-warning-default"
+      );
+    });
+
+    it("sin demanda es el icono de vacío en neutro", () => {
+      renderList({ squads: [con({ kind: "sin-demanda" })] });
+      expect(
+        senal(/Sin demanda: la célula no tiene iniciativas activas/).className
+      ).toContain("text-neutral-subtlest");
+    });
+
+    it("sólo el icono: la celda no muestra badge ni texto visible del estado", () => {
+      renderList({
+        squads: [
+          con({ kind: "sub", demandMin: 1.5, demandMax: 2.5, deltaFte: 0.5 }),
+        ],
+      });
+      // El estado no compite con la criticidad: un solo role=status por fila.
+      expect(screen.getAllByRole("status")).toHaveLength(1);
+      expect(screen.queryByText("Sub-asignada")).not.toBeInTheDocument();
+      expect(screen.queryByText(/Faltan 0.5 FTE/)).not.toBeInTheDocument();
+    });
+
+    it("el desglose demanda–asignado viaja en el nombre accesible del icono", () => {
+      renderList({
+        squads: [
+          con({ kind: "sub", demandMin: 1.5, demandMax: 2.5, deltaFte: 0.5 }),
+        ],
+      });
+      expect(
+        senal(/Demanda 1.5–2.5 FTE · Asignado 1.8 FTE/)
+      ).toBeInTheDocument();
+    });
+
+    it("la señal recibe foco para abrir su explicación con teclado", () => {
+      renderList({
+        squads: [
+          con({ kind: "sub", demandMin: 1.5, demandMax: 2.5, deltaFte: 0.5 }),
+        ],
+      });
+      expect(senal(/Sub-asignada/)).toHaveAttribute("tabindex", "0");
     });
   });
 

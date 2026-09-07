@@ -93,7 +93,7 @@ const row = (
     id: "a1",
     squadId: "s1",
     squadName: "Backend Platform",
-    activeInitiative: { id: "i1", name: "Kafka Migration", talla: "L" },
+    activeInitiatives: [{ id: "i1", name: "Kafka Migration", talla: "L" }],
     declaredDedicationPercentage: 80,
     declaredBauPercentage: 50,
     declaredTransformationPercentage: 30,

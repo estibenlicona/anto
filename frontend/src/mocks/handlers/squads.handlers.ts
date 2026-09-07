@@ -35,7 +35,7 @@ export type StoredSquad = Omit<
   | "bauFte"
   | "transformationFte"
   | "peopleAvailableFte"
-  | "activeInitiative"
+  | "activeInitiatives"
 >;
 
 // Cubren las 4 criticidades y 4 equipos; Pagos Instantáneos queda sin personas a
@@ -112,28 +112,30 @@ function peopleAvailableFteOf(
 }
 
 /**
- * La iniciativa activa de la célula, derivada del mock de iniciativas — igual
- * que las cifras de capacidad se derivan del de asignaciones. Derivarla en vez
- * de guardarla en la célula es lo que hace que activar o cerrar una iniciativa
- * se vea acá dentro de la misma sesión, sin sincronizar dos puntas.
+ * Las iniciativas activas de la célula, derivadas del mock de iniciativas —
+ * igual que las cifras de capacidad se derivan del de asignaciones. Derivarlas
+ * en vez de guardarlas en la célula es lo que hace que activar o cerrar una
+ * iniciativa se vea acá dentro de la misma sesión, sin sincronizar dos puntas.
  *
- * `find` y no `filter[0]`: la célula tiene una activa o ninguna —activar una
- * segunda se rechaza, ver initiatives.handlers—, y buscar dice eso; quedarse
- * con el primero de varios diría que el resto se descarta.
+ * Todas, no la primera: una célula sostiene varias activas a la vez (change
+ * estado-asignacion-celulas). Ordenadas por nombre para que la fila sea
+ * estable entre renders. Sólo se activa lo evaluado, así que talla y rango de
+ * FTE están; una activa sin evaluación no debería existir y se omite antes que
+ * inventarle demanda cero.
  */
-function activeInitiativeOf(squadId: string): SquadActiveInitiativeDto | null {
-  const active = getInitiativesSnapshot().find(
-    (i) => i.squadId === squadId && i.status === "Active"
-  );
-  // Sólo se activa lo evaluado, así que la talla está; el `?? ""` es para el
-  // tipo, no para un caso que el mock pueda producir.
-  return active
-    ? {
-        id: active.id,
-        name: active.name,
-        talla: active.evaluation?.talla ?? "",
-      }
-    : null;
+function activeInitiativesOf(squadId: string): SquadActiveInitiativeDto[] {
+  return getInitiativesSnapshot()
+    .filter(
+      (i) => i.squadId === squadId && i.status === "Active" && i.evaluation
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((i) => ({
+      id: i.id,
+      name: i.name,
+      talla: i.evaluation?.talla ?? "",
+      fteMin: i.evaluation?.fteMin ?? 0,
+      fteMax: i.evaluation?.fteMax ?? 0,
+    }));
 }
 
 /**
@@ -156,7 +158,7 @@ function enrich(squad: StoredSquad, vista: Vista): SquadDto {
     bauFte: sum((a) => a.bauPercentage),
     transformationFte: sum((a) => a.transformationPercentage),
     peopleAvailableFte: peopleAvailableFteOf(own, vista.people),
-    activeInitiative: activeInitiativeOf(squad.id),
+    activeInitiatives: activeInitiativesOf(squad.id),
   };
 }
 

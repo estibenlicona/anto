@@ -27,12 +27,12 @@ El contrato completo vive en [`oas.json`](./oas.json) (OpenAPI 3.1, 88 operacion
 | Capacidad (dedicación) | 4 | 4 | 0 | 0 |
 | Detalle de persona | 3 | 3 | 0 | 0 |
 | Líneas de expertise | 10 | 10 | 0 | 0 |
-| Iniciativas | 8 | 8 | 0 | 0 |
+| Iniciativas | 8 | 6 | 2 | 0 |
 | Personas | 10 | 10 | 0 | 0 |
 | Evaluaciones | 4 | 4 | 0 | 0 |
 | Catálogo de habilidades | 7 | 7 | 0 | 0 |
-| Células | 7 | 7 | 0 | 0 |
-| **Total** | **88** | **88** | **0** | **0** |
+| Células | 7 | 6 | 1 | 0 |
+| **Total** | **88** | **85** | **3** | **0** |
 
 ## Ausencias
 
@@ -172,19 +172,19 @@ El contrato completo vive en [`oas.json`](./oas.json) (OpenAPI 3.1, 88 operacion
 
 ## Iniciativas
 
-**Reglas.** La evaluación la calcula el servidor con el modelo vigente (`/initiatives/evaluation-model`): puntos por pregunta × peso, % sobre el máximo, talla por bandas, FTE esperado/mín/máx y mix por talla; el tamizaje produce el veredicto (Required/Recommended/FastTrack). Activar exige evaluación guardada y célula sin otra iniciativa activa.
+**Reglas.** La evaluación la calcula el servidor con el modelo vigente (`/initiatives/evaluation-model`): puntos por pregunta × peso, % sobre el máximo, talla por bandas, FTE esperado/mín/máx y mix por talla; el tamizaje produce el veredicto (Required/Recommended/FastTrack). Activar exige sólo evaluación guardada: **una célula sostiene varias iniciativas activas a la vez** (change `estado-asignacion-celulas`). ⚠ Deuda de alineación: `ChangeInitiativeStatusUseCase` todavía impone una sola activa y el DTO .NET aún deriva `squadHasOtherActive` (el front ya no lo consume); toca retirarlos en su change `backend-modulo-*`.
 
 **De dónde sale el modelo.** `evaluation-model` se **compone desde los parámetros de Admin** —el pool de preguntas, las bandas de talla y el mix de capacidades, ya implementados— y no desde una copia propia. Lo que Admin no administra y este módulo aporta: el rango de porcentaje de cada banda (derivado de los cortes), el tipo y la escala de cada pregunta, el tamizaje y la acción por talla. Cambiar un parámetro en Admin afecta la **siguiente** evaluación, no las ya guardadas, que son snapshots.
 → Specs: `openspec/specs/initiatives/spec.md` y `openspec/specs/admin-shell/spec.md` (parámetros del modelo).
 
 | | Endpoint | Request | Response | Errores | Estado |
 |---|---|---|---|---|---|
-| 🟢 | `GET /initiatives` — Listado paginado de iniciativas | — | `PagedResultOfInitiativeDto` | — | Implementado: Listado global con la evaluación embebida y `squadHasOtherActive` derivado del conjunto; filtros `search`/`status`/`squadId`/`talla` (la talla sale de la evaluación, así que una sin evaluar nunca la matchea). |
+| 🟡 | `GET /initiatives` — Listado paginado de iniciativas | — | `PagedResultOfInitiativeDto` | — | Desalineado (estado-asignacion-celulas): el contrato ya no lleva `squadHasOtherActive`; .NET todavía lo deriva y lo expone. Filtros `search`/`status`/`squadId`/`talla` intactos. |
 | 🟢 | `POST /initiatives` — Alta de iniciativa (nace en evaluación) | `InitiativeInput` | `InitiativeDto` | 400 | Implementado: Nace Evaluating y sin evaluar; 400 con nombre > 200, product owner > 100 o plazo fuera de 1–36; 404 si la célula no existe. |
 | 🟢 | `GET /initiatives/{id}` — Detalle de una iniciativa | — | `InitiativeDto` | 404 | Implementado: Mismo DTO enriquecido del listado. |
 | 🟢 | `PUT /initiatives/{id}` — Edición de iniciativa | `InitiativeInput` | `InitiativeDto` | 400, 404 | Implementado: Cambiar el plazo re-evalúa con las respuestas guardadas — el FTE se mueve, la talla y los puntos no— y conserva la fecha de guardado. |
 | 🟢 | `PUT /initiatives/{id}/evaluation` — Guarda la evaluación de dimensionamiento (el servidor calcula talla, FTE y mix) | `SaveEvaluationRequest` | `InitiativeDto` | 400, 404 | Implementado: Sólo se reciben respuestas; 400 si el tamizaje no trae 6, si el plazo está fuera de 1–36, o si una respuesta sale de 0–4 o cita una pregunta fuera del pool. También actualiza el plazo. |
-| 🟢 | `PUT /initiatives/{id}/status` — Cambia el estado (activar exige evaluación guardada y célula sin otra activa) | `SetInitiativeStatusRequest` | `InitiativeDto` | 400, 404 | Implementado: Los cuatro 400 en español — «Estado inválido», «Para activar una iniciativa primero hay que evaluarla», «La célula ya tiene una iniciativa activa. Ciérrala antes de activar otra.» y «Sólo se cierra una iniciativa activa». Cuando faltan evaluación y cupo, se pide evaluar primero: es lo que el usuario puede resolver ahora. |
+| 🟡 | `PUT /initiatives/{id}/status` — Cambia el estado (activar exige sólo evaluación guardada) | `SetInitiativeStatusRequest` | `InitiativeDto` | 400, 404 | Desalineado (estado-asignacion-celulas): la regla «la célula ya tiene una iniciativa activa» se retiró del dominio y `ChangeInitiativeStatusUseCase` todavía la impone con su 400. Quedan «Estado inválido», «Para activar una iniciativa primero hay que evaluarla» y «Sólo se cierra una iniciativa activa». |
 | 🟢 | `GET /initiatives/evaluation-model` — Modelo de evaluación vigente (preguntas, tamizaje, bandas de talla, mix) | — | `EvaluationModel` | — | Implementado: Compuesto desde Admin en cada petición; 30 preguntas en 7 dimensiones, tamizaje de 6 con T2 y T3 críticas, y bandas con su rango derivado de los cortes (la frontera es de la banda de abajo: XS 0–20, S 21–40, …). |
 | 🟢 | `GET /initiatives/stats` — Resumen agregado de iniciativas | — | `InitiativesStats` | — | Implementado: Sobre el total; las 5 tallas siempre presentes en el orden de las bandas y `fteDemand` = Σ `fteExpected` de las activas a 2 decimales. |
 
@@ -235,12 +235,12 @@ El contrato completo vive en [`oas.json`](./oas.json) (OpenAPI 3.1, 88 operacion
 
 ## Células
 
-**Reglas.** Los agregados del DTO (memberCount, members, FTEs, `activeInitiative`) los calcula el servidor desde las asignaciones e iniciativas vigentes; son de sólo lectura. Una célula sostiene a lo sumo una iniciativa activa. `/squads/stats` se calcula sobre el total (incluye los 4 niveles de criticidad aunque estén en cero).
+**Reglas.** Los agregados del DTO (memberCount, members, FTEs, `activeInitiatives`) los calcula el servidor desde las asignaciones e iniciativas vigentes; son de sólo lectura. Una célula sostiene **varias iniciativas activas a la vez** (change `estado-asignacion-celulas`): `activeInitiatives` es la lista ordenada por nombre y cada entrada trae `fteMin`/`fteMax` de su evaluación — con eso el front deriva el estado de asignación del listado. `/squads/stats` se calcula sobre el total (incluye los 4 niveles de criticidad aunque estén en cero).
 → Specs: `openspec/specs/squads/spec.md`.
 
 | | Endpoint | Request | Response | Errores | Estado |
 |---|---|---|---|---|---|
-| 🟢 | `GET /squads` — Listado paginado de células | — | `PagedResultOfSquadDto` | — | Implementado: DTO con agregados derivados de asignaciones e iniciativas (muestra de 3 miembros por nombre, FTEs a 1 decimal, iniciativa Activa con su talla real tomada de la evaluación guardada) y filtros `search`/`criticality`. |
+| 🟡 | `GET /squads` — Listado paginado de células | — | `PagedResultOfSquadDto` | — | Desalineado (estado-asignacion-celulas): el contrato pasó de `activeInitiative` (una o null) a `activeInitiatives` (lista con `fteMin`/`fteMax` por iniciativa); .NET todavía devuelve la forma vieja. El resto de los agregados y los filtros `search`/`criticality` intactos. |
 | 🟢 | `POST /squads` — Alta de célula | `CreateSquadRequest` | `SquadDto` | 400 | Implementado: Misma forma base (name, team, criticality, description). |
 | 🟢 | `GET /squads/{id}` — Detalle de una célula | — | `SquadDto` | 404 | Implementado: Mismo DTO enriquecido del listado. |
 | 🟢 | `PUT /squads/{id}` — Edición de célula | `CreateSquadRequest` | `SquadDto` | 400, 404 | Implementado: Misma forma base. |

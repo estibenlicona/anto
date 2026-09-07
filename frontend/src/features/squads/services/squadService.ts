@@ -10,18 +10,21 @@ export interface SquadMemberSampleDto {
 }
 
 /**
- * La iniciativa activa de la célula: lo justo para leer de qué tamaño es el
- * trabajo que la ocupa.
+ * Una iniciativa activa de la célula: lo justo para leer de qué tamaño es el
+ * trabajo que la ocupa y cuánta capacidad demanda.
  *
  * Sin `status`: sólo podría valer "Active", y un campo con un único valor
  * posible invita a filtrar otra vez río abajo. Y `talla` no es nullable porque
  * una iniciativa sólo se activa con evaluación guardada: la activa siempre
- * tiene talla.
+ * tiene talla — y con ella su rango de FTE (`fteMin`–`fteMax`, el que salió de
+ * la evaluación), con el que el listado deriva el estado de asignación.
  */
 export interface SquadActiveInitiativeDto {
   id: string;
   name: string;
   talla: string;
+  fteMin: number;
+  fteMax: number;
 }
 
 export interface SquadDto {
@@ -49,15 +52,15 @@ export interface SquadDto {
   /** Σ availableFte de las personas asignadas: contra qué se mide la ocupación de la fila. */
   peopleAvailableFte: number;
   /**
-   * La iniciativa activa de la célula, o null si no tiene ninguna. Una célula
-   * sostiene como mucho un trabajo a la vez —el backend lo hace cumplir al
-   * activar—, así que el campo es uno o ninguno y no una lista: con una lista,
-   * el día que se colara una segunda activa la vista elegiría una en silencio.
+   * Las iniciativas activas de la célula, ordenadas por nombre; vacía si no
+   * tiene ninguna. Una célula sostiene varias a la vez (change
+   * estado-asignacion-celulas) y la suma de sus rangos de FTE es la demanda
+   * contra la que se lee el estado de asignación.
    *
    * Las iniciativas en evaluación no viajan acá: el listado responde por lo que
    * la célula ejecuta, no por lo que todavía se está dimensionando.
    */
-  activeInitiative: SquadActiveInitiativeDto | null;
+  activeInitiatives: SquadActiveInitiativeDto[];
 }
 
 export interface CreateSquadRequest {

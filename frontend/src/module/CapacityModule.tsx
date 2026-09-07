@@ -1,4 +1,9 @@
 import React, { useEffect } from "react";
+// La hoja de estilos viaja con el expose: si sólo la importara main.tsx (el
+// arranque standalone del dev server), el host cargaría el módulo sin su CSS
+// y las utilidades propias (las que tuip y el host no traen por casualidad)
+// desaparecerían en producción — pasó con la grilla de cards de Células.
+import "../styles/styles.css";
 import { CapacitySessionBridge } from "./CapacitySessionBridge";
 import { CapacityRoutes } from "./routes";
 import type { CapacityModuleProps } from "./contract";

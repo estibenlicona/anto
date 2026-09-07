@@ -36,22 +36,16 @@ describe("initiativeAdapter", () => {
     });
   });
 
-  it("no deja activar si la célula ya tiene una activa", async () => {
+  it("deja activar aunque la célula ya tenga otra activa", async () => {
     resetInitiativesMock();
-    // Evaluada, con talla, pero Backend ya sostiene a Kafka: no alcanza con
-    // tener talla.
+    // Evaluada y con talla: alcanza, aunque Backend ya sostenga a Kafka —
+    // una célula lleva varias iniciativas activas a la vez (change
+    // estado-asignacion-celulas).
     const payments = initiativeAdapter.toEntity(
       await initiativeService.get("ini-payments")
     );
-    expect(payments.canActivate).toBe(false);
     expect(payments.talla).not.toBeNull();
-
-    // Liberada la célula, la misma iniciativa sí se puede activar.
-    await initiativeService.setStatus("ini-kafka", "Closed");
-    const libre = initiativeAdapter.toEntity(
-      await initiativeService.get("ini-payments")
-    );
-    expect(libre.canActivate).toBe(true);
+    expect(payments.canActivate).toBe(true);
   });
 });
 
@@ -61,7 +55,7 @@ describe("useInitiatives", () => {
   it("carga, y cambiar un filtro vuelve a página 1 con el subconjunto", async () => {
     const { result } = renderHook(() => useInitiatives());
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(result.current.total).toBe(7);
+    expect(result.current.total).toBe(8);
     act(() => result.current.onPageSizeChange(5));
     await waitFor(() => expect(result.current.totalPages).toBe(2));
     act(() => result.current.onPageChange(2));
@@ -69,7 +63,7 @@ describe("useInitiatives", () => {
     act(() => result.current.onStatusesChange(["Active"]));
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.page).toBe(1);
-    expect(result.current.total).toBe(3);
+    expect(result.current.total).toBe(4);
     expect(result.current.initiatives.every((i) => i.status === "Active")).toBe(
       true
     );

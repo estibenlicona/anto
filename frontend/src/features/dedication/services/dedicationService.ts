@@ -286,7 +286,8 @@ export interface DedicationAllocationDto {
   id: string;
   squadId: string;
   squadName: string;
-  activeInitiative: { id: string; name: string; talla: string } | null;
+  /** Las activas de la célula (varias a la vez, change estado-asignacion-celulas). */
+  activeInitiatives: Array<{ id: string; name: string; talla: string }>;
   /** Lo que la célula declara. No participa en ninguna evidencia. */
   declaredDedicationPercentage: number;
   /**

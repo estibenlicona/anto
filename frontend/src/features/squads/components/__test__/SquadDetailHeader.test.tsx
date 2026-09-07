@@ -17,7 +17,8 @@ const squad: Squad = {
   bauFte: 1.7,
   transformationFte: 1,
   peopleAvailableFte: 3.8,
-  activeInitiative: null,
+  activeInitiatives: [],
+  assignmentStatus: { kind: "sin-demanda" },
   createdAtUtc: "2026-01-01T00:00:00Z",
   updatedAtUtc: "2026-01-01T00:00:00Z",
 };
