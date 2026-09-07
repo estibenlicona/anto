@@ -80,6 +80,14 @@ public sealed class ErrorHandlerMiddleware(
                 StatusCodes.Status400BadRequest,
                 "Bad request",
                 exception.Message),
+            ConflictException => (
+                StatusCodes.Status409Conflict,
+                "Conflict",
+                exception.Message),
+            ExternalServiceUnavailableException => (
+                StatusCodes.Status502BadGateway,
+                "Bad gateway",
+                exception.Message),
             DomainValidationException validationException => (
                 StatusCodes.Status400BadRequest,
                 "Validation error",

@@ -4,14 +4,14 @@ namespace GestionCapacidad.Domain.ValueObjects;
 
 public sealed record InitiativeStatus
 {
-    public static readonly InitiativeStatus Evaluation = new("Evaluation");
+    public static readonly InitiativeStatus Evaluating = new("Evaluating");
     public static readonly InitiativeStatus Active     = new("Active");
     public static readonly InitiativeStatus Closed     = new("Closed");
 
     private static readonly IReadOnlyDictionary<string, InitiativeStatus> _validValues =
         new Dictionary<string, InitiativeStatus>(StringComparer.OrdinalIgnoreCase)
         {
-            [Evaluation.Value] = Evaluation,
+            [Evaluating.Value] = Evaluating,
             [Active.Value]     = Active,
             [Closed.Value]     = Closed,
         };

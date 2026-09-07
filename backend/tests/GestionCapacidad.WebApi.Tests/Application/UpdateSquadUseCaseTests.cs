@@ -11,11 +11,19 @@ namespace GestionCapacidad.WebApi.Tests.Application;
 public sealed class UpdateSquadUseCaseTests
 {
     private readonly Mock<ISquadRepository> _repository = new();
+    private readonly Mock<IAllocationRepository> _allocations = new();
+    private readonly Mock<IPersonRepository> _people = new();
+    private readonly Mock<IInitiativeRepository> _initiatives = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly UpdateSquadValidator _validator = new();
 
-    private UpdateSquadUseCase CreateUseCase() =>
-        new(_repository.Object, _unitOfWork.Object, _validator);
+    private UpdateSquadUseCase CreateUseCase()
+    {
+        _allocations.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Allocation>());
+        _people.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Person>());
+        _initiatives.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Initiative>());
+        return new UpdateSquadUseCase(_repository.Object, _allocations.Object, _people.Object, _initiatives.Object, _unitOfWork.Object, _validator);
+    }
 
     [Fact]
     public async Task ExecuteAsync_UpdatesSquad_WhenExists()
@@ -35,9 +43,9 @@ public sealed class UpdateSquadUseCaseTests
 
         UpdateSquadResponse response = await CreateUseCase().ExecuteAsync(request);
 
-        Assert.Equal("New Name", response.Name);
-        Assert.Equal("Critical", response.Criticality);
-        Assert.NotNull(response.UpdatedAtUtc);
+        Assert.Equal("New Name", response.Squad.Name);
+        Assert.Equal("Critical", response.Squad.Criticality);
+        Assert.NotEqual(default, response.Squad.UpdatedAtUtc);
         _repository.Verify(r => r.Update(It.IsAny<Squad>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }

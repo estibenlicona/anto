@@ -1,3 +1,8 @@
 namespace GestionCapacidad.Application.UseCases.Allocations.GetAllocationsBySquad;
 
-public sealed record GetAllocationsBySquadRequest(Guid SquadId, int Page, int PageSize);
+public sealed record GetAllocationsBySquadRequest(
+    Guid SquadId,
+    int Page,
+    int PageSize,
+    string? Search = null,
+    IReadOnlyCollection<int>? Levels = null);

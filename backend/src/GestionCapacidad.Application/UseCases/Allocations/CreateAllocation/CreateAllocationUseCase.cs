@@ -34,22 +34,15 @@ public sealed class CreateAllocationUseCase(
         if (squad is null)
             throw new NotFoundException($"Squad with id '{request.SquadId}' was not found.");
 
-        if (await allocationRepository.ExistsByPersonAndSquadAsync(request.PersonId, request.SquadId, cancellationToken))
-            throw new BadRequestException($"Person '{person.Name}' is already allocated to squad '{squad.Name}'.");
-
-        // Rule: total allocation per person cannot exceed 100%
-        int totalExisting = await allocationRepository.GetTotalDedicationForPersonAsync(
-            request.PersonId, Guid.Empty, cancellationToken);
-
-        if (totalExisting + request.DedicationPercentage > 100)
-            throw new BadRequestException(
-                $"Total allocation for '{person.Name}' would exceed 100% " +
-                $"(current: {totalExisting}%, adding: {request.DedicationPercentage}%).");
+        // Una persona tiene una sola asignación (RN-13): su margen es lo que
+        // no dedica en su célula, no un reparto entre varias.
+        if (await allocationRepository.ExistsByPersonAsync(request.PersonId, cancellationToken))
+            throw new BadRequestException("La persona ya está asignada a una célula.");
 
         var allocation = new Allocation(
             request.PersonId,
             request.SquadId,
-            request.InitiativeId,
+            initiativeId: null,
             Percentage.From(request.DedicationPercentage),
             Percentage.From(request.BauPercentage),
             Percentage.From(request.TransformationPercentage));
@@ -57,6 +50,6 @@ public sealed class CreateAllocationUseCase(
         await allocationRepository.AddAsync(allocation, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return AllocationMappings.ToCreateResponse(allocation, person.Name, squad.Name);
+        return AllocationMappings.ToCreateResponse(allocation, person, squad.Name);
     }
 }

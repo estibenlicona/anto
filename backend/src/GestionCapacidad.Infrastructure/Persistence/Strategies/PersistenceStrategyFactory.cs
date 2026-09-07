@@ -11,7 +11,7 @@ public sealed class PersistenceStrategyFactory(IEnumerable<IPersistenceStrategy>
         if (!Enum.TryParse(options.Provider, ignoreCase: true, out PersistenceProvider provider))
         {
             throw new InvalidOperationException(
-                $"Persistence provider '{options.Provider}' is not supported. Supported providers: SqlServer, MongoDb.");
+                $"Persistence provider '{options.Provider}' is not supported. Supported providers: SqlServer, MongoDb, InMemory, Postgres.");
         }
 
         return !_strategies.TryGetValue(provider, out IPersistenceStrategy? strategy)

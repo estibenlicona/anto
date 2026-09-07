@@ -10,11 +10,18 @@ namespace GestionCapacidad.WebApi.Tests.Application;
 public sealed class CreatePersonUseCaseTests
 {
     private readonly Mock<IPersonRepository> _repository = new();
+    private readonly Mock<IAllocationRepository> _allocations = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly CreatePersonValidator _validator = new();
 
-    private CreatePersonUseCase CreateUseCase() =>
-        new(_repository.Object, _unitOfWork.Object, _validator);
+    private CreatePersonUseCase CreateUseCase()
+    {
+        _repository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Person>());
+        _allocations.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Allocation>());
+        return new CreatePersonUseCase(_repository.Object, _allocations.Object, _unitOfWork.Object, _validator);
+    }
 
     [Fact]
     public async Task ExecuteAsync_CreatesPerson_WhenDocumentIdIsUnique()
@@ -33,7 +40,7 @@ public sealed class CreatePersonUseCaseTests
 
         Assert.NotEqual(Guid.Empty, response.Person.Id);
         Assert.Equal(request.Name, response.Person.Name);
-        Assert.Equal(request.Seniority, response.Person.Seniority);
+        Assert.Equal(request.Level, response.Person.Level);
         _repository.Verify(r => r.AddAsync(It.IsAny<Person>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }

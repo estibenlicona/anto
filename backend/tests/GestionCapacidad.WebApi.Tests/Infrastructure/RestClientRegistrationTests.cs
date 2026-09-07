@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using GestionCapacidad.Application.ExternalServices.AzureDevOps;
 using GestionCapacidad.Application.ExternalServices.CompanyRegistry;
 using GestionCapacidad.Infrastructure;
 
@@ -22,6 +23,23 @@ public sealed class RestClientRegistrationTests
         Assert.NotNull(client);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void AddInfrastructure_ResolvesAzureDevOpsClient_InBothEnvironments(bool isDevelopment)
+    {
+        IConfiguration configuration = CreateConfiguration();
+
+        using ServiceProvider serviceProvider = new ServiceCollection()
+            .AddLogging()
+            .AddInfrastructure(configuration, isDevelopment)
+            .BuildServiceProvider();
+
+        IAzureDevOpsClient client = serviceProvider.GetRequiredService<IAzureDevOpsClient>();
+
+        Assert.NotNull(client);
+    }
+
     private static IConfiguration CreateConfiguration()
     {
         return new ConfigurationBuilder()
@@ -32,7 +50,9 @@ public sealed class RestClientRegistrationTests
                 ["HttpClients:CompanyRegistry:BaseAddress"] = "https://example.com/company-registry/",
                 ["HttpClients:CompanyRegistry:TimeoutSeconds"] = "30",
                 ["HttpClients:CompanyRegistry:Resilience:Preset"] = "TimeoutOnly",
-                ["HttpClients:CompanyRegistry:Resilience:Timeout:Seconds"] = "10"
+                ["HttpClients:CompanyRegistry:Resilience:Timeout:Seconds"] = "10",
+                ["HttpClients:AzureDevOps:BaseAddress"] = "https://example.com/azure-devops/",
+                ["HttpClients:AzureDevOps:TimeoutSeconds"] = "30"
             })
             .Build();
     }

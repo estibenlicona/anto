@@ -20,11 +20,10 @@ public sealed class GetAllocationsByPersonUseCase(
         var squads = await Task.WhenAll(squadIds.Select(id => squadRepository.GetByIdAsync(id, cancellationToken)));
 
         var squadMap = squads.Where(s => s is not null).ToDictionary(s => s!.Id, s => s!.Name);
-        var personName = person?.Name ?? string.Empty;
 
         var dtos = allocations
             .OrderBy(a => squadMap.GetValueOrDefault(a.SquadId))
-            .Select(a => AllocationMappings.ToDto(a, personName, squadMap.GetValueOrDefault(a.SquadId, string.Empty)))
+            .Select(a => AllocationMappings.ToDto(a, person, squadMap.GetValueOrDefault(a.SquadId, string.Empty)))
             .ToList();
 
         return new GetAllocationsByPersonResponse(dtos);

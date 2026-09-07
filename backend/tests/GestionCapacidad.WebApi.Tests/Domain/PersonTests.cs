@@ -18,8 +18,9 @@ public sealed class PersonTests
             entraObjectId: "entra-obj-1",
             userPrincipalName: "carlos.lopez@company.com",
             position: "Backend Developer",
-            role: "Developer",
-            seniority: Seniority.Experto,
+            role: PersonRole.Contributor,
+            level: Level.Experto,
+            seniority: Seniority.Senior,
             modality: Modality.Hybrid,
             availableFte: Fte.FullTime,
             monthlyCost: 5000m,
@@ -27,7 +28,7 @@ public sealed class PersonTests
 
         Assert.NotEqual(Guid.Empty, person.Id);
         Assert.Equal("Carlos López", person.Name);
-        Assert.Equal(Seniority.Experto, person.Seniority);
+        Assert.Equal(Level.Experto, person.Level);
         Assert.Equal(Modality.Hybrid, person.Modality);
         Assert.Equal(Fte.FullTime, person.AvailableFte);
         Assert.Equal(5000m, person.MonthlyCost);
@@ -71,7 +72,7 @@ public sealed class PersonTests
         var person = BuildValidPerson();
         person.ClearDomainEvents();
 
-        person.UpdateProfile("María García", "123", "entra-2", "maria@co.com", "Tech Lead", "Lead");
+        person.UpdateProfile("María García", "123", "entra-2", "maria@co.com", "Tech Lead", PersonRole.TechnicalLead);
 
         Assert.Equal("María García", person.Name);
         Assert.Equal("Tech Lead", person.Position);
@@ -84,34 +85,162 @@ public sealed class PersonTests
         var person = BuildValidPerson();
 
         Assert.Throws<DomainException>(() =>
-            person.UpdateProfile(string.Empty, "123", "e", "u", "p", "r"));
+            person.UpdateProfile(string.Empty, "123", "e", "u", "p", PersonRole.Contributor));
     }
 
-    // ── ChangeSeniority ───────────────────────────────────────────────────────
+    // ── ChangeSeniority ───────────────────────────────────────────────────
 
     [Fact]
-    public void ChangeSeniority_WithDifferentValue_RaisesEvent()
+    public void ChangeSeniority_WithDifferentValue_UpdatesTheField()
     {
-        var person = BuildValidPerson(seniority: Seniority.Principiante);
+        var person = BuildValidPerson();
         person.ClearDomainEvents();
 
-        person.ChangeSeniority(Seniority.Experto);
+        person.ChangeSeniority(Seniority.Intermediate);
 
-        Assert.Equal(Seniority.Experto, person.Seniority);
-        var evt = Assert.Single(person.DomainEvents.OfType<PersonSeniorityChangedEvent>());
-        Assert.Equal(Seniority.Principiante, evt.OldSeniority);
-        Assert.Equal(Seniority.Experto, evt.NewSeniority);
+        Assert.Equal(Seniority.Intermediate, person.Seniority);
     }
 
     [Fact]
-    public void ChangeSeniority_WithSameValue_DoesNotRaiseEvent()
+    public void ChangeSeniority_IsIndependentFromLevel()
     {
-        var person = BuildValidPerson(seniority: Seniority.Experto);
+        // Dos escalas separadas: mover el seniority no toca el nivel.
+        var person = BuildValidPerson(level: Level.Experto);
+
+        person.ChangeSeniority(Seniority.Junior);
+
+        Assert.Equal(Level.Experto, person.Level);
+        Assert.Equal(Seniority.Junior, person.Seniority);
+    }
+
+    // ── AssignTechnicalLead ───────────────────────────────────────────────
+
+    [Fact]
+    public void AssignTechnicalLead_WithOtherPersonId_SetsTheReference()
+    {
+        var person = BuildValidPerson();
+        var leadId = Guid.NewGuid();
+
+        person.AssignTechnicalLead(leadId);
+
+        Assert.Equal(leadId, person.TechnicalLeadId);
+    }
+
+    [Fact]
+    public void AssignTechnicalLead_WithNull_ClearsTheReference()
+    {
+        var person = BuildValidPerson();
+        person.AssignTechnicalLead(Guid.NewGuid());
+
+        person.AssignTechnicalLead(null);
+
+        Assert.Null(person.TechnicalLeadId);
+    }
+
+    [Fact]
+    public void AssignTechnicalLead_WithOwnId_ThrowsDomainException()
+    {
+        var person = BuildValidPerson();
+
+        Assert.Throws<DomainException>(() => person.AssignTechnicalLead(person.Id));
+    }
+
+    [Fact]
+    public void AssignTechnicalLead_WithEmptyGuid_ThrowsDomainException()
+    {
+        var person = BuildValidPerson();
+
+        Assert.Throws<DomainException>(() => person.AssignTechnicalLead(Guid.Empty));
+    }
+
+    // ── ReplaceStacks ─────────────────────────────────────────────────────
+
+    [Fact]
+    public void ReplaceStacks_StoresThePrimaryFirst()
+    {
+        var person = BuildValidPerson();
+
+        person.ReplaceStacks(
+        [
+            new PersonStack("Azure", Level.Competente, isPrimary: false),
+            new PersonStack(".NET", Level.Avanzado, isPrimary: true),
+        ]);
+
+        Assert.Equal([".NET", "Azure"], person.Stacks.Select(s => s.Name));
+        Assert.True(person.Stacks.First().IsPrimary);
+    }
+
+    [Fact]
+    public void ReplaceStacks_WithEmptyList_ClearsStacks()
+    {
+        var person = BuildValidPerson();
+        person.ReplaceStacks([new PersonStack(".NET", Level.Avanzado, isPrimary: true)]);
+
+        person.ReplaceStacks([]);
+
+        Assert.Empty(person.Stacks);
+    }
+
+    [Fact]
+    public void ReplaceStacks_WithDuplicatedName_ThrowsDomainException()
+    {
+        var person = BuildValidPerson();
+
+        Assert.Throws<DomainException>(() => person.ReplaceStacks(
+        [
+            new PersonStack(".NET", Level.Avanzado, isPrimary: true),
+            new PersonStack(".NET", Level.Competente, isPrimary: false),
+        ]));
+    }
+
+    [Fact]
+    public void ReplaceStacks_WithTwoPrimaries_ThrowsDomainException()
+    {
+        var person = BuildValidPerson();
+
+        Assert.Throws<DomainException>(() => person.ReplaceStacks(
+        [
+            new PersonStack(".NET", Level.Avanzado, isPrimary: true),
+            new PersonStack("Azure", Level.Competente, isPrimary: true),
+        ]));
+    }
+
+    [Fact]
+    public void ReplaceStacks_WithoutPrimary_ThrowsDomainException()
+    {
+        var person = BuildValidPerson();
+
+        Assert.Throws<DomainException>(() => person.ReplaceStacks(
+        [
+            new PersonStack(".NET", Level.Avanzado, isPrimary: false),
+        ]));
+    }
+
+    // ── ChangeLevel ───────────────────────────────────────────────────────
+
+    [Fact]
+    public void ChangeLevel_WithDifferentValue_RaisesEvent()
+    {
+        var person = BuildValidPerson(level: Level.Principiante);
         person.ClearDomainEvents();
 
-        person.ChangeSeniority(Seniority.Experto);
+        person.ChangeLevel(Level.Experto);
 
-        Assert.Empty(person.DomainEvents.OfType<PersonSeniorityChangedEvent>());
+        Assert.Equal(Level.Experto, person.Level);
+        var evt = Assert.Single(person.DomainEvents.OfType<PersonLevelChangedEvent>());
+        Assert.Equal(Level.Principiante, evt.OldLevel);
+        Assert.Equal(Level.Experto, evt.NewLevel);
+    }
+
+    [Fact]
+    public void ChangeLevel_WithSameValue_DoesNotRaiseEvent()
+    {
+        var person = BuildValidPerson(level: Level.Experto);
+        person.ClearDomainEvents();
+
+        person.ChangeLevel(Level.Experto);
+
+        Assert.Empty(person.DomainEvents.OfType<PersonLevelChangedEvent>());
     }
 
     // ── ChangeModality ────────────────────────────────────────────────────────
@@ -210,6 +339,56 @@ public sealed class PersonTests
         Assert.Single(person.DomainEvents.OfType<PersonRemovedFromChapterEvent>());
     }
 
+    // ── Expertise line assignment ─────────────────────────────────────────────
+
+    [Fact]
+    public void AssignToExpertiseLine_SetsExpertiseLineId_AndRaisesEvent()
+    {
+        var person = BuildValidPerson();
+        var lineId = Guid.NewGuid();
+        person.ClearDomainEvents();
+
+        person.AssignToExpertiseLine(lineId);
+
+        Assert.Equal(lineId, person.ExpertiseLineId);
+        Assert.Single(person.DomainEvents.OfType<PersonAssignedToExpertiseLineEvent>());
+    }
+
+    [Fact]
+    public void AssignToExpertiseLine_WithEmptyGuid_ThrowsDomainException()
+    {
+        var person = BuildValidPerson();
+
+        Assert.Throws<DomainException>(() => person.AssignToExpertiseLine(Guid.Empty));
+    }
+
+    [Fact]
+    public void RemoveFromExpertiseLine_ClearsExpertiseLineId_AndRaisesEvent()
+    {
+        var person = BuildValidPerson();
+        person.AssignToExpertiseLine(Guid.NewGuid());
+        person.ClearDomainEvents();
+
+        person.RemoveFromExpertiseLine();
+
+        Assert.Null(person.ExpertiseLineId);
+        Assert.Single(person.DomainEvents.OfType<PersonRemovedFromExpertiseLineEvent>());
+    }
+
+    [Fact]
+    public void ExpertiseLineId_IsIndependentFromChapterId()
+    {
+        var person = BuildValidPerson();
+        var chapterId = Guid.NewGuid();
+        var lineId = Guid.NewGuid();
+
+        person.AssignToChapter(chapterId);
+        person.AssignToExpertiseLine(lineId);
+
+        Assert.Equal(chapterId, person.ChapterId);
+        Assert.Equal(lineId, person.ExpertiseLineId);
+    }
+
     // ── Provider ──────────────────────────────────────────────────────────────
 
     [Fact]
@@ -231,11 +410,31 @@ public sealed class PersonTests
         Assert.Throws<DomainException>(() => person.AssignToProvider(Guid.Empty));
     }
 
+    [Fact]
+    public void LinkDevOpsIdentity_NacesWithoutIdentity_LinkingFixesIt()
+    {
+        var person = BuildValidPerson();
+
+        Assert.Null(person.DevOpsUserId);
+
+        person.LinkDevOpsIdentity("carlos.lopez");
+
+        Assert.Equal("carlos.lopez", person.DevOpsUserId);
+    }
+
+    [Fact]
+    public void LinkDevOpsIdentity_WithEmptyValue_ThrowsDomainException()
+    {
+        var person = BuildValidPerson();
+
+        Assert.Throws<DomainException>(() => person.LinkDevOpsIdentity(""));
+    }
+
     // ── Helper ────────────────────────────────────────────────────────────────
 
     private static Person BuildValidPerson(
         string name = "Carlos López",
-        Seniority? seniority = null,
+        Level? level = null,
         Modality? modality = null) =>
         new(
             name: name,
@@ -243,8 +442,9 @@ public sealed class PersonTests
             entraObjectId: "entra-obj-1",
             userPrincipalName: "carlos@co.com",
             position: "Backend Developer",
-            role: "Developer",
-            seniority: seniority ?? Seniority.Experto,
+            role: PersonRole.Contributor,
+            level: level ?? Level.Experto,
+            seniority: Seniority.Senior,
             modality: modality ?? Modality.Hybrid,
             availableFte: Fte.FullTime,
             monthlyCost: 5000m,

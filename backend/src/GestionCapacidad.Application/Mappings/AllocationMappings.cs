@@ -7,10 +7,14 @@ namespace GestionCapacidad.Application.Mappings;
 
 public static class AllocationMappings
 {
-    public static AllocationDto ToDto(Allocation allocation, string personName = "", string squadName = "", string? initiativeName = null) =>
+    public static AllocationDto ToDto(
+        Allocation allocation,
+        Person? person,
+        string squadName = "",
+        string? initiativeName = null) =>
         new(allocation.Id,
             allocation.PersonId,
-            personName,
+            person?.Name ?? string.Empty,
             allocation.SquadId,
             squadName,
             allocation.InitiativeId,
@@ -19,11 +23,16 @@ public static class AllocationMappings
             allocation.BauPercentage.Value,
             allocation.TransformationPercentage.Value,
             allocation.CreatedAtUtc,
-            allocation.UpdatedAtUtc);
+            allocation.UpdatedAtUtc,
+            person?.Position ?? string.Empty,
+            person?.Modality.Value ?? string.Empty,
+            person?.Level.Value ?? 0,
+            person?.Level.Label ?? string.Empty,
+            Math.Max(0, 100 - allocation.DedicationPercentage.Value));
 
-    public static CreateAllocationResponse ToCreateResponse(Allocation a, string personName, string squadName) =>
-        new(ToDto(a, personName, squadName));
+    public static CreateAllocationResponse ToCreateResponse(Allocation a, Person person, string squadName) =>
+        new(ToDto(a, person, squadName));
 
-    public static UpdateAllocationResponse ToUpdateResponse(Allocation a, string personName, string squadName) =>
-        new(ToDto(a, personName, squadName));
+    public static UpdateAllocationResponse ToUpdateResponse(Allocation a, Person? person, string squadName) =>
+        new(ToDto(a, person, squadName));
 }

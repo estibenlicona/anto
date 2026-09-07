@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using GestionCapacidad.WebApi.Extensions;
 using GestionCapacidad.WebApi.Options;
@@ -8,83 +9,70 @@ namespace GestionCapacidad.WebApi.Tests.Presentation;
 public sealed class AzureAppConfigurationExtensionsTests
 {
     [Fact]
-    public void ResolveConnectionMode_ReturnsDisabled_WhenConfigurationIsDisabled()
+    public void AddOptionalAzureAppConfiguration_InDevelopment_NeverTouchesAzure()
     {
-        var options = new AzureAppConfigurationOptions { Enabled = false };
+        // En Development la cadena de conexión sale de los User Secrets; la
+        // aplicación no debe intentar alcanzar Azure ni exigir un endpoint.
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            EnvironmentName = "Development",
+        });
 
-        AzureAppConfigurationConnectionMode mode = WebApiAzureAppConfigurationExtensions.ResolveConnectionMode(options);
+        WebApplicationBuilder result = builder.AddOptionalAzureAppConfiguration();
 
-        Assert.Equal(AzureAppConfigurationConnectionMode.Disabled, mode);
+        Assert.Same(builder, result);
     }
 
-    [Fact]
-    public void ResolveConnectionMode_Throws_WhenEnabledWithoutEndpointOrConnectionString()
+    [Theory]
+    [InlineData("Staging")]
+    [InlineData("Production")]
+    public void AddOptionalAzureAppConfiguration_OutsideDevelopmentWithoutEndpoint_Throws(string environmentName)
     {
-        var options = new AzureAppConfigurationOptions { Enabled = true };
+        // Certificación y producción se comportan igual: fuera de
+        // Development no hay escape, App Configuration siempre debe ser
+        // alcanzable.
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            EnvironmentName = environmentName,
+        });
 
         InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() =>
-            WebApiAzureAppConfigurationExtensions.ResolveConnectionMode(options));
+            builder.AddOptionalAzureAppConfiguration());
 
-        Assert.Contains("AzureAppConfiguration is enabled", exception.Message);
+        Assert.Contains(WebApiAzureAppConfigurationExtensions.EndpointEnvironmentVariable, exception.Message);
     }
 
     [Fact]
-    public void ResolveConnectionMode_PrefersManagedIdentity_WhenEndpointAndConnectionStringAreConfigured()
-    {
-        var options = new AzureAppConfigurationOptions
-        {
-            Enabled = true,
-            Endpoint = "https://example.azconfig.io",
-            UseManagedIdentity = true,
-            ConnectionString = "Endpoint=https://example.azconfig.io;Id=id;Secret=secret"
-        };
-
-        AzureAppConfigurationConnectionMode mode = WebApiAzureAppConfigurationExtensions.ResolveConnectionMode(options);
-
-        Assert.Equal(AzureAppConfigurationConnectionMode.ManagedIdentity, mode);
-    }
-
-    [Fact]
-    public void ResolveOptions_UsesEnvironmentVariablesOnly_ForEndpointAndConnectionString()
+    public void ResolveOptions_ReadsTheEndpointOnlyFromTheEnvironmentVariable()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["AzureAppConfiguration:Enabled"] = "true",
                 ["AzureAppConfiguration:Endpoint"] = "https://appsettings.azconfig.io",
-                ["AzureAppConfiguration:UseManagedIdentity"] = "false",
-                ["AzureAppConfiguration:ConnectionString"] = "Endpoint=https://appsettings.azconfig.io;Id=id;Secret=secret",
-                ["AzureAppConfiguration:Label"] = "production"
+                ["AzureAppConfiguration:Label"] = "production",
             })
             .Build();
 
         var environmentVariables = new Dictionary<string, string?>
         {
             [WebApiAzureAppConfigurationExtensions.EndpointEnvironmentVariable] = "https://environment.azconfig.io",
-            [WebApiAzureAppConfigurationExtensions.ConnectionStringEnvironmentVariable] =
-                "Endpoint=https://environment.azconfig.io;Id=id;Secret=secret"
         };
 
         AzureAppConfigurationOptions options = WebApiAzureAppConfigurationExtensions.ResolveOptions(
             configuration,
             environmentVariables.GetValueOrDefault);
 
-        Assert.True(options.Enabled);
         Assert.Equal("https://environment.azconfig.io", options.Endpoint);
-        Assert.False(options.UseManagedIdentity);
-        Assert.Equal("Endpoint=https://environment.azconfig.io;Id=id;Secret=secret", options.ConnectionString);
         Assert.Equal("production", options.Label);
     }
 
     [Fact]
-    public void ResolveOptions_IgnoresAppsettingsLinks_WhenEnvironmentVariablesAreMissing()
+    public void ResolveOptions_IgnoresTheAppsettingsEndpoint_WhenTheEnvironmentVariableIsMissing()
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["AzureAppConfiguration:Enabled"] = "true",
                 ["AzureAppConfiguration:Endpoint"] = "https://appsettings.azconfig.io",
-                ["AzureAppConfiguration:ConnectionString"] = "Endpoint=https://appsettings.azconfig.io;Id=id;Secret=secret"
             })
             .Build();
 
@@ -93,6 +81,5 @@ public sealed class AzureAppConfigurationExtensionsTests
             _ => null);
 
         Assert.Empty(options.Endpoint);
-        Assert.Empty(options.ConnectionString);
     }
 }

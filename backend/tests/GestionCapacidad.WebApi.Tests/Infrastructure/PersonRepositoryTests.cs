@@ -21,7 +21,7 @@ public sealed class PersonRepositoryTests
         await using ApplicationDbContext dbContext = await CreateDbContextAsync(connection);
         var repository = new PersonRepository(dbContext);
         var unitOfWork = new UnitOfWork(dbContext);
-        Person person = TestDataFactory.CreatePerson(name: "Carlos López", seniority: Seniority.Avanzado);
+        Person person = TestDataFactory.CreatePerson(name: "Carlos López", level: Level.Avanzado);
 
         await repository.AddAsync(person);
         await unitOfWork.SaveChangesAsync();
@@ -30,7 +30,7 @@ public sealed class PersonRepositoryTests
 
         Assert.NotNull(saved);
         Assert.Equal("Carlos López", saved.Name);
-        Assert.Equal(Seniority.Avanzado, saved.Seniority);
+        Assert.Equal(Level.Avanzado, saved.Level);
     }
 
     [Fact]
@@ -42,7 +42,7 @@ public sealed class PersonRepositoryTests
         var repository = new PersonRepository(dbContext);
         var unitOfWork = new UnitOfWork(dbContext);
         Person person = TestDataFactory.CreatePerson(
-            seniority: Seniority.Avanzado,
+            level: Level.Avanzado,
             modality: Modality.Remote);
 
         await repository.AddAsync(person);
@@ -51,7 +51,7 @@ public sealed class PersonRepositoryTests
         Person? saved = await repository.GetByIdAsync(person.Id);
 
         Assert.NotNull(saved);
-        Assert.Equal(Seniority.Avanzado, saved.Seniority);
+        Assert.Equal(Level.Avanzado, saved.Level);
         Assert.Equal(Modality.Remote, saved.Modality);
         Assert.Equal(Fte.FullTime, saved.AvailableFte);
     }
@@ -176,7 +176,7 @@ public sealed class PersonRepositoryTests
     }
 
     [Fact]
-    public async Task GetPagedAsync_FiltersBySeniority()
+    public async Task GetPagedAsync_FiltersByLevel()
     {
         await using var connection = new SqliteConnection("DataSource=:memory:");
         await connection.OpenAsync();
@@ -184,12 +184,12 @@ public sealed class PersonRepositoryTests
         var repository = new PersonRepository(dbContext);
         var unitOfWork = new UnitOfWork(dbContext);
 
-        await repository.AddAsync(TestDataFactory.CreatePerson(name: "Experto Uno", seniority: Seniority.Experto));
-        await repository.AddAsync(TestDataFactory.CreatePerson(name: "Principiante Uno", seniority: Seniority.Principiante));
+        await repository.AddAsync(TestDataFactory.CreatePerson(name: "Experto Uno", level: Level.Experto));
+        await repository.AddAsync(TestDataFactory.CreatePerson(name: "Principiante Uno", level: Level.Principiante));
         await unitOfWork.SaveChangesAsync();
 
         (IReadOnlyList<Person> items, int totalCount) = await repository.GetPagedAsync(
-            1, 10, seniorities: [4]);
+            1, 10, levels: [4]);
 
         Assert.Equal(1, totalCount);
         Assert.Equal("Experto Uno", Assert.Single(items).Name);
@@ -205,20 +205,20 @@ public sealed class PersonRepositoryTests
         var unitOfWork = new UnitOfWork(dbContext);
 
         await repository.AddAsync(TestDataFactory.CreatePerson(
-            name: "María González", seniority: Seniority.Experto));
+            name: "María González", level: Level.Experto));
         await repository.AddAsync(TestDataFactory.CreatePerson(
-            name: "María Torres", seniority: Seniority.Principiante));
+            name: "María Torres", level: Level.Principiante));
         await unitOfWork.SaveChangesAsync();
 
         (IReadOnlyList<Person> items, int totalCount) = await repository.GetPagedAsync(
-            1, 10, search: "maría", seniorities: [4]);
+            1, 10, search: "maría", levels: [4]);
 
         Assert.Equal(1, totalCount);
         Assert.Equal("María González", Assert.Single(items).Name);
     }
 
     [Fact]
-    public async Task GetPagedAsync_UnknownSeniorityValue_ReturnsNoResults()
+    public async Task GetPagedAsync_UnknownLevelValue_ReturnsNoResults()
     {
         await using var connection = new SqliteConnection("DataSource=:memory:");
         await connection.OpenAsync();
@@ -226,11 +226,11 @@ public sealed class PersonRepositoryTests
         var repository = new PersonRepository(dbContext);
         var unitOfWork = new UnitOfWork(dbContext);
 
-        await repository.AddAsync(TestDataFactory.CreatePerson(seniority: Seniority.Experto));
+        await repository.AddAsync(TestDataFactory.CreatePerson(level: Level.Experto));
         await unitOfWork.SaveChangesAsync();
 
         (IReadOnlyList<Person> items, int totalCount) = await repository.GetPagedAsync(
-            1, 10, seniorities: [99]);
+            1, 10, levels: [99]);
 
         Assert.Equal(0, totalCount);
         Assert.Empty(items);

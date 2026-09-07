@@ -1,5 +1,7 @@
 using GestionCapacidad.Application;
+using Microsoft.EntityFrameworkCore;
 using GestionCapacidad.Infrastructure;
+using GestionCapacidad.Infrastructure.Persistence;
 using GestionCapacidad.WebApi.Extensions;
 using GestionCapacidad.WebApi.Settings;
 using Serilog;
@@ -11,7 +13,7 @@ SerilogBootstrapper.Configure(builder);
 
 builder.Services.AddApplicationOptions(builder.Configuration);
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration, builder.Environment.IsDevelopment());
 builder.Services.AddEndpointDefinitions();
 builder.Services.AddSwaggerDocumentation(builder.Configuration);
 builder.Services.AddApiVersioningDocumentation();
@@ -26,6 +28,26 @@ try
     app.Logger.LogInformation("Starting GestionCapacidad.WebApi");
 
     app.UseGlobalErrorHandler();
+
+    // Sólo en Development: un arranque no es el momento de descubrir que una
+    // migración bloquea una tabla en producción — eso lo aplica el pipeline.
+    // IsRelational() de más: con InMemory (que no tiene migraciones) el
+    // esquema lo crea el sembrador con EnsureCreated.
+    if (app.Environment.IsDevelopment())
+    {
+        await using AsyncServiceScope migrationScope = app.Services.CreateAsyncScope();
+        ApplicationDbContext migrationContext =
+            migrationScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        if (migrationContext.Database.IsRelational())
+        {
+            await migrationContext.Database.MigrateAsync();
+        }
+    }
+
+    // Esquema y semillas de desarrollo: InMemory usa EnsureCreated (sin
+    // migraciones); Postgres ya quedó migrado arriba.
+    await DevelopmentDataSeeder.SeedAsync(app.Services);
 
     if (app.Environment.IsDevelopment())
     {

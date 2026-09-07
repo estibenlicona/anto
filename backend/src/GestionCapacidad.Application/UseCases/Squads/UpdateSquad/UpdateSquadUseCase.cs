@@ -13,6 +13,9 @@ namespace GestionCapacidad.Application.UseCases.Squads.UpdateSquad;
 
 public sealed class UpdateSquadUseCase(
     ISquadRepository squadRepository,
+    IAllocationRepository allocationRepository,
+    IPersonRepository personRepository,
+    IInitiativeRepository initiativeRepository,
     IUnitOfWork unitOfWork,
     IValidator<UpdateSquadRequest> validator) : IUseCase<UpdateSquadRequest, UpdateSquadResponse>
 {
@@ -34,12 +37,17 @@ public sealed class UpdateSquadUseCase(
 
         squad.Rename(request.Name);
         squad.ChangeCriticality(Criticality.From(request.Criticality));
-        squad.MoveTribe(request.Tribe);
+        squad.MoveTribe(request.Team);
         squad.UpdateDescription(request.Description);
 
         squadRepository.Update(squad);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return SquadMappings.ToUpdateResponse(squad);
+        SquadAggregates aggregates = SquadAggregates.Build(
+            await allocationRepository.GetAllAsync(cancellationToken),
+            await personRepository.GetAllAsync(cancellationToken),
+            await initiativeRepository.GetAllAsync(cancellationToken));
+
+        return SquadMappings.ToUpdateResponse(squad, aggregates.For(squad.Id));
     }
 }

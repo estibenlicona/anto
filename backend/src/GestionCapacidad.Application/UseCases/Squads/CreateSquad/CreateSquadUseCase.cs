@@ -13,6 +13,9 @@ namespace GestionCapacidad.Application.UseCases.Squads.CreateSquad;
 
 public sealed class CreateSquadUseCase(
     ISquadRepository squadRepository,
+    IAllocationRepository allocationRepository,
+    IPersonRepository personRepository,
+    IInitiativeRepository initiativeRepository,
     IUnitOfWork unitOfWork,
     IValidator<CreateSquadRequest> validator) : IUseCase<CreateSquadRequest, CreateSquadResponse>
 {
@@ -34,12 +37,17 @@ public sealed class CreateSquadUseCase(
         var squad = new Squad(
             request.Name,
             Criticality.From(request.Criticality),
-            request.Tribe,
+            request.Team,
             request.Description);
 
         await squadRepository.AddAsync(squad, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return SquadMappings.ToCreateResponse(squad);
+        SquadAggregates aggregates = SquadAggregates.Build(
+            await allocationRepository.GetAllAsync(cancellationToken),
+            await personRepository.GetAllAsync(cancellationToken),
+            await initiativeRepository.GetAllAsync(cancellationToken));
+
+        return SquadMappings.ToCreateResponse(squad, aggregates.For(squad.Id));
     }
 }

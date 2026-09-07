@@ -7,14 +7,19 @@ namespace GestionCapacidad.Application.Mappings;
 
 public static class PersonMappings
 {
-    public static PersonDto ToDto(Person person) =>
+    public static PersonDto ToDto(Person person, PersonDerivedData derived) =>
         new(person.Id,
             person.Name,
             person.DocumentId,
             person.EntraObjectId,
             person.UserPrincipalName,
             person.Position,
-            person.Role,
+            person.Role.Value,
+            person.TechnicalLeadId,
+            derived.TechnicalLeadNameOf(person),
+            derived.TechnicalLeadOfCountOf(person),
+            person.Level.Value,
+            person.Level.Label,
             person.Seniority.Value,
             person.Seniority.Label,
             person.Modality.Value,
@@ -24,11 +29,15 @@ public static class PersonMappings
             person.ChapterId,
             person.ProviderId,
             person.CreatedAtUtc,
-            person.UpdatedAtUtc);
+            person.UpdatedAtUtc,
+            derived.UtilizationOf(person),
+            person.Stacks
+                .Select(s => new PersonStackDto(s.Name, s.Level.Value, s.IsPrimary))
+                .ToList());
 
-    public static CreatePersonResponse ToCreateResponse(Person person) =>
-        new(ToDto(person));
+    public static CreatePersonResponse ToCreateResponse(Person person, PersonDerivedData derived) =>
+        new(ToDto(person, derived));
 
-    public static UpdatePersonResponse ToUpdateResponse(Person person) =>
-        new(ToDto(person));
+    public static UpdatePersonResponse ToUpdateResponse(Person person, PersonDerivedData derived) =>
+        new(ToDto(person, derived));
 }

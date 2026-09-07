@@ -27,16 +27,16 @@ public sealed class CreatePersonValidatorTests
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreatePersonRequest.Name));
     }
 
-    // ── Seniority ─────────────────────────────────────────────────────────────
+    // ── Level ─────────────────────────────────────────────────────────────
 
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
     [InlineData(3)]
     [InlineData(4)]
-    public async Task ValidateAsync_AcceptsValidSeniorityValues(int seniority)
+    public async Task ValidateAsync_AcceptsValidLevelValues(int level)
     {
-        ValidationResult result = await _validator.ValidateAsync(TestDataFactory.CreatePersonRequest(seniority: seniority));
+        ValidationResult result = await _validator.ValidateAsync(TestDataFactory.CreatePersonRequest(level: level));
         Assert.True(result.IsValid);
     }
 
@@ -44,11 +44,11 @@ public sealed class CreatePersonValidatorTests
     [InlineData(0)]
     [InlineData(5)]
     [InlineData(-1)]
-    public async Task ValidateAsync_RejectsInvalidSeniority(int seniority)
+    public async Task ValidateAsync_RejectsInvalidLevel(int level)
     {
-        ValidationResult result = await _validator.ValidateAsync(TestDataFactory.CreatePersonRequest(seniority: seniority));
+        ValidationResult result = await _validator.ValidateAsync(TestDataFactory.CreatePersonRequest(level: level));
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreatePersonRequest.Seniority));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreatePersonRequest.Level));
     }
 
     // ── Modality ──────────────────────────────────────────────────────────────

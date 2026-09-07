@@ -30,27 +30,20 @@ public sealed class UpdateAllocationUseCase(
         if (allocation is null)
             throw new NotFoundException($"Allocation with id '{request.Id}' was not found.");
 
-        // Rule: total allocation per person cannot exceed 100%
-        int totalOthers = await allocationRepository.GetTotalDedicationForPersonAsync(
-            allocation.PersonId, request.Id, cancellationToken);
-
-        if (totalOthers + request.DedicationPercentage > 100)
-            throw new BadRequestException(
-                $"Total allocation would exceed 100% " +
-                $"(others: {totalOthers}%, new value: {request.DedicationPercentage}%).");
-
+        // La dedicación 1–100 y la mezcla que cuadre ya vienen validadas; con
+        // la regla de asignación única no hay tope repartido que comprobar.
         allocation.UpdateDedication(
             Percentage.From(request.DedicationPercentage),
             Percentage.From(request.BauPercentage),
             Percentage.From(request.TransformationPercentage),
-            request.InitiativeId);
+            allocation.InitiativeId);
 
         allocationRepository.Update(allocation);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var person = await personRepository.GetByIdAsync(allocation.PersonId, cancellationToken);
-        var squad  = await squadRepository.GetByIdAsync(allocation.SquadId, cancellationToken);
+        Person? person = await personRepository.GetByIdAsync(allocation.PersonId, cancellationToken);
+        Squad? squad = await squadRepository.GetByIdAsync(allocation.SquadId, cancellationToken);
 
-        return AllocationMappings.ToUpdateResponse(allocation, person?.Name ?? string.Empty, squad?.Name ?? string.Empty);
+        return AllocationMappings.ToUpdateResponse(allocation, person, squad?.Name ?? string.Empty);
     }
 }

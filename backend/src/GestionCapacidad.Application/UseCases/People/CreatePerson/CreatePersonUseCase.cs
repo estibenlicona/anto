@@ -13,6 +13,7 @@ namespace GestionCapacidad.Application.UseCases.People.CreatePerson;
 
 public sealed class CreatePersonUseCase(
     IPersonRepository personRepository,
+    IAllocationRepository allocationRepository,
     IUnitOfWork unitOfWork,
     IValidator<CreatePersonRequest> validator) : IUseCase<CreatePersonRequest, CreatePersonResponse>
 {
@@ -30,22 +31,32 @@ public sealed class CreatePersonUseCase(
         if (await personRepository.ExistsByUserPrincipalNameAsync(request.UserPrincipalName, cancellationToken))
             throw new BadRequestException($"A person with UPN '{request.UserPrincipalName}' already exists.");
 
+        if (request.TechnicalLeadId is Guid leadId &&
+            await personRepository.GetByIdAsync(leadId, cancellationToken) is null)
+            throw new BadRequestException($"Technical lead with id '{leadId}' was not found.");
+
         var person = new Person(
             request.Name,
             request.DocumentId,
             request.EntraObjectId,
             request.UserPrincipalName,
             request.Position,
-            request.Role,
+            PersonRole.From(request.Role),
+            Level.From(request.Level),
             Seniority.From(request.Seniority),
             Modality.From(request.Modality),
             Fte.From(request.AvailableFte),
             request.MonthlyCost,
-            request.StartDate);
+            request.StartDate,
+            request.TechnicalLeadId);
 
         await personRepository.AddAsync(person, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return PersonMappings.ToCreateResponse(person);
+        PersonDerivedData derived = PersonDerivedData.Build(
+            await personRepository.GetAllAsync(cancellationToken),
+            await allocationRepository.GetAllAsync(cancellationToken));
+
+        return PersonMappings.ToCreateResponse(person, derived);
     }
 }

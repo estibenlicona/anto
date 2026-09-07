@@ -7,30 +7,25 @@ namespace GestionCapacidad.Application.Mappings;
 
 public static class SquadMappings
 {
-    public static SquadDto ToDto(Squad squad) =>
+    public static SquadDto ToDto(Squad squad, SquadAggregate aggregate) =>
         new(squad.Id,
             squad.Name,
-            squad.Criticality.Value,
             squad.Tribe,
-            squad.Description,
-            squad.DevOpsBoardId,
-            squad.CreatedAtUtc,
-            squad.UpdatedAtUtc);
-
-    public static CreateSquadResponse ToCreateResponse(Squad squad) =>
-        new(squad.Id,
-            squad.Name,
             squad.Criticality.Value,
-            squad.Tribe,
-            squad.Description,
-            squad.CreatedAtUtc);
-
-    public static UpdateSquadResponse ToUpdateResponse(Squad squad) =>
-        new(squad.Id,
-            squad.Name,
-            squad.Criticality.Value,
-            squad.Tribe,
             squad.Description,
             squad.CreatedAtUtc,
-            squad.UpdatedAtUtc);
+            squad.UpdatedAtUtc ?? squad.CreatedAtUtc,
+            aggregate.MemberCount,
+            aggregate.Members.Take(SquadAggregates.MemberSampleSize).ToList(),
+            aggregate.AllocatedFte,
+            aggregate.BauFte,
+            aggregate.TransformationFte,
+            aggregate.PeopleAvailableFte,
+            aggregate.ActiveInitiative);
+
+    public static CreateSquadResponse ToCreateResponse(Squad squad, SquadAggregate aggregate) =>
+        new(ToDto(squad, aggregate));
+
+    public static UpdateSquadResponse ToUpdateResponse(Squad squad, SquadAggregate aggregate) =>
+        new(ToDto(squad, aggregate));
 }

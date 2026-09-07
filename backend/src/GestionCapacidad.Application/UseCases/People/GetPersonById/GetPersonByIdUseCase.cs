@@ -6,7 +6,9 @@ using GestionCapacidad.Domain.Interfaces;
 
 namespace GestionCapacidad.Application.UseCases.People.GetPersonById;
 
-public sealed class GetPersonByIdUseCase(IPersonRepository personRepository) : IUseCase<GetPersonByIdRequest, GetPersonByIdResponse>
+public sealed class GetPersonByIdUseCase(
+    IPersonRepository personRepository,
+    IAllocationRepository allocationRepository) : IUseCase<GetPersonByIdRequest, GetPersonByIdResponse>
 {
     public async Task<GetPersonByIdResponse> ExecuteAsync(
         GetPersonByIdRequest request,
@@ -16,6 +18,10 @@ public sealed class GetPersonByIdUseCase(IPersonRepository personRepository) : I
         if (person is null)
             throw new NotFoundException($"Person with id '{request.Id}' was not found.");
 
-        return new GetPersonByIdResponse(PersonMappings.ToDto(person));
+        PersonDerivedData derived = PersonDerivedData.Build(
+            await personRepository.GetAllAsync(cancellationToken),
+            await allocationRepository.GetAllAsync(cancellationToken));
+
+        return new GetPersonByIdResponse(PersonMappings.ToDto(person, derived));
     }
 }

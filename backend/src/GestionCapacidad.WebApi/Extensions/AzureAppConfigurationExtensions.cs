@@ -4,39 +4,37 @@ using AppConfigOptions = GestionCapacidad.WebApi.Options.AzureAppConfigurationOp
 
 namespace GestionCapacidad.WebApi.Extensions;
 
-public enum AzureAppConfigurationConnectionMode
-{
-    Disabled,
-    ManagedIdentity,
-    ConnectionString
-}
-
 public static class AzureAppConfigurationExtensions
 {
     public const string EndpointEnvironmentVariable = "AzureAppConfiguration__Endpoint";
 
-    public const string ConnectionStringEnvironmentVariable = "AzureAppConfiguration__ConnectionString";
-
+    /// <summary>
+    /// De dónde sale el secreto lo decide el entorno, no una bandera. En
+    /// Development no se toca Azure en absoluto: la cadena de conexión a
+    /// Postgres sale de los User Secrets de la máquina. Fuera de Development
+    /// —certificación y producción se comportan igual, sin excepción— se
+    /// conecta siempre a Azure App Configuration con identidad federada de
+    /// carga de trabajo (<see cref="DefaultAzureCredential"/>): no hay ninguna
+    /// credencial de larga vida en el pipeline ni en la imagen.
+    /// </summary>
     public static WebApplicationBuilder AddOptionalAzureAppConfiguration(this WebApplicationBuilder builder)
     {
-        AppConfigOptions options = ResolveOptions(builder.Configuration);
-
-        AzureAppConfigurationConnectionMode mode = ResolveConnectionMode(options);
-        if (mode == AzureAppConfigurationConnectionMode.Disabled)
+        if (builder.Environment.IsDevelopment())
         {
             return builder;
         }
 
+        AppConfigOptions options = ResolveOptions(builder.Configuration);
+
+        if (string.IsNullOrWhiteSpace(options.Endpoint))
+        {
+            throw new InvalidOperationException(
+                $"{EndpointEnvironmentVariable} must be configured outside Development.");
+        }
+
         builder.Configuration.AddAzureAppConfiguration(azureOptions =>
         {
-            if (mode == AzureAppConfigurationConnectionMode.ManagedIdentity)
-            {
-                azureOptions.Connect(new Uri(options.Endpoint), new DefaultAzureCredential());
-            }
-            else
-            {
-                azureOptions.Connect(options.ConnectionString);
-            }
+            azureOptions.Connect(new Uri(options.Endpoint), new DefaultAzureCredential());
 
             if (!string.IsNullOrWhiteSpace(options.Label))
             {
@@ -47,6 +45,11 @@ public static class AzureAppConfigurationExtensions
         return builder;
     }
 
+    /// <summary>
+    /// El endpoint sale sólo de la variable de entorno, nunca de
+    /// <c>appsettings</c>: es lo único que cambia por entorno y no debe
+    /// quedar escrito en un archivo versionado.
+    /// </summary>
     public static AppConfigOptions ResolveOptions(
         IConfiguration configuration,
         Func<string, string?>? getEnvironmentVariable = null)
@@ -59,35 +62,8 @@ public static class AzureAppConfigurationExtensions
 
         return new AppConfigOptions
         {
-            Enabled = options.Enabled,
             Endpoint = getEnvironmentVariable(EndpointEnvironmentVariable) ?? string.Empty,
-            UseManagedIdentity = options.UseManagedIdentity,
-            ConnectionString = getEnvironmentVariable(ConnectionStringEnvironmentVariable) ?? string.Empty,
             Label = options.Label
         };
-    }
-
-    public static AzureAppConfigurationConnectionMode ResolveConnectionMode(
-        AppConfigOptions options)
-    {
-        if (!options.Enabled)
-        {
-            return AzureAppConfigurationConnectionMode.Disabled;
-        }
-
-        if (options.UseManagedIdentity && !string.IsNullOrWhiteSpace(options.Endpoint))
-        {
-            return AzureAppConfigurationConnectionMode.ManagedIdentity;
-        }
-
-        if (!string.IsNullOrWhiteSpace(options.ConnectionString))
-        {
-            return AzureAppConfigurationConnectionMode.ConnectionString;
-        }
-
-        return !string.IsNullOrWhiteSpace(options.Endpoint)
-            ? AzureAppConfigurationConnectionMode.ManagedIdentity
-            : throw new InvalidOperationException(
-                "AzureAppConfiguration is enabled, but neither AzureAppConfiguration__Endpoint nor AzureAppConfiguration__ConnectionString is configured.");
     }
 }

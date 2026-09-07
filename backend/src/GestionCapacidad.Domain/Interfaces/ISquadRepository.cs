@@ -9,5 +9,7 @@ public interface ISquadRepository : IRepository<Squad>
     Task<(IReadOnlyList<Squad> Items, int TotalCount)> GetPagedAsync(
         int page,
         int pageSize,
+        string? search = null,
+        IReadOnlyCollection<string>? criticalities = null,
         CancellationToken cancellationToken = default);
 }

@@ -10,8 +10,17 @@ namespace GestionCapacidad.WebApi.Tests.Application;
 public sealed class GetSquadByIdUseCaseTests
 {
     private readonly Mock<ISquadRepository> _repository = new();
+    private readonly Mock<IAllocationRepository> _allocations = new();
+    private readonly Mock<IPersonRepository> _people = new();
+    private readonly Mock<IInitiativeRepository> _initiatives = new();
 
-    private GetSquadByIdUseCase CreateUseCase() => new(_repository.Object);
+    private GetSquadByIdUseCase CreateUseCase()
+    {
+        _allocations.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Allocation>());
+        _people.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Person>());
+        _initiatives.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Initiative>());
+        return new GetSquadByIdUseCase(_repository.Object, _allocations.Object, _people.Object, _initiatives.Object);
+    }
 
     [Fact]
     public async Task ExecuteAsync_ReturnsSquad_WhenExists()
@@ -27,6 +36,7 @@ public sealed class GetSquadByIdUseCaseTests
 
         Assert.Equal(squad.Id, response.Squad.Id);
         Assert.Equal("Backend Platform", response.Squad.Name);
+        Assert.Equal(0, response.Squad.MemberCount);
     }
 
     [Fact]

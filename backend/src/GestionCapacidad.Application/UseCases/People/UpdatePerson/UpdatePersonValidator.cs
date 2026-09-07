@@ -28,11 +28,19 @@ public sealed class UpdatePersonValidator : AbstractValidator<UpdatePersonReques
 
         RuleFor(r => r.Role)
             .NotEmpty()
-            .MaximumLength(100);
+            .WithMessage("Role is required.")
+            .Must(v => PersonRole.ValidValues.Any(r => string.Equals(r.Value, v, StringComparison.Ordinal)))
+            .WithMessage($"Role must be one of: {string.Join(", ", PersonRole.ValidValues.Select(r => r.Value))}.");
+
+        RuleFor(r => r.Level)
+            .InclusiveBetween(Level.Min, Level.Max)
+            .WithMessage($"Level must be between {Level.Min} and {Level.Max} (escala Tuya).");
 
         RuleFor(r => r.Seniority)
-            .InclusiveBetween(Seniority.Min, Seniority.Max)
-            .WithMessage($"Seniority must be between {Seniority.Min} and {Seniority.Max} (escala Tuya).");
+            .NotEmpty()
+            .WithMessage("Seniority is required.")
+            .Must(v => Seniority.ValidValues.Any(s => string.Equals(s.Value, v, StringComparison.Ordinal)))
+            .WithMessage($"Seniority must be one of: {string.Join(", ", Seniority.ValidValues.Select(s => s.Value))}.");
 
         RuleFor(r => r.Modality)
             .NotEmpty()

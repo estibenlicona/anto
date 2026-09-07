@@ -89,7 +89,7 @@ public sealed class CreateSquadValidatorTests
         ValidationResult result = await _validator.ValidateAsync(request);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSquadRequest.Tribe));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSquadRequest.Team));
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class CreateSquadValidatorTests
         ValidationResult result = await _validator.ValidateAsync(request);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSquadRequest.Tribe));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSquadRequest.Team));
     }
 
     // ── Description ───────────────────────────────────────────────────────────

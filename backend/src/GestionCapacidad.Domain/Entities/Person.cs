@@ -17,20 +17,24 @@ public sealed class Person : AggregateRoot
         string entraObjectId,
         string userPrincipalName,
         string position,
-        string role,
+        PersonRole role,
+        Level level,
         Seniority seniority,
         Modality modality,
         Fte availableFte,
         decimal monthlyCost,
-        DateOnly startDate)
+        DateOnly startDate,
+        Guid? technicalLeadId = null)
     {
         SetName(name);
         SetDocumentId(documentId);
         EntraObjectId = entraObjectId?.Trim() ?? string.Empty;
         SetUserPrincipalName(userPrincipalName);
         SetPosition(position);
-        SetRole(role);
-        Seniority     = seniority;
+        Role      = role;
+        SetTechnicalLead(technicalLeadId);
+        Level     = level;
+        Seniority = seniority;
         Modality      = modality;
         AvailableFte  = availableFte;
         SetMonthlyCost(monthlyCost);
@@ -49,9 +53,13 @@ public sealed class Person : AggregateRoot
 
     public string Position { get; private set; } = string.Empty;
 
-    public string Role { get; private set; } = string.Empty;
+    public PersonRole Role { get; private set; } = PersonRole.Contributor;
 
-    public Seniority Seniority { get; private set; } = Seniority.From(1);
+    public Guid? TechnicalLeadId { get; private set; }
+
+    public Level Level { get; private set; } = Level.From(1);
+
+    public Seniority Seniority { get; private set; } = Seniority.Junior;
 
     public Modality Modality { get; private set; } = Modality.Hybrid;
 
@@ -63,7 +71,20 @@ public sealed class Person : AggregateRoot
 
     public Guid? ChapterId { get; private set; }
 
+    /// <summary>A qué línea de expertise pertenece, si a alguna — distinto del chapter (alcance de autorización).</summary>
+    public Guid? ExpertiseLineId { get; private set; }
+
     public Guid? ProviderId { get; private set; }
+
+    /// <summary>El identificador del usuario en Azure DevOps, si ya se vinculó.</summary>
+    public string? DevOpsUserId { get; private set; }
+
+    /// <summary>Cuándo se vinculó — distinto de <see cref="Entity.UpdatedAtUtc"/>, que se mueve con cualquier otro cambio de la persona.</summary>
+    public DateTime? DevOpsIdentityLinkedAtUtc { get; private set; }
+
+    private readonly List<PersonStack> _stacks = [];
+
+    public IReadOnlyCollection<PersonStack> Stacks => _stacks.AsReadOnly();
 
     // ── Profile ───────────────────────────────────────────────────────────────
 
@@ -73,15 +94,83 @@ public sealed class Person : AggregateRoot
         string entraObjectId,
         string userPrincipalName,
         string position,
-        string role)
+        PersonRole role)
     {
         SetName(name);
         SetDocumentId(documentId);
         EntraObjectId = entraObjectId?.Trim() ?? string.Empty;
         SetUserPrincipalName(userPrincipalName);
         SetPosition(position);
-        SetRole(role);
+        Role = role;
         MarkUpdated();
+    }
+
+    // ── Technical lead ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Quién acompaña técnicamente a la persona. Referencia informativa (sin
+    /// navegación): que el id exista y tenga el rol lo valida el use case.
+    /// </summary>
+    public void AssignTechnicalLead(Guid? technicalLeadId)
+    {
+        SetTechnicalLead(technicalLeadId);
+        MarkUpdated();
+    }
+
+    // ── Stacks ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Reemplaza los stacks en bloque: sin repetidos y, cuando la lista no
+    /// está vacía, exactamente un principal. Se guardan con el principal
+    /// primero, como los muestra el listado.
+    /// </summary>
+    public void ReplaceStacks(IReadOnlyCollection<PersonStack> stacks)
+    {
+        ArgumentNullException.ThrowIfNull(stacks);
+
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        int primaries = 0;
+        foreach (PersonStack stack in stacks)
+        {
+            if (!names.Add(stack.Name))
+            {
+                throw new DomainException($"El stack '{stack.Name}' está repetido.");
+            }
+
+            if (stack.IsPrimary)
+            {
+                primaries++;
+            }
+        }
+
+        if (primaries > 1)
+        {
+            throw new DomainException("Sólo un stack puede ser el principal.");
+        }
+
+        if (stacks.Count > 0 && primaries == 0)
+        {
+            throw new DomainException("Debe haber un stack principal.");
+        }
+
+        _stacks.Clear();
+        _stacks.AddRange(stacks.OrderByDescending(s => s.IsPrimary));
+        MarkUpdated();
+    }
+
+    // ── Level ─────────────────────────────────────────────────────────────
+
+    public void ChangeLevel(Level newLevel)
+    {
+        if (Level == newLevel)
+        {
+            return;
+        }
+
+        var oldLevel = Level;
+        Level = newLevel;
+        MarkUpdated();
+        AddDomainEvent(new PersonLevelChangedEvent(Id, oldLevel, newLevel));
     }
 
     // ── Seniority ─────────────────────────────────────────────────────────────
@@ -93,10 +182,8 @@ public sealed class Person : AggregateRoot
             return;
         }
 
-        var oldSeniority = Seniority;
         Seniority = newSeniority;
         MarkUpdated();
-        AddDomainEvent(new PersonSeniorityChangedEvent(Id, oldSeniority, newSeniority));
     }
 
     // ── Modality ──────────────────────────────────────────────────────────────
@@ -149,6 +236,27 @@ public sealed class Person : AggregateRoot
         AddDomainEvent(new PersonRemovedFromChapterEvent(Id));
     }
 
+    // ── Expertise line ────────────────────────────────────────────────────────
+
+    public void AssignToExpertiseLine(Guid expertiseLineId)
+    {
+        if (expertiseLineId == Guid.Empty)
+        {
+            throw new DomainException("Expertise line ID must not be empty.");
+        }
+
+        ExpertiseLineId = expertiseLineId;
+        MarkUpdated();
+        AddDomainEvent(new PersonAssignedToExpertiseLineEvent(Id, expertiseLineId));
+    }
+
+    public void RemoveFromExpertiseLine()
+    {
+        ExpertiseLineId = null;
+        MarkUpdated();
+        AddDomainEvent(new PersonRemovedFromExpertiseLineEvent(Id));
+    }
+
     // ── Provider ──────────────────────────────────────────────────────────────
 
     public void AssignToProvider(Guid providerId)
@@ -159,6 +267,20 @@ public sealed class Person : AggregateRoot
         }
 
         ProviderId = providerId;
+        MarkUpdated();
+    }
+
+    // ── DevOps identity ───────────────────────────────────────────────────────
+
+    public void LinkDevOpsIdentity(string devOpsUserId, DateTime? linkedAtUtc = null)
+    {
+        if (string.IsNullOrWhiteSpace(devOpsUserId))
+        {
+            throw new DomainException("El identificador de Azure DevOps es obligatorio.");
+        }
+
+        DevOpsUserId = devOpsUserId.Trim();
+        DevOpsIdentityLinkedAtUtc = linkedAtUtc ?? DateTime.UtcNow;
         MarkUpdated();
     }
 
@@ -188,10 +310,19 @@ public sealed class Person : AggregateRoot
         Position = position.Trim();
     }
 
-    private void SetRole(string role)
+    private void SetTechnicalLead(Guid? technicalLeadId)
     {
-        EnsureRequired(role, nameof(Role), 100);
-        Role = role.Trim();
+        if (technicalLeadId == Guid.Empty)
+        {
+            throw new DomainException("Technical lead ID must not be empty.");
+        }
+
+        if (technicalLeadId == Id)
+        {
+            throw new DomainException("Una persona no puede ser su propia líder técnica.");
+        }
+
+        TechnicalLeadId = technicalLeadId;
     }
 
     private void SetMonthlyCost(decimal monthlyCost)

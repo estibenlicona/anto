@@ -1,5 +1,5 @@
 using FluentValidation;
-using GestionCapacidad.Domain.ValueObjects;
+using GestionCapacidad.Domain.Entities;
 
 namespace GestionCapacidad.Application.UseCases.Initiatives.UpdateInitiative;
 
@@ -7,12 +7,28 @@ public sealed class UpdateInitiativeValidator : AbstractValidator<UpdateInitiati
 {
     public UpdateInitiativeValidator()
     {
-        RuleFor(r => r.Id).NotEmpty();
-        RuleFor(r => r.Name).NotEmpty().MaximumLength(300);
-        RuleFor(r => r.Type)
+        RuleFor(r => r.Id)
+            .NotEmpty();
+
+        RuleFor(r => r.Name)
             .NotEmpty()
-            .Must(v => InitiativeType.ValidValues.Contains(v, StringComparer.OrdinalIgnoreCase))
-            .WithMessage($"Type must be one of: {string.Join(", ", InitiativeType.ValidValues)}.");
-        RuleFor(r => r.DeadlineMonths).GreaterThanOrEqualTo(1);
+            .WithMessage("El nombre de la iniciativa es obligatorio.")
+            .MaximumLength(200)
+            .WithMessage("El nombre de la iniciativa no puede superar 200 caracteres.");
+
+        RuleFor(r => r.SquadId)
+            .NotEmpty()
+            .WithMessage("La célula es obligatoria.");
+
+        RuleFor(r => r.ProductOwner)
+            .NotEmpty()
+            .WithMessage("El product owner es obligatorio.")
+            .MaximumLength(100)
+            .WithMessage("El product owner no puede superar 100 caracteres.");
+
+        RuleFor(r => r.TargetMonths)
+            .InclusiveBetween(Initiative.MinTargetMonths, Initiative.MaxTargetMonths)
+            .WithMessage(
+                $"El plazo debe estar entre {Initiative.MinTargetMonths} y {Initiative.MaxTargetMonths} meses.");
     }
 }

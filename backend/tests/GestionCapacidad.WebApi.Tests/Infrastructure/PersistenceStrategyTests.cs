@@ -37,6 +37,17 @@ public sealed class PersistenceStrategyTests
     }
 
     [Fact]
+    public void Factory_ResolvesPostgresStrategy()
+    {
+        PersistenceStrategyFactory factory = CreateFactory();
+        var options = new PersistenceOptions { Provider = "Postgres" };
+
+        IPersistenceStrategy strategy = factory.Resolve(options);
+
+        Assert.Equal(PersistenceProvider.Postgres, strategy.Provider);
+    }
+
+    [Fact]
     public void DomainAssembly_DoesNotContainPersistenceProvider()
     {
         Assembly domainAssembly = typeof(Company).Assembly;
@@ -68,6 +79,38 @@ public sealed class PersistenceStrategyTests
             strategy.ConfigureDbContext(builder, options, serviceProvider));
 
         Assert.Contains("SqlServerConnectionString", exception.Message);
+    }
+
+    [Fact]
+    public void PostgresStrategy_ThrowsWhenConnectionStringIsMissing()
+    {
+        var strategy = new PostgresPersistenceStrategy();
+        var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
+        var options = new PersistenceOptions { Provider = "Postgres", PostgresConnectionString = "" };
+        IServiceProvider serviceProvider = new ServiceCollection().BuildServiceProvider();
+
+        InvalidOperationException exception = Assert.Throws<InvalidOperationException>(() =>
+            strategy.ConfigureDbContext(builder, options, serviceProvider));
+
+        Assert.Contains("PostgresConnectionString", exception.Message);
+    }
+
+    [Fact]
+    public void PostgresStrategy_ConfiguresNpgsqlProvider()
+    {
+        var strategy = new PostgresPersistenceStrategy();
+        var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
+        var options = new PersistenceOptions
+        {
+            Provider = "Postgres",
+            PostgresConnectionString = "Host=localhost;Database=gestioncapacidad_dev;Username=postgres;Password=x",
+        };
+        IServiceProvider serviceProvider = new ServiceCollection().BuildServiceProvider();
+
+        strategy.ConfigureDbContext(builder, options, serviceProvider);
+
+        Assert.Contains(builder.Options.Extensions, extension =>
+            extension.GetType().FullName?.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) == true);
     }
 
     [Fact]
@@ -169,7 +212,8 @@ public sealed class PersistenceStrategyTests
         return new PersistenceStrategyFactory(
         [
             new SqlServerPersistenceStrategy(),
-            new MongoDbPersistenceStrategy()
+            new MongoDbPersistenceStrategy(),
+            new PostgresPersistenceStrategy()
         ]);
     }
 
@@ -179,6 +223,8 @@ public sealed class PersistenceStrategyTests
         values.TryAdd("HttpClients:CompanyRegistry:TimeoutSeconds", "30");
         values.TryAdd("HttpClients:CompanyRegistry:Resilience:Preset", "TimeoutOnly");
         values.TryAdd("HttpClients:CompanyRegistry:Resilience:Timeout:Seconds", "10");
+        values.TryAdd("HttpClients:AzureDevOps:BaseAddress", "https://example.com/azure-devops/");
+        values.TryAdd("HttpClients:AzureDevOps:TimeoutSeconds", "30");
 
         return new ConfigurationBuilder()
             .AddInMemoryCollection(values)

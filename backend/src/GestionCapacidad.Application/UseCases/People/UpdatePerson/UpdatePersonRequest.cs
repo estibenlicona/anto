@@ -8,7 +8,9 @@ public sealed record UpdatePersonRequest(
     string UserPrincipalName,
     string Position,
     string Role,
-    int Seniority,
+    Guid? TechnicalLeadId,
+    int Level,
+    string Seniority,
     string Modality,
     float AvailableFte,
     decimal MonthlyCost);

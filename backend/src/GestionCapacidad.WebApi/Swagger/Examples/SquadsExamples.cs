@@ -10,33 +10,38 @@ public sealed class SquadDtoExample : IExamplesProvider<SquadDto>
 {
     public SquadDto GetExamples() => new(
         Id: Guid.Parse("22222222-2222-2222-2222-222222222222"),
-        Name: "Squad Pagos",
+        Name: "Backend Platform",
+        Team: "Ecosistema Digital",
         Criticality: "High",
-        Tribe: "Medios de Pago",
-        Description: "Squad responsable de la pasarela de pagos y conciliación",
-        DevOpsBoardId: Guid.Parse("66666666-6666-6666-6666-666666666666"),
+        Description: "Célula responsable de la plataforma de servicios",
         CreatedAtUtc: DateTime.Parse("2025-11-01T08:00:00Z"),
-        UpdatedAtUtc: null);
+        UpdatedAtUtc: DateTime.Parse("2025-11-01T08:00:00Z"),
+        MemberCount: 4,
+        Members:
+        [
+            new SquadMemberSampleDto(Guid.Parse("11111111-1111-1111-1111-111111111111"), "Andrés Martínez"),
+            new SquadMemberSampleDto(Guid.Parse("33333333-3333-3333-3333-333333333333"), "Carlos López"),
+            new SquadMemberSampleDto(Guid.Parse("44444444-4444-4444-4444-444444444444"), "Isabella Moreno"),
+        ],
+        AllocatedFte: 2.8,
+        BauFte: 1.6,
+        TransformationFte: 1.2,
+        PeopleAvailableFte: 3.3,
+        ActiveInitiative: null);
 }
 
 public sealed class CreateSquadRequestExample : IExamplesProvider<CreateSquadRequest>
 {
     public CreateSquadRequest GetExamples() => new(
-        Name: "Squad Pagos",
+        Name: "Backend Platform",
+        Team: "Ecosistema Digital",
         Criticality: "High",
-        Tribe: "Medios de Pago",
-        Description: "Squad responsable de la pasarela de pagos y conciliación");
+        Description: "Célula responsable de la plataforma de servicios");
 }
 
 public sealed class CreateSquadResponseExample : IExamplesProvider<CreateSquadResponse>
 {
-    public CreateSquadResponse GetExamples() => new(
-        Id: Guid.Parse("22222222-2222-2222-2222-222222222222"),
-        Name: "Squad Pagos",
-        Criticality: "High",
-        Tribe: "Medios de Pago",
-        Description: "Squad responsable de la pasarela de pagos y conciliación",
-        CreatedAtUtc: DateTime.Parse("2025-11-01T08:00:00Z"));
+    public CreateSquadResponse GetExamples() => new(new SquadDtoExample().GetExamples());
 }
 
 public sealed class GetSquadByIdResponseExample : IExamplesProvider<GetSquadByIdResponse>
@@ -48,20 +53,52 @@ public sealed class UpdateSquadRequestExample : IExamplesProvider<UpdateSquadReq
 {
     public UpdateSquadRequest GetExamples() => new(
         Id: Guid.Parse("22222222-2222-2222-2222-222222222222"),
-        Name: "Squad Pagos",
+        Name: "Backend Platform",
+        Team: "Ecosistema Digital",
         Criticality: "Critical",
-        Tribe: "Medios de Pago",
-        Description: "Squad responsable de la pasarela de pagos, conciliación y fraude");
+        Description: "Célula responsable de la plataforma y la pasarela de pagos");
 }
 
 public sealed class UpdateSquadResponseExample : IExamplesProvider<UpdateSquadResponse>
 {
-    public UpdateSquadResponse GetExamples() => new(
-        Id: Guid.Parse("22222222-2222-2222-2222-222222222222"),
-        Name: "Squad Pagos",
-        Criticality: "Critical",
-        Tribe: "Medios de Pago",
-        Description: "Squad responsable de la pasarela de pagos, conciliación y fraude",
-        CreatedAtUtc: DateTime.Parse("2025-11-01T08:00:00Z"),
-        UpdatedAtUtc: DateTime.Parse("2026-06-15T10:15:00Z"));
+    public UpdateSquadResponse GetExamples() => new(new SquadDtoExample().GetExamples());
+}
+
+public sealed class SquadTeamStatsDtoExample : IExamplesProvider<SquadTeamStatsDto>
+{
+    public SquadTeamStatsDto GetExamples() => new(
+        MemberCount: 4,
+        Members:
+        [
+            new SquadMemberSampleDto(Guid.Parse("11111111-1111-1111-1111-111111111111"), "Andrés Martínez"),
+            new SquadMemberSampleDto(Guid.Parse("33333333-3333-3333-3333-333333333333"), "Carlos López"),
+            new SquadMemberSampleDto(Guid.Parse("44444444-4444-4444-4444-444444444444"), "Isabella Moreno"),
+            new SquadMemberSampleDto(Guid.Parse("55555555-5555-5555-5555-555555555555"), "María González"),
+        ],
+        ExpertCount: 1,
+        BeginnerCount: 0,
+        AllocatedFte: 2.8,
+        BauFte: 1.6,
+        TransformationFte: 1.2,
+        PeopleAvailableFte: 3.3);
+}
+
+public sealed class SquadsStatsDtoExample : IExamplesProvider<SquadsStatsDto>
+{
+    public SquadsStatsDto GetExamples() => new(
+        TotalCount: 5,
+        WithoutPeopleCount: 1,
+        AtCapacityCount: 1,
+        TeamCount: 4,
+        AllocatedFte: 6.4,
+        BauFte: 3.5,
+        TransformationFte: 2.9,
+        ChapterFte: 17.3,
+        ByCriticality:
+        [
+            new CriticalityBucketDto("Critical", 2),
+            new CriticalityBucketDto("High", 1),
+            new CriticalityBucketDto("Medium", 1),
+            new CriticalityBucketDto("Low", 1),
+        ]);
 }

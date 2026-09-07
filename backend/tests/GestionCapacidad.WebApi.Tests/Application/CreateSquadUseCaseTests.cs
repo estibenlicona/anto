@@ -11,11 +11,19 @@ namespace GestionCapacidad.WebApi.Tests.Application;
 public sealed class CreateSquadUseCaseTests
 {
     private readonly Mock<ISquadRepository> _repository = new();
+    private readonly Mock<IAllocationRepository> _allocations = new();
+    private readonly Mock<IPersonRepository> _people = new();
+    private readonly Mock<IInitiativeRepository> _initiatives = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly CreateSquadValidator _validator = new();
 
-    private CreateSquadUseCase CreateUseCase() =>
-        new(_repository.Object, _unitOfWork.Object, _validator);
+    private CreateSquadUseCase CreateUseCase()
+    {
+        _allocations.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Allocation>());
+        _people.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Person>());
+        _initiatives.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Initiative>());
+        return new CreateSquadUseCase(_repository.Object, _allocations.Object, _people.Object, _initiatives.Object, _unitOfWork.Object, _validator);
+    }
 
     [Fact]
     public async Task ExecuteAsync_CreatesSquad_WhenNameIsUnique()
@@ -34,11 +42,16 @@ public sealed class CreateSquadUseCaseTests
 
         CreateSquadResponse response = await CreateUseCase().ExecuteAsync(request);
 
-        Assert.NotEqual(Guid.Empty, response.Id);
-        Assert.Equal(request.Name, response.Name);
-        Assert.Equal(request.Criticality, response.Criticality, StringComparer.OrdinalIgnoreCase);
-        Assert.Equal(request.Tribe, response.Tribe);
-        Assert.Equal(request.Description, response.Description);
+        Assert.NotEqual(Guid.Empty, response.Squad.Id);
+        Assert.Equal(request.Name, response.Squad.Name);
+        Assert.Equal(request.Criticality, response.Squad.Criticality, StringComparer.OrdinalIgnoreCase);
+        Assert.Equal(request.Team, response.Squad.Team);
+        Assert.Equal(request.Description, response.Squad.Description);
+
+        // Recién creada: sin gente ni iniciativa, agregados en cero.
+        Assert.Equal(0, response.Squad.MemberCount);
+        Assert.Equal(0d, response.Squad.AllocatedFte);
+        Assert.Null(response.Squad.ActiveInitiative);
 
         _repository.Verify(r => r.AddAsync(It.IsAny<Squad>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);

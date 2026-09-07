@@ -1,7 +1,6 @@
 using Moq;
 using GestionCapacidad.Application.UseCases.Allocations.CreateAllocation;
 using GestionCapacidad.Application.UseCases.Allocations.DeleteAllocation;
-using GestionCapacidad.Application.UseCases.Allocations.GetAllocationsByPerson;
 using GestionCapacidad.Application.UseCases.Allocations.GetAllocationsBySquad;
 using GestionCapacidad.Application.UseCases.Allocations.UpdateAllocation;
 using GestionCapacidad.Domain.Entities;
@@ -19,8 +18,8 @@ public sealed class AllocationUseCaseTests
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
 
     private Person BuildPerson(string name = "Alice") =>
-        new(name, "123", "entra", "alice@co.com", "Dev", "Developer",
-            Seniority.Avanzado, Modality.Hybrid, Fte.FullTime, 5000m, new DateOnly(2023, 1, 1));
+        new(name, "123", "entra", "alice@co.com", "Dev", PersonRole.Contributor,
+            Level.Avanzado, Seniority.Intermediate, Modality.Hybrid, Fte.FullTime, 5000m, new DateOnly(2023, 1, 1));
 
     private Squad BuildSquad() => new("Backend", Criticality.High, "Payments", null);
 
@@ -31,16 +30,15 @@ public sealed class AllocationUseCaseTests
     // ── Create ────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task Create_CreatesAllocation_WhenPersonAndSquadExist()
+    public async Task Create_CreatesAllocation_AndDerivesPersonFieldsAndMargin()
     {
         Person person = BuildPerson();
         Squad squad   = BuildSquad();
-        var request   = new CreateAllocationRequest(person.Id, squad.Id, null, 80, 30, 50);
+        var request   = new CreateAllocationRequest(squad.Id, person.Id, 80, 30, 50);
 
         _personRepo.Setup(r => r.GetByIdAsync(person.Id, default)).ReturnsAsync(person);
         _squadRepo.Setup(r => r.GetByIdAsync(squad.Id, default)).ReturnsAsync(squad);
-        _allocationRepo.Setup(r => r.ExistsByPersonAndSquadAsync(person.Id, squad.Id, default)).ReturnsAsync(false);
-        _allocationRepo.Setup(r => r.GetTotalDedicationForPersonAsync(person.Id, Guid.Empty, default)).ReturnsAsync(0);
+        _allocationRepo.Setup(r => r.ExistsByPersonAsync(person.Id, default)).ReturnsAsync(false);
         _allocationRepo.Setup(r => r.AddAsync(It.IsAny<Allocation>(), default)).Returns(Task.CompletedTask);
         _unitOfWork.Setup(u => u.SaveChangesAsync(default)).ReturnsAsync(1);
 
@@ -51,39 +49,44 @@ public sealed class AllocationUseCaseTests
         Assert.Equal(80, response.Allocation.DedicationPercentage);
         Assert.Equal(30, response.Allocation.BauPercentage);
         Assert.Equal(50, response.Allocation.TransformationPercentage);
+        Assert.Null(response.Allocation.InitiativeId);
+
+        // Los campos de persona vienen del maestro; el margen es 100 − dedicación.
+        Assert.Equal("Dev", response.Allocation.PersonPosition);
+        Assert.Equal("Hybrid", response.Allocation.PersonModality);
+        Assert.Equal(3, response.Allocation.PersonLevel);
+        Assert.Equal("Avanzado", response.Allocation.PersonLevelLabel);
+        Assert.Equal(20, response.Allocation.PersonAvailablePercentage);
     }
 
     [Fact]
-    public async Task Create_ThrowsBadRequest_WhenPersonAlreadyAllocatedToSquad()
+    public async Task Create_ThrowsBadRequest_WhenPersonAlreadyHasAnAllocation()
     {
+        // Una persona tiene una sola asignación, aunque sea en otra célula.
         Person person = BuildPerson();
         Squad squad   = BuildSquad();
-        var request   = new CreateAllocationRequest(person.Id, squad.Id, null, 80, 30, 50);
+        var request   = new CreateAllocationRequest(squad.Id, person.Id, 80, 30, 50);
 
         _personRepo.Setup(r => r.GetByIdAsync(person.Id, default)).ReturnsAsync(person);
         _squadRepo.Setup(r => r.GetByIdAsync(squad.Id, default)).ReturnsAsync(squad);
-        _allocationRepo.Setup(r => r.ExistsByPersonAndSquadAsync(person.Id, squad.Id, default)).ReturnsAsync(true);
+        _allocationRepo.Setup(r => r.ExistsByPersonAsync(person.Id, default)).ReturnsAsync(true);
 
-        await Assert.ThrowsAsync<BadRequestException>(() =>
+        var exception = await Assert.ThrowsAsync<BadRequestException>(() =>
             new CreateAllocationUseCase(
                 _allocationRepo.Object, _personRepo.Object, _squadRepo.Object,
                 _unitOfWork.Object, new CreateAllocationValidator()).ExecuteAsync(request));
+
+        Assert.Contains("ya está asignada", exception.Message);
+        _allocationRepo.Verify(r => r.AddAsync(It.IsAny<Allocation>(), default), Times.Never);
     }
 
     [Fact]
-    public async Task Create_ThrowsBadRequest_WhenTotalDedicationWouldExceed100()
+    public async Task Create_ThrowsValidation_WhenBreakdownDoesNotAddUp()
     {
-        Person person = BuildPerson();
-        Squad squad   = BuildSquad();
-        var request   = new CreateAllocationRequest(person.Id, squad.Id, null, 80, 40, 40);
+        // 30 + 40 ≠ 80: la mezcla debe cuadrar con la dedicación (400).
+        var request = new CreateAllocationRequest(Guid.NewGuid(), Guid.NewGuid(), 80, 30, 40);
 
-        _personRepo.Setup(r => r.GetByIdAsync(person.Id, default)).ReturnsAsync(person);
-        _squadRepo.Setup(r => r.GetByIdAsync(squad.Id, default)).ReturnsAsync(squad);
-        _allocationRepo.Setup(r => r.ExistsByPersonAndSquadAsync(person.Id, squad.Id, default)).ReturnsAsync(false);
-        _allocationRepo.Setup(r => r.GetTotalDedicationForPersonAsync(person.Id, Guid.Empty, default)).ReturnsAsync(30);
-        // 30 + 80 = 110 > 100 → BadRequest
-
-        await Assert.ThrowsAsync<BadRequestException>(() =>
+        await Assert.ThrowsAsync<ValidationException>(() =>
             new CreateAllocationUseCase(
                 _allocationRepo.Object, _personRepo.Object, _squadRepo.Object,
                 _unitOfWork.Object, new CreateAllocationValidator()).ExecuteAsync(request));
@@ -98,54 +101,67 @@ public sealed class AllocationUseCaseTests
             new CreateAllocationUseCase(
                 _allocationRepo.Object, _personRepo.Object, _squadRepo.Object,
                 _unitOfWork.Object, new CreateAllocationValidator())
-            .ExecuteAsync(new CreateAllocationRequest(Guid.NewGuid(), Guid.NewGuid(), null, 80, 30, 50)));
+            .ExecuteAsync(new CreateAllocationRequest(Guid.NewGuid(), Guid.NewGuid(), 80, 30, 50)));
     }
 
     // ── GetBySquad ────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task GetBySquad_ReturnsPageOfAllocations()
+    public async Task GetBySquad_ReturnsPageOfAllocations_WithPersonFields()
     {
         var squadId = Guid.NewGuid();
-        var personId = Guid.NewGuid();
         Squad squad = BuildSquad();
-        Allocation allocation = BuildAllocation(personId, squadId);
-        var items = new[] { (allocation, "Alice") };
+        Person person = BuildPerson();
+        Allocation allocation = BuildAllocation(person.Id, squadId);
+        var items = new[] { (allocation, person) };
 
         _allocationRepo
-            .Setup(r => r.GetBySquadPagedAsync(squadId, 1, 10, default))
+            .Setup(r => r.GetBySquadPagedAsync(squadId, 1, 10, null, null, default))
             .ReturnsAsync((items, items.Length));
         _squadRepo.Setup(r => r.GetByIdAsync(squadId, default)).ReturnsAsync(squad);
 
         var response = await new GetAllocationsBySquadUseCase(_allocationRepo.Object, _squadRepo.Object)
             .ExecuteAsync(new GetAllocationsBySquadRequest(squadId, 1, 10));
 
-        Assert.Single(response.Allocations.Items);
-        Assert.Equal("Alice", response.Allocations.Items[0].PersonName);
-        Assert.Equal(squad.Name, response.Allocations.Items[0].SquadName);
+        var dto = Assert.Single(response.Allocations.Items);
+        Assert.Equal("Alice", dto.PersonName);
+        Assert.Equal(squad.Name, dto.SquadName);
+        Assert.Equal("Dev", dto.PersonPosition);
+        Assert.Equal(20, dto.PersonAvailablePercentage);
         Assert.Equal(1, response.Allocations.TotalCount);
     }
 
     [Fact]
-    public async Task GetBySquad_PreservesPersonNameOrder_FromRepository()
+    public async Task GetBySquad_PassesSearchAndLevels_ToTheRepository()
     {
         var squadId = Guid.NewGuid();
         Squad squad = BuildSquad();
-        var items = new[]
-        {
-            (BuildAllocation(Guid.NewGuid(), squadId), "Alice"),
-            (BuildAllocation(Guid.NewGuid(), squadId), "Bob"),
-        };
+        Person person = BuildPerson();
+        var items = new[] { (BuildAllocation(person.Id, squadId), person) };
 
         _allocationRepo
-            .Setup(r => r.GetBySquadPagedAsync(squadId, 1, 10, default))
+            .Setup(r => r.GetBySquadPagedAsync(
+                squadId, 1, 10, "ali",
+                It.Is<IReadOnlyCollection<int>>(l => l.SequenceEqual(new[] { 3 })),
+                default))
             .ReturnsAsync((items, items.Length));
         _squadRepo.Setup(r => r.GetByIdAsync(squadId, default)).ReturnsAsync(squad);
 
         var response = await new GetAllocationsBySquadUseCase(_allocationRepo.Object, _squadRepo.Object)
-            .ExecuteAsync(new GetAllocationsBySquadRequest(squadId, 1, 10));
+            .ExecuteAsync(new GetAllocationsBySquadRequest(squadId, 1, 10, "ali", new[] { 3 }));
 
-        Assert.Equal(["Alice", "Bob"], response.Allocations.Items.Select(a => a.PersonName));
+        Assert.Single(response.Allocations.Items);
+        _allocationRepo.VerifyAll();
+    }
+
+    [Fact]
+    public async Task GetBySquad_ThrowsNotFound_WhenSquadDoesNotExist()
+    {
+        _squadRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), default)).ReturnsAsync((Squad?)null);
+
+        await Assert.ThrowsAsync<NotFoundException>(() =>
+            new GetAllocationsBySquadUseCase(_allocationRepo.Object, _squadRepo.Object)
+                .ExecuteAsync(new GetAllocationsBySquadRequest(Guid.NewGuid(), 1, 10)));
     }
 
     // ── Update ────────────────────────────────────────────────────────────────
@@ -156,10 +172,9 @@ public sealed class AllocationUseCaseTests
         Person person = BuildPerson();
         Squad squad   = BuildSquad();
         Allocation allocation = BuildAllocation(person.Id, squad.Id);
-        var request = new UpdateAllocationRequest(allocation.Id, null, 100, 60, 40);
+        var request = new UpdateAllocationRequest(allocation.Id, 100, 60, 40);
 
         _allocationRepo.Setup(r => r.GetByIdAsync(allocation.Id, default)).ReturnsAsync(allocation);
-        _allocationRepo.Setup(r => r.GetTotalDedicationForPersonAsync(person.Id, allocation.Id, default)).ReturnsAsync(0);
         _personRepo.Setup(r => r.GetByIdAsync(person.Id, default)).ReturnsAsync(person);
         _squadRepo.Setup(r => r.GetByIdAsync(squad.Id, default)).ReturnsAsync(squad);
         _unitOfWork.Setup(u => u.SaveChangesAsync(default)).ReturnsAsync(1);
@@ -169,6 +184,43 @@ public sealed class AllocationUseCaseTests
             _unitOfWork.Object, new UpdateAllocationValidator()).ExecuteAsync(request);
 
         Assert.Equal(100, response.Allocation.DedicationPercentage);
+        Assert.Equal(0, response.Allocation.PersonAvailablePercentage);
+        Assert.Equal("Dev", response.Allocation.PersonPosition);
+    }
+
+    [Fact]
+    public async Task Update_ThrowsValidation_WhenBreakdownDoesNotAddUp()
+    {
+        var request = new UpdateAllocationRequest(Guid.NewGuid(), 100, 10, 40);
+
+        await Assert.ThrowsAsync<ValidationException>(() =>
+            new UpdateAllocationUseCase(
+                _allocationRepo.Object, _personRepo.Object, _squadRepo.Object,
+                _unitOfWork.Object, new UpdateAllocationValidator()).ExecuteAsync(request));
+        _allocationRepo.Verify(r => r.GetByIdAsync(It.IsAny<Guid>(), default), Times.Never);
+    }
+
+    [Fact]
+    public async Task Update_KeepsTheExistingInitiative()
+    {
+        // El request del contrato no trae iniciativa: editar porcentajes no la toca.
+        Person person = BuildPerson();
+        Squad squad   = BuildSquad();
+        var initiativeId = Guid.NewGuid();
+        var allocation = new Allocation(person.Id, squad.Id, initiativeId,
+            Percentage.From(80), Percentage.From(30), Percentage.From(50));
+
+        _allocationRepo.Setup(r => r.GetByIdAsync(allocation.Id, default)).ReturnsAsync(allocation);
+        _personRepo.Setup(r => r.GetByIdAsync(person.Id, default)).ReturnsAsync(person);
+        _squadRepo.Setup(r => r.GetByIdAsync(squad.Id, default)).ReturnsAsync(squad);
+        _unitOfWork.Setup(u => u.SaveChangesAsync(default)).ReturnsAsync(1);
+
+        var response = await new UpdateAllocationUseCase(
+            _allocationRepo.Object, _personRepo.Object, _squadRepo.Object,
+            _unitOfWork.Object, new UpdateAllocationValidator())
+            .ExecuteAsync(new UpdateAllocationRequest(allocation.Id, 60, 30, 30));
+
+        Assert.Equal(initiativeId, response.Allocation.InitiativeId);
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────

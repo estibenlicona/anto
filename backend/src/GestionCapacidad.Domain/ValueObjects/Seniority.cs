@@ -3,51 +3,43 @@ using GestionCapacidad.Domain.Exceptions;
 namespace GestionCapacidad.Domain.ValueObjects;
 
 /// <summary>
-/// Escala de seniority propia de Tuya (4 niveles), la misma escala que antes
-/// se llamaba "nivel SFIA" — no existe una escalera de seniority separada.
-/// Nivel 1 = Principiante, Nivel 2 = Competente, Nivel 3 = Avanzado, Nivel 4 = Experto.
+/// La escalera de seniority de la persona: Junior, Intermediate o Senior.
+/// Es una escala distinta del <see cref="Level"/> (la escala Tuya de 4 con la
+/// que se miden habilidades y stacks): describe a la persona, no su nivel
+/// técnico, y las dos viajan como campos separados del contrato.
 /// </summary>
 public sealed record Seniority
 {
-    public const int Min = 1;
-    public const int Max = 4;
+    public static readonly Seniority Junior = new("Junior", "Junior");
 
-    /// <summary>Nivel 1 — Principiante. Conocimiento básico, requiere guía constante.</summary>
-    public static readonly Seniority Principiante = new(1);
+    public static readonly Seniority Intermediate = new("Intermediate", "Intermedio");
 
-    /// <summary>Nivel 2 — Competente. Trabaja con supervisión ocasional.</summary>
-    public static readonly Seniority Competente = new(2);
+    public static readonly Seniority Senior = new("Senior", "Senior");
 
-    /// <summary>Nivel 3 — Avanzado. Autónomo, resuelve problemas complejos.</summary>
-    public static readonly Seniority Avanzado = new(3);
+    /// <summary>Los valores del catálogo cerrado, en orden ascendente.</summary>
+    public static readonly IReadOnlyCollection<Seniority> ValidValues =
+        [Junior, Intermediate, Senior];
 
-    /// <summary>Nivel 4 — Experto. Referente técnico, guía a otros.</summary>
-    public static readonly Seniority Experto = new(4);
+    /// <summary>Slug del contrato (en inglés, como viaja en la API).</summary>
+    public string Value { get; }
 
-    public int Value { get; }
+    /// <summary>Etiqueta en español, la que se lee en pantalla.</summary>
+    public string Label { get; }
 
-    public string Label => Value switch
+    private Seniority(string value, string label)
     {
-        1 => "Principiante",
-        2 => "Competente",
-        3 => "Avanzado",
-        4 => "Experto",
-        _ => "Desconocido"
-    };
-
-    private Seniority(int value) => Value = value;
-
-    public static Seniority From(int value)
-    {
-        if (value < Min || value > Max)
-        {
-            throw new DomainException(
-                $"El seniority debe estar entre {Min} y {Max} (escala Tuya). " +
-                $"1=Principiante, 2=Competente, 3=Avanzado, 4=Experto. Recibido: {value}.");
-        }
-
-        return new Seniority(value);
+        Value = value;
+        Label = label;
     }
 
-    public override string ToString() => $"{Value} - {Label}";
+    public static Seniority From(string value)
+    {
+        Seniority? match = ValidValues.FirstOrDefault(s =>
+            string.Equals(s.Value, value, StringComparison.Ordinal));
+
+        return match ?? throw new DomainException(
+            $"El seniority debe ser uno de: {string.Join(", ", ValidValues.Select(s => s.Value))}. Recibido: {value}.");
+    }
+
+    public override string ToString() => Value;
 }

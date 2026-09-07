@@ -11,18 +11,25 @@ namespace GestionCapacidad.WebApi.Tests.Application;
 public sealed class UpdatePersonUseCaseTests
 {
     private readonly Mock<IPersonRepository> _repository = new();
+    private readonly Mock<IAllocationRepository> _allocations = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly UpdatePersonValidator _validator = new();
 
-    private UpdatePersonUseCase CreateUseCase() =>
-        new(_repository.Object, _unitOfWork.Object, _validator);
+    private UpdatePersonUseCase CreateUseCase()
+    {
+        _repository.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Person>());
+        _allocations.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Allocation>());
+        return new UpdatePersonUseCase(_repository.Object, _allocations.Object, _unitOfWork.Object, _validator);
+    }
 
     [Fact]
     public async Task ExecuteAsync_UpdatesPerson_WhenExists()
     {
-        Person person = TestDataFactory.CreatePerson(seniority: Seniority.Principiante);
+        Person person = TestDataFactory.CreatePerson(level: Level.Principiante);
         UpdatePersonRequest request = TestDataFactory.UpdatePersonRequest(
-            id: person.Id, name: "Updated Name", seniority: 4);
+            id: person.Id, name: "Updated Name", level: 4);
 
         _repository.Setup(r => r.GetByIdAsync(person.Id, It.IsAny<CancellationToken>())).ReturnsAsync(person);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
@@ -30,7 +37,7 @@ public sealed class UpdatePersonUseCaseTests
         UpdatePersonResponse response = await CreateUseCase().ExecuteAsync(request);
 
         Assert.Equal("Updated Name", response.Person.Name);
-        Assert.Equal(4, response.Person.Seniority);
+        Assert.Equal(4, response.Person.Level);
         Assert.NotNull(response.Person.UpdatedAtUtc);
         _repository.Verify(r => r.Update(It.IsAny<Person>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);

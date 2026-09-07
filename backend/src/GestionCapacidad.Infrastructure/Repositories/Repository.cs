@@ -16,7 +16,7 @@ public class Repository<T>(ApplicationDbContext dbContext) : IRepository<T>
         return await DbSet.FirstOrDefaultAsync(entity => entity.Id == id, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default)
+    public virtual async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await DbSet.AsNoTracking().ToListAsync(cancellationToken);
     }

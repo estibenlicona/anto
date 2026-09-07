@@ -5,10 +5,10 @@ namespace GestionCapacidad.Domain.Events;
 
 public sealed record PersonCreatedEvent(Guid PersonId, string Name) : IDomainEvent;
 
-public sealed record PersonSeniorityChangedEvent(
+public sealed record PersonLevelChangedEvent(
     Guid PersonId,
-    Seniority OldSeniority,
-    Seniority NewSeniority) : IDomainEvent;
+    Level OldLevel,
+    Level NewLevel) : IDomainEvent;
 
 public sealed record PersonModalityChangedEvent(
     Guid PersonId,
@@ -18,3 +18,7 @@ public sealed record PersonModalityChangedEvent(
 public sealed record PersonAssignedToChapterEvent(Guid PersonId, Guid ChapterId) : IDomainEvent;
 
 public sealed record PersonRemovedFromChapterEvent(Guid PersonId) : IDomainEvent;
+
+public sealed record PersonAssignedToExpertiseLineEvent(Guid PersonId, Guid ExpertiseLineId) : IDomainEvent;
+
+public sealed record PersonRemovedFromExpertiseLineEvent(Guid PersonId) : IDomainEvent;

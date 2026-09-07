@@ -28,11 +28,26 @@ public sealed class PersonRepository(ApplicationDbContext dbContext)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Person>> GetByExpertiseLineAsync(
+        Guid expertiseLineId,
+        CancellationToken cancellationToken = default) =>
+        await DbContext.People
+            .Where(p => p.ExpertiseLineId == expertiseLineId)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+    public async Task<Person?> GetByDevOpsUserIdAsync(
+        string devOpsUserId,
+        CancellationToken cancellationToken = default) =>
+        await DbContext.People.FirstOrDefaultAsync(p => p.DevOpsUserId == devOpsUserId, cancellationToken);
+
     public async Task<(IReadOnlyList<Person> Items, int TotalCount)> GetPagedAsync(
         int page,
         int pageSize,
         string? search = null,
-        IReadOnlyCollection<int>? seniorities = null,
+        IReadOnlyCollection<int>? levels = null,
+        IReadOnlyCollection<string>? seniorities = null,
+        IReadOnlyCollection<string>? stacks = null,
         CancellationToken cancellationToken = default)
     {
         IQueryable<Person> query = DbContext.People.AsNoTracking();
@@ -43,6 +58,16 @@ public sealed class PersonRepository(ApplicationDbContext dbContext)
             query = query.Where(p => p.Name.ToLower().Contains(term) || p.Position.ToLower().Contains(term));
         }
 
+        if (levels is { Count: > 0 })
+        {
+            List<Level> validLevels = levels
+                .Select(TryParseLevel)
+                .Where(s => s is not null)
+                .Select(s => s!)
+                .ToList();
+            query = query.Where(p => validLevels.Contains(p.Level));
+        }
+
         if (seniorities is { Count: > 0 })
         {
             List<Seniority> validSeniorities = seniorities
@@ -51,6 +76,13 @@ public sealed class PersonRepository(ApplicationDbContext dbContext)
                 .Select(s => s!)
                 .ToList();
             query = query.Where(p => validSeniorities.Contains(p.Seniority));
+        }
+
+        if (stacks is { Count: > 0 })
+        {
+            // Nombre exacto contra el catálogo: un valor desconocido simplemente
+            // no matchea, igual que en los otros filtros.
+            query = query.Where(p => p.Stacks.Any(s => stacks.Contains(s.Name)));
         }
 
         int totalCount = await query.CountAsync(cancellationToken);
@@ -67,11 +99,23 @@ public sealed class PersonRepository(ApplicationDbContext dbContext)
     // Un valor de filtro fuera del catálogo no es un error del cliente — viene de
     // un checklist controlado por el propio catálogo, así que simplemente no
     // matchea ninguna persona en vez de devolver 400.
-    private static Seniority? TryParseSeniority(int value)
+    private static Seniority? TryParseSeniority(string value)
     {
         try
         {
             return Seniority.From(value);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static Level? TryParseLevel(int value)
+    {
+        try
+        {
+            return Level.From(value);
         }
         catch (DomainException)
         {

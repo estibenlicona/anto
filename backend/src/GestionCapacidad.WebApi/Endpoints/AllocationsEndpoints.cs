@@ -22,7 +22,8 @@ public sealed class AllocationsEndpoints : IEndpointDefinition
         // By Squad
         app.MapGet("api/v{version:apiVersion}/squads/{squadId:guid}/allocations", GetBySquadAsync)
             .WithApiVersionSet(versionSet).MapToApiVersion(1, 0).WithTags("Allocations")
-            .Produces<PagedResult<AllocationDto>>(StatusCodes.Status200OK);
+            .Produces<PagedResult<AllocationDto>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
 
         app.MapPost("api/v{version:apiVersion}/squads/{squadId:guid}/allocations", CreateAsync)
             .WithApiVersionSet(versionSet).MapToApiVersion(1, 0).WithTags("Allocations")
@@ -52,11 +53,11 @@ public sealed class AllocationsEndpoints : IEndpointDefinition
 
     private static async Task<IResult> GetBySquadAsync(
         Guid squadId, GetAllocationsBySquadUseCase useCase, CancellationToken ct,
-        int page = 1, int pageSize = 10)
+        int page = 1, int pageSize = 10, string? search = null, int[]? level = null)
     {
         (int clampedPage, int clampedPageSize) = PaginationQueryExtensions.ClampPagination(page, pageSize);
         var response = await useCase.ExecuteAsync(
-            new GetAllocationsBySquadRequest(squadId, clampedPage, clampedPageSize), ct);
+            new GetAllocationsBySquadRequest(squadId, clampedPage, clampedPageSize, search, level), ct);
         return Results.Ok(response.Allocations);
     }
 

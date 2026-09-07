@@ -61,8 +61,8 @@ public static class TestDataFactory
         var faker = new Faker();
         return new CreateSquadRequest(
             name ?? faker.Commerce.Department(),
-            criticality ?? "High",
             tribe ?? faker.Commerce.Categories(1)[0],
+            criticality ?? "High",
             description);
     }
 
@@ -77,8 +77,8 @@ public static class TestDataFactory
         return new UpdateSquadRequest(
             id ?? Guid.NewGuid(),
             name ?? faker.Commerce.Department(),
-            criticality ?? "Medium",
             tribe ?? faker.Commerce.Categories(1)[0],
+            criticality ?? "Medium",
             description);
     }
 
@@ -100,7 +100,7 @@ public static class TestDataFactory
 
     public static CreatePersonRequest CreatePersonRequest(
         string? name = null,
-        int? seniority = null,
+        int? level = null,
         string? modality = null,
         float? availableFte = null)
     {
@@ -111,8 +111,10 @@ public static class TestDataFactory
             EntraObjectId: Guid.NewGuid().ToString(),
             UserPrincipalName: faker.Internet.Email(),
             Position: faker.Name.JobTitle(),
-            Role: "Developer",
-            Seniority: seniority ?? 3,
+            Role: "Contributor",
+            TechnicalLeadId: null,
+            Level: level ?? 3,
+            Seniority: "Intermediate",
             Modality: modality ?? "Hybrid",
             AvailableFte: availableFte ?? 1.0f,
             MonthlyCost: faker.Random.Decimal(3000, 10000),
@@ -122,7 +124,7 @@ public static class TestDataFactory
     public static UpdatePersonRequest UpdatePersonRequest(
         Guid? id = null,
         string? name = null,
-        int? seniority = null,
+        int? level = null,
         string? modality = null,
         float? availableFte = null)
     {
@@ -134,8 +136,10 @@ public static class TestDataFactory
             EntraObjectId: Guid.NewGuid().ToString(),
             UserPrincipalName: faker.Internet.Email(),
             Position: faker.Name.JobTitle(),
-            Role: "Developer",
-            Seniority: seniority ?? 3,
+            Role: "Contributor",
+            TechnicalLeadId: null,
+            Level: level ?? 3,
+            Seniority: "Intermediate",
             Modality: modality ?? "Hybrid",
             AvailableFte: availableFte ?? 1.0f,
             MonthlyCost: faker.Random.Decimal(3000, 10000));
@@ -143,9 +147,10 @@ public static class TestDataFactory
 
     public static DomainPerson CreatePerson(
         string? name = null,
-        Seniority? seniority = null,
+        Level? level = null,
         Modality? modality = null,
-        string? position = null)
+        string? position = null,
+        PersonRole? role = null)
     {
         var faker = new Faker();
         return new DomainPerson(
@@ -154,13 +159,22 @@ public static class TestDataFactory
             entraObjectId: Guid.NewGuid().ToString(),
             userPrincipalName: faker.Internet.Email(),
             position: position ?? faker.Name.JobTitle(),
-            role: "Developer",
-            seniority: seniority ?? Seniority.Avanzado,
+            role: role ?? PersonRole.Contributor,
+            level: level ?? Level.Avanzado,
+            seniority: Seniority.Intermediate,
             modality: modality ?? Modality.Hybrid,
             availableFte: Fte.FullTime,
             monthlyCost: 5000m,
             startDate: new DateOnly(2023, 1, 1));
     }
+
+    public static Allocation CreateAllocation(Guid personId, int dedication = 50) =>
+        new(personId,
+            Guid.NewGuid(),
+            initiativeId: null,
+            dedicationPercentage: Percentage.From(dedication),
+            bauPercentage: Percentage.From(dedication),
+            transformationPercentage: Percentage.Zero);
 
     // ── Shared ────────────────────────────────────────────────────────────────
 

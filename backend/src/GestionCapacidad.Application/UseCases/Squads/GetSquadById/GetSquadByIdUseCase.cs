@@ -6,7 +6,11 @@ using GestionCapacidad.Domain.Interfaces;
 
 namespace GestionCapacidad.Application.UseCases.Squads.GetSquadById;
 
-public sealed class GetSquadByIdUseCase(ISquadRepository squadRepository) : IUseCase<GetSquadByIdRequest, GetSquadByIdResponse>
+public sealed class GetSquadByIdUseCase(
+    ISquadRepository squadRepository,
+    IAllocationRepository allocationRepository,
+    IPersonRepository personRepository,
+    IInitiativeRepository initiativeRepository) : IUseCase<GetSquadByIdRequest, GetSquadByIdResponse>
 {
     public async Task<GetSquadByIdResponse> ExecuteAsync(
         GetSquadByIdRequest request,
@@ -18,6 +22,11 @@ public sealed class GetSquadByIdUseCase(ISquadRepository squadRepository) : IUse
             throw new NotFoundException($"Squad with id '{request.Id}' was not found.");
         }
 
-        return new GetSquadByIdResponse(SquadMappings.ToDto(squad));
+        SquadAggregates aggregates = SquadAggregates.Build(
+            await allocationRepository.GetAllAsync(cancellationToken),
+            await personRepository.GetAllAsync(cancellationToken),
+            await initiativeRepository.GetAllAsync(cancellationToken));
+
+        return new GetSquadByIdResponse(SquadMappings.ToDto(squad, aggregates.For(squad.Id)));
     }
 }

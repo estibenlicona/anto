@@ -18,7 +18,9 @@ public sealed class DependencyInjectionTests
                 ["HttpClients:CompanyRegistry:BaseAddress"] = "https://example.com/company-registry/",
                 ["HttpClients:CompanyRegistry:TimeoutSeconds"] = "30",
                 ["HttpClients:CompanyRegistry:Resilience:Preset"] = "TimeoutOnly",
-                ["HttpClients:CompanyRegistry:Resilience:Timeout:Seconds"] = "10"
+                ["HttpClients:CompanyRegistry:Resilience:Timeout:Seconds"] = "10",
+                ["HttpClients:AzureDevOps:BaseAddress"] = "https://example.com/azure-devops/",
+                ["HttpClients:AzureDevOps:TimeoutSeconds"] = "30"
             })
             .Build();
 

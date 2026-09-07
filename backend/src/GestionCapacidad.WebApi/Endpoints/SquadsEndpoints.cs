@@ -5,6 +5,8 @@ using GestionCapacidad.Application.UseCases.Squads.CreateSquad;
 using GestionCapacidad.Application.UseCases.Squads.DeleteSquad;
 using GestionCapacidad.Application.UseCases.Squads.GetSquadById;
 using GestionCapacidad.Application.UseCases.Squads.GetSquads;
+using GestionCapacidad.Application.UseCases.Squads.GetSquadsStats;
+using GestionCapacidad.Application.UseCases.Squads.GetSquadTeamStats;
 using GestionCapacidad.Application.UseCases.Squads.UpdateSquad;
 using GestionCapacidad.Domain.ValueObjects;
 using GestionCapacidad.WebApi.Extensions;
@@ -29,17 +31,26 @@ public sealed class SquadsEndpoints : IEndpointDefinition
         group.MapGet("/", GetAllAsync)
             .Produces<PagedResult<SquadDto>>(StatusCodes.Status200OK);
 
+        // Rutas literales antes de /{id:guid}; el constraint evita el choque
+        // igualmente, como en People.
+        group.MapGet("/stats", GetStatsAsync)
+            .Produces<SquadsStatsDto>(StatusCodes.Status200OK);
+
+        group.MapGet("/{id:guid}/team-stats", GetTeamStatsAsync)
+            .Produces<SquadTeamStatsDto>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound);
+
         group.MapGet("/{id:guid}", GetByIdAsync)
             .WithName("GetSquadById")
-            .Produces<GetSquadByIdResponse>(StatusCodes.Status200OK)
+            .Produces<SquadDto>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
 
         group.MapPost("/", CreateAsync)
-            .Produces<CreateSquadResponse>(StatusCodes.Status201Created)
+            .Produces<SquadDto>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest);
 
         group.MapPut("/{id:guid}", UpdateAsync)
-            .Produces<UpdateSquadResponse>(StatusCodes.Status200OK)
+            .Produces<SquadDto>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound);
 
@@ -59,12 +70,28 @@ public sealed class SquadsEndpoints : IEndpointDefinition
         GetSquadsUseCase getSquadsUseCase,
         CancellationToken cancellationToken,
         int page = 1,
-        int pageSize = 10)
+        int pageSize = 10,
+        string? search = null,
+        string[]? criticality = null)
     {
         (int clampedPage, int clampedPageSize) = PaginationQueryExtensions.ClampPagination(page, pageSize);
         GetSquadsResponse response = await getSquadsUseCase.ExecuteAsync(
-            new GetSquadsRequest(clampedPage, clampedPageSize), cancellationToken);
+            new GetSquadsRequest(clampedPage, clampedPageSize, search, criticality), cancellationToken);
         return Results.Ok(response.Squads);
+    }
+
+    private static async Task<IResult> GetStatsAsync(
+        GetSquadsStatsUseCase useCase, CancellationToken ct)
+    {
+        GetSquadsStatsResponse response = await useCase.ExecuteAsync(ct);
+        return Results.Ok(response.Stats);
+    }
+
+    private static async Task<IResult> GetTeamStatsAsync(
+        Guid id, GetSquadTeamStatsUseCase useCase, CancellationToken ct)
+    {
+        GetSquadTeamStatsResponse response = await useCase.ExecuteAsync(new GetSquadTeamStatsRequest(id), ct);
+        return Results.Ok(response.Stats);
     }
 
     private static async Task<IResult> GetByIdAsync(
@@ -85,7 +112,7 @@ public sealed class SquadsEndpoints : IEndpointDefinition
         CancellationToken cancellationToken)
     {
         CreateSquadResponse response = await createSquadUseCase.ExecuteAsync(request, cancellationToken);
-        return Results.CreatedAtRoute("GetSquadById", new { id = response.Id }, response);
+        return Results.CreatedAtRoute("GetSquadById", new { id = response.Squad.Id }, response.Squad);
     }
 
     private static async Task<IResult> UpdateAsync(
@@ -98,7 +125,7 @@ public sealed class SquadsEndpoints : IEndpointDefinition
             request with { Id = id },
             cancellationToken);
 
-        return Results.Ok(response);
+        return Results.Ok(response.Squad);
     }
 
     private static async Task<IResult> DeleteAsync(
