@@ -27,6 +27,7 @@ import {
   type IconName,
 } from "@tuya-ui/components";
 import { TableStatusRow } from "@shared/components/TableStatusRow";
+import { modulePath } from "@shared/services/modulePath";
 import { getPersonInitials } from "@features/people/adapters/PersonAdapter";
 // El mapa de talla → color se importa, no se copia: dos mapas que empiezan
 // iguales divergen en silencio la primera vez que se toca uno.
@@ -306,7 +307,7 @@ export const SquadsList: React.FC<SquadsListProps> = ({
                       tone="neutral"
                       className="font-medium leading-5"
                     >
-                      <RouterLink to={`/app/lead/celulas/${squad.id}`}>
+                      <RouterLink to={modulePath(`celulas/${squad.id}`)}>
                         {squad.name}
                       </RouterLink>
                     </Link>

@@ -81,16 +81,16 @@ function renderDetail(id: string, search = "") {
   return render(
     <ToastProvider>
       <LeadBreadcrumbProvider>
-        <MemoryRouter initialEntries={[`/app/lead/dedicacion/${id}${search}`]}>
+        <MemoryRouter initialEntries={[`/capacidad/dedicacion/${id}${search}`]}>
           <BreadcrumbProbe />
           <Routes>
             <Route
-              path="/app/lead/dedicacion"
+              path="/capacidad/dedicacion"
               element={<p>Listado de dedicación</p>}
             />
-            <Route path="/app/lead/dedicacion/:personId" element={<Page />} />
+            <Route path="/capacidad/dedicacion/:personId" element={<Page />} />
             <Route
-              path="/app/lead/personas/:id"
+              path="/capacidad/personas/:id"
               element={<p>Ficha de la persona</p>}
             />
           </Routes>

@@ -15,7 +15,7 @@ describe("LeadCareerPlanPage", () => {
 
   it("keeps a single screen-reader-only h1 with the breadcrumb name", async () => {
     render(
-      <MemoryRouter initialEntries={["/app/lead/competencias"]}>
+      <MemoryRouter initialEntries={["/capacidad/competencias"]}>
         <LeadCareerPlanPage />
       </MemoryRouter>
     );

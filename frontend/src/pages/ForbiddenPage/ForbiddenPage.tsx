@@ -2,6 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, EmptyState, Icon } from "@tuya-ui/components";
 import { useAuth } from "@features/authentication/index";
+import { modulePath } from "@shared/services/modulePath";
 
 /**
  * Adonde caen los usuarios con sesión pero sin el rol que la ruta exige.
@@ -28,7 +29,7 @@ export const ForbiddenPage: React.FC = () => {
             : "Tu sesión no tiene el rol que esta pantalla requiere."
         }
         action={
-          <Button variant="primary" onClick={() => navigate("/")}>
+          <Button variant="primary" onClick={() => navigate(modulePath())}>
             Volver al inicio
           </Button>
         }

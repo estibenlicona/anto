@@ -86,7 +86,7 @@ describe("InitiativesList", () => {
     const qr = screen.getByText("Pago con QR").closest("tr")!;
     expect(within(qr).getByRole("link", { name: "Evaluar" })).toHaveAttribute(
       "href",
-      "/app/lead/iniciativas/i1/evaluacion"
+      "/capacidad/iniciativas/i1/evaluacion"
     );
     expect(within(qr).getByText("—")).toBeInTheDocument();
     expect(

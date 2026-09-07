@@ -52,7 +52,7 @@ export interface PersonDetailAllocation extends PersonDetailAllocationDto {
 /**
  * Lo único que la ficha muestra del sprint: el resumen ya resuelto por
  * Capacidad, como badge + un dato. Nada de SP, barras ni horas — el detalle
- * vive en `/app/lead/dedicacion/<id>`.
+ * vive en `dedicacion/<id>` (relativa a la base del módulo).
  */
 export interface SprintPointer {
   /** `unlinked` = sin identidad DevOps; `noSprint` = identidad sin sprint. */

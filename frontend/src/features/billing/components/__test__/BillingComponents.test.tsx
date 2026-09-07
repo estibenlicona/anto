@@ -144,7 +144,7 @@ describe("BillingList", () => {
 
     expect(screen.getByRole("link", { name: "Carlos López" })).toHaveAttribute(
       "href",
-      "/app/lead/facturacion/pref-InReview"
+      "/capacidad/facturacion/pref-InReview"
     );
   });
 

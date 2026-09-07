@@ -11,6 +11,7 @@ import {
   useToast,
 } from "@tuya-ui/components";
 import { useLeadBreadcrumbTrailing } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
+import { modulePath } from "@shared/services/modulePath";
 import { useAssessment } from "./hooks/useAssessment";
 import { firstToWorkOn, previewGap } from "./adapters/AssessmentAdapter";
 import { AssessmentHeader } from "./components/AssessmentHeader";
@@ -184,7 +185,7 @@ export const AssessmentContainer: React.FC = () => {
     setCloseError(result.error ?? null);
   };
 
-  const backToPerson = () => navigate(`/app/lead/personas/${id}`);
+  const backToPerson = () => navigate(modulePath(`personas/${id}`));
 
   /**
    * Abre una evaluación nueva sobre la cerrada. La anterior queda como

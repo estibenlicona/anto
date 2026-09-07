@@ -24,6 +24,7 @@ import {
   TableRow,
 } from "@tuya-ui/components";
 import { TableStatusRow } from "@shared/components/TableStatusRow";
+import { modulePath } from "@shared/services/modulePath";
 import { getPersonInitials, type Person } from "../adapters/PersonAdapter";
 import type {
   Level,
@@ -234,7 +235,7 @@ export const PeopleList: React.FC<PeopleListProps> = ({
                             acerca el correo al nombre para que se lean como
                             un bloque y no como dos líneas sueltas. */}
                     <Link asChild tone="neutral" className="leading-5">
-                      <RouterLink to={`/app/lead/personas/${person.id}`}>
+                      <RouterLink to={modulePath(`personas/${person.id}`)}>
                         {person.name}
                       </RouterLink>
                     </Link>

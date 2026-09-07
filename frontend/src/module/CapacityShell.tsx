@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@features/authentication/index";
+import { getModuleBasePath, modulePath } from "@shared/services/modulePath";
 import { filterNav } from "@features/auth-session";
 import { useDedicationAttentionCount } from "@features/dedication/hooks/useDedicationAttentionCount";
 import {
@@ -30,27 +31,23 @@ import {
  * ya consumen todas las pantallas de detalle) sin renombrarlo: el mecanismo
  * es del módulo entero desde este change.
  */
-const CapacityBreadcrumb: React.FC<{ activeId: string; basePath: string }> = ({
-  activeId,
-  basePath,
-}) => {
+const CapacityBreadcrumb: React.FC<{ activeId: string }> = ({ activeId }) => {
   const { trailing } = useLeadBreadcrumb();
   const pageTitle = capacityRouteTitles[activeId];
-  const parentHref = `${basePath}/${capacityNavHref(activeId)}`.replace(
-    /\/$/,
-    ""
-  );
+  // Como todo enlace interno, por modulePath(): la base ya viene normalizada
+  // (sin barra final, raíz "/" contemplada) y no hay que limpiar nada a mano.
+  const parentHref = modulePath(capacityNavHref(activeId));
   return (
     <Breadcrumb
       items={
         trailing
           ? [
-              { label: "Gestión de Capacidad", href: basePath },
+              { label: "Gestión de Capacidad", href: modulePath() },
               { label: pageTitle, href: parentHref },
               { label: trailing },
             ]
           : [
-              { label: "Gestión de Capacidad", href: basePath },
+              { label: "Gestión de Capacidad", href: modulePath() },
               { label: pageTitle },
             ]
       }
@@ -77,17 +74,22 @@ export interface CapacityShellProps {
   topOffset: number;
 }
 
-export const CapacityShell: React.FC<CapacityShellProps> = ({
-  basePath,
-  topOffset,
-}) => {
+// `basePath` sigue en el contrato del shell (lo entrega el módulo), pero los
+// enlaces salen del registro normalizado de modulePath, no de la prop cruda.
+export const CapacityShell: React.FC<CapacityShellProps> = ({ topOffset }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { hasPermission } = useAuth();
 
-  const relative = location.pathname.startsWith(basePath)
-    ? location.pathname.slice(basePath.length)
-    : location.pathname;
+  // La base normalizada del registro, no la prop cruda: con "/capacidad/" o
+  // "/" la prop haría fallar el prefijo y el menú marcaría mal la entrada.
+  const base = getModuleBasePath();
+  const relative =
+    base === "/"
+      ? location.pathname
+      : location.pathname.startsWith(base)
+        ? location.pathname.slice(base.length)
+        : location.pathname;
   const activeId = resolveCapacityNavId(relative);
 
   // Sin el permiso de la sección, la entrada no existe y el badge no consulta.
@@ -121,12 +123,12 @@ export const CapacityShell: React.FC<CapacityShellProps> = ({
         <ModuleShell
           groups={sidebarGroups}
           activeId={activeId}
-          onNavigate={(_id, href) => navigate(`${basePath}/${href}`)}
+          onNavigate={(_id, href) => navigate(modulePath(href))}
           ariaLabel="Navegación de Gestión de Capacidad"
           topOffset={topOffset}
         >
           <div className="flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-neutral-default bg-neutral-canvas px-6 py-2">
-            <CapacityBreadcrumb activeId={activeId} basePath={basePath} />
+            <CapacityBreadcrumb activeId={activeId} />
             <CapacityBreadcrumbActions />
           </div>
           <main id="capacity-content" className="flex-1 px-6 py-3">

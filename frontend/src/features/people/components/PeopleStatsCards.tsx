@@ -10,6 +10,7 @@ import {
   Link,
   type AccentTone,
 } from "@tuya-ui/components";
+import { modulePath } from "@shared/services/modulePath";
 import { getPersonInitials } from "../adapters/PersonAdapter";
 import type { PeopleStats } from "../services/personService";
 
@@ -77,7 +78,7 @@ export const PeopleStatsCards: React.FC<PeopleStatsCardsProps> = ({
             </span>
             {assignment && (
               <Link asChild tone="neutral" className="text-body-sm">
-                <RouterLink to="/app/lead/celulas">Ver células</RouterLink>
+                <RouterLink to={modulePath("celulas")}>Ver células</RouterLink>
               </Link>
             )}
           </div>

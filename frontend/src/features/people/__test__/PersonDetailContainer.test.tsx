@@ -17,18 +17,18 @@ import { PersonDetailContainer } from "../PersonDetailContainer";
 function renderDetail(id: string) {
   return render(
     <ToastProvider>
-      <MemoryRouter initialEntries={[`/app/lead/personas/${id}`]}>
+      <MemoryRouter initialEntries={[`/capacidad/personas/${id}`]}>
         <Routes>
           <Route
-            path="/app/lead/personas"
+            path="/capacidad/personas"
             element={<p>Listado de personas</p>}
           />
           <Route
-            path="/app/lead/competencias/:id"
+            path="/capacidad/competencias/:id"
             element={<p>Plan de la persona</p>}
           />
           <Route
-            path="/app/lead/personas/:id"
+            path="/capacidad/personas/:id"
             element={<PersonDetailContainer personId={id} />}
           />
         </Routes>
@@ -79,7 +79,7 @@ describe("PersonDetailContainer", () => {
     const verLinks = screen.getAllByRole("link", { name: "Ver" });
     expect(
       verLinks.some(
-        (l) => l.getAttribute("href") === `/app/lead/dedicacion/${MARIA}`
+        (l) => l.getAttribute("href") === `/capacidad/dedicacion/${MARIA}`
       )
     ).toBe(true);
   });

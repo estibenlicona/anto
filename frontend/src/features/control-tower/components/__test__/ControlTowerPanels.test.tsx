@@ -166,6 +166,6 @@ describe("SquadOccupancyPanel", () => {
     expect(within(items[1]).getByText("0.4 libre")).toBeInTheDocument();
     expect(
       within(items[1]).getByRole("link", { name: "Fraude Tarjetas" })
-    ).toHaveAttribute("href", "/app/lead/celulas/s1");
+    ).toHaveAttribute("href", "/capacidad/celulas/s1");
   });
 });

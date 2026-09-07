@@ -40,11 +40,11 @@ function renderDetail(squadId: string) {
   return render(
     <ToastProvider>
       <LeadBreadcrumbProvider>
-        <MemoryRouter initialEntries={[`/app/lead/celulas/${squadId}`]}>
+        <MemoryRouter initialEntries={[`/capacidad/celulas/${squadId}`]}>
           <BreadcrumbProbe />
           <Routes>
-            <Route path="/app/lead/celulas" element={<LocationProbe />} />
-            <Route path="/app/lead/celulas/:id" element={<Detail />} />
+            <Route path="/capacidad/celulas" element={<LocationProbe />} />
+            <Route path="/capacidad/celulas/:id" element={<Detail />} />
           </Routes>
         </MemoryRouter>
       </LeadBreadcrumbProvider>
@@ -113,7 +113,7 @@ describe("SquadDetailContainer", () => {
       screen.getByRole("button", { name: "Ir al listado de células" })
     );
     expect(await screen.findByTestId("location")).toHaveTextContent(
-      "/app/lead/celulas"
+      "/capacidad/celulas"
     );
   });
 });

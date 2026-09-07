@@ -35,10 +35,13 @@ function renderAbsences() {
   return render(
     <ToastProvider>
       <LeadBreadcrumbProvider>
-        <MemoryRouter initialEntries={["/app/lead/ausencias"]}>
+        <MemoryRouter initialEntries={["/capacidad/ausencias"]}>
           <BreadcrumbActionsProbe />
           <Routes>
-            <Route path="/app/lead/ausencias" element={<AbsencesContainer />} />
+            <Route
+              path="/capacidad/ausencias"
+              element={<AbsencesContainer />}
+            />
           </Routes>
         </MemoryRouter>
       </LeadBreadcrumbProvider>

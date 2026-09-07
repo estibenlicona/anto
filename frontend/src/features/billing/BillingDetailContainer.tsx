@@ -11,6 +11,7 @@ import {
   useToast,
 } from "@tuya-ui/components";
 import { useLeadBreadcrumbTrailing } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
+import { modulePath } from "@shared/services/modulePath";
 import { useBilling } from "./hooks/useBilling";
 import { useBillingMutations } from "./hooks/useBillingMutations";
 import { PrefactureDetailPanel } from "./components/PrefactureDetailPanel";
@@ -37,7 +38,8 @@ import type {
   RegisterPrefactureRequest,
 } from "./services/billingService";
 
-const LIST_PATH = "/app/lead/facturacion";
+/** Se evalúa al usarse: la base la registra el host al montar el módulo. */
+const listPath = () => modulePath("facturacion");
 
 /** "15 ago" a partir de una fecha ISO. */
 const MONTH_ABBR = [
@@ -217,7 +219,7 @@ export const BillingDetailContainer: React.FC<BillingDetailContainerProps> = ({
         title="No encontramos esa prefactura"
         description="Puede que se haya eliminado o que el enlace esté mal."
         action={
-          <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
+          <Button variant="secondary" onClick={() => navigate(listPath())}>
             Volver a Prefacturación
           </Button>
         }

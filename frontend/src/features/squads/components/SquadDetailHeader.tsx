@@ -1,6 +1,7 @@
 import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Badge, Button, Icon, Link, Menu, MenuItem } from "@tuya-ui/components";
+import { modulePath } from "@shared/services/modulePath";
 import type { Squad } from "../adapters/SquadAdapter";
 import type { Criticality } from "../services/squadService";
 
@@ -34,7 +35,7 @@ export const SquadDetailHeader: React.FC<SquadDetailHeaderProps> = ({
       {/* Tono neutro: es un enlace de vuelta, no una acción a destacar. */}
       <Link asChild tone="neutral" className="w-fit text-body-sm">
         <RouterLink
-          to="/app/lead/celulas"
+          to={modulePath("celulas")}
           className="inline-flex items-center gap-1.5 text-neutral-subtle"
         >
           <Icon name="arrow-left" size={16} />

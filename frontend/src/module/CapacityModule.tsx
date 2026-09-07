@@ -8,6 +8,7 @@ import { CapacitySessionBridge } from "./CapacitySessionBridge";
 import { CapacityRoutes } from "./routes";
 import type { CapacityModuleProps } from "./contract";
 import { setAccessTokenProvider } from "@shared/services/accessToken";
+import { setModuleBasePath } from "@shared/services/modulePath";
 import { CAPACITY_API_SCOPES } from "./contract";
 
 /**
@@ -22,6 +23,11 @@ const CapacityModule: React.FC<CapacityModuleProps> = ({
   basePath,
   topOffset,
 }) => {
+  // Antes de que rinda cualquier hijo: los enlaces internos se arman con
+  // `modulePath()` durante el render, y un efecto llegaría tarde para el
+  // primer pintado. Es una asignación idempotente, no una suscripción.
+  setModuleBasePath(basePath);
+
   // El cliente HTTP del módulo adjunta el token de la API propia — el mismo
   // que informa los permisos — sin saber quién lo provee.
   useEffect(

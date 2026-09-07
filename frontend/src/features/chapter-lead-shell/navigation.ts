@@ -4,6 +4,7 @@ import type { AppRole, CapacityPermission } from "@features/auth-session";
 export interface LeadNavEntry {
   id: string;
   label: string;
+  /** Ruta relativa a la base del módulo; "" es el Inicio. */
   href: string;
   icon: IconName;
   /**
@@ -55,7 +56,7 @@ export const leadNavGroups: LeadNavGroupConfig[] = [
       {
         id: LEAD_HOME_ID,
         label: "Inicio",
-        href: "/app/lead",
+        href: "",
         icon: "home",
       },
     ],
@@ -67,7 +68,7 @@ export const leadNavGroups: LeadNavGroupConfig[] = [
         id: "lead-iniciativas",
         permission: LEAD_SECTION_PERMISSION["lead-iniciativas"],
         label: "Iniciativas",
-        href: "/app/lead/iniciativas",
+        href: "iniciativas",
         icon: "initiative",
       },
     ],
@@ -79,21 +80,21 @@ export const leadNavGroups: LeadNavGroupConfig[] = [
         id: "lead-celulas",
         permission: LEAD_SECTION_PERMISSION["lead-celulas"],
         label: "Células",
-        href: "/app/lead/celulas",
+        href: "celulas",
         icon: "cell",
       },
       {
         id: "lead-personas",
         permission: LEAD_SECTION_PERMISSION["lead-personas"],
         label: "Personas",
-        href: "/app/lead/personas",
+        href: "personas",
         icon: "user",
       },
       {
         id: "lead-ausencias",
         permission: LEAD_SECTION_PERMISSION["lead-ausencias"],
         label: "Ausencias",
-        href: "/app/lead/ausencias",
+        href: "ausencias",
         icon: "calendar",
       },
       {
@@ -103,21 +104,21 @@ export const leadNavGroups: LeadNavGroupConfig[] = [
         id: "lead-dedicacion",
         permission: LEAD_SECTION_PERMISSION["lead-dedicacion"],
         label: "Capacidad",
-        href: "/app/lead/dedicacion",
+        href: "dedicacion",
         icon: "backlog",
       },
       {
         id: "lead-facturacion",
         permission: LEAD_SECTION_PERMISSION["lead-facturacion"],
         label: "Prefacturación",
-        href: "/app/lead/facturacion",
+        href: "facturacion",
         icon: "document",
       },
       {
         id: "lead-competencias",
         permission: LEAD_SECTION_PERMISSION["lead-competencias"],
         label: "Competencias",
-        href: "/app/lead/competencias",
+        href: "competencias",
         icon: "expertise",
       },
     ],
@@ -146,10 +147,10 @@ export const leadRouteTitles: Record<string, string> = {
 };
 
 /**
- * La entrada activa es la de la ruta exacta o la del prefijo más largo
- * (`href + "/"`): el detalle de una célula (`/app/lead/celulas/:id`) mantiene
- * "Células" activa. "Inicio" (`/app/lead`) es prefijo de todo, por eso gana el
- * más largo y no el primero.
+ * Los `href` son relativos a la base del módulo ("" es el Inicio). La entrada
+ * activa es la de la ruta exacta o la del prefijo más largo (`href + "/"`): el
+ * detalle de una célula (`celulas/:id`) mantiene "Células" activa. Lo que no
+ * coincide con ninguna entrada vuelve a "Inicio" por el fallback final.
  */
 export function resolveLeadNavId(pathname: string): string {
   let best: { id: string; length: number } | null = null;

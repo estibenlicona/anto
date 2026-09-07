@@ -9,6 +9,7 @@ import {
   useToast,
 } from "@tuya-ui/components";
 import { useLeadBreadcrumbTrailing } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
+import { modulePath } from "@shared/services/modulePath";
 import { usePersonPlan } from "./hooks/usePersonPlan";
 import { PersonPlanHeader } from "./components/PersonPlanHeader";
 import { PlanSkillProfile } from "./components/PlanSkillProfile";
@@ -70,7 +71,7 @@ export const PersonPlanContainer: React.FC = () => {
   };
 
   const goToAssessment = () =>
-    navigate(`/app/lead/personas/${personId}/evaluacion`);
+    navigate(modulePath(`personas/${personId}/evaluacion`));
 
   if (loading) {
     return (

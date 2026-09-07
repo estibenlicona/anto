@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { modulePath } from "@shared/services/modulePath";
 
 /**
  * La antigua pantalla de Backlog (cola de triage) ya no existe: la pregunta
@@ -7,5 +8,5 @@ import { Navigate } from "react-router-dom";
  * frente a la asignada. La ruta queda sólo para no romper enlaces guardados.
  */
 export const DedicationRedirect: React.FC = () => (
-  <Navigate replace to="/app/lead/dedicacion" />
+  <Navigate replace to={modulePath("dedicacion")} />
 );

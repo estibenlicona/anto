@@ -19,7 +19,7 @@ describe("LeadBillingPage", () => {
   it("keeps a single screen-reader-only h1 with the breadcrumb name", async () => {
     render(
       <ToastProvider>
-        <MemoryRouter initialEntries={["/app/lead/facturacion"]}>
+        <MemoryRouter initialEntries={["/capacidad/facturacion"]}>
           <LeadBillingPage />
         </MemoryRouter>
       </ToastProvider>

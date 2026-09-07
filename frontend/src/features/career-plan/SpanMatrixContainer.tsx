@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Button, EmptyState, Icon, Skeleton } from "@tuya-ui/components";
 import type { SkillGroup } from "@features/skills/services/skillsService";
+import { modulePath } from "@shared/services/modulePath";
 import { useSpanMatrix } from "./hooks/useSpanMatrix";
 import { useSpanCellDetail } from "./hooks/useSpanCellDetail";
 import { useSpanSummary } from "./hooks/useSpanSummary";
@@ -119,7 +120,7 @@ export const SpanMatrixContainer: React.FC = () => {
       <SpanSummaryCards
         summary={summary}
         loading={summaryLoading}
-        onSeePeople={() => navigate("/app/lead/personas")}
+        onSeePeople={() => navigate(modulePath("personas"))}
       />
 
       {loading && (
@@ -139,7 +140,7 @@ export const SpanMatrixContainer: React.FC = () => {
           action={
             <Button
               variant="primary"
-              onClick={() => navigate("/app/lead/personas")}
+              onClick={() => navigate(modulePath("personas"))}
             >
               Ir a Personas
             </Button>
@@ -197,7 +198,7 @@ export const SpanMatrixContainer: React.FC = () => {
                   setActiveCell({ personId, skillId: cell.skillId, element })
                 }
                 onOpenPerson={(personId) =>
-                  navigate(`/app/lead/competencias/${personId}`)
+                  navigate(modulePath(`competencias/${personId}`))
                 }
               />
             </div>
@@ -226,7 +227,7 @@ export const SpanMatrixContainer: React.FC = () => {
                     error={detail.error}
                     onOpenPlan={() =>
                       navigate(
-                        `/app/lead/competencias/${active.person.personId}`
+                        modulePath(`competencias/${active.person.personId}`)
                       )
                     }
                     onOpenSkill={() => {
@@ -235,7 +236,9 @@ export const SpanMatrixContainer: React.FC = () => {
                     }}
                     onAssess={() =>
                       navigate(
-                        `/app/lead/personas/${active.person.personId}/evaluacion`
+                        modulePath(
+                          `personas/${active.person.personId}/evaluacion`
+                        )
                       )
                     }
                     onClose={closeDetail}
@@ -249,9 +252,9 @@ export const SpanMatrixContainer: React.FC = () => {
               {summary && (
                 <SpanPendingWork
                   pending={summary.pending}
-                  onOpenAssessments={() => navigate("/app/lead/personas")}
-                  onOpenPeople={() => navigate("/app/lead/personas")}
-                  onOpenCatalog={() => navigate("/app/admin/habilidades")}
+                  onOpenAssessments={() => navigate(modulePath("personas"))}
+                  onOpenPeople={() => navigate(modulePath("personas"))}
+                  onOpenCatalog={() => navigate(modulePath("habilidades"))}
                 />
               )}
               {/* La leyenda cierra la columna, no el mapa: debajo de una

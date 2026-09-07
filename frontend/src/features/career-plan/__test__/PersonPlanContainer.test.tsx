@@ -20,14 +20,14 @@ const ANDRES = "paaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 function renderFor(personId: string) {
   return render(
     <ToastProvider>
-      <MemoryRouter initialEntries={[`/app/lead/competencias/${personId}`]}>
+      <MemoryRouter initialEntries={[`/capacidad/competencias/${personId}`]}>
         <Routes>
           <Route
-            path="/app/lead/competencias/:personId"
+            path="/capacidad/competencias/:personId"
             element={<PersonPlanContainer />}
           />
           <Route
-            path="/app/lead/personas/:id/evaluacion"
+            path="/capacidad/personas/:id/evaluacion"
             element={<div>Evaluación</div>}
           />
         </Routes>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
+import { modulePath } from "@shared/services/modulePath";
 
 /**
  * La antigua pantalla de Capacidades (selector de célula + asignaciones) ya no
@@ -15,8 +16,8 @@ export const CapacityRedirect: React.FC = () => {
       replace
       to={
         squadId
-          ? `/app/lead/celulas/${encodeURIComponent(squadId)}`
-          : "/app/lead/celulas"
+          ? modulePath(`celulas/${encodeURIComponent(squadId)}`)
+          : modulePath("celulas")
       }
     />
   );

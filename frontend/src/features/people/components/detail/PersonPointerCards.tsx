@@ -5,6 +5,7 @@ import { BalanceSignalBadge } from "@features/dedication/components/BalanceSigna
 import type { PersonPlanView } from "@features/career-plan/adapters/PersonPlanAdapter";
 import type { PersonDetail } from "../../adapters/PersonDetailAdapter";
 import { SECONDARY_TEXT } from "./DetailPanel";
+import { modulePath } from "@shared/services/modulePath";
 
 export interface PersonPointerCardsProps {
   detail: PersonDetail;
@@ -49,7 +50,7 @@ export const PersonPointerCards: React.FC<PersonPointerCardsProps> = ({
   onLinkIdentity,
 }) => {
   const pointer = detail.sprintPointer;
-  const dedicationHref = `/app/lead/dedicacion/${detail.person.id}`;
+  const dedicationHref = modulePath(`dedicacion/${detail.person.id}`);
 
   return (
     <>

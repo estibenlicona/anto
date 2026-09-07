@@ -133,7 +133,7 @@ describe("SquadsList", () => {
       expect(screen.getByText("M")).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Kafka" })).toHaveAttribute(
         "href",
-        "/app/lead/iniciativas/i1/evaluacion"
+        "/capacidad/iniciativas/i1/evaluacion"
       );
     });
 
@@ -300,7 +300,7 @@ describe("SquadsList", () => {
   it("renders the name as a neutral link to the detail, with the description underneath", () => {
     renderList({ squads: [squad] });
     const link = screen.getByRole("link", { name: "Backend Platform" });
-    expect(link).toHaveAttribute("href", "/app/lead/celulas/1");
+    expect(link).toHaveAttribute("href", "/capacidad/celulas/1");
     const description = screen.getByText("Servicios core");
     expect(description).toHaveAttribute("title", "Servicios core");
     expect(description.className).toContain("truncate");

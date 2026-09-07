@@ -33,7 +33,7 @@ function renderAt(path: string) {
           <BreadcrumbActionsProbe />
           <Routes>
             <Route
-              path="/app/lead/iniciativas"
+              path="/capacidad/iniciativas"
               element={<InitiativesContainer />}
             />
           </Routes>
@@ -45,12 +45,12 @@ function renderAt(path: string) {
 
 function renderEvaluation(id: string) {
   return render(
-    <MemoryRouter initialEntries={[`/app/lead/iniciativas/${id}/evaluacion`]}>
+    <MemoryRouter initialEntries={[`/capacidad/iniciativas/${id}/evaluacion`]}>
       <ToastProvider>
         <Routes>
-          <Route path="/app/lead/iniciativas" element={<h1>Listado</h1>} />
+          <Route path="/capacidad/iniciativas" element={<h1>Listado</h1>} />
           <Route
-            path="/app/lead/iniciativas/:id/evaluacion"
+            path="/capacidad/iniciativas/:id/evaluacion"
             element={<InitiativeEvaluationContainer initiativeId={id} />}
           />
         </Routes>
@@ -63,7 +63,7 @@ describe("InitiativesContainer", () => {
   beforeEach(() => resetInitiativesMock());
 
   it("lista, muestra las cards y crear agrega una fila en evaluación", async () => {
-    renderAt("/app/lead/iniciativas");
+    renderAt("/capacidad/iniciativas");
     expect(await screen.findByText("Kafka Migration")).toBeInTheDocument();
     expect(screen.getByText("SIN EVALUAR")).toBeInTheDocument();
     expect(screen.getByText("FTE DEMANDADO")).toBeInTheDocument();
@@ -107,7 +107,7 @@ describe("InitiativesContainer", () => {
     });
     // La célula de QR (Canales) ya sostiene otra activa y no estorba: una
     // célula lleva varias a la vez (change estado-asignacion-celulas).
-    renderAt("/app/lead/iniciativas");
+    renderAt("/capacidad/iniciativas");
     const row = (await screen.findByText("Pago con QR en App")).closest("tr")!;
     fireEvent.pointerDown(
       within(row).getByRole("button", { name: "Más acciones" })

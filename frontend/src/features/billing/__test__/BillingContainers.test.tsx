@@ -29,7 +29,7 @@ import {
 import { BillingContainer } from "../BillingContainer";
 import { BillingDetailContainer } from "../BillingDetailContainer";
 
-const LIST_PATH = "/app/lead/facturacion";
+const LIST_PATH = "/capacidad/facturacion";
 
 // Hace las veces de la franja del breadcrumb del shell: pinta lo que el
 // contenedor publica ahí (el navegador de período y las dos acciones).

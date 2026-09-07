@@ -32,6 +32,7 @@ import type {
   TechnicalLeadOption,
 } from "../services/personService";
 import { formatThousands, onlyDigits } from "@shared/services/currency";
+import { modulePath } from "@shared/services/modulePath";
 import {
   MODALITY_OPTIONS,
   countMissingRequiredFields,
@@ -259,7 +260,7 @@ export const PersonFormDrawer: React.FC<PersonFormDrawerProps> = ({
                     <span className={SECONDARY_TEXT}>Sin línea asignada</span>
                   )}
                   <Link asChild tone="neutral" className="ml-2 text-body-sm">
-                    <RouterLink to="/app/admin/lineas">
+                    <RouterLink to={modulePath("lineas")}>
                       {expertiseLineName ? "Cambiar" : "Asignar una línea"}
                     </RouterLink>
                   </Link>

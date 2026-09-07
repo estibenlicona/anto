@@ -15,7 +15,7 @@ describe("LeadInitiativesPage", () => {
   it("keeps a single screen-reader-only h1 with the breadcrumb name", async () => {
     render(
       <ToastProvider>
-        <MemoryRouter initialEntries={["/app/lead/iniciativas"]}>
+        <MemoryRouter initialEntries={["/capacidad/iniciativas"]}>
           <LeadInitiativesPage />
         </MemoryRouter>
       </ToastProvider>

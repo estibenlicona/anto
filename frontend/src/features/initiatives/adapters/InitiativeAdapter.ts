@@ -1,13 +1,17 @@
 import type { BadgeVariant, TagColor } from "@tuya-ui/components";
+import { modulePath } from "@shared/services/modulePath";
 import type {
   InitiativeDto,
   InitiativeEvaluationDto,
   InitiativeStatus,
 } from "../services/initiativeService";
 
-/** La ruta de la evaluación de una iniciativa: la comparten Iniciativas y Células. */
+/**
+ * La ruta de la evaluación de una iniciativa (`iniciativas/:id/evaluacion`,
+ * relativa a la base del módulo): la comparten Iniciativas y Células.
+ */
 export const evaluationPath = (id: string) =>
-  `/app/lead/iniciativas/${id}/evaluacion`;
+  modulePath(`iniciativas/${id}/evaluacion`);
 
 export const STATUS_LABELS: Record<InitiativeStatus, string> = {
   Evaluating: "En evaluación",

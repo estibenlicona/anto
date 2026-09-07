@@ -14,7 +14,7 @@ import { assigned, unassigned } from "./fixtures";
 const inRouter = (ui: React.ReactElement) =>
   render(<MemoryRouter>{ui}</MemoryRouter>);
 
-const PLAN_HREF = "/app/lead/competencias/p1";
+const PLAN_HREF = "/capacidad/competencias/p1";
 
 const planDto: PersonPlanDto = {
   personId: "p1",
@@ -141,7 +141,7 @@ describe("PersonPointerCards", () => {
     ).toBeInTheDocument();
     const links = screen.getAllByRole("link", { name: "Ver" });
     expect(
-      links.some((l) => l.getAttribute("href") === "/app/lead/dedicacion/p1")
+      links.some((l) => l.getAttribute("href") === "/capacidad/dedicacion/p1")
     ).toBe(true);
     // El resumen no trae cifras del sprint: eso vive en Capacidad.
     expect(screen.queryByText(/SP/)).not.toBeInTheDocument();

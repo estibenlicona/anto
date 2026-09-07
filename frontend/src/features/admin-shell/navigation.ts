@@ -4,6 +4,11 @@ import type { AppRole, CapacityPermission } from "@features/auth-session";
 export interface AdminNavEntry {
   id: string;
   label: string;
+  /**
+   * Ruta relativa a la base bajo la que el host monta el módulo ("" es el
+   * Inicio, "sprints" la sección Sprints...). Se resuelve a absoluta con
+   * `modulePath(href)` al usarse, nunca al importar este módulo.
+   */
   href: string;
   icon: IconName;
   /** Ver la nota equivalente en `LeadNavEntry`. */
@@ -47,7 +52,7 @@ export const adminNavGroups: AdminNavGroupConfig[] = [
       {
         id: ADMIN_HOME_ID,
         label: "Inicio",
-        href: "/app/admin",
+        href: "",
         icon: "home",
       },
     ],
@@ -59,28 +64,28 @@ export const adminNavGroups: AdminNavGroupConfig[] = [
         id: "admin-sprints",
         permission: ADMIN_SECTION_PERMISSION["admin-sprints"],
         label: "Sprints",
-        href: "/app/admin/sprints",
+        href: "sprints",
         icon: "calendar",
       },
       {
         id: "admin-parametros",
         permission: ADMIN_SECTION_PERMISSION["admin-parametros"],
         label: "Parámetros",
-        href: "/app/admin/parametros",
+        href: "parametros",
         icon: "settings",
       },
       {
         id: "admin-habilidades",
         permission: ADMIN_SECTION_PERMISSION["admin-habilidades"],
         label: "Habilidades",
-        href: "/app/admin/habilidades",
+        href: "habilidades",
         icon: "expertise",
       },
       {
         id: "admin-lineas",
         permission: ADMIN_SECTION_PERMISSION["admin-lineas"],
         label: "Líneas",
-        href: "/app/admin/lineas",
+        href: "lineas",
         // `team` y no `expertise`: ese ya es el de Habilidades, y dos entradas
         // del mismo grupo con el mismo icono se vuelven una sola al escanear.
         icon: "team",
@@ -94,7 +99,7 @@ export const adminNavGroups: AdminNavGroupConfig[] = [
         id: "admin-devops",
         permission: ADMIN_SECTION_PERMISSION["admin-devops"],
         label: "Ingesta",
-        href: "/app/admin/devops",
+        href: "devops",
         icon: "integration",
       },
     ],

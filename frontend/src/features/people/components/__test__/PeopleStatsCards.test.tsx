@@ -99,7 +99,7 @@ describe("PeopleStatsCards — distribución por seniority", () => {
     expect(screen.getByText("9 en 4 células")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ver células" })).toHaveAttribute(
       "href",
-      "/app/lead/celulas"
+      "/capacidad/celulas"
     );
   });
 

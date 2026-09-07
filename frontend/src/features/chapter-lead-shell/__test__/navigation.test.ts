@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { modulePath } from "@shared/services/modulePath";
 import {
   LEAD_HOME_ID,
   leadNavGroups,
@@ -8,16 +9,28 @@ import {
 
 describe("chapter-lead navigation", () => {
   it("no ofrece Capacidades: la gestión del equipo vive en el detalle de la célula", () => {
+    // Los href son relativos a la base del módulo ("" es el Inicio); el
+    // enlace absoluto lo arma modulePath() con la base que registre el host.
     const hrefs = leadNavGroups.flatMap((g) => g.items.map((i) => i.href));
     expect(hrefs).toEqual([
-      "/app/lead",
-      "/app/lead/iniciativas",
-      "/app/lead/celulas",
-      "/app/lead/personas",
-      "/app/lead/ausencias",
-      "/app/lead/dedicacion",
-      "/app/lead/facturacion",
-      "/app/lead/competencias",
+      "",
+      "iniciativas",
+      "celulas",
+      "personas",
+      "ausencias",
+      "dedicacion",
+      "facturacion",
+      "competencias",
+    ]);
+    expect(hrefs.map((h) => modulePath(h))).toEqual([
+      "/capacidad",
+      "/capacidad/iniciativas",
+      "/capacidad/celulas",
+      "/capacidad/personas",
+      "/capacidad/ausencias",
+      "/capacidad/dedicacion",
+      "/capacidad/facturacion",
+      "/capacidad/competencias",
     ]);
     // Capacidad ocupa el lugar de Backlog, con el mismo nombre en el menú y
     // en el breadcrumb, y ningún "Backlog" en ninguna parte.
@@ -27,7 +40,7 @@ describe("chapter-lead navigation", () => {
         .flatMap((g) => g.items)
         .find((i) => i.id === "lead-dedicacion")?.label
     ).toBe("Capacidad");
-    expect(hrefs).not.toContain("/app/lead/backlog");
+    expect(hrefs).not.toContain("backlog");
     expect(Object.values(leadRouteTitles).join(" ")).not.toMatch(/backlog/i);
     expect(leadRouteTitles["lead-facturacion"]).toBe("Prefacturación");
     expect(leadRouteTitles["lead-ausencias"]).toBe("Gestionar Ausencias");
@@ -42,29 +55,31 @@ describe("chapter-lead navigation", () => {
     );
   });
 
+  // resolveLeadNavId recibe la ruta relativa a la base del módulo, igual que
+  // los href: "" es el Inicio y "celulas/abc" el detalle de una célula.
   it("resuelve la entrada activa por ruta exacta", () => {
-    expect(resolveLeadNavId("/app/lead")).toBe(LEAD_HOME_ID);
-    expect(resolveLeadNavId("/app/lead/celulas")).toBe("lead-celulas");
-    expect(resolveLeadNavId("/app/lead/personas")).toBe("lead-personas");
-    expect(resolveLeadNavId("/app/lead/ausencias")).toBe("lead-ausencias");
+    expect(resolveLeadNavId("")).toBe(LEAD_HOME_ID);
+    expect(resolveLeadNavId("celulas")).toBe("lead-celulas");
+    expect(resolveLeadNavId("personas")).toBe("lead-personas");
+    expect(resolveLeadNavId("ausencias")).toBe("lead-ausencias");
   });
 
   it("mantiene activa la entrada padre en sus rutas hijas", () => {
-    expect(resolveLeadNavId("/app/lead/celulas/abc")).toBe("lead-celulas");
-    expect(resolveLeadNavId("/app/lead/personas/abc")).toBe("lead-personas");
-    expect(resolveLeadNavId("/app/lead/personas/p1")).toBe("lead-personas");
-    expect(resolveLeadNavId("/app/lead/iniciativas/ini-qr/evaluacion")).toBe(
+    expect(resolveLeadNavId("celulas/abc")).toBe("lead-celulas");
+    expect(resolveLeadNavId("personas/abc")).toBe("lead-personas");
+    expect(resolveLeadNavId("personas/p1")).toBe("lead-personas");
+    expect(resolveLeadNavId("iniciativas/ini-qr/evaluacion")).toBe(
       "lead-iniciativas"
     );
-    expect(resolveLeadNavId("/app/lead/facturacion/bill-2026-07-gft")).toBe(
+    expect(resolveLeadNavId("facturacion/bill-2026-07-gft")).toBe(
       "lead-facturacion"
     );
-    expect(resolveLeadNavId("/app/lead/dedicacion")).toBe("lead-dedicacion");
-    expect(resolveLeadNavId("/app/lead/dedicacion/p3")).toBe("lead-dedicacion");
+    expect(resolveLeadNavId("dedicacion")).toBe("lead-dedicacion");
+    expect(resolveLeadNavId("dedicacion/p3")).toBe("lead-dedicacion");
   });
 
   it("no confunde prefijos parciales ni rutas desconocidas", () => {
-    expect(resolveLeadNavId("/app/lead/celulasx")).toBe(LEAD_HOME_ID);
-    expect(resolveLeadNavId("/app/lead/otra")).toBe(LEAD_HOME_ID);
+    expect(resolveLeadNavId("celulasx")).toBe(LEAD_HOME_ID);
+    expect(resolveLeadNavId("otra")).toBe(LEAD_HOME_ID);
   });
 });

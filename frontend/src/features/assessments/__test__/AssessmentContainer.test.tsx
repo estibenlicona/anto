@@ -20,14 +20,14 @@ function renderFor(personId: string) {
   return render(
     <ToastProvider>
       <MemoryRouter
-        initialEntries={[`/app/lead/personas/${personId}/evaluacion`]}
+        initialEntries={[`/capacidad/personas/${personId}/evaluacion`]}
       >
         <Routes>
           <Route
-            path="/app/lead/personas/:id/evaluacion"
+            path="/capacidad/personas/:id/evaluacion"
             element={<AssessmentContainer />}
           />
-          <Route path="/app/lead/personas/:id" element={<div>Ficha</div>} />
+          <Route path="/capacidad/personas/:id" element={<div>Ficha</div>} />
         </Routes>
       </MemoryRouter>
     </ToastProvider>

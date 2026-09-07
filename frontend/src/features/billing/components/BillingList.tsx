@@ -22,9 +22,10 @@ import {
   TableRow,
 } from "@tuya-ui/components";
 import { TableStatusRow } from "@shared/components/TableStatusRow";
+import { modulePath } from "@shared/services/modulePath";
 import type { BillingRow } from "../adapters/BillingAdapter";
 
-export const billingPath = (id: string) => `/app/lead/facturacion/${id}`;
+export const billingPath = (id: string) => modulePath(`facturacion/${id}`);
 
 export interface BillingListProps {
   rows: BillingRow[];

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Button, EmptyState, Icon, useToast } from "@tuya-ui/components";
 import { useLeadBreadcrumbTrailing } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
+import { modulePath } from "@shared/services/modulePath";
 import { useEvaluation } from "./hooks/useEvaluation";
 import { RESULT_STEP, TRIAGE_STEP } from "./adapters/EvaluationAdapter";
 import { EvaluationHeader } from "./components/evaluation/EvaluationHeader";
@@ -10,7 +11,9 @@ import { TriageStep } from "./components/evaluation/TriageStep";
 import { DimensionStep } from "./components/evaluation/DimensionStep";
 import { ResultStep } from "./components/evaluation/ResultStep";
 
-const LIST_PATH = "/app/lead/iniciativas";
+// Función y no constante: la base del módulo la registra el host al montar,
+// después de que este archivo se importe.
+const listPath = () => modulePath("iniciativas");
 
 export interface InitiativeEvaluationContainerProps {
   initiativeId: string;
@@ -38,7 +41,7 @@ export const InitiativeEvaluationContainer: React.FC<
         message: "Evaluación guardada",
         icon: <Icon name="status-success" size={16} />,
       });
-      navigate(LIST_PATH);
+      navigate(listPath());
     } else if (result.error) {
       setSaveError(result.error);
     }
@@ -51,7 +54,7 @@ export const InitiativeEvaluationContainer: React.FC<
         title="No encontramos esa iniciativa"
         description="Puede que se haya eliminado o que el enlace esté mal."
         action={
-          <Button variant="secondary" onClick={() => navigate(LIST_PATH)}>
+          <Button variant="secondary" onClick={() => navigate(listPath())}>
             Volver a Iniciativas
           </Button>
         }

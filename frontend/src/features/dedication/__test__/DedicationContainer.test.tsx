@@ -36,7 +36,7 @@ function renderContainer() {
   return render(
     <ToastProvider>
       <LeadBreadcrumbProvider>
-        <MemoryRouter initialEntries={["/app/lead/dedicacion"]}>
+        <MemoryRouter initialEntries={["/capacidad/dedicacion"]}>
           <BreadcrumbActionsProbe />
           <DedicationContainer />
         </MemoryRouter>
@@ -92,7 +92,7 @@ describe("DedicationContainer", () => {
     const links = screen
       .getAllByRole("link")
       .filter((a) =>
-        a.getAttribute("href")?.startsWith("/app/lead/dedicacion/")
+        a.getAttribute("href")?.startsWith("/capacidad/dedicacion/")
       );
     // Laura abre el listado: es la que más se desvía de lo suyo (+73 %).
     expect(links[0]).toHaveTextContent("Laura Ruiz");
@@ -285,7 +285,7 @@ describe("DedicationContainer", () => {
       { timeout: 3000 }
     );
     const link = screen.getByRole("link", { name: "Camila Restrepo" });
-    expect(link).toHaveAttribute("href", `/app/lead/dedicacion/${CAMILA}`);
+    expect(link).toHaveAttribute("href", `/capacidad/dedicacion/${CAMILA}`);
     const row = link.closest("tr") as HTMLElement;
     expect(within(row).queryByRole("img", { name: /FTE/ })).toBeNull();
     expect(within(row).queryByRole("img", { name: /SP/ })).toBeNull();

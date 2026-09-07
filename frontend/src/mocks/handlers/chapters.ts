@@ -46,7 +46,7 @@
  *
  * NO SE ACOTAN, y es una decisión, no un olvido:
  * - El Administrador de plataforma: no lidera ningún chapter, así que ve todo.
- * - Las pantallas de /app/admin. El catálogo de habilidades incluye la tabla
+ * - Las pantallas de Configuración (Admin). El catálogo de habilidades incluye la tabla
  *   "Nivel esperado por rol", cuyos roles se derivan de las personas: se deja
  *   sobre el conjunto completo a propósito, porque el catálogo es un artefacto
  *   del sistema y un rol no debe desaparecer de él porque un chapter no tenga

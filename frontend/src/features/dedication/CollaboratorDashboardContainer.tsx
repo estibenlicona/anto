@@ -8,6 +8,7 @@ import {
 import { useCapacityOverview } from "@features/control-tower/hooks/useCapacityOverview";
 import { useReassignPerson } from "@features/control-tower/hooks/useReassignPerson";
 import { ReassignPersonDrawer } from "@features/control-tower/components/ReassignPersonDrawer";
+import { modulePath } from "@shared/services/modulePath";
 import { useCollaboratorDedicationDetail } from "./hooks/useCollaboratorDedicationDetail";
 import { useDedicationSync } from "./hooks/useDedicationSync";
 import { notifyDedicationChanged } from "./hooks/dedicationEvents";
@@ -123,7 +124,7 @@ export const CollaboratorDashboardContainer: React.FC<
         <Button
           variant="secondary"
           size="small"
-          onClick={() => navigate(`/app/lead/personas/${detail.person.id}`)}
+          onClick={() => navigate(modulePath(`personas/${detail.person.id}`))}
         >
           Ver ficha
         </Button>
@@ -157,7 +158,7 @@ export const CollaboratorDashboardContainer: React.FC<
         action={
           <Button
             variant="primary"
-            onClick={() => navigate("/app/lead/dedicacion")}
+            onClick={() => navigate(modulePath("dedicacion"))}
           >
             Ir a Capacidad
           </Button>
@@ -182,7 +183,7 @@ export const CollaboratorDashboardContainer: React.FC<
     );
   }
 
-  const profileHref = `/app/lead/personas/${detail.person.id}`;
+  const profileHref = modulePath(`personas/${detail.person.id}`);
   const selected = detail.selected;
 
   return (

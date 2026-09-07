@@ -20,6 +20,7 @@ import {
   Tag,
 } from "@tuya-ui/components";
 import { TableStatusRow } from "@shared/components/TableStatusRow";
+import { modulePath } from "@shared/services/modulePath";
 import { SECONDARY_TEXT } from "@features/people/components/detail/DetailPanel";
 import {
   SHOWN_INITIATIVES,
@@ -296,7 +297,7 @@ export const CollaboratorsTable: React.FC<CollaboratorsTableProps> = ({
                   </Avatar>
                   <div className="flex min-w-0 flex-col">
                     <Link asChild tone="neutral" className="leading-5">
-                      <RouterLink to={`/app/lead/dedicacion/${row.id}`}>
+                      <RouterLink to={modulePath(`dedicacion/${row.id}`)}>
                         {row.name}
                       </RouterLink>
                     </Link>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, Button, EmptyState, Icon, useToast } from "@tuya-ui/components";
 import { useLeadBreadcrumbTrailing } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
+import { modulePath } from "@shared/services/modulePath";
 import { usePersonDetail } from "./hooks/usePersonDetail";
 import { usePersonPlan } from "./hooks/usePersonPlan";
 import { usePersonDetailMutations } from "./hooks/usePersonDetailMutations";
@@ -82,7 +83,7 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
         action={
           <Button
             variant="primary"
-            onClick={() => navigate("/app/lead/personas")}
+            onClick={() => navigate(modulePath("personas"))}
           >
             Ir al listado de personas
           </Button>
@@ -108,7 +109,7 @@ export const PersonDetailContainer: React.FC<PersonDetailContainerProps> = ({
   }
 
   const person = personAdapter.toEntity(detail.person);
-  const planHref = `/app/lead/competencias/${detail.person.id}`;
+  const planHref = modulePath(`competencias/${detail.person.id}`);
 
   const openEdit = () => {
     setFormError(null);

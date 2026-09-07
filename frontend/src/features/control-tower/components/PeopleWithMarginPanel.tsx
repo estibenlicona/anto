@@ -16,6 +16,7 @@ import {
 } from "@tuya-ui/components";
 import { getPersonInitials } from "@features/people/adapters/PersonAdapter";
 import { DedicationCell } from "@shared/components/DedicationCell";
+import { modulePath } from "@shared/services/modulePath";
 import type { OverviewPerson } from "../adapters/CapacityOverviewAdapter";
 
 export interface PeopleWithMarginPanelProps {
@@ -47,7 +48,9 @@ export const PeopleWithMarginPanel: React.FC<PeopleWithMarginPanelProps> = ({
         </span>
       </div>
       <Link asChild tone="neutral" className="text-body-sm">
-        <RouterLink to="/app/lead/personas">Ver todas las personas</RouterLink>
+        <RouterLink to={modulePath("personas")}>
+          Ver todas las personas
+        </RouterLink>
       </Link>
     </div>
     {people.length === 0 ? (

@@ -13,6 +13,7 @@ import {
 } from "@tuya-ui/components";
 import { useLeadBreadcrumbTrailing } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { AllocationsContainer } from "@features/allocations/AllocationsContainer";
+import { modulePath } from "@shared/services/modulePath";
 import { useSquad } from "./hooks/useSquad";
 import { useSquadTeamStats } from "./hooks/useSquadTeamStats";
 import { useSquadMutations } from "./hooks/useSquadMutations";
@@ -94,7 +95,7 @@ export const SquadDetailContainer: React.FC<SquadDetailContainerProps> = ({
         message: "Célula eliminada",
         icon: <Icon name="status-success" size={16} />,
       });
-      navigate("/app/lead/celulas");
+      navigate(modulePath("celulas"));
     } else if (result.error) {
       setDeleteError(result.error);
     }
@@ -113,7 +114,7 @@ export const SquadDetailContainer: React.FC<SquadDetailContainerProps> = ({
         action={
           <Button
             variant="primary"
-            onClick={() => navigate("/app/lead/celulas")}
+            onClick={() => navigate(modulePath("celulas"))}
           >
             Ir al listado de células
           </Button>

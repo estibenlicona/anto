@@ -227,7 +227,7 @@ describe("PeopleList", () => {
     );
 
     const link = screen.getByRole("link", { name: "María González" });
-    expect(link).toHaveAttribute("href", "/app/lead/personas/1");
+    expect(link).toHaveAttribute("href", "/capacidad/personas/1");
     // `asChild` cede la etiqueta al Link del router: un solo ancla por nombre,
     // no una anidada dentro de otra.
     expect(link.querySelector("a")).toBeNull();

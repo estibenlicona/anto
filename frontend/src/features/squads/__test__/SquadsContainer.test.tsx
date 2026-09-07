@@ -41,11 +41,11 @@ function renderContainer() {
   return render(
     <ToastProvider>
       <LeadBreadcrumbProvider>
-        <MemoryRouter initialEntries={["/app/lead/celulas"]}>
+        <MemoryRouter initialEntries={["/capacidad/celulas"]}>
           <BreadcrumbActionsProbe />
           <Routes>
-            <Route path="/app/lead/celulas" element={<SquadsContainer />} />
-            <Route path="/app/lead/celulas/:id" element={<LocationProbe />} />
+            <Route path="/capacidad/celulas" element={<SquadsContainer />} />
+            <Route path="/capacidad/celulas/:id" element={<LocationProbe />} />
           </Routes>
         </MemoryRouter>
       </LeadBreadcrumbProvider>
@@ -128,11 +128,11 @@ describe("SquadsContainer", () => {
     const link = await screen.findByRole("link", { name: "Backend Platform" });
     expect(link).toHaveAttribute(
       "href",
-      "/app/lead/celulas/11111111-1111-1111-1111-111111111111"
+      "/capacidad/celulas/11111111-1111-1111-1111-111111111111"
     );
     fireEvent.click(link);
     expect(await screen.findByTestId("location")).toHaveTextContent(
-      "/app/lead/celulas/11111111-1111-1111-1111-111111111111"
+      "/capacidad/celulas/11111111-1111-1111-1111-111111111111"
     );
   });
 });

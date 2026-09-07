@@ -1,6 +1,13 @@
 import React, { lazy, Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import { useAuth } from "@features/authentication/index";
+import { modulePath } from "@shared/services/modulePath";
 import type { CapacityPermission } from "@features/auth-session";
 import { CAPACITY_SECTION_PERMISSION } from "@features/capacity-shell/navigation";
 import { CapacityShell } from "./CapacityShell";
@@ -148,6 +155,17 @@ const RequirePermission: React.FC<{
 };
 
 const P = CAPACITY_SECTION_PERMISSION;
+
+/**
+ * Enlaces guardados del árbol standalone (`/app/lead/...`, `/app/admin/...`):
+ * el resto del camino y el query viajan tal cual a la ruta plana equivalente
+ * bajo la base del módulo.
+ */
+const LegacyTreeRedirect: React.FC = () => {
+  const rest = useParams()["*"] ?? "";
+  const { search, hash } = useLocation();
+  return <Navigate replace to={`${modulePath(rest)}${search}${hash}`} />;
+};
 
 /**
  * Inicio según permisos: la torre de control para quien gestiona capacidad,
@@ -334,9 +352,12 @@ export const CapacityRoutes: React.FC<{
             </RequirePermission>
           }
         />
-        {/* Rutas del árbol standalone: aterrizan en su equivalente nuevo. */}
-        <Route path="app/lead/*" element={<Navigate to=".." replace />} />
-        <Route path="app/admin/*" element={<Navigate to=".." replace />} />
+        {/* Rutas del árbol standalone: aterrizan en su equivalente nuevo,
+            conservando el resto del camino y el query — los segmentos son los
+            mismos (`/app/lead/celulas/7` ↔ `celulas/7`). Un `..` relativo
+            caía siempre en Inicio. */}
+        <Route path="app/lead/*" element={<LegacyTreeRedirect />} />
+        <Route path="app/admin/*" element={<LegacyTreeRedirect />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

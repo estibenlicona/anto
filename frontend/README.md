@@ -108,6 +108,7 @@ Aliases: `@app`, `@features`, `@layouts`, `@pages`, `@shared` (`tsconfig.json` y
 - Una feature es autocontenida (`adapters/`, `components/`, `hooks/`, `models/`, `services/`) y expone sólo lo necesario en su `index.ts`.
 - Pantalla nueva = carpeta en `src/pages/`, `lazy` en `src/module/routes.tsx` detrás de `RequirePermission`, y entrada en `features/capacity-shell/navigation.ts` con el permiso del mapa `CAPACITY_SECTION_PERMISSION`. Menú y guard leen del mismo mapa: si divergen, el menú ofrece pantallas que el guard niega.
 - Endpoint nuevo = handler en `src/mocks/handlers/<feature>.handlers.ts` con el mismo path relativo que llama el `service`.
+- **Enlace interno = `modulePath("celulas/7")`** (`src/shared/services/modulePath.ts`), nunca una ruta absoluta escrita a mano: la base (`/capacidad`) la decide el host y la registra el módulo al montarse. Un `"/capacidad/..."` o `"/app/lead/..."` literal es un enlace roto en potencia; los tests usan la base por defecto `/capacidad`.
 - Commits con Conventional Commits (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`…); Husky + Commitlint los validan.
 - tuip se consume por tarball versionado: para tomar un cambio del design system hay que republicarlo con versión nueva (`pnpm run publish:local` en `../tuip`) y subir las dos rutas `file:` de `package.json`.
 

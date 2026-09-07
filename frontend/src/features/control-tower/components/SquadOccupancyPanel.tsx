@@ -2,6 +2,7 @@ import React from "react";
 import { Link as RouterLink } from "react-router-dom";
 import { Badge, CapacityBar, Link } from "@tuya-ui/components";
 import { MIX_COLORS } from "@features/squads/components/mixColors";
+import { modulePath } from "@shared/services/modulePath";
 import type { Criticality } from "@features/squads/services/squadService";
 import type { OverviewSquad } from "../adapters/CapacityOverviewAdapter";
 
@@ -35,7 +36,7 @@ export const SquadOccupancyPanel: React.FC<SquadOccupancyPanelProps> = ({
         <span className={SECONDARY_TEXT}>las que necesitan gente primero</span>
       </div>
       <Link asChild tone="neutral" className="text-body-sm">
-        <RouterLink to="/app/lead/celulas">Ver células</RouterLink>
+        <RouterLink to={modulePath("celulas")}>Ver células</RouterLink>
       </Link>
     </div>
     <ul className="flex flex-col">
@@ -48,7 +49,7 @@ export const SquadOccupancyPanel: React.FC<SquadOccupancyPanelProps> = ({
         >
           <div className="flex min-w-0 flex-col gap-1">
             <Link asChild tone="neutral" className="font-medium leading-5">
-              <RouterLink to={`/app/lead/celulas/${squad.id}`}>
+              <RouterLink to={modulePath(`celulas/${squad.id}`)}>
                 {squad.name}
               </RouterLink>
             </Link>

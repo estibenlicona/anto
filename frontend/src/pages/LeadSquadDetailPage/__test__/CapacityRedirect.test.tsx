@@ -12,9 +12,9 @@ function renderAt(url: string) {
   return render(
     <MemoryRouter initialEntries={[url]}>
       <Routes>
-        <Route path="/app/lead/capacidades" element={<CapacityRedirect />} />
-        <Route path="/app/lead/celulas" element={<Probe />} />
-        <Route path="/app/lead/celulas/:id" element={<Probe />} />
+        <Route path="/capacidad/capacidades" element={<CapacityRedirect />} />
+        <Route path="/capacidad/celulas" element={<Probe />} />
+        <Route path="/capacidad/celulas/:id" element={<Probe />} />
       </Routes>
     </MemoryRouter>
   );
@@ -22,16 +22,16 @@ function renderAt(url: string) {
 
 describe("CapacityRedirect", () => {
   it("redirige al detalle de la célula indicada en ?celula=", () => {
-    renderAt("/app/lead/capacidades?celula=abc-123");
+    renderAt("/capacidad/capacidades?celula=abc-123");
     expect(screen.getByTestId("location")).toHaveTextContent(
-      "/app/lead/celulas/abc-123"
+      "/capacidad/celulas/abc-123"
     );
   });
 
   it("sin célula redirige al listado", () => {
-    renderAt("/app/lead/capacidades");
+    renderAt("/capacidad/capacidades");
     expect(screen.getByTestId("location")).toHaveTextContent(
-      "/app/lead/celulas"
+      "/capacidad/celulas"
     );
   });
 });

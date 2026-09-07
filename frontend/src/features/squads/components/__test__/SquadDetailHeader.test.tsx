@@ -55,7 +55,7 @@ describe("SquadDetailHeader", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Células/ })).toHaveAttribute(
       "href",
-      "/app/lead/celulas"
+      "/capacidad/celulas"
     );
   });
 
