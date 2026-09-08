@@ -1046,6 +1046,21 @@ El botón de notificaciones de Navbar SHALL mostrar un indicador cuando exista a
 - **WHEN** Navbar se usa como hasta ahora, sin indicar nada sobre las notificaciones
 - **THEN** el botón de notificaciones se muestra exactamente como antes
 
+### Requirement: Nombre de la persona en la barra
+El disparador de cuenta de Navbar SHALL mostrar el avatar de la persona siempre, y su nombre junto al avatar sólo cuando el ancho lo permite. Un producto SHALL poder reducir el disparador a sólo el avatar, en cuyo caso el nombre SHALL seguir estando dentro del panel de cuenta junto al rol, de modo que no se pierda ningún dato — sólo deja de ocupar ancho en la barra. Ocultarlo NO SHALL cambiar el nombre accesible del disparador, que la persona necesita para saber qué abre. Por defecto el nombre acompaña al avatar, para que quien ya usa Navbar no note ningún cambio.
+
+#### Scenario: La cuenta se reduce al avatar
+- **WHEN** Navbar se configura para no mostrar el nombre en la barra
+- **THEN** junto al avatar no queda texto con el nombre, y el disparador sigue anunciándose por la persona a las tecnologías de asistencia
+
+#### Scenario: El nombre no se pierde
+- **WHEN** se abre el panel de cuenta de un Navbar configurado sin nombre en la barra
+- **THEN** el panel muestra el nombre y el rol de la persona igual que si el nombre estuviera en la barra
+
+#### Scenario: Sin configurarlo, el nombre sigue acompañando al avatar
+- **WHEN** Navbar se usa como hasta ahora, sin indicar nada sobre el nombre
+- **THEN** el nombre se muestra junto al avatar exactamente como antes
+
 ### Requirement: Selector de apps en Navbar
 El panel de selector de apps SHALL listar las apps a las que la persona puede cambiar, y SHALL señalar cuál de ellas es la app actual.
 

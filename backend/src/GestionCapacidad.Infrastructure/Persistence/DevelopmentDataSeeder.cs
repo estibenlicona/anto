@@ -38,7 +38,7 @@ public static class DevelopmentDataSeeder
     [
         ("María González", "Backend Dev", 3, "Hybrid", 1.0f),
         ("Laura Ruiz", "QA Engineer", 2, "Remote", 1.0f),
-        ("Carlos López", "Arquitecto", 4, "OnSite", 0.8f),
+        ("Carlos López", "Arquitecto", 4, "OnSite", 0.5f),
         ("Andrés Martínez", "Frontend Dev", 2, "OnSite", 1.0f),
         ("Paula Ramírez", "Data Engineer", 4, "Hybrid", 1.0f),
         ("Diego Salazar", "Backend Dev", 1, "Remote", 1.0f),

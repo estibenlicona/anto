@@ -46,7 +46,11 @@ const LEAD_SECTIONS = [
   "Dedicacion",
   "Prefacturacion",
   "Competencias",
+  "Equipos",
 ];
+
+/** Secciones que el shell del Líder Técnico reutiliza (doc de roles, R-03/R-07). */
+const TECH_SECTIONS = ["Iniciativas", "Celulas", "Dedicacion", "Competencias", "Equipos"];
 
 export const PROFILES: SimulatedProfile[] = [
   {
@@ -64,7 +68,7 @@ export const PROFILES: SimulatedProfile[] = [
     id: "lead-core",
     label: "Tomás Giraldo · Core y Datos",
     description:
-      "Líder de Expertise con trece personas a cargo. Las 7 secciones de capacidad; sin Configuración.",
+      "Líder de Expertise con trece personas a cargo. Las 8 secciones de capacidad; sin Configuración.",
     oid: "22222222-2222-2222-2222-222222222222",
     upn: "tomas.giraldo@tuya.local",
     name: "Tomás Giraldo",
@@ -92,6 +96,17 @@ export const PROFILES: SimulatedProfile[] = [
     name: "Paula Ramírez",
     roles: ["chapter-lead"],
     sections: LEAD_SECTIONS,
+  },
+  {
+    id: "tech-lucia",
+    label: "Lucía Técnica",
+    description:
+      "Líder Técnica: Iniciativas, Células, Dedicación, Competencias y Equipos, sin acotar por célula todavía.",
+    oid: "66666666-6666-6666-6666-666666666666",
+    upn: "lucia.tecnica@tuya.local",
+    name: "Lucía Técnica",
+    roles: ["tech-lead"],
+    sections: TECH_SECTIONS,
   },
   {
     id: "restricted",

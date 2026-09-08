@@ -148,12 +148,12 @@ describe("CollaboratorDashboardContainer", () => {
     expect(within(balance).getByText("4 señales")).toBeInTheDocument();
     expect(within(balance).getByText(/sigue en curso/)).toBeInTheDocument();
     // La medida en metric y su tope un escalón abajo: dos nodos a propósito.
-    expect(within(cardOf("CAPACIDAD")).getByText("0.72")).toBeInTheDocument();
+    expect(within(cardOf("CAPACIDAD")).getByText("0.45")).toBeInTheDocument();
     expect(
-      within(cardOf("CAPACIDAD")).getByText("/ 0.80 FTE")
+      within(cardOf("CAPACIDAD")).getByText("/ 0.50 FTE")
     ).toBeInTheDocument();
     expect(
-      within(cardOf("CAPACIDAD")).getByText("58 h · −6 h por ausencias")
+      within(cardOf("CAPACIDAD")).getByText("36 h · −4 h por ausencias")
     ).toBeInTheDocument();
     const demand = cardOf("DEMANDA VS REFERENCIA");
     expect(within(demand).getByText("30")).toBeInTheDocument();

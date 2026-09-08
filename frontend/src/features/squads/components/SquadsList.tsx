@@ -275,7 +275,9 @@ export const SquadsList: React.FC<SquadsListProps> = ({
           <TableHead>Capacidad</TableHead>
           {/* Contigua a Capacidad porque se lee contra ella: la demanda de
                     las activas frente al FTE asignado. */}
-          <TableHead>Asignación</TableHead>
+          <TableHead>
+            <div className="flex justify-center">Asignación</div>
+          </TableHead>
           <TableHead />
         </TableRow>
       </TableHeader>
@@ -454,10 +456,15 @@ export const SquadsList: React.FC<SquadsListProps> = ({
                   />
                 </TableCell>
                 <TableCell>
-                  <AssignmentStatusCell
-                    status={squad.assignmentStatus}
-                    allocatedFte={squad.allocatedFte}
-                  />
+                  {/* Centrado con flex y no con `text-center`: `cn` concatena
+                      sin resolver conflictos, así que competiría con el
+                      `text-left` que trae `align` por defecto. */}
+                  <div className="flex justify-center">
+                    <AssignmentStatusCell
+                      status={squad.assignmentStatus}
+                      allocatedFte={squad.allocatedFte}
+                    />
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-end">

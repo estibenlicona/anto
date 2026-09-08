@@ -40,6 +40,9 @@ export const CAPACITY_HOME_ID = "cap-home";
  */
 export const CAPACITY_SECTION_PERMISSION = {
   "lead-iniciativas": LEAD_SECTION_PERMISSION["lead-iniciativas"],
+  // Literal y no `LEAD_SECTION_PERMISSION`: Equipos nació después de que los
+  // dos shells se fusionaran, así que no tiene id heredado de ninguno.
+  "lead-equipos": "Equipos",
   "lead-celulas": LEAD_SECTION_PERMISSION["lead-celulas"],
   "lead-personas": LEAD_SECTION_PERMISSION["lead-personas"],
   "lead-ausencias": LEAD_SECTION_PERMISSION["lead-ausencias"],
@@ -50,7 +53,6 @@ export const CAPACITY_SECTION_PERMISSION = {
   "admin-parametros": ADMIN_SECTION_PERMISSION["admin-parametros"],
   "admin-habilidades": ADMIN_SECTION_PERMISSION["admin-habilidades"],
   "admin-lineas": ADMIN_SECTION_PERMISSION["admin-lineas"],
-  "admin-equipos": "Equipos",
   "admin-devops": ADMIN_SECTION_PERMISSION["admin-devops"],
 } as const satisfies Record<string, CapacityPermission>;
 
@@ -74,6 +76,15 @@ export const capacityNavGroups: CapacityNavGroupConfig[] = [
   {
     label: "Capacidad",
     items: [
+      {
+        id: "lead-equipos",
+        label: "Equipos",
+        href: "equipos",
+        // `folder`: agrupa células, no es el mismo concepto que `team`
+        // (el equipo de expertise de una persona, en Líneas).
+        icon: "folder",
+        permission: CAPACITY_SECTION_PERMISSION["lead-equipos"],
+      },
       {
         id: "lead-celulas",
         label: "Células",
@@ -150,15 +161,6 @@ export const capacityNavGroups: CapacityNavGroupConfig[] = [
         icon: "team",
         permission: CAPACITY_SECTION_PERMISSION["admin-lineas"],
       },
-      {
-        id: "admin-equipos",
-        label: "Equipos",
-        href: "equipos",
-        // `folder`: agrupa células, no es el mismo concepto que `team`
-        // (arriba, el equipo de expertise de una persona).
-        icon: "folder",
-        permission: CAPACITY_SECTION_PERMISSION["admin-equipos"],
-      },
     ],
   },
   {
@@ -179,6 +181,7 @@ export const capacityNavGroups: CapacityNavGroupConfig[] = [
 export const capacityRouteTitles: Record<string, string> = {
   [CAPACITY_HOME_ID]: "Gestión de Capacidad",
   "lead-iniciativas": "Gestionar Iniciativas",
+  "lead-equipos": "Equipos",
   "lead-celulas": "Gestionar Células",
   "lead-personas": "Gestionar Personas",
   "lead-ausencias": "Gestionar Ausencias",
@@ -189,7 +192,6 @@ export const capacityRouteTitles: Record<string, string> = {
   "admin-parametros": "Parámetros del modelo",
   "admin-habilidades": "Habilidades",
   "admin-lineas": "Líneas de expertise",
-  "admin-equipos": "Equipos",
   "admin-devops": "Integración DevOps",
 };
 

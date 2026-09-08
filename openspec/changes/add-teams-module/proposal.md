@@ -8,7 +8,7 @@ Hoy "equipo" es un campo de texto libre de la célula (`Squad.Tribe` en el backe
 - **BREAKING: el campo `team` de célula deja de ser texto libre.** Pasa a ser una referencia a un equipo del catálogo nuevo (`teamId`, con `teamName` de sólo lectura para mostrar). El formulario de célula reemplaza el campo de texto "Equipo" por un selector de equipos existentes, con el mismo patrón que ya usa Criticidad.
 - **No se puede eliminar un equipo que todavía tiene células**: el sistema lo impide y explica que hay que reasignar o eliminar esas células primero, mismo tratamiento que el catálogo de habilidades da a un valor en uso.
 - Las 4 células sembradas mantienen su equipo actual, ahora contra el catálogo nuevo (Ecosistema Digital, Riesgo y Fraude, Pagos, Datos y Analítica).
-- Nuevo permiso de sección `Capacidad.Equipos`, con su entrada en el menú del módulo dentro del grupo Configuración (junto a Sprints, Parámetros, Habilidades y Líneas): es dato estructural que administra quien tiene acceso a Configuración, no algo que cada Chapter Lead edite desde Células.
+- Nuevo permiso de sección `Capacidad.Equipos`, con su entrada en el menú del módulo dentro del grupo Capacidad (junto a Células y Personas): Equipos agrupa células, así que es parte de la gestión de capacidad y no una sección de Configuración. Lo tienen el Administrador, el Líder de Expertise y el Líder Técnico.
 - **Backend .NET real incluido**: nueva entidad `Team` (con su tabla, migración de EF Core y endpoints `/teams`), y `Squad.Tribe` (texto libre) se reemplaza por `Squad.TeamId` (referencia a `Team`). El front sigue desarrollándose sobre MSW mientras tanto —cablearlo contra el backend real es un change `frontend-wire-*` aparte, como ya es la convención del repo (p. ej. `frontend-wire-admin-devops-sync`)—, pero el contrato y su implementación .NET quedan completos en este change, no diferidos.
 
 ## Capabilities
@@ -26,7 +26,7 @@ Hoy "equipo" es un campo de texto libre de la célula (`Squad.Tribe` en el backe
 - **`frontend/src/features/squads/`**: `squadService.ts` (`SquadDto.team: string` → `teamId: string` + `teamName: string`; `CreateSquadRequest`/`UpdateSquadRequest` con `teamId`), `SquadAdapter.ts`, `SquadFormDrawer.tsx` (texto → selector), `squadFormValidation.ts`, `SquadsList.tsx` (columna Equipo desde `teamName`).
 - **`frontend/src/mocks/handlers/`**: nuevo `teams.handlers.ts` (CRUD + guard de eliminación) y ajuste de `squads.handlers.ts` para resolver `teamId`/`teamName` y migrar las 4 semillas.
 - **`frontend/src/features/auth-session/capacityPermissions.ts`**: nuevo permiso `Equipos`.
-- **`frontend/src/features/capacity-shell/navigation.ts`**: nueva entrada "Equipos" en el grupo Configuración.
+- **`frontend/src/features/capacity-shell/navigation.ts`**: nueva entrada "Equipos" en el grupo Capacidad, antes de Células.
 - **`frontend/src/module/routes.tsx`**: nueva ruta `equipos` detrás de `RequirePermission`.
 - Tests nuevos para `teams` y ajustados en `squads` (formulario, adapter, mocks) por el cambio de `team` a `teamId`.
 

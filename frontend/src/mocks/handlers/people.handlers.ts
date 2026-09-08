@@ -320,7 +320,10 @@ const initialPeople: PersonDto[] = [
     technicalLeadOfCount: 0,
     ...withSeniority(4, "Experto"),
     modality: "OnSite",
-    availableFte: 0.8,
+    // Media jornada: una persona vale 1.0 o 0.5, nunca una fracción
+    // arbitraria — si no, los totales del chapter leen 17.3 FTE, que no es
+    // una capacidad que exista.
+    availableFte: 0.5,
     utilization: 100,
     monthlyCost: 11500000,
     startDate: "2021-01-10",

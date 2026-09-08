@@ -81,6 +81,8 @@ export interface NavbarProps {
   user: NavbarUser;
   /** Actions in the account panel below the name and role. Every product needs at least a way to sign out, so this has no default. */
   userMenu: NavbarUserMenuAction[];
+  /** Whether the name shows next to the avatar on wide screens. With `false` only the avatar does, and the name stays where it already was: inside the account panel. Defaults to `true`. */
+  showUserName?: boolean;
   /** Utility links next to the search box, e.g. "Ayuda". Defaults to a single "Ayuda" link. Navbar doesn't enforce it, but the definition caps this at two. */
   utilities?: NavbarUtilityLink[];
   /** Intercepts link activation for the app's own router — called with the link's `href` instead of letting the browser navigate there. Without a handler, links use their plain `href`. */
@@ -173,6 +175,7 @@ export function Navbar({
   onViewAllNotifications,
   user,
   userMenu,
+  showUserName = true,
   utilities = defaultUtilities,
   onNavigate,
   onMenuToggle,
@@ -237,6 +240,7 @@ export function Navbar({
         showNotifications={showNotifications}
         user={user}
         userMenu={userMenu}
+        showUserName={showUserName}
         variant={variant}
         narrow={narrow}
         onNavigate={onNavigate}
@@ -383,6 +387,8 @@ export interface NavbarUtilitiesProps {
   user: NavbarUser;
   /** Actions in the account panel. */
   userMenu: NavbarUserMenuAction[];
+  /** Whether the name shows next to the avatar on wide screens. Defaults to `true`. */
+  showUserName?: boolean;
   /** The bar's color scheme. Defaults to "dark". */
   variant?: "dark" | "light";
   /** Below 1120px, utility links relocate into the account panel instead of the bar. */
@@ -411,6 +417,7 @@ export function NavbarUtilities({
   showNotifications = true,
   user,
   userMenu,
+  showUserName = true,
   variant = "dark",
   narrow = false,
   onNavigate,
@@ -536,14 +543,21 @@ export function NavbarUtilities({
               openedWithPointerRef.current = false;
             }}
             className={cn(
-              "flex h-9 items-center gap-2 py-0.5 pl-0.5 pr-2",
+              "flex h-9 items-center gap-2 py-0.5 pl-0.5",
+              // Sin nombre al lado, el avatar queda solo: el padding se
+              // equilibra para que no lo empuje contra el borde izquierdo.
+              showUserName ? "pr-2" : "pr-0.5",
               "rounded-control outline-none focus-visible:ring-focus focus-visible:ring-brand-focus-ring",
             )}
           >
             <Avatar size="medium" label={user.name}>
               {user.initials}
             </Avatar>
-            <span className={cn("hidden text-body-sm min-[1120px]:inline", titleText)}>{user.name}</span>
+            {showUserName && (
+              <span className={cn("hidden text-body-sm min-[1120px]:inline", titleText)}>
+                {user.name}
+              </span>
+            )}
           </button>
         }
       >

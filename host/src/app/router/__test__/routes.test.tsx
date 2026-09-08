@@ -44,22 +44,27 @@ describe("rutas del host · acceso", () => {
 });
 
 describe("rutas del host · barra y portal", () => {
-  it("la barra acompaña el portal, sin campana, búsqueda ni menú, y con la cuenta", () => {
+  it("la barra acompaña el portal, con campana y cuenta, sin búsqueda ni menú", () => {
     renderApp(fakeAuth(sessionWith(["admin"], "Ana Administradora")), ["/"]);
 
     expect(screen.getByText("Dimensionamiento TI")).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /Notificaciones/ })
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: /Notificaciones/ })
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Buscar/ })
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Abrir menú" })
     ).not.toBeInTheDocument();
+    // "Ayuda" es el default del design system: acá no se ofrece.
+    expect(screen.queryByText("Ayuda")).not.toBeInTheDocument();
+    // La cuenta se reduce al avatar: el disparador se sigue nombrando por la
+    // persona, pero su nombre ya no es texto de la barra.
     expect(
       screen.getByRole("button", { name: /Ana Administradora/ })
     ).toBeInTheDocument();
+    expect(screen.queryByText("Ana Administradora")).not.toBeInTheDocument();
   });
 
   it("cerrar sesión desde la cuenta llama a logout", () => {
@@ -92,7 +97,7 @@ describe("rutas del host · barra y portal", () => {
     );
   });
 
-  it("la líder técnica ve sólo Iniciativas y Células, y su ruta le abre el placeholder", async () => {
+  it("la líder técnica entra a Iniciativas y Células, y su ruta le abre el placeholder", async () => {
     renderApp(fakeAuth(sessionWith(["tech-lead"], "Lucía Técnica")), [
       "/iniciativas/celulas/7",
     ]);
@@ -103,13 +108,22 @@ describe("rutas del host · barra y portal", () => {
     ).toBeInTheDocument();
   });
 
-  it("la líder técnica en Capacidad recibe el aviso de permisos", async () => {
+  it("la líder técnica ve también Gestión de Capacidad en el portal", () => {
+    renderApp(fakeAuth(sessionWith(["tech-lead"], "Lucía Técnica")), ["/"]);
+    expect(screen.getByText("Gestión de Capacidad")).toBeInTheDocument();
+    expect(screen.getByText("Iniciativas y Células")).toBeInTheDocument();
+  });
+
+  it("la líder técnica en Capacidad entra al módulo, no recibe el aviso de permisos", async () => {
     renderApp(fakeAuth(sessionWith(["tech-lead"], "Lucía Técnica")), [
       "/capacidad",
     ]);
     expect(
-      await screen.findByText("Sin permisos para esta sección")
+      await screen.findByText("Gestión de Capacidad está pendiente de integrar")
     ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Sin permisos para esta sección")
+    ).not.toBeInTheDocument();
   });
 
   it("sin módulos para el rol, el portal lo dice y la marca no abre selector", () => {
@@ -174,9 +188,7 @@ describe("rutas del host · módulos y avisos", () => {
   });
 
   it("las rutas de la app standalone retirada redirigen al módulo", async () => {
-    renderApp(fakeAuth(sessionWith(["chapter-lead"])), [
-      "/app/lead/celulas/7",
-    ]);
+    renderApp(fakeAuth(sessionWith(["chapter-lead"])), ["/app/lead/celulas/7"]);
     await waitFor(() =>
       expect(
         screen.getByText("Gestión de Capacidad está pendiente de integrar")

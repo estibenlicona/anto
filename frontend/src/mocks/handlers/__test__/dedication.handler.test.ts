@@ -194,7 +194,7 @@ describe("mock de balance de carga", () => {
     expect(stale.sprint?.isCurrent).toBe(true);
   });
 
-  it("una fila leída: Carlos, 0.72 / 0.8 FTE, 30 SP contra 22 habituales, cuatro evidencias", async () => {
+  it("una fila leída: Carlos, 0.45 / 0.5 FTE, 30 SP contra 22 habituales, cuatro evidencias", async () => {
     const { items } = await all();
     const carlos = items.find((r) => r.person.id === CARLOS)!;
 
@@ -209,10 +209,10 @@ describe("mock de balance de carga", () => {
       },
     });
     // La capacidad se mide: 10 días hábiles menos el festivo del sprint,
-    // sobre su 0.8 contractual.
+    // sobre su 0.5 contractual (media jornada).
     expect(carlos.capacity).toEqual({
-      contractualFte: 0.8,
-      availableFte: 0.72,
+      contractualFte: 0.5,
+      availableFte: 0.45,
       breakdown: {
         businessDays: 10,
         holidays: 1,
@@ -221,8 +221,8 @@ describe("mock de balance de carga", () => {
         otherUnavailableDays: 0,
       },
       // La misma capacidad en horas, sobre las 80 del Calendario.
-      availableHours: 58,
-      deductedHours: 6,
+      availableHours: 36,
+      deductedHours: 4,
     });
     expect(carlos.execution.committedPoints).toBe(30);
     expect(carlos.reference).toMatchObject({

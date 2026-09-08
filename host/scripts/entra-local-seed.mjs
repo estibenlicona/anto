@@ -72,9 +72,10 @@ const CAP_LEAD = [
   "Dedicacion",
   "Prefacturacion",
   "Competencias",
+  "Equipos",
 ];
 /** Secciones que el shell del Líder Técnico reutiliza (doc de roles, R-03/R-07). */
-const CAP_TECH = ["Iniciativas", "Celulas", "Dedicacion", "Competencias"];
+const CAP_TECH = ["Iniciativas", "Celulas", "Dedicacion", "Competencias", "Equipos"];
 
 const PEOPLE = [
   {

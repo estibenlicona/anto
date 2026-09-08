@@ -48,8 +48,8 @@
 ## 8. Frontend: navegación y permisos
 
 - [x] 8.1 `frontend/src/features/auth-session/capacityPermissions.ts`: agregar `"Equipos"` a `CAPACITY_PERMISSIONS`. Verificar: typecheck y test de `mapCapacityRoles` con el sub-claim `Capacidad.Equipos`.
-- [x] 8.2 `frontend/src/features/capacity-shell/navigation.ts`: entrada "Equipos" en el grupo Configuración (después de Líneas), con su permiso y título de breadcrumb. `frontend/src/module/routes.tsx`: ruta `equipos` detrás de `RequirePermission`. Verificar con tests: la entrada aparece filtrada por permiso, ruta accesible/bloqueada según el permiso.
-- [x] 8.3 `host/scripts/entra-local-seed.mjs`: sumar `Capacidad.Equipos` al conjunto de permisos del perfil de administrador (mismo criterio que Sprints/Parámetros/Habilidades/Líneas). Verificar: `pnpm entra:seed` corre sin errores y el nuevo sub-claim queda asignado.
+- [x] 8.2 `frontend/src/features/capacity-shell/navigation.ts`: entrada "Equipos" en el grupo Capacidad (antes de Células), con su permiso y título de breadcrumb. `frontend/src/module/routes.tsx`: ruta `equipos` detrás de `RequirePermission`. Verificar con tests: la entrada aparece filtrada por permiso, ruta accesible/bloqueada según el permiso.
+- [x] 8.3 `host/scripts/entra-local-seed.mjs`: sumar `Capacidad.Equipos` a los perfiles de Administrador, Líder de Expertise y Líder Técnico (Equipos es gestión de capacidad, no Configuración). Verificar: `pnpm entra:seed` corre sin errores y el nuevo sub-claim queda asignado.
 
 ## 9. Verificación final
 

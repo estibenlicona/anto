@@ -56,7 +56,14 @@ export const HostLayout: React.FC = () => {
         userMenu={[
           { label: "Cerrar sesión", destructive: true, onSelect: auth.logout },
         ]}
-        showNotifications={false}
+        // Sin enlaces de utilidad: "Ayuda" (el default del design system) no
+        // tiene destino todavía.
+        utilities={[]}
+        // El nombre vive en el panel de cuenta, no en la barra.
+        showUserName={false}
+        // La campana se muestra vacía: no hay servicio de notificaciones de
+        // plataforma que la alimente, así que abre su estado sin pendientes.
+        notifications={[]}
         onNavigate={(href) => navigate(href)}
       />
       <main id="main-content" className="flex-1 px-6 py-3">

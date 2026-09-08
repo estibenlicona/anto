@@ -32,7 +32,7 @@ export function buildModules(env: {
         "Dimensionamiento de iniciativas, células, personas y dedicación real desde Azure DevOps.",
       color: "#C9151F",
       basePath: "/capacidad",
-      roles: ["admin", "chapter-lead"],
+      roles: ["admin", "chapter-lead", "tech-lead"],
       ...(capacidadRemote ? { remoteEntry: capacidadRemote } : {}),
     },
     {

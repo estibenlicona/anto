@@ -15,7 +15,7 @@
 import type { CapacityPermission } from "./capacityPermissions";
 
 /** Los roles de negocio de la plataforma. */
-export const APP_ROLES = ["admin", "chapter-lead"] as const;
+export const APP_ROLES = ["admin", "chapter-lead", "tech-lead"] as const;
 
 export type AppRole = (typeof APP_ROLES)[number];
 

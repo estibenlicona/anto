@@ -5,15 +5,23 @@ Define el host de la plataforma: la barra superior común, la entrada a los mód
 ## Requirements
 
 ### Requirement: Barra superior común de la plataforma
-El host SHALL mostrar, en toda pantalla, una única barra superior con la marca de la plataforma a la izquierda, el selector de módulos como panel de esa marca, y a la derecha los enlaces de utilidad y la cuenta de la persona. La cuenta SHALL mostrar el nombre y el rol de la persona y ofrecer, como mínimo y como última acción, "Cerrar sesión". La barra NO SHALL mostrar campana de notificaciones, caja de búsqueda, botón de menú ni navegación lateral: la navegación de secciones pertenece a cada módulo, y las notificaciones se incorporarán cuando exista un servicio de plataforma que las provea.
+El host SHALL mostrar, en toda pantalla, una única barra superior con la marca de la plataforma a la izquierda, el selector de módulos como panel de esa marca, y a la derecha la campana de notificaciones y la cuenta de la persona. La cuenta SHALL reducirse al avatar en la barra, y SHALL mostrar el nombre y el rol de la persona dentro de su panel, ofreciendo como mínimo y como última acción "Cerrar sesión". La campana SHALL mostrarse aunque todavía no exista un servicio de plataforma que la alimente, en cuyo caso su panel SHALL decir que no hay notificaciones pendientes en vez de quedar vacío. La barra NO SHALL mostrar enlaces de utilidad, caja de búsqueda, botón de menú ni navegación lateral: la navegación de secciones pertenece a cada módulo.
 
 #### Scenario: La barra acompaña todas las pantallas
 - **WHEN** la persona está en el portal, dentro de un módulo o en una pantalla de aviso del host
-- **THEN** la misma barra superior se muestra arriba, con la marca, el selector de módulos y su cuenta
+- **THEN** la misma barra superior se muestra arriba, con la marca, el selector de módulos, la campana y su cuenta
 
-#### Scenario: Sin campana ni búsqueda
+#### Scenario: Campana sin servicio que la alimente
+- **WHEN** se renderiza la barra del host y no hay notificaciones
+- **THEN** la campana se muestra sin indicador de pendientes, y su panel dice que no hay ninguna
+
+#### Scenario: Sin búsqueda ni enlaces de utilidad
 - **WHEN** se renderiza la barra del host
-- **THEN** no aparece ningún botón de notificaciones ni caja de búsqueda, y las zonas restantes conservan su orden y funcionamiento
+- **THEN** no aparece caja de búsqueda ni enlace "Ayuda", y las zonas restantes conservan su orden y funcionamiento
+
+#### Scenario: El nombre vive en el panel de la cuenta
+- **WHEN** la persona mira la barra y luego abre el panel de su cuenta
+- **THEN** en la barra sólo está su avatar, y el nombre y el rol aparecen dentro del panel
 
 #### Scenario: Cerrar sesión desde la cuenta
 - **WHEN** la persona abre el panel de su cuenta y elige "Cerrar sesión"
@@ -39,11 +47,11 @@ El host SHALL mantener un registro de módulos — identificador, nombre, descri
 - **THEN** el portal lo dice explícitamente, sin mostrar tarjetas ni fallar
 
 ### Requirement: Roles de negocio y módulos por rol
-La plataforma SHALL reconocer tres roles de negocio derivados de los claims de rol del token del host: administrador (`Plataforma.Admin`), líder de expertise (`Plataforma.ChapterLead`) y líder técnico (`Plataforma.TechLead`). El registro de módulos SHALL declarar, como mínimo, "Gestión de Capacidad" para administrador y líder de expertise, e "Iniciativas y Células" para administrador, líder de expertise y líder técnico. La cuenta en la barra SHALL mostrar el nombre del rol en el idioma de la plataforma.
+La plataforma SHALL reconocer tres roles de negocio derivados de los claims de rol del token del host: administrador (`Plataforma.Admin`), líder de expertise (`Plataforma.ChapterLead`) y líder técnico (`Plataforma.TechLead`). El registro de módulos SHALL declarar, como mínimo, "Gestión de Capacidad" e "Iniciativas y Células" para los tres roles. La cuenta en la barra SHALL mostrar el nombre del rol en el idioma de la plataforma.
 
 #### Scenario: Líder técnico
 - **WHEN** una persona cuyo token trae `Plataforma.TechLead` abre el portal
-- **THEN** ve "Iniciativas y Células" y no ve "Gestión de Capacidad", y su cuenta la identifica como líder técnica
+- **THEN** ve "Gestión de Capacidad" e "Iniciativas y Células", y su cuenta la identifica como líder técnica
 
 #### Scenario: Líder de expertise
 - **WHEN** una persona cuyo token trae `Plataforma.ChapterLead` abre el portal

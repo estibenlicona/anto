@@ -132,3 +132,27 @@ describe("Navbar · notificaciones opcionales", () => {
     expect(accountTrigger()).toBeInTheDocument();
   });
 });
+
+describe("Navbar · nombre de la persona opcional", () => {
+  it("sin la prop, el nombre acompaña al avatar en la barra", () => {
+    renderNavbar();
+    // Con el panel cerrado sólo está el de la barra: el del panel se monta
+    // al abrirlo.
+    expect(screen.getByText("Chapter Lead")).toBeInTheDocument();
+  });
+
+  it("con showUserName={false} el nombre sólo vive en el panel de cuenta", () => {
+    renderNavbar({ showUserName: false });
+
+    // El disparador sigue nombrándose por la persona — el avatar lleva su
+    // `label`—, así que el nombre accesible no se pierde al ocultar el texto.
+    const trigger = accountTrigger();
+    expect(trigger).toBeInTheDocument();
+    expect(screen.queryByText("Chapter Lead")).not.toBeInTheDocument();
+
+    fireEvent.pointerDown(trigger);
+    fireEvent.click(trigger);
+    expect(screen.getByText("Chapter Lead")).toBeInTheDocument();
+    expect(screen.getByText("Tu chapter")).toBeInTheDocument();
+  });
+});

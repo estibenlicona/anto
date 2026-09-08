@@ -23,6 +23,7 @@ describe("visibleModules", () => {
       visibleModules(hasRoleOf(["chapter-lead"])).map((m) => m.id)
     ).toEqual(["capacidad", "iniciativas"]);
     expect(visibleModules(hasRoleOf(["tech-lead"])).map((m) => m.id)).toEqual([
+      "capacidad",
       "iniciativas",
     ]);
     expect(visibleModules(hasRoleOf([]))).toEqual([]);

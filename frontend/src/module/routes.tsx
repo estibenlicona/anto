@@ -180,18 +180,11 @@ const LegacyTreeRedirect: React.FC = () => {
 const CapacityHome: React.FC = () => {
   const { isLoading, hasPermission } = useAuth();
   if (isLoading) return null;
-  if (hasPermission("Celulas", "Personas", "Dedicacion")) {
+  if (hasPermission("Celulas", "Equipos", "Personas", "Dedicacion")) {
     return <ChapterLeadHomePage />;
   }
   if (
-    hasPermission(
-      "Sprints",
-      "Parametros",
-      "Habilidades",
-      "Lineas",
-      "Equipos",
-      "DevOps"
-    )
+    hasPermission("Sprints", "Parametros", "Habilidades", "Lineas", "DevOps")
   ) {
     return <AdminHomePage />;
   }
@@ -359,7 +352,7 @@ export const CapacityRoutes: React.FC<{
         <Route
           path="equipos"
           element={
-            <RequirePermission permission={P["admin-equipos"]}>
+            <RequirePermission permission={P["lead-equipos"]}>
               <AdminTeamsPage />
             </RequirePermission>
           }

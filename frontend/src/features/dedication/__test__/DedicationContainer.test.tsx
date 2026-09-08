@@ -100,14 +100,14 @@ describe("DedicationContainer", () => {
       "Carlos López"
     );
 
-    // Carlos: capacidad sobre su contrato de 0.8, demanda en SP contra su
-    // histórico, multitarea, y sólo el icono de señal al final.
+    // Carlos: capacidad sobre su contrato de 0.5 (media jornada), demanda en
+    // SP contra su histórico, multitarea, y sólo el icono de señal al final.
     const carlosRow = screen
       .getByRole("link", { name: "Carlos López" })
       .closest("tr") as HTMLElement;
     expect(
       within(carlosRow).getByRole("img", {
-        name: /Capacidad de Carlos López: 0\.72 \/ 0\.80 FTE/,
+        name: /Capacidad de Carlos López: 0\.45 \/ 0\.50 FTE/,
       })
     ).toBeInTheDocument();
     expect(
@@ -117,7 +117,7 @@ describe("DedicationContainer", () => {
     ).toBeInTheDocument();
     // La capacidad también en horas, y la desviación con su tolerancia.
     expect(
-      within(carlosRow).getByText("58 h · −6 h por ausencias")
+      within(carlosRow).getByText("36 h · −4 h por ausencias")
     ).toBeInTheDocument();
     expect(within(carlosRow).getByText("+36 %")).toBeInTheDocument();
     expect(within(carlosRow).getByText("Tolerancia ±25 %")).toBeInTheDocument();

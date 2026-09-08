@@ -94,7 +94,11 @@ const Shell: React.FC = () => {
             },
           },
         ]}
-        showNotifications={false}
+        // Espejo del host: sin "Ayuda" y con la campana vacía, que todavía no
+        // tiene servicio de notificaciones que la alimente.
+        utilities={[]}
+        showUserName={false}
+        notifications={[]}
         onNavigate={(href) => navigate(href)}
       />
       <CapacityModule

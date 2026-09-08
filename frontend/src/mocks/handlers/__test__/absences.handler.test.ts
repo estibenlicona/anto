@@ -102,8 +102,8 @@ describe("mock de ausencias", () => {
     const inApril = april.items.find((a) => a.id === created.id)!;
     expect(inApril.businessDaysInMonth).toBe(1);
     expect(april.monthBusinessDays).toBe(22);
-    // El impacto de abril usa el denominador de abril: 1 ÷ 22 × 0.8 FTE × 100%.
-    expect(inApril.squadImpacts[0].fteImpact).toBeCloseTo((1 / 22) * 0.8, 5);
+    // El impacto de abril usa el denominador de abril: 1 ÷ 22 × 0.5 FTE × 100%.
+    expect(inApril.squadImpacts[0].fteImpact).toBeCloseTo((1 / 22) * 0.5, 5);
   });
 
   it("rechaza solapes con ausencias no rechazadas, y una rechazada no bloquea", async () => {
