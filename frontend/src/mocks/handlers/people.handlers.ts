@@ -17,8 +17,8 @@ import type {
 import { clampPagination, paginate } from "@shared/services/pagination";
 import {
   CHAPTER_BY_PERSON_NAME,
-  holderChapterId,
   leadEntraObjectIdOf,
+  scopePeople,
 } from "./chapters";
 
 const PEOPLE_URL = "/people";
@@ -441,22 +441,6 @@ export function getPeopleSnapshot(): PersonDto[] {
   return people;
 }
 
-/**
- * Las personas que alcanza a ver quien pidió, según el chapter que lidera —
- * ver chapters.ts. Es la lectura que tienen que usar los handlers que sirven
- * personas o cifras derivadas de personas; `getPeopleSnapshot` es el estado
- * del mock, no una respuesta.
- *
- * Quien cruce esta lista con asignaciones, ausencias o cualquier otra cosa
- * indexada por persona tiene que filtrar también esa otra lista: dejar una
- * asignación cuya persona ya no está visible no la esconde, la convierte en
- * una persona de 0 FTE y desbalancea todos los totales.
- */
-export function peopleFor(request: Request): PersonDto[] {
-  const chapterId = holderChapterId(request);
-  return chapterId ? people.filter((p) => p.chapterId === chapterId) : people;
-}
-
 /** Reinicia el estado en memoria del mock — llamar explícitamente en los tests que ejercitan mutaciones. */
 export function getCompaniesSnapshot(): CompanyDto[] {
   return companies.map((c) => ({ ...c }));
@@ -613,7 +597,7 @@ function validStacks(body: unknown): body is { stacks: PersonStackDto[] } {
 
 export const peopleHandlers = [
   http.get(PEOPLE_STATS_URL, ({ request }) => {
-    return HttpResponse.json(computeStats(peopleFor(request)));
+    return HttpResponse.json(computeStats(scopePeople(request, people)));
   }),
 
   http.get(STACKS_URL, () => HttpResponse.json(STACK_CATALOG)),
@@ -622,10 +606,9 @@ export const peopleHandlers = [
 
   // Sólo los que tienen el rol: es lo que el selector de líder técnico ofrece,
   // y resolverlo acá evita que cada pantalla vuelva a decidir qué es un líder
-  // técnico. Acotado como todo lo demás — un lead no acompaña con gente que no
-  // tiene a cargo.
-  http.get(TECHNICAL_LEADS_URL, ({ request }) => {
-    const leads: TechnicalLeadOption[] = peopleFor(request)
+  // técnico. Todos los registrados, sin recortar por quién pide.
+  http.get(TECHNICAL_LEADS_URL, () => {
+    const leads: TechnicalLeadOption[] = people
       .filter((p) => p.role === "TechnicalLead")
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((p) => ({ id: p.id, name: p.name }));
@@ -671,7 +654,9 @@ export const peopleHandlers = [
       .filter((n) => !Number.isNaN(n));
     const seniorities = url.searchParams.getAll("seniority");
     const stacks = url.searchParams.getAll("stack");
-    const visibles = peopleFor(request);
+    // `visibles` alimenta también la cobertura por stack de cada fila: con
+    // recorte, "nadie más lo cubre" se lee sobre la gente de la línea.
+    const visibles = scopePeople(request, people);
     const filtered = filterPeople(
       visibles,
       search,
@@ -718,15 +703,16 @@ export const peopleHandlers = [
       stacks: [],
       monthlyCost: body.monthlyCost,
       startDate: body.startDate,
-      // Nace en el chapter de quien la dio de alta. Sin esto, un lead crearía
-      // personas que su propio listado no muestra.
-      chapterId: holderChapterId(request),
+      // Nace sin chapter: nadie declaró a cuál pertenece. Heredarlo de quien
+      // apretó el botón inventaría un dato que la futura vista personal
+      // leería como verdad.
+      chapterId: null,
       providerId: null,
       createdAtUtc: nowIso,
       updatedAtUtc: nowIso,
     };
     people = [...people, created];
-    return HttpResponse.json(respond(created, peopleFor(request)), {
+    return HttpResponse.json(respond(created, people), {
       status: 201,
     });
   }),
@@ -783,7 +769,7 @@ export const peopleHandlers = [
           : p
       );
     }
-    return HttpResponse.json(respond(updated, peopleFor(request)));
+    return HttpResponse.json(respond(updated, people));
   }),
 
   http.delete(`${PEOPLE_URL}/:id`, ({ params }) => {

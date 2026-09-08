@@ -87,8 +87,8 @@ export const DedicationContainer: React.FC = () => {
     return (
       <EmptyState
         icon={<Icon name="capacity" size={32} />}
-        title="Sin colaboradores a cargo"
-        description="Cuando tu chapter tenga personas, acá se lee el balance entre la capacidad que tuvieron y el trabajo que recibieron."
+        title="Sin colaboradores"
+        description="Cuando haya personas registradas, acá se lee el balance entre la capacidad que tuvieron y el trabajo que recibieron."
       />
     );
   }

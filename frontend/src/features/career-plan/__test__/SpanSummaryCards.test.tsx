@@ -158,7 +158,7 @@ describe("SpanFocusSkills", () => {
       screen.getByText("Dónde se concentra la brecha")
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Agregado del chapter, no de una persona")
+      screen.getByText("Agregado del conjunto, no de una persona")
     ).toBeInTheDocument();
     expect(screen.getByText("Arquitectura")).toBeInTheDocument();
     expect(screen.getByText(/3 personas · pide Avanzado/)).toBeInTheDocument();

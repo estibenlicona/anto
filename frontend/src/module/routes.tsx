@@ -10,6 +10,10 @@ import { useAuth } from "@features/authentication/index";
 import { modulePath } from "@shared/services/modulePath";
 import type { CapacityPermission } from "@features/auth-session";
 import { CAPACITY_SECTION_PERMISSION } from "@features/capacity-shell/navigation";
+import {
+  CapacityScopeProvider,
+  type CapacityScope,
+} from "@features/capacity-shell/CapacityScopeContext";
 import { CapacityShell } from "./CapacityShell";
 
 const ChapterLeadHomePage = lazy(() =>
@@ -162,6 +166,23 @@ const RequirePermission: React.FC<{
 const P = CAPACITY_SECTION_PERMISSION;
 
 /**
+ * Una pantalla detrás de su permiso y con su alcance declarado. Las rutas de
+ * "Mi Línea" montan **el mismo componente** que su gemela sin acotar: lo único
+ * que las distingue es el `scope`, que los hooks leen para pedir los datos
+ * recortados. Si en vez de esto se duplicaran las pantallas, cada arreglo
+ * habría que hacerlo dos veces.
+ */
+const Scoped: React.FC<{
+  permission: CapacityPermission;
+  scope: CapacityScope;
+  children: React.ReactNode;
+}> = ({ permission, scope, children }) => (
+  <RequirePermission permission={permission}>
+    <CapacityScopeProvider scope={scope}>{children}</CapacityScopeProvider>
+  </RequirePermission>
+);
+
+/**
  * Enlaces guardados del árbol standalone (`/app/lead/...`, `/app/admin/...`):
  * el resto del camino y el query viajan tal cual a la ruta plana equivalente
  * bajo la base del módulo.
@@ -202,6 +223,49 @@ export const CapacityRoutes: React.FC<{
         element={<CapacityShell basePath={basePath} topOffset={topOffset} />}
       >
         <Route index element={<CapacityHome />} />
+        {/* Mi Línea: las mismas pantallas de gente, acotadas a los
+            colaboradores de quien mira. Mismo componente, mismo permiso; sólo
+            cambia el alcance con el que piden los datos. */}
+        <Route
+          path="mi-linea/colaboradores"
+          element={
+            <Scoped permission={P["mi-linea-colaboradores"]} scope="mine">
+              <LeadPeoplePage />
+            </Scoped>
+          }
+        />
+        <Route
+          path="mi-linea/ausencias"
+          element={
+            <Scoped permission={P["mi-linea-ausencias"]} scope="mine">
+              <LeadAbsencesPage />
+            </Scoped>
+          }
+        />
+        <Route
+          path="mi-linea/dedicacion"
+          element={
+            <Scoped permission={P["mi-linea-dedicacion"]} scope="mine">
+              <LeadDedicationPage />
+            </Scoped>
+          }
+        />
+        <Route
+          path="mi-linea/competencias"
+          element={
+            <Scoped permission={P["mi-linea-competencias"]} scope="mine">
+              <LeadCareerPlanPage />
+            </Scoped>
+          }
+        />
+        <Route
+          path="mi-linea/facturacion"
+          element={
+            <Scoped permission={P["mi-linea-facturacion"]} scope="mine">
+              <LeadBillingPage />
+            </Scoped>
+          }
+        />
         <Route
           path="iniciativas"
           element={

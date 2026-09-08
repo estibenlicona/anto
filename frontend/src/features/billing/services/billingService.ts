@@ -138,9 +138,13 @@ export interface RegisterPrefactureRequest {
 const BASE = "/billing";
 
 export const billingService = {
-  listPeriod: async (period: string): Promise<PrefactureDto[]> => {
+  /** `scope="mine"` acota a los externos de la línea del titular. */
+  listPeriod: async (
+    period: string,
+    scope?: "mine"
+  ): Promise<PrefactureDto[]> => {
     const response = await httpClient.get<PrefactureDto[]>(
-      `${BASE}?period=${encodeURIComponent(period)}`
+      `${BASE}?period=${encodeURIComponent(period)}${scope ? `&scope=${scope}` : ""}`
     );
     return response.data;
   },

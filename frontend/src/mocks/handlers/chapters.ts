@@ -1,71 +1,22 @@
 /**
- * Los chapters: el catálogo, quién lidera cada uno, y a quién alcanza a ver
- * ese lead.
+ * Los chapters: el catálogo, quién lidera cada uno, y el recorte de "Mi Línea".
  *
- * El acotado por responsabilidad lo hace el **servidor**, y estos mocks
- * implementan ese contrato para que la app se pueda ver y probar antes de que
- * el backend exista. La interfaz no filtra nada: recibe ya acotado lo que le
- * corresponde ver a quien pidió.
+ * A qué agrupación pertenece una persona y quién la lidera es un dato que la
+ * ficha muestra. Lo que **no** hace es decidir por su cuenta qué alcanza a ver
+ * nadie: las pantallas muestran todo lo registrado salvo que la petición pida
+ * lo contrario (change `quitar-acotamiento-por-lider`).
  *
- * Cómo se resuelve el titular: el token trae el `oid` de Entra, y cada chapter
- * declara el de su lead. No hace falta mirar las personas para saber qué
- * chapter lidera alguien — por eso este módulo no importa a nadie y no hay
- * ciclo con people.handlers, que sí lo importa a él.
+ * El recorte volvió con "Mi Línea", pero **explícito**: la pantalla manda
+ * `?scope=mine` y sólo entonces se resuelve el titular del token. Una petición
+ * sin ese parámetro responde igual que antes, sin mirar quién pregunta. Esa es
+ * toda la diferencia con el acotamiento que se quitó, que era invisible y
+ * aplicaba a pantallas que se leían como generales.
  *
- * Sin token no hay a quién resolverle la responsabilidad y la respuesta va sin
- * acotar. Es deliberado y es lo que hace que la suite existente —que ejercita
- * los servicios sin montar sesión— siga viendo el conjunto completo. Un
- * backend de verdad responde 401 ahí; el mock de la puerta de enlace también,
- * cuando se lo enciende (ver gateway.handlers).
- *
- * ── La revisión de los totales, una por una ──────────────────────────────
- *
- * Cada cifra que la interfaz presenta como "del chapter" se miró por separado,
- * porque no es mecánico: una capacidad objetivo o un catálogo pueden ser del
- * sistema y no cambiar, y confundirlos hace que un número diga otra cosa sin
- * que nada falle. El resultado, para no tener que volver a preguntárselo:
- *
- * SE ACOTAN — son cifras de la gente a cargo:
- * - Personas: personas activas, FTE disponible, el reparto por seniority, la
- *   muestra de avatares y los stacks sin respaldo.
- * - Torre de control: FTE del chapter, BAU, Transformación, libre, total de
- *   personas, sin asignar, parciales, células al tope y sin equipo.
- * - Células: el FTE del chapter y el asignado, el equipo de cada célula y sus
- *   recuentos de expertos y principiantes.
- * - Competencias: la matriz, las personas evaluadas, las brechas, el resumen
- *   y los roles sin nivel declarado —los roles salen de la gente a cargo—.
- * - Ausencias: el calendario del mes, las que esperan aprobación y el impacto
- *   en capacidad. La cola de aprobación es trabajo de ese lead.
- * - Asignaciones: el listado de cada célula.
- * - Facturación: las prefacturas, que son una por persona externa.
- * - Dedicación real: una fila por persona a cargo, con su resumen; la
- *   dedicación real de una persona ajena responde 404, como su ficha no.
- * - Ficha de una persona: la cobertura de sus stacks ("nadie más lo cubre"),
- *   calculada sobre el chapter de ella y no sobre el de quien mira, para que
- *   diga lo mismo la abra quien la abra.
- *
- * NO SE ACOTAN, y es una decisión, no un olvido:
- * - El Administrador de plataforma: no lidera ningún chapter, así que ve todo.
- * - Las pantallas de Configuración (Admin). El catálogo de habilidades incluye la tabla
- *   "Nivel esperado por rol", cuyos roles se derivan de las personas: se deja
- *   sobre el conjunto completo a propósito, porque el catálogo es un artefacto
- *   del sistema y un rol no debe desaparecer de él porque un chapter no tenga
- *   hoy a nadie con ese rol. Las líneas de expertise son el maestro con el que
- *   se reparte a la gente: acotarlo impediría repartir.
- * - Los catálogos del sistema: stacks, los cuatro niveles de seniority —salen
- *   siempre, aunque queden en cero—, modalidades, proveedores, criticidades y
- *   bandas de talla. No son cifras de personas.
- * - El listado de células: las células son del chapter, no de una persona. Lo
- *   que se acota es su equipo y las cifras que salen de él.
- * - Resolver una persona por id (su ficha, su evaluación): lo que la regla
- *   acota es enumerar y contar, no la lectura puntual a la que sólo se llega
- *   desde el propio listado.
- *
- * QUEDA ANOTADO COMO DEUDA: `ASSUMED_FTE_TARGET` en people.handlers es una
- * capacidad objetivo fija de 12 que viaja en el DTO y que hoy no muestra
- * ninguna pantalla. Con un chapter de cinco personas, un objetivo de 12 no
- * significa nada. Cuando alguna pantalla lo use habrá que decidir si se acota
- * o si el backend lo calcula por chapter.
+ * La advertencia que hay que respetar al usarlo: al cruzar personas con algo
+ * indexado por persona hay que filtrar **las dos puntas**. Acotar las personas
+ * y dejar entrar las asignaciones de todo el mundo no esconde nada; convierte
+ * a la gente de afuera en personas de 0 FTE, y entonces la célula aparece al
+ * tope, el FTE libre da negativo y los porcentajes pasan de 100.
  */
 
 export interface Chapter {
@@ -74,8 +25,9 @@ export interface Chapter {
   /** Nombre de quien lo lidera; las semillas de personas lo resuelven a id. */
   leadName: string;
   /**
-   * El `oid` del lead en Entra: la llave con la que el servidor resuelve la
-   * responsabilidad a partir del token. El simulador emite exactamente éste.
+   * El `oid` del lead en Entra. El simulador emite exactamente éste, así que
+   * sigue siendo la llave con la que se reconoce a un lead — hoy sólo para
+   * mostrarlo, y de nuevo para acotar cuando exista la vista personal.
    */
   leadEntraObjectId: string;
 }
@@ -93,10 +45,10 @@ export const CHAPTERS: Chapter[] = [
     leadName: "Isabella Moreno",
     leadEntraObjectId: "44444444-4444-4444-4444-444444444444",
   },
-  // Recién creado y todavía sin gente: es el estado en el que un chapter
-  // arranca, y sin uno así no se ve nunca el vacío de las pantallas del rol.
-  // Su lead pertenece a otro chapter porque nadie se movió aún — el requisito
-  // pide que toda persona tenga chapter, no que el lead esté en el suyo.
+  // Recién creado y todavía sin gente. Ya no es el fixture del estado vacío
+  // —sin acotamiento no hay forma de llegar a él por esa vía—, pero se
+  // conserva para que haya más de dos y la ficha de persona muestre valores
+  // distintos. El vacío se cubre desde las pruebas y desde "sin resultados".
   {
     id: "ch333333-3333-3333-3333-333333333333",
     name: "Datos Avanzados",
@@ -178,12 +130,39 @@ function holderObjectId(request: Request): string | null {
 }
 
 /**
- * El chapter que lidera el titular del token, o `null` si no lidera ninguno
- * —el Administrador, o una petición sin token—. `null` significa "sin acotar",
- * y es distinto de un chapter sin personas, que acota a cero.
+ * El chapter al que hay que acotar esta petición, o `null` para no acotar.
+ *
+ * Devuelve un chapter **sólo** si se dan las dos condiciones: la petición pide
+ * el recorte (`?scope=mine`) y quien la firma lidera un chapter. Sin el
+ * parámetro no se mira el token siquiera — una pantalla que no pidió recorte
+ * jamás lo recibe por accidente, que es la falla que tenía el acotamiento
+ * anterior. Con el parámetro pero sin liderar nada (el administrador, o una
+ * petición sin token) el resultado es un conjunto vacío, no "todo": pedir
+ * "mi gente" sin tener gente responde nada, no la organización entera.
  */
-export function holderChapterId(request: Request): string | null {
+export function scopedChapterId(request: Request): string | null {
+  const url = new URL(request.url);
+  if (url.searchParams.get("scope") !== "mine") return null;
   const oid = holderObjectId(request);
-  if (!oid) return null;
-  return CHAPTERS.find((c) => c.leadEntraObjectId === oid)?.id ?? null;
+  return CHAPTERS.find((c) => c.leadEntraObjectId === oid)?.id ?? EMPTY_SCOPE;
+}
+
+/**
+ * El chapter imposible con el que se responde "no tenés gente a cargo": ningún
+ * `Person.chapterId` lo lleva, así que filtrar por él da vacío. Es distinto de
+ * `null`, que significa "no acotes".
+ */
+export const EMPTY_SCOPE = "ch000000-0000-0000-0000-000000000000";
+
+/**
+ * Las personas que le tocan a esta petición. `scopedChapterId` decide; acá
+ * sólo se aplica. Cualquier handler que sirva gente —o cifras derivadas de
+ * gente— debería pasar por acá en vez de repetir el filtro.
+ */
+export function scopePeople<T extends { chapterId: string | null }>(
+  request: Request,
+  people: T[]
+): T[] {
+  const chapterId = scopedChapterId(request);
+  return chapterId ? people.filter((p) => p.chapterId === chapterId) : people;
 }

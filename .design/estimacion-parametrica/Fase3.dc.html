@@ -1,0 +1,418 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 12px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; display: flex;
+             align-items: baseline; justify-content: space-between; gap: 12px; }
+    .cfoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-red { background: #FBE9EA; color: #700C13; }
+    .t-purple { background: #EFEAFB; color: #3D2894; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-neu { background: #F4F4F5; color: #26262C; } .b-neu .dot { background: #74747E; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6; }
+    td { padding: 10px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tfoot td { background: #FAFAFB; font-weight: 600; border-bottom: 0; border-top: 1px solid #E3E3E6; }
+    .r { text-align: right; }
+
+    .fld { display: flex; flex-direction: column; gap: 4px; }
+    .inp { display: inline-flex; align-items: stretch; border: 1px solid #E3E3E6; border-radius: 8px;
+           background: #FFFFFF; overflow: hidden; }
+    .inp .val { padding: 8px 12px; font-size: 14px; line-height: 22px; color: #26262C;
+                font-variant-numeric: tabular-nums; flex: 1; }
+    .inp .adorn { display: flex; align-items: center; padding: 0 12px; background: #F4F4F5;
+                  border-left: 1px solid #E3E3E6; font-size: 14px; color: #74747E; }
+
+    /* El control que hace la distinción que pide la HU. Tres opciones,
+       siempre las mismas tres, en cada novedad. */
+    .kind { display: inline-flex; border: 1px solid #E3E3E6; border-radius: 8px; overflow: hidden; }
+    .kind > span { padding: 5px 10px; font-size: 12px; line-height: 16px; font-weight: 600;
+                   color: #55555E; border-right: 1px solid #E3E3E6; white-space: nowrap; }
+    .kind > span:last-child { border-right: 0; }
+    .kind > span.on-scope { background: #E8F0FC; color: #154A96; }
+    .kind > span.on-event { background: #EFEAFB; color: #3D2894; }
+    .kind > span.on-error { background: #FBE9EA; color: #700C13; }
+
+    .bar { height: 6px; border-radius: 8px; background: #F4F4F5; overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 8px; }
+
+    .track { position: relative; height: 26px; background: #FAFAFB; border-radius: 6px; }
+    .track .grid { position: absolute; top: 0; bottom: 0; width: 1px; background: #EFEFF0; }
+    .rng { position: absolute; top: 7px; height: 12px; border-radius: 6px; }
+    .pt { position: absolute; top: 3px; width: 3px; height: 20px; border-radius: 2px; background: #26262C; }
+    .real { position: absolute; top: 3px; width: 12px; height: 20px; border-radius: 3px;
+            background: #8E0F18; box-shadow: 0 0 0 2px #FFFFFF; }
+    .axis { position: relative; height: 18px; }
+    .axis span { position: absolute; transform: translateX(-50%); }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Iniciativas <span style="color:#C9C9CE">/</span> Kafka Migration <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Fase 3 · Cierre</span></div>
+
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 class="h1" style="margin: 0">Kafka Migration</h1>
+        <span class="badge b-neu"><span class="dot"></span>Lista para cerrar</span>
+      </div>
+      <p class="sm" style="margin: 0">Backend Platform · Product Owner: Paola Henao · ejecutada entre feb y sep de 2026</p>
+    </div>
+    <span class="note" style="max-width: 420px; text-align: right">
+      Lo que se registre acá es lo único que alimenta la calibración del modelo.
+      Por eso cada diferencia tiene que decir de qué tipo es.
+    </span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 452px; gap: 16px; align-items: start">
+
+    <div style="display: flex; flex-direction: column; gap: 16px">
+
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Lo que costó de verdad</h2>
+          <span class="note">Precargado desde dedicación y sprints · editable</span>
+        </div>
+        <div class="cbody" style="display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px 16px">
+          <div class="fld">
+            <span class="lbl">PM reales</span>
+            <span class="inp"><span class="val">9,1</span><span class="adorn">PM</span></span>
+          </div>
+          <div class="fld">
+            <span class="lbl">Fecha de inicio</span>
+            <span class="inp"><span class="val">03 feb 2026</span></span>
+          </div>
+          <div class="fld">
+            <span class="lbl">Fecha de fin</span>
+            <span class="inp"><span class="val">28 sep 2026</span></span>
+          </div>
+          <div class="fld">
+            <span class="lbl">Duración real</span>
+            <span class="inp"><span class="val">7,8</span><span class="adorn">meses</span></span>
+            <span class="note">plazo objetivo 6,0 · +30 %</span>
+          </div>
+          <div class="fld">
+            <span class="lbl">FTE promedio</span>
+            <span class="inp"><span class="val">1,17</span><span class="adorn">FTE</span></span>
+          </div>
+          <div class="fld">
+            <span class="lbl">FTE máximo</span>
+            <span class="inp"><span class="val">1,80</span><span class="adorn">FTE</span></span>
+            <span class="note">pico en julio</span>
+          </div>
+          <div class="fld">
+            <span class="lbl">Story points cerrados</span>
+            <span class="inp"><span class="val">271</span><span class="adorn">pts</span></span>
+            <span class="note">opcional · 248 estimados</span>
+          </div>
+          <div class="fld" style="grid-column: span 2">
+            <span class="lbl">Alcance final</span>
+            <span class="inp"><span class="val" style="color:#55555E">Se agregó la conciliación diaria con el core; salió el panel de monitoreo.</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Mix real por capacidad</h2>
+          <span class="note">9,1 PM repartidos</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:30%">Capacidad</th>
+              <th class="r" style="width:16%">% estimado</th>
+              <th class="r" style="width:16%">% real</th>
+              <th class="r" style="width:14%">PM real</th>
+              <th style="width:24%">Diferencia</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Backend Dev</td>
+              <td class="r num">50</td>
+              <td class="r num">46</td>
+              <td class="r num">4,2</td>
+              <td><span class="tag t-gray num" style="min-width:0">−4 pp</span></td>
+            </tr>
+            <tr>
+              <td>QA Engineer</td>
+              <td class="r num">27</td>
+              <td class="r num">34</td>
+              <td class="r num">3,1</td>
+              <td><span class="tag t-amber num" style="min-width:0">+7 pp</span></td>
+            </tr>
+            <tr>
+              <td>Business Analyst</td>
+              <td class="r num">12</td>
+              <td class="r num">9</td>
+              <td class="r num">0,8</td>
+              <td><span class="tag t-gray num" style="min-width:0">−3 pp</span></td>
+            </tr>
+            <tr>
+              <td>Arquitecto</td>
+              <td class="r num">11</td>
+              <td class="r num">11</td>
+              <td class="r num">1,0</td>
+              <td><span class="note">sin diferencia</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+              <td class="r num">100</td>
+              <td class="r num">100</td>
+              <td class="r num">9,1</td>
+              <td class="note" style="font-weight:400">QA volvió a quedarse corto, como en 5 de los últimos 7 cierres</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px">
+
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Estimado contra real</h2>
+          <span class="note">persona-mes</span>
+        </div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 8px">
+          <div style="display:grid; grid-template-columns: 74px minmax(0,1fr) 56px; gap:10px; align-items:center">
+            <span class="note">Fase 1</span>
+            <div class="track">
+              <span class="grid" style="left:0%"></span><span class="grid" style="left:16.7%"></span>
+              <span class="grid" style="left:33.3%"></span><span class="grid" style="left:50%"></span>
+              <span class="grid" style="left:66.7%"></span><span class="grid" style="left:83.3%"></span>
+              <span class="grid" style="left:100%"></span>
+              <span class="rng" style="left:50%; width:33.3%; background:#2563EB"></span>
+              <span class="pt" style="left:66.7%"></span>
+            </div>
+            <span class="num sm r">8,0</span>
+          </div>
+          <div style="display:grid; grid-template-columns: 74px minmax(0,1fr) 56px; gap:10px; align-items:center">
+            <span class="note">Fase 2</span>
+            <div class="track">
+              <span class="grid" style="left:0%"></span><span class="grid" style="left:16.7%"></span>
+              <span class="grid" style="left:33.3%"></span><span class="grid" style="left:50%"></span>
+              <span class="grid" style="left:66.7%"></span><span class="grid" style="left:83.3%"></span>
+              <span class="grid" style="left:100%"></span>
+              <span class="rng" style="left:45.8%; width:30.8%; background:#A21CAF"></span>
+              <span class="pt" style="left:61.7%"></span>
+            </div>
+            <span class="num sm r">7,4</span>
+          </div>
+          <div style="display:grid; grid-template-columns: 74px minmax(0,1fr) 56px; gap:10px; align-items:center">
+            <span class="note" style="color:#26262C; font-weight:600">Real</span>
+            <div class="track">
+              <span class="grid" style="left:0%"></span><span class="grid" style="left:16.7%"></span>
+              <span class="grid" style="left:33.3%"></span><span class="grid" style="left:50%"></span>
+              <span class="grid" style="left:66.7%"></span><span class="grid" style="left:83.3%"></span>
+              <span class="grid" style="left:100%"></span>
+              <span class="real" style="left:75.8%"></span>
+            </div>
+            <span class="num sm r" style="font-weight:600">9,1</span>
+          </div>
+          <div class="axis num note" style="margin-left:84px; margin-right:66px">
+            <span style="left:0%">0</span><span style="left:16.7%">2</span><span style="left:33.3%">4</span>
+            <span style="left:50%">6</span><span style="left:66.7%">8</span><span style="left:83.3%">10</span>
+            <span style="left:100%">12</span>
+          </div>
+          <p class="note" style="margin:4px 0 0; border-top:1px solid #E3E3E6; padding-top:10px">
+            El real cayó fuera del rango de la Fase 2 (5,5 – 9,2 lo contiene por poco) y
+            dentro del de la Fase 1. La fase más informada no fue la más certera.
+          </p>
+        </div>
+      </div>
+
+      <!-- El bloque que justifica todo el resto de la pantalla. -->
+      <div class="card" style="border-color: #26262C">
+        <div class="chead" style="border-color:#26262C">
+          <h2 class="h3" style="margin:0">Qué entra a la calibración</h2>
+          <span class="tag t-gray num" style="min-width:0">+1,7 PM de desvío</span>
+        </div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 12px">
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+              <span class="tag t-blue" style="min-width:0">Cambio de alcance</span>
+              <span class="num smd">+0,2 PM</span>
+            </div>
+            <span class="bar"><i style="width:12%; background:#1B5FBF"></i></span>
+            <span class="note">No calibra: el modelo estimó otro alcance, no se equivocó en éste.</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+              <span class="tag t-purple" style="min-width:0">Evento no previsto</span>
+              <span class="num smd">+0,9 PM</span>
+            </div>
+            <span class="bar"><i style="width:53%; background:#5B3FC4"></i></span>
+            <span class="note">No calibra: nada en el cuestionario podía anticiparlo.</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+              <span class="tag t-red" style="min-width:0">Error de estimación</span>
+              <span class="num smd" style="font-weight:600">+0,6 PM</span>
+            </div>
+            <span class="bar"><i style="width:35%; background:#8E0F18"></i></span>
+            <span class="smd">Sí calibra. Es lo único que dice que el modelo se quedó corto.</span>
+          </div>
+          <p class="sm" style="margin:0; border-top:1px solid #E3E3E6; padding-top:12px; color:#26262C">
+            De <span class="num" style="font-weight:600">+1,7 PM</span> de desvío, entran
+            <span class="num" style="font-weight:600">+0,6 PM</span> al histórico del modelo.
+            Sumar los tres castigaría al cuestionario por decisiones que no tomó.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Las novedades. Cada una declara tipo y qué afectó; sin eso, el desvío
+       del 23 % queda como culpa de quien estimó. -->
+  <div class="card">
+    <div class="chead">
+      <h2 class="h3" style="margin:0">Novedades de la ejecución</h2>
+      <span class="btn btn-s" style="padding:4px 12px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Agregar novedad
+      </span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:38%">Qué pasó</th>
+          <th style="width:26%">De qué tipo es</th>
+          <th style="width:16%">A qué afectó</th>
+          <th class="r" style="width:10%">Esfuerzo</th>
+          <th class="r" style="width:10%">Plazo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="smd">Se agregó la conciliación diaria con el core</div>
+            <div class="note">Pedido por Riesgo en marzo, fuera del alcance inicial</div>
+          </td>
+          <td>
+            <span class="kind">
+              <span class="on-scope">Cambio de alcance</span><span>Evento</span><span>Error</span>
+            </span>
+          </td>
+          <td><span class="tag t-gray" style="min-width:0">Esfuerzo</span></td>
+          <td class="r num" style="color:#6E4B00">+1,4</td>
+          <td class="r note">—</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="smd">Se sacó del alcance el panel de monitoreo</div>
+            <div class="note">Se resolvió con el tablero existente de la plataforma</div>
+          </td>
+          <td>
+            <span class="kind">
+              <span class="on-scope">Cambio de alcance</span><span>Evento</span><span>Error</span>
+            </span>
+          </td>
+          <td><span class="tag t-gray" style="min-width:0">Esfuerzo</span></td>
+          <td class="r num" style="color:#0D5239">−1,2</td>
+          <td class="r note">—</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="smd">El bureau externo cambió el contrato de su API en junio</div>
+            <div class="note">Reproceso de la integración y una ventana de certificación nueva</div>
+          </td>
+          <td>
+            <span class="kind">
+              <span>Alcance</span><span class="on-event">Evento no previsto</span><span>Error</span>
+            </span>
+          </td>
+          <td><span class="tag t-gray" style="min-width:0">Ambos</span></td>
+          <td class="r num" style="color:#6E4B00">+0,9</td>
+          <td class="r num" style="color:#6E4B00">+1,2 m</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="smd">Las pruebas de carga tomaron el doble de lo previsto</div>
+            <div class="note">El cuestionario preguntó por resiliencia, pero el peso resultó bajo</div>
+          </td>
+          <td>
+            <span class="kind">
+              <span>Alcance</span><span>Evento</span><span class="on-error">Error de estimación</span>
+            </span>
+          </td>
+          <td><span class="tag t-gray" style="min-width:0">Esfuerzo</span></td>
+          <td class="r num" style="color:#700C13; font-weight:600">+0,6</td>
+          <td class="r note">—</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>4 novedades · 2 de alcance, 1 evento, 1 error</td>
+          <td colspan="2" class="note" style="font-weight:400">
+            Cada tipo entra distinto al histórico: sólo el error mide al modelo.
+          </td>
+          <td class="r num">+1,7</td>
+          <td class="r num">+1,2 m</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="cfoot" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+      <span class="note">Al cerrar, la iniciativa deja de contar como demanda activa y sus datos pasan a la calibración.</span>
+      <div style="display:flex; gap:8px">
+        <span class="btn btn-s">Guardar borrador</span>
+        <span class="btn btn-p">Cerrar iniciativa</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

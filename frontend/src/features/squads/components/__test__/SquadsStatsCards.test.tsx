@@ -68,9 +68,7 @@ describe("SquadsStatsCards", () => {
   it("abre con el FTE asignado, de cuánto y qué %, y la barra lleva BAU, Transformación y libre", () => {
     render(<SquadsStatsCards stats={stats} loading={false} />);
     expect(screen.getByText("6.3")).toBeInTheDocument();
-    expect(
-      screen.getByText("de 18.0 FTE · 35% del chapter")
-    ).toBeInTheDocument();
+    expect(screen.getByText("de 18.0 FTE · 35%")).toBeInTheDocument();
     expect(legendItemFor("BAU")).toHaveTextContent("3.4");
     expect(legendItemFor("Transformación")).toHaveTextContent("2.9");
     expect(legendItemFor("Libre")).toHaveTextContent("11.7");
@@ -83,14 +81,14 @@ describe("SquadsStatsCards", () => {
     );
   });
 
-  it("no divide por cero cuando el chapter no tiene FTE", () => {
+  it("no divide por cero cuando no hay FTE", () => {
     render(
       <SquadsStatsCards
         stats={{ ...stats, chapterFte: 0, allocatedFte: 0 }}
         loading={false}
       />
     );
-    expect(screen.getByText("de 0.0 FTE · 0% del chapter")).toBeInTheDocument();
+    expect(screen.getByText("de 0.0 FTE · 0%")).toBeInTheDocument();
     expect(legendItemFor("Libre")).toHaveTextContent("0");
   });
 

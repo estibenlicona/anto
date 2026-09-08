@@ -466,10 +466,13 @@ export const dedicationService = {
   listCollaborators: async (
     filters: CollaboratorDedicationFilters = {},
     page: PageRequest = { page: 1, pageSize: 10 },
-    sprint?: string
+    sprint?: string,
+    /** `"mine"` acota a los colaboradores del titular; omitido, trae todo. */
+    scope?: "mine"
   ): Promise<CollaboratorDedicationListDto> => {
     // Clave repetida sin corchetes (`squadId=a&squadId=b`), como en Personas.
     const params = new URLSearchParams();
+    if (scope) params.set("scope", scope);
     filters.squadIds?.forEach((id) => params.append("squadId", id));
     if (filters.search) params.set("search", filters.search);
     // El sprint no es un filtro: cambia de qué sprint habla todo el listado.

@@ -7,17 +7,20 @@ import type {
 // Lectura en un solo sentido de los tres mocks (ver squads.handlers.ts): la
 // Torre de control es la única pantalla que cruza personas, células y
 // asignaciones a la vez.
+import { getAllocationsSnapshot } from "./allocations.handlers";
 import { availableFteOf, freeFteOf, fteOfPercentages, round1 } from "./fte";
-import { vistaDe } from "./scope";
+import { getPeopleSnapshot } from "./people.handlers";
 import { getSquadsSnapshot } from "./squads.handlers";
 
 const OVERVIEW_URL = "/chapter/capacity-overview";
 
-export function computeCapacityOverview(request: Request): CapacityOverviewDto {
-  // Personas y asignaciones acotadas juntas — ver scope.ts. Acotar sólo las
-  // personas dejaría la dedicación de gente de otro chapter sumando al BAU
-  // mientras su FTE disponible no suma, y el FTE libre daría negativo.
-  const { people, allocations } = vistaDe(request);
+export function computeCapacityOverview(): CapacityOverviewDto {
+  // Todo lo registrado, sin recortar por quién pide. Si algún día vuelve el
+  // acotado (la vista personal), hay que filtrar **las dos puntas**: acotar
+  // sólo las personas dejaría la dedicación de la gente de afuera sumando al
+  // BAU mientras su FTE disponible no suma, y el FTE libre daría negativo.
+  const people = getPeopleSnapshot();
+  const allocations = getAllocationsSnapshot();
   const squads = getSquadsSnapshot();
 
   const overviewPeople: OverviewPersonDto[] = people.map((p) => {
@@ -92,7 +95,5 @@ export function computeCapacityOverview(request: Request): CapacityOverviewDto {
 }
 
 export const chapterHandlers = [
-  http.get(OVERVIEW_URL, ({ request }) =>
-    HttpResponse.json(computeCapacityOverview(request))
-  ),
+  http.get(OVERVIEW_URL, () => HttpResponse.json(computeCapacityOverview())),
 ];

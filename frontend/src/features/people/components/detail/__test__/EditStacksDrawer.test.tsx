@@ -71,7 +71,7 @@ describe("EditStacksDrawer", () => {
     const { onSubmit } = renderDrawer();
     removeFrom("AS400");
     expect(
-      screen.getByText("El chapter quedaría sin cobertura")
+      screen.getByText("Nadie quedaría cubriendo este stack")
     ).toBeInTheDocument();
     expect(screen.getByText(/Nadie más cubre AS400/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
@@ -94,7 +94,7 @@ describe("EditStacksDrawer", () => {
     const { onSubmit } = renderDrawer();
     // cmdk desplaza la opción activa; jsdom no implementa scrollIntoView.
     Element.prototype.scrollIntoView = vi.fn();
-    const trigger = screen.getByLabelText("Del catálogo del chapter");
+    const trigger = screen.getByLabelText("Del catálogo");
     fireEvent.click(trigger);
     await screen.findByRole("listbox");
     const option = (await screen.findAllByRole("option")).find((o) =>

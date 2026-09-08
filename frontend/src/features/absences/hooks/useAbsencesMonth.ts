@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { absenceService } from "../services/absenceService";
 import { absenceAdapter, type AbsencesMonth } from "../adapters/AbsenceAdapter";
+import {
+  scopeParam,
+  useCapacityScope,
+} from "@features/capacity-shell/CapacityScopeContext";
 
 /** El mes visible es estado del servidor: se pide entero y se muestra lo que llega. */
 export const useAbsencesMonth = (monthKey: string) => {
@@ -8,10 +12,12 @@ export const useAbsencesMonth = (monthKey: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
+  // El alcance lo declara la ruta: "Mi Línea" pide recorte, el resto no.
+  const scope = scopeParam(useCapacityScope());
 
   useEffect(() => {
     let cancelled = false;
-    absenceService.getByMonth(monthKey).then(
+    absenceService.getByMonth(monthKey, scope).then(
       (dto) => {
         if (cancelled) return;
         setMonth(absenceAdapter.toMonth(dto));
@@ -28,7 +34,7 @@ export const useAbsencesMonth = (monthKey: string) => {
     return () => {
       cancelled = true;
     };
-  }, [monthKey, reloadTick]);
+  }, [monthKey, reloadTick, scope]);
 
   // El estado de carga se marca acá (evento), no dentro del efecto.
   const refetch = useCallback(() => {

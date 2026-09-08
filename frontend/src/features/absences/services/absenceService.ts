@@ -66,9 +66,13 @@ export interface CreateAbsenceRequest {
 const ABSENCES_URL = "/absences";
 
 export const absenceService = {
-  getByMonth: async (month: string): Promise<AbsencesMonthDto> => {
+  /** `scope="mine"` acota a los colaboradores del titular; omitido, trae todo. */
+  getByMonth: async (
+    month: string,
+    scope?: "mine"
+  ): Promise<AbsencesMonthDto> => {
     const response = await httpClient.get<AbsencesMonthDto>(ABSENCES_URL, {
-      params: { month },
+      params: scope ? { month, scope } : { month },
     });
     return response.data;
   },

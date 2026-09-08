@@ -109,7 +109,7 @@ export const SpanSummaryCards: React.FC<SpanSummaryCardsProps> = ({
                 Sin ciclo anterior
               </span>
               <span className="text-body-sm text-neutral-subtle">
-                Este es el primer ciclo cerrado del chapter
+                Este es el primer ciclo cerrado
               </span>
             </>
           ) : (

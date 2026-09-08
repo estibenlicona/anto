@@ -118,7 +118,7 @@ describe("AbsencesContainer", () => {
     // El "de N FTE del chapter" es el pie de la card y no se mueve: se lee la
     // card entera desde él, porque lo que tiene que moverse es la cifra.
     const cifra = () =>
-      screen.getByText(/de .* FTE del chapter/).parentElement!.textContent!;
+      screen.getByText(/de .* FTE/).parentElement!.textContent!;
     const impactoAntes = cifra();
 
     fireEvent.click(

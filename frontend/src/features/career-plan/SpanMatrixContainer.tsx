@@ -112,8 +112,8 @@ export const SpanMatrixContainer: React.FC = () => {
           silencio y la pantalla parecía no tenerlos nunca. */}
       {summaryError && (
         <Alert variant="warning">
-          No se pudo cargar el resumen del chapter: {summaryError}. La matriz y
-          sus totales siguen siendo correctos.
+          No se pudo cargar el resumen: {summaryError}. La matriz y sus totales
+          siguen siendo correctos.
         </Alert>
       )}
 
@@ -136,7 +136,7 @@ export const SpanMatrixContainer: React.FC = () => {
         <EmptyState
           icon={<Icon name="expertise" size={32} />}
           title="Todavía no hay evaluaciones cerradas"
-          description="La matriz se arma con las evaluaciones cerradas del chapter. Evalúa a alguien para empezar a ver el span."
+          description="La matriz se arma con las evaluaciones cerradas. Evalúa a alguien para empezar a ver el span."
           action={
             <Button
               variant="primary"

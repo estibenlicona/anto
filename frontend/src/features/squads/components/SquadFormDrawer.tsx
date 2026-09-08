@@ -87,7 +87,7 @@ export const SquadFormDrawer: React.FC<SquadFormDrawerProps> = ({
           <p className="mt-1 text-body-sm text-neutral-subtle">
             {squad
               ? "Actualiza la información de esta célula."
-              : "Registra una nueva célula del chapter."}
+              : "Registra una nueva célula."}
           </p>
         </DrawerHeader>
         {/* p-0: cada sección pone su propio px-6 py-5, para que los filetes

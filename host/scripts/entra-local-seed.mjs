@@ -63,9 +63,9 @@ const CAP_SECTIONS = [
   "DevOps",
 ];
 const capRole = (section) => `Capacidad.${section}`;
-/** Secciones del shell del Líder de Expertise. */
+/** Secciones del shell del Líder de Expertise. Sin Iniciativas: la demanda no
+ * es suya — la registra y evalúa quien la pide. */
 const CAP_LEAD = [
-  "Iniciativas",
   "Celulas",
   "Personas",
   "Ausencias",
@@ -171,16 +171,35 @@ async function ensureUserRoles(appDetail, values, displayNames = {}) {
   return byValue;
 }
 
-/** Asigna a la persona los roles `values` de la app, si no los tiene ya. */
-async function ensureAssignments(appDetail, rolesByValue, assignedSet, user, values) {
-  for (const value of values) {
-    if (assignedSet.has(`${value}→${user.id}`)) continue;
+/**
+ * Deja a la persona exactamente con los roles `values` de la app: agrega los
+ * que le falten y revoca los que ya no estén declarados.
+ *
+ * Revocar es lo que hace la semilla idempotente de verdad. Sin eso sólo sabía
+ * sumar: quitar una sección de `CAP_LEAD` no se la quitaba a nadie, y el
+ * emulador quedaba con permisos que el código ya no declara — el
+ * environment local diciendo una cosa y el repo otra, sin que nada falle.
+ * Sólo toca a las personas de `PEOPLE` y a estas dos apps; lo que alguien
+ * haya asignado a mano por fuera se queda como está.
+ */
+async function ensureAssignments(appDetail, rolesByValue, existing, user, values) {
+  const wanted = new Set(values);
+  for (const value of wanted) {
+    if (existing.some((e) => e.roleValue === value && e.principalId === user.id)) continue;
     const role = rolesByValue.get(value);
     await call("POST", `/admin/api/apps/${appDetail.id}/roles/${role.id}/assignments`, {
       principalType: "user",
       principalId: user.id,
     });
     console.log(`  ${value} → ${user.displayName}`);
+  }
+  for (const entry of existing) {
+    if (entry.principalId !== user.id || wanted.has(entry.roleValue)) continue;
+    await call(
+      "DELETE",
+      `/admin/api/apps/${appDetail.id}/roles/${entry.roleId}/assignments/${entry.id}`
+    );
+    console.log(`  ${entry.roleValue} ✕ ${user.displayName} (ya no declarado)`);
   }
 }
 
@@ -227,16 +246,8 @@ const capRoles = await ensureUserRoles(capApp, CAP_SECTIONS.map(capRole));
 // --- Personas y asignaciones ---------------------------------------------------------------------
 const users = await call("GET", "/admin/api/users?top=200");
 const byUpn = new Map((users.value ?? []).map((user) => [user.userPrincipalName, user]));
-const hostAssigned = new Set(
-  (await call("GET", `/admin/api/apps/${hostApp.id}/assignments`)).map(
-    (entry) => `${entry.roleValue}→${entry.principalId}`
-  )
-);
-const capAssigned = new Set(
-  (await call("GET", `/admin/api/apps/${capApp.id}/assignments`)).map(
-    (entry) => `${entry.roleValue}→${entry.principalId}`
-  )
-);
+const hostAssigned = await call("GET", `/admin/api/apps/${hostApp.id}/assignments`);
+const capAssigned = await call("GET", `/admin/api/apps/${capApp.id}/assignments`);
 
 for (const person of PEOPLE) {
   let user = byUpn.get(person.userPrincipalName);

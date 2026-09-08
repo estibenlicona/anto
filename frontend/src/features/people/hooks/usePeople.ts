@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDebouncedValue } from "@shared/hooks/useDebouncedValue";
 import {
+  scopeParam,
+  useCapacityScope,
+} from "@features/capacity-shell/CapacityScopeContext";
+import {
   personService,
   type Level,
   type Seniority,
@@ -29,6 +33,8 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
   const [levels, setLevels] = useState<Level[]>([]);
   const [seniorities, setSeniorities] = useState<Seniority[]>([]);
   const [stacks, setStacks] = useState<string[]>([]);
+  // El alcance lo declara la ruta: "Mi Línea" pide recorte, el resto no.
+  const scope = scopeParam(useCapacityScope());
 
   const load = useCallback(async () => {
     try {
@@ -40,7 +46,8 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
         debouncedSearch,
         levels,
         seniorities,
-        stacks
+        stacks,
+        scope
       );
       setPeople(result.items.map(personAdapter.toEntity));
       setTotal(result.totalCount);
@@ -52,7 +59,7 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, debouncedSearch, levels, seniorities, stacks]);
+  }, [page, pageSize, debouncedSearch, levels, seniorities, stacks, scope]);
 
   useEffect(() => {
     let cancelled = false;
@@ -60,7 +67,7 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     setLoading(true);
     setError(null);
     personService
-      .list(page, pageSize, debouncedSearch, levels, seniorities, stacks)
+      .list(page, pageSize, debouncedSearch, levels, seniorities, stacks, scope)
       .then(
         (result) => {
           if (cancelled) return;
@@ -80,7 +87,7 @@ export const usePeople = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     return () => {
       cancelled = true;
     };
-  }, [page, pageSize, debouncedSearch, levels, seniorities, stacks]);
+  }, [page, pageSize, debouncedSearch, levels, seniorities, stacks, scope]);
 
   const onPageSizeChange = useCallback((newPageSize: number) => {
     setPage(1);

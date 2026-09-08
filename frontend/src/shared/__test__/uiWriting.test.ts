@@ -127,6 +127,45 @@ export function voseoEn(texto: string): string[] {
     .filter((palabra) => !EXCEPCIONES.has(palabra.toLowerCase()));
 }
 
+/**
+ * Palabras en inglés que no se escriben en la interfaz, con el español que las
+ * reemplaza. El texto que el usuario lee va en español: quien lo usa no tiene
+ * por qué saber inglés para entender de qué le habla una cifra.
+ *
+ * Sólo alcanza al **texto visible**. El vocabulario del código —campos de los
+ * contratos, rutas, identificadores— se queda como está: renombrarlo es un
+ * cambio sin valor observable, y mezclarlo acá haría fallar la prueba por
+ * motivos que no tienen que ver con el idioma del producto.
+ *
+ * Un nombre propio que el usuario reconoce en inglés (Azure DevOps) no entra
+ * en esta lista: no es un anglicismo sino el nombre de la cosa.
+ */
+const PALABRAS_EN_INGLES = new Map<string, string>([
+  [
+    "chapter",
+    "la interfaz llamaba así a la agrupación de personas y no se entendía a cuál se refería; desde `quitar-acotamiento-por-lider` las cifras son del conjunto completo y el complemento se quita",
+  ],
+]);
+
+/**
+ * La palabra suelta, no la que forma parte de un identificador ni de una ruta.
+ * Excluye lo que viene pegado a `/`, `@` o `-` (rutas de módulo, valores como
+ * `chapter-lead`) y lo que sigue en camelCase (`chapterId`, `chapterFte`,
+ * `chapterTotal`), que son código y no texto.
+ */
+function formaDePalabra(palabra: string): RegExp {
+  return new RegExp(`(?<![\\w/@-])${palabra}s?(?![\\w-])`, "gi");
+}
+
+/** Los anglicismos prohibidos que aparecen en un texto de interfaz. */
+export function anglicismosEn(texto: string): string[] {
+  const out: string[] = [];
+  for (const palabra of PALABRAS_EN_INGLES.keys()) {
+    for (const m of texto.matchAll(formaDePalabra(palabra))) out.push(m[0]);
+  }
+  return out;
+}
+
 function sourceFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -194,6 +233,49 @@ describe("el registro del lenguaje de la interfaz", () => {
     expect(EXCEPCIONES.size).toBeLessThanOrEqual(EXCEPCIONES_TOLERADAS);
     // Y ninguna sin motivo escrito.
     for (const [palabra, motivo] of EXCEPCIONES) {
+      expect(motivo, `"${palabra}" sin motivo`).not.toBe("");
+    }
+  });
+
+  it("no usa palabras en inglés en ningún texto de la interfaz", () => {
+    const hallazgos: string[] = [];
+
+    for (const file of sourceFiles("src")) {
+      const lines = readFileSync(file, "utf8").split(/\r?\n/);
+      lines.forEach((line, i) => {
+        for (const cadena of uiStrings(line)) {
+          for (const palabra of anglicismosEn(cadena)) {
+            hallazgos.push(
+              `${file}:${i + 1}  ${palabra}  →  ${line.trim().slice(0, 80)}`
+            );
+          }
+        }
+      });
+    }
+
+    expect(hallazgos).toEqual([]);
+  });
+
+  it("encuentra el anglicismo en el texto y lo deja pasar en el código", () => {
+    // Lo que se lee en pantalla: cae, en singular y en plural, con mayúscula
+    // o sin ella.
+    expect(anglicismosEn("41% del chapter")).toEqual(["chapter"]);
+    expect(anglicismosEn("FTE DEL CHAPTER")).toEqual(["CHAPTER"]);
+    expect(anglicismosEn("los chapters de la organización")).toEqual([
+      "chapters",
+    ]);
+    // Lo que es código: campos del contrato, rutas de módulo, rutas de la API
+    // y valores de catálogo. Ninguno es texto de interfaz.
+    expect(anglicismosEn("chapterId chapterFte chapterTotal")).toEqual([]);
+    expect(anglicismosEn("@features/chapter-lead-shell/Breadcrumb")).toEqual(
+      []
+    );
+    expect(anglicismosEn("/chapter/capacity-overview")).toEqual([]);
+    expect(anglicismosEn("chapter-lead")).toEqual([]);
+  });
+
+  it("cada palabra prohibida dice con qué se reemplaza", () => {
+    for (const [palabra, motivo] of PALABRAS_EN_INGLES) {
       expect(motivo, `"${palabra}" sin motivo`).not.toBe("");
     }
   });

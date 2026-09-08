@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", system-ui, sans-serif; background: #FAFAFB; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 8px; }
+    .k { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+         text-transform: uppercase; color: #74747E; }
+    .sm { font-size: 13px; line-height: 20px; color: #55555E; }
+    .big { font-size: 28px; line-height: 34px; font-weight: 600; color: #26262C; }
+    .est { display: inline-flex; align-items: center; height: 22px; padding: 0 9px;
+           border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .barra { height: 26px; border-radius: 6px; display: flex; align-items: center;
+             padding: 0 10px; font-size: 13px; font-weight: 600; }
+    .nov { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #F4F4F5; }
+    .pt { width: 9px; height: 9px; border-radius: 999px; flex: none; margin-top: 6px; }
+  </style>
+</helmet>
+
+<div style="padding: 26px 28px; display: flex; flex-direction: column; gap: 18px">
+
+  <div>
+    <div style="font-size: 13px; color: #74747E; padding-bottom: 6px">Kafka Migration / Fase 3 · Cierre y calibración</div>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <div style="font-size: 24px; line-height: 30px; font-weight: 600; color: #26262C">Qué costó de verdad</div>
+      <span class="est" style="background: #F4F4F5; color: #55555E">Cerrada el 9 abr 2026</span>
+    </div>
+  </div>
+
+  <!-- Las tres respuestas del cierre, cada una comparada contra lo estimado -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+
+    <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+      <div class="k">Esfuerzo</div>
+      <div style="display: flex; align-items: baseline; gap: 8px">
+        <div class="big">7.9</div><div class="sm">PM reales</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 7px">
+        <div class="barra" style="background: #EDE9FE; color: #5B21B6; width: 58%">M · 4.5 PM</div>
+        <div class="barra" style="background: #DBEAFE; color: #1E40AF; width: 80%">L · 6.4 PM</div>
+        <div class="barra" style="background: #26262C; color: #fff; width: 98%">Real · 7.9 PM</div>
+      </div>
+      <div class="sm" style="border-top: 1px solid #E3E3E6; padding-top: 10px">
+        <b style="color: #6E4B00">+23 %</b> sobre el backlog, <b style="color: #700C13">+76 %</b> sobre la temprana.
+      </div>
+    </div>
+
+    <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+      <div class="k">Plazo</div>
+      <div style="display: flex; align-items: baseline; gap: 8px">
+        <div class="big" style="color: #700C13">+9</div><div class="sm">días sobre lo acordado</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 7px">
+        <div class="sm">Acordado 31 mar · cerró 9 abr</div>
+        <div style="height: 10px; border-radius: 999px; background: #F4F4F5; overflow: hidden; display: flex">
+          <div style="width: 78%; background: #116B4B"></div>
+          <div style="width: 22%; background: #8E0F18"></div>
+        </div>
+      </div>
+      <div class="sm" style="border-top: 1px solid #E3E3E6; padding-top: 10px">
+        Dos de las tres novedades explican el desvío.
+      </div>
+    </div>
+
+    <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+      <div class="k">Talla que correspondía</div>
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div style="display: inline-flex; align-items: center; justify-content: center; height: 34px; min-width: 44px;
+                    padding: 0 12px; border-radius: 6px; background: #DBEAFE; color: #1E40AF; font-size: 18px; font-weight: 700">L</div>
+        <div class="sm">7.9 PM cae dentro de L (6 – 10 PM)</div>
+      </div>
+      <div class="sm" style="border-top: 1px solid #E3E3E6; padding-top: 10px">
+        La estimación por backlog acertó la talla; la temprana se quedó corta. Eso es lo que el modelo aprende.
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start">
+
+    <!-- Dedicación por capacidad: lo pedido contra lo que de verdad se usó -->
+    <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 14px">
+      <div class="k">Dedicación por capacidad</div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <div>
+          <div style="display: flex; align-items: baseline; gap: 8px; padding-bottom: 6px">
+            <div style="font-size: 14px; font-weight: 600; color: #26262C">Backend Dev</div>
+            <div class="sm" style="margin-left: auto">5 previstos · <b style="color: #26262C">5.6 usados</b></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="height: 12px; border-radius: 4px; background: #93C5FD; width: 62%"></div>
+            <div style="height: 12px; border-radius: 4px; background: #2563EB; width: 70%"></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; align-items: baseline; gap: 8px; padding-bottom: 6px">
+            <div style="font-size: 14px; font-weight: 600; color: #26262C">QA Engineer</div>
+            <div class="sm" style="margin-left: auto">2 previstos · <b style="color: #700C13">3.4 usados</b></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="height: 12px; border-radius: 4px; background: #93C5FD; width: 25%"></div>
+            <div style="height: 12px; border-radius: 4px; background: #2563EB; width: 43%"></div>
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; align-items: baseline; gap: 8px; padding-bottom: 6px">
+            <div style="font-size: 14px; font-weight: 600; color: #26262C">Arquitecto</div>
+            <div class="sm" style="margin-left: auto">1 previsto · <b style="color: #26262C">0.6 usado</b></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="height: 12px; border-radius: 4px; background: #93C5FD; width: 13%"></div>
+            <div style="height: 12px; border-radius: 4px; background: #2563EB; width: 8%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 16px; border-top: 1px solid #E3E3E6; padding-top: 10px">
+        <div style="display: flex; align-items: center; gap: 7px" class="sm">
+          <span style="width: 12px; height: 12px; border-radius: 3px; background: #93C5FD"></span>Previsto por el mix
+        </div>
+        <div style="display: flex; align-items: center; gap: 7px" class="sm">
+          <span style="width: 12px; height: 12px; border-radius: 3px; background: #2563EB"></span>Real
+        </div>
+      </div>
+      <div class="sm" style="color: #6E4B00">QA se llevó casi el doble de lo previsto: es el hallazgo de esta iniciativa.</div>
+    </div>
+
+    <!-- Novedades: lo que explica los desvíos -->
+    <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div class="k" style="padding: 0">Novedades</div>
+        <div style="margin-left: auto; height: 30px; padding: 0 12px; border-radius: 8px; border: 1px solid #E3E3E6;
+                    background: #fff; font-size: 13px; font-weight: 600; color: #26262C; display: flex; align-items: center; gap: 7px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#55555E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          Registrar
+        </div>
+      </div>
+
+      <div class="nov" style="border-top: none">
+        <span class="pt" style="background: #8E0F18"></span>
+        <div>
+          <div style="font-size: 14px; font-weight: 600; color: #26262C">Ambiente de pruebas caído 6 días</div>
+          <div class="sm">18 feb · Afectó el plazo · Tomás Giraldo</div>
+        </div>
+      </div>
+      <div class="nov">
+        <span class="pt" style="background: #8E0F18"></span>
+        <div>
+          <div style="font-size: 14px; font-weight: 600; color: #26262C">Alcance nuevo: convivencia con el bus viejo</div>
+          <div class="sm">3 mar · Afectó el plazo y el esfuerzo · Camila Restrepo</div>
+        </div>
+      </div>
+      <div class="nov">
+        <span class="pt" style="background: #B57A00"></span>
+        <div>
+          <div style="font-size: 14px; font-weight: 600; color: #26262C">Rotación: se fue un backend a mitad</div>
+          <div class="sm">21 mar · Afectó el esfuerzo · Tomás Giraldo</div>
+        </div>
+      </div>
+
+      <div class="sm" style="color: #74747E; border-top: 1px solid #E3E3E6; padding-top: 10px; margin-top: 4px">
+        Cada novedad dice a qué afectó. Sin eso, un desvío del 23 % queda como culpa de la estimación.
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

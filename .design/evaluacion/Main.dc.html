@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", system-ui, sans-serif; background: #FAFAFB; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 8px; }
+    .k { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+         text-transform: uppercase; color: #74747E; }
+    .sm { font-size: 13px; line-height: 20px; color: #55555E; }
+    .big { font-size: 30px; line-height: 36px; font-weight: 600; color: #26262C; }
+    .est { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px;
+           border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .ok   { background: #E7F3EC; color: #0D5239; }
+    .curso{ background: #FBF2DE; color: #6E4B00; }
+    .bloq { background: #F4F4F5; color: #55555E; }
+    .talla { display: inline-flex; align-items: center; justify-content: center; height: 26px;
+             min-width: 34px; padding: 0 9px; border-radius: 6px; background: #EDE9FE;
+             color: #5B21B6; font-size: 14px; font-weight: 700; }
+  </style>
+</helmet>
+
+<div style="padding: 26px 28px; display: flex; flex-direction: column; gap: 20px">
+
+  <div>
+    <div style="font-size: 13px; color: #74747E; padding-bottom: 6px">Gestión de Capacidad / Iniciativas / Kafka Migration</div>
+    <div style="display: flex; align-items: center; gap: 12px">
+      <div style="font-size: 26px; line-height: 32px; font-weight: 600; color: #26262C">Kafka Migration</div>
+      <span class="est curso">Activa</span>
+      <div class="sm">Backend Platform · plazo 31 mar 2026</div>
+    </div>
+  </div>
+
+  <!-- La espina del diseño: tres fases, cada una con lo que produce -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+
+    <div class="card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div style="width: 26px; height: 26px; border-radius: 999px; background: #116B4B; color: #fff;
+                    font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">1</div>
+        <div style="font-size: 15px; font-weight: 600; color: #26262C">Evaluación temprana</div>
+        <span class="est ok" style="margin-left: auto">Cerrada</span>
+      </div>
+      <div class="sm">Tamizaje y 7 dimensiones. Es una apuesta con lo que se sabe antes de existir el backlog.</div>
+      <div style="display: flex; align-items: center; gap: 12px; padding-top: 2px">
+        <span class="talla">M</span>
+        <div>
+          <div style="font-size: 15px; font-weight: 600; color: #26262C">3.0 – 6.0 PM</div>
+          <div class="sm">2.5 – 3.5 FTE · Iniciativa media</div>
+        </div>
+      </div>
+      <div class="sm" style="color: #74747E; border-top: 1px solid #E3E3E6; padding-top: 10px">
+        Cerrada el 12 ene por Tomás Giraldo · versión 4 del modelo
+      </div>
+    </div>
+
+    <div class="card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; border-color: #B57A00">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div style="width: 26px; height: 26px; border-radius: 999px; background: #B57A00; color: #fff;
+                    font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">2</div>
+        <div style="font-size: 15px; font-weight: 600; color: #26262C">Estimación por backlog</div>
+        <span class="est curso" style="margin-left: auto">En curso</span>
+      </div>
+      <div class="sm">Ya no se estima de memoria: se lee el backlog real de la épica en Azure DevOps.</div>
+      <div style="display: flex; align-items: center; gap: 12px; padding-top: 2px">
+        <span class="talla" style="background: #DBEAFE; color: #1E40AF">L</span>
+        <div>
+          <div style="font-size: 15px; font-weight: 600; color: #26262C">6.4 PM estimados</div>
+          <div class="sm">248 puntos · 34 historias</div>
+        </div>
+      </div>
+      <div style="border-top: 1px solid #E3E3E6; padding-top: 10px; display: flex; align-items: center; gap: 8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E4B00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <div class="sm" style="color: #6E4B00">El backlog dice L, la evaluación temprana dijo M</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; background: #FCFCFD">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div style="width: 26px; height: 26px; border-radius: 999px; background: #E3E3E6; color: #74747E;
+                    font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center">3</div>
+        <div style="font-size: 15px; font-weight: 600; color: #55555E">Cierre y calibración</div>
+        <span class="est bloq" style="margin-left: auto">Al cerrar</span>
+      </div>
+      <div class="sm">Qué costó de verdad: FTE consumido, dedicación por capacidad, plazo y novedades.</div>
+      <div class="sm" style="color: #74747E; border-top: 1px solid #E3E3E6; padding-top: 10px; margin-top: auto">
+        Se habilita cuando la iniciativa pasa a Cerrada. Es lo que alimenta la calibración del modelo.
+      </div>
+    </div>
+  </div>
+
+  <!-- Lo que la secuencia hace posible: ver cómo se movió la estimación -->
+  <div class="card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px">
+    <div class="k">Cómo se movió la estimación</div>
+    <div style="display: flex; align-items: flex-end; gap: 0">
+
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 8px">
+        <div class="sm" style="font-weight: 600; color: #26262C">Temprana · M</div>
+        <div style="height: 30px; background: #EDE9FE; border-radius: 6px; width: 52%; display: flex;
+                    align-items: center; padding: 0 10px; font-size: 13px; font-weight: 600; color: #5B21B6">3.0 – 6.0 PM</div>
+      </div>
+
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 8px">
+        <div class="sm" style="font-weight: 600; color: #26262C">Por backlog · L</div>
+        <div style="height: 30px; background: #DBEAFE; border-radius: 6px; width: 74%; display: flex;
+                    align-items: center; padding: 0 10px; font-size: 13px; font-weight: 600; color: #1E40AF">6.0 – 10.0 PM</div>
+      </div>
+
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 8px">
+        <div class="sm" style="font-weight: 600; color: #74747E">Real · al cerrar</div>
+        <div style="height: 30px; border: 1px dashed #E3E3E6; border-radius: 6px; width: 74%; display: flex;
+                    align-items: center; padding: 0 10px; font-size: 13px; color: #74747E">Sin datos todavía</div>
+      </div>
+
+    </div>
+    <div class="sm" style="color: #74747E; border-top: 1px solid #E3E3E6; padding-top: 10px">
+      Las tres cifras conviven: ninguna reemplaza a la anterior. Esa distancia es la calibración.
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

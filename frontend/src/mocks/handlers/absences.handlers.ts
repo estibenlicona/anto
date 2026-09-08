@@ -18,8 +18,8 @@ import {
 // personas (FTE disponible, proveedor) y de sus asignaciones (dedicación por
 // célula), no se digitan. Lectura en un solo sentido, como dedication.handlers.
 import { getCompaniesSnapshot, getPeopleSnapshot } from "./people.handlers";
+import { scopePeople } from "./chapters";
 import { getAllocationsSnapshot } from "./allocations.handlers";
-import { vistaDe } from "./scope";
 
 /** Lo que el mock persiste: la ausencia en sí. Todo lo demás se deriva al responder. */
 interface StoredAbsence {
@@ -337,11 +337,14 @@ export const absencesHandlers = [
         { status: 400 }
       );
     }
-    // Sólo las ausencias de la gente a cargo de quien pide: el calendario y
-    // la cola de "por aprobar" son su trabajo, no el de todo el sistema.
-    const { ve } = vistaDe(request);
+    // Con `?scope=mine` sólo las de los colaboradores del titular; sin el
+    // parámetro, todas. Se filtran las dos puntas: las personas visibles y las
+    // ausencias indexadas por ellas.
+    const visibles = new Set(
+      scopePeople(request, getPeopleSnapshot()).map((p) => p.id)
+    );
     const items = absences
-      .filter((a) => ve(a.personId))
+      .filter((a) => visibles.has(a.personId))
       .filter((a) => {
         const start = parseIsoDate(a.startDate)!;
         const end = parseIsoDate(a.endDate)!;

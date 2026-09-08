@@ -102,7 +102,7 @@ export const PersonProfilePanel: React.FC<PersonProfilePanelProps> = ({
         detail.chapterLeadName === person.name ? (
           <>
             {person.name}
-            <span className={SECONDARY_TEXT}>· lidera este chapter</span>
+            <span className={SECONDARY_TEXT}>· es quien lidera</span>
           </>
         ) : (
           detail.chapterLeadName

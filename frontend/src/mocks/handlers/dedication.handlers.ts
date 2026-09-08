@@ -49,9 +49,9 @@ import { getApprovedAbsencesInRange } from "./absences.handlers";
 import { getAllocationsSnapshot } from "./allocations.handlers";
 import { getInitiativesSnapshot } from "./initiatives.handlers";
 import { getPeopleSnapshot } from "./people.handlers";
+import { scopePeople } from "./chapters";
 import { getDevOpsIdentitiesSnapshot } from "./personDetail.handlers";
 import { DEVOPS_USERS } from "./personDetail.seeds";
-import { vistaDe } from "./scope";
 import { getDedicationSettings } from "./sprint-config.handlers";
 import { getSquadsSnapshot } from "./squads.handlers";
 import {
@@ -823,14 +823,16 @@ export const dedicationHandlers = [
       Number(url.searchParams.get("page")) || null,
       Number(url.searchParams.get("pageSize")) || null
     );
-    const people = vistaDe(request).people;
+    // Con `?scope=mine`, sólo los colaboradores del titular. El resumen por
+    // señal se calcula sobre ese mismo conjunto, no sobre todos.
+    const people = scopePeople(request, getPeopleSnapshot());
     // Todo el listado habla de un solo sprint: el pedido, o el en curso.
     const { name: sprintName, names } = resolveListSprint(
       people,
       url.searchParams.get("sprint")
     );
     const rows = people.map((p) => rowOf(p, sprintName)).sort(compareRows);
-    // El resumen describe el sprint elegido sobre la gente a cargo, no el filtro.
+    // El resumen describe el sprint elegido sobre todo el conjunto, no el filtro.
     const summary = summaryOf(rows);
     const filtered = rows.filter((row) =>
       matches(row, {
@@ -850,9 +852,8 @@ export const dedicationHandlers = [
 
   http.get(COLLABORATOR_URL, ({ request, params }) => {
     const personId = String(params.personId);
-    const { people, ve } = vistaDe(request);
-    const person = people.find((p) => p.id === personId);
-    if (!person || !ve(personId)) return notFound();
+    const person = getPeopleSnapshot().find((p) => p.id === personId);
+    if (!person) return notFound();
     const sprint = new URL(request.url).searchParams.get("sprint");
     return HttpResponse.json(detailOf(person, sprint));
   }),
@@ -866,11 +867,10 @@ export const dedicationHandlers = [
     return HttpResponse.json({ lastSyncedAt });
   }),
 
-  http.post(`${COLLABORATOR_URL}/sync`, async ({ request, params }) => {
+  http.post(`${COLLABORATOR_URL}/sync`, async ({ params }) => {
     const personId = String(params.personId);
-    const { people, ve } = vistaDe(request);
-    const person = people.find((p) => p.id === personId);
-    if (!person || !ve(personId)) return notFound();
+    const person = getPeopleSnapshot().find((p) => p.id === personId);
+    if (!person) return notFound();
     if (!getDevOpsIdentitiesSnapshot().some((i) => i.personId === personId)) {
       return HttpResponse.json(
         { message: "Esa persona no tiene identidad DevOps vinculada" },

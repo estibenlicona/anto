@@ -1,0 +1,31 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1160, "h": 720, "title": "El menú reagrupado, y la pantalla de siempre" },
+    { "file": "PorRol.dc.html", "x": 1280, "y": 0, "w": 900, "h": 660, "title": "El mismo menú, tres alcances" },
+    { "file": "Nombres.dc.html", "x": 0, "y": 860, "w": 1160, "h": 620, "title": "Cómo llamar al grupo" }
+  ],
+  "annotations": [
+    {
+      "id": "el-cambio",
+      "x": 0,
+      "y": -210,
+      "w": 700,
+      "text": "LO QUE CAMBIA\n\nNingún módulo nuevo y ninguna pantalla nueva. El menú se reagrupa: arriba, los módulos que hablan de tus colaboradores, acotados a los tuyos; abajo, la estructura de la organización, que consultás sin gestionarla.\n\nComo gestionás colaboradores y no células, cada módulo aparece UNA sola vez. No hay \"Personas\" y \"Mis personas\" compitiendo: hay Colaboradores, y el grupo dice de quiénes."
+    },
+    {
+      "id": "reparto",
+      "x": 740,
+      "y": -210,
+      "w": 540,
+      "text": "EL REPARTO\n\nA cargo — Colaboradores, Ausencias, Dedicación, Competencias, Facturación. Todo lo que es gente.\n\nOrganización — Iniciativas, Equipos, Células. Estructura y demanda: las mirás para saber dónde está tu gente, no para gestionarlas.\n\nSi alguno de estos cinco no es tuyo, se mueve; el criterio es \"¿lo gestiono yo?\"."
+    },
+    {
+      "id": "pendiente",
+      "x": 1340,
+      "y": 720,
+      "w": 840,
+      "text": "PARA DECIDIR\n\n1. El nombre del grupo: cuatro candidatos abajo a la izquierda. Ninguno empieza por \"Mi\".\n\n2. ¿\"Colaboradores\" reemplaza a \"Personas\" como nombre del módulo? Vos hablás de colaboradores; la app dice Personas. Vale la pena unificarlo.\n\n3. El administrador no tiene gente a cargo: le desaparece el grupo y todo queda en Organización. ¿Te sirve así?\n\n4. Falta definir qué pasa con Inicio, que hoy es la Torre de control y muestra cifras de toda la organización."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

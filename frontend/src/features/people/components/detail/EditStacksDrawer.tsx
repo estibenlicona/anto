@@ -121,7 +121,7 @@ export const EditStacksDrawer: React.FC<EditStacksDrawerProps> = ({
           <FormSection icon="plus" title="Agregar" first>
             <Combobox
               multiple
-              label="Del catálogo del chapter"
+              label="Del catálogo"
               options={catalog.map((name) => ({ value: name, label: name }))}
               value={names}
               onValueChange={setSelection}
@@ -196,7 +196,7 @@ export const EditStacksDrawer: React.FC<EditStacksDrawerProps> = ({
             {uncovered.length > 0 && (
               <Alert
                 variant="warning"
-                title="El chapter quedaría sin cobertura"
+                title="Nadie quedaría cubriendo este stack"
               >
                 Nadie más cubre {uncovered.join(", ")}. Se puede guardar igual,
                 pero quedará como stack sin nadie.

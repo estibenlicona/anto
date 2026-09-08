@@ -48,11 +48,14 @@ describe("GET /people/:id/detail", () => {
       transformationPercentage: 30,
       requiredLevel: 3,
     });
-    // Compañeros de célula: los de su chapter. Andrés e Isabella también están
-    // asignados a Backend Platform, pero son de Canales Digitales y nombrarlos
-    // acá sería mostrarle a un lead gente que no tiene a cargo — la misma
-    // fuga, por otra puerta, que el acotado del listado cierra.
-    expect(d.allocation!.teammates).toEqual(["Carlos López"]);
+    // Compañeros de célula: todos los asignados a Backend Platform, sin
+    // recortar por a qué chapter pertenece cada uno. Andrés e Isabella son de
+    // Canales Digitales y aparecen igual, porque comparten la célula.
+    expect(d.allocation!.teammates).toEqual([
+      "Carlos López",
+      "Andrés Martínez",
+      "Isabella Moreno",
+    ]);
     expect(d.allocation!.teammates).not.toContain("María González");
     // La identidad trae la señal del sprint en curso que calcula el mock de
     // balance de carga: 18 SP contra sus 22 habituales, con 0.80 FTE

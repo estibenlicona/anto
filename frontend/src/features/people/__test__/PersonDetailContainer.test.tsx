@@ -174,7 +174,7 @@ describe("PersonDetailContainer", () => {
       )!;
     fireEvent.click(within(row).getByRole("button", { name: "Quitar AS400" }));
     expect(
-      screen.getByText("El chapter quedaría sin cobertura")
+      screen.getByText("Nadie quedaría cubriendo este stack")
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
     await waitFor(() =>

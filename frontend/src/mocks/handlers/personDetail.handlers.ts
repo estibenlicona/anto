@@ -83,18 +83,12 @@ export function computePersonDetail(personId: string): PersonDetailDto | null {
   const person = todas.find((p) => p.id === personId);
   if (!person) return null;
   const chapter = findChapter(person.chapterId);
-  // La ficha se cuenta dentro del chapter de la persona —no del de quien
-  // mira—: quiénes son sus compañeros de célula, quién más cubre sus stacks y
-  // qué células podrían recibirla son propiedades de ella, y tienen que decir
-  // lo mismo la abra quien la abra. Como sólo la ve el lead que la tiene a
-  // cargo, en la práctica es el mismo conjunto.
-  const people = chapter
-    ? todas.filter((p) => p.chapterId === chapter.id)
-    : todas;
-  const visibles = new Set(people.map((p) => p.id));
-  const allocations = getAllocationsSnapshot().filter((a) =>
-    visibles.has(a.personId)
-  );
+  // Todo lo registrado: quiénes son sus compañeros de célula, quién más cubre
+  // sus stacks y qué células podrían recibirla son propiedades de la persona,
+  // y se leen sobre el conjunto completo. El chapter se sigue resolviendo
+  // porque la ficha lo muestra, pero ya no recorta nada.
+  const people = todas;
+  const allocations = getAllocationsSnapshot();
   const squads = getSquadsSnapshot();
 
   const own = allocations.find((a) => a.personId === person.id);

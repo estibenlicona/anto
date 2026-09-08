@@ -1,0 +1,330 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h2 { font-size: 18px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 12px 16px; }
+    .frame { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px; overflow: hidden;
+             display: flex; flex-direction: column; }
+    .fhead { border-bottom: 1px solid #E3E3E6; padding: 16px 20px; display: flex;
+             align-items: flex-end; justify-content: space-between; gap: 16px; }
+    .ffoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 14px 20px;
+             display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-purple { background: #EFEAFB; color: #3D2894; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-ok { background: #E7F3EC; color: #0D5239; } .b-ok .dot { background: #116B4B; }
+
+    .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+            font-size: 14px; line-height: 22px; border: 1px solid #E3E3E6; background: #FFFFFF; color: #26262C; }
+    .chip .n { font-variant-numeric: tabular-nums; color: #74747E; }
+    .chip-on { border-color: #26262C; background: #26262C; color: #FFFFFF; }
+    .chip-on .n { color: #FFFFFF; }
+
+    .seg { display: inline-flex; border: 1px solid #E3E3E6; border-radius: 8px; overflow: hidden; }
+    .seg > span { padding: 6px 14px; font-size: 14px; line-height: 22px; font-weight: 500; color: #26262C; }
+    .seg > span.on { background: #26262C; color: #FFFFFF; }
+
+    .inp { display: inline-flex; align-items: stretch; border: 1px solid #E3E3E6; border-radius: 8px;
+           background: #FFFFFF; overflow: hidden; }
+    .inp input, .inp .val { border: 0; padding: 8px 12px; font: inherit; font-size: 14px; line-height: 22px;
+             color: #26262C; width: 72px; font-variant-numeric: tabular-nums; }
+    .inp .adorn { display: flex; align-items: center; padding: 0 12px; background: #F4F4F5;
+                  border-left: 1px solid #E3E3E6; font-size: 14px; color: #74747E; }
+
+    .q { border-bottom: 1px solid #E3E3E6; padding: 16px 20px; display: flex;
+         flex-direction: column; gap: 10px; }
+    .q:last-child { border-bottom: 0; }
+    /* La derivación: respuesta → valor normalizado → driver → salidas. Es lo
+       que hace auditable el cálculo (CA02) y hoy no se ve en ningún lado. */
+    .deriv { display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+             background: #FAFAFB; border-radius: 8px; padding: 8px 12px;
+             font-size: 12px; line-height: 16px; color: #55555E; }
+    .deriv b { font-weight: 600; color: #26262C; }
+    .deriv .arrow { color: #C9C9CE; }
+    .out { display: inline-flex; align-items: center; gap: 4px; border-radius: 4px;
+           padding: 1px 6px; font-size: 12px; line-height: 16px; font-weight: 600; }
+    .o-size { background: #E8F0FC; color: #154A96; }
+    .o-eff  { background: #EFEAFB; color: #3D2894; }
+    .o-risk { background: #FBF2DE; color: #6E4B00; }
+    .o-off  { background: #F4F4F5; color: #A0A0A8; }
+
+    .tramos { display: flex; gap: 3px; }
+    .tramos > span { flex: 1; text-align: center; padding: 4px 0; border-radius: 4px;
+                     background: #F4F4F5; color: #74747E; font-size: 12px; line-height: 16px; font-weight: 600; }
+    .tramos > span.on { background: #26262C; color: #FFFFFF; }
+
+    .bar { height: 6px; border-radius: 8px; background: #F4F4F5; overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 8px; }
+    .stepbtn { display: grid; grid-template-columns: 24px minmax(0,1fr) auto; align-items: center;
+               gap: 10px; border-radius: 8px; padding: 8px 10px; font-size: 14px; line-height: 22px; }
+    .pill { display: inline-flex; height: 24px; width: 24px; align-items: center; justify-content: center;
+            border-radius: 9999px; border: 1px solid #E3E3E6; font-size: 12px; font-weight: 600; color: #74747E; }
+    .pill-done { border-color: #26262C; background: #26262C; color: #FFFFFF; }
+    .pill-now { border-color: #ED1C29; color: #C9151F; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Iniciativas <span style="color:#C9C9CE">/</span> Kafka Migration <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Fase 1 · Estimación temprana</span></div>
+
+  <!-- Cabecera viva: el resultado provisional siempre a la vista, y el plazo,
+       que es lo único que se cambia sin responder nada. -->
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 class="h1" style="margin: 0">Kafka Migration</h1>
+        <span class="badge b-ok"><span class="dot"></span>Activa</span>
+        <span class="tag t-gray mono" style="min-width:0">Paramétrico v1.4 · vigente</span>
+      </div>
+      <p class="sm" style="margin: 0">Backend Platform · Product Owner: Paola Henao</p>
+    </div>
+
+    <div class="card">
+      <div class="cbody" style="display: flex; align-items: center; gap: 20px; padding-top: 10px; padding-bottom: 10px">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;
+                    border-right: 1px solid #E3E3E6; padding-right: 20px">
+          <span class="lbl">Talla</span>
+          <span class="tag t-amber" style="font-weight:700">L</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span class="lbl">Score</span>
+          <span class="num" style="font-size:18px;line-height:26px;font-weight:600">68,4</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span class="lbl">Esfuerzo</span>
+          <span class="num" style="font-size:18px;line-height:26px;font-weight:600">8,0 <span class="sm" style="font-weight:500">PM</span></span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span class="lbl">FTE</span>
+          <span class="num" style="font-size:18px;line-height:26px;font-weight:600">1,33</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <span class="lbl">Confianza</span>
+          <span style="font-size:18px;line-height:26px;font-weight:600;color:#6E4B00">Media</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px;
+                    border-left: 1px solid #E3E3E6; padding-left: 20px">
+          <span class="lbl">Plazo objetivo</span>
+          <span class="seg">
+            <span>3 m</span><span class="on">6 m</span><span>9 m</span><span>12 m</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 288px minmax(0, 1fr); gap: 16px; align-items: start">
+
+    <!-- Pasos. Igual que hoy, más el paso de Datos/seguridad que ya existe en
+         el pool pero no estaba en la lista de dimensiones del motor. -->
+    <div class="card" style="overflow: hidden">
+      <div style="display: flex; align-items: center; justify-content: space-between;
+                  border-bottom: 1px solid #E3E3E6; padding: 12px 16px">
+        <h2 class="h3" style="margin:0">Evaluación</h2>
+        <span class="note num">26 de 30</span>
+      </div>
+      <ol style="display: flex; flex-direction: column; gap: 2px; padding: 8px; margin: 0; list-style: none">
+        <li><div class="stepbtn"><span class="pill pill-done">T</span><span>Tamizaje</span><span class="note mono">6/6</span></div></li>
+        <li><div class="stepbtn" style="background:#FAFAFB; font-weight:600"><span class="pill pill-now">1</span><span>Negocio y cliente</span><span class="note mono">4/4</span></div></li>
+        <li><div class="stepbtn"><span class="pill pill-done">2</span><span>Alcance funcional</span><span class="note mono">4/4</span></div></li>
+        <li><div class="stepbtn"><span class="pill pill-done">3</span><span>Integraciones</span><span class="note mono">4/4</span></div></li>
+        <li><div class="stepbtn"><span class="pill pill-done">4</span><span>Datos y seguridad</span><span class="note mono">5/5</span></div></li>
+        <li><div class="stepbtn"><span class="pill pill-done">5</span><span>Tecnología y arquitectura</span><span class="note mono">5/5</span></div></li>
+        <li><div class="stepbtn"><span class="pill">6</span><span>Operación y soporte</span><span class="note mono">2/4</span></div></li>
+        <li><div class="stepbtn"><span class="pill">7</span><span>Incertidumbre</span><span class="note mono">2/4</span></div></li>
+        <li><div class="stepbtn"><span class="pill">R</span><span>Resultado</span><span class="note mono">—</span></div></li>
+      </ol>
+      <div style="border-top: 1px solid #E3E3E6; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <span class="sm">Score acumulado</span>
+          <span class="num smd" style="font-weight:600">68,4</span>
+        </div>
+        <span class="bar"><i style="width:68.4%; background:#116B4B"></i></span>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 4px">
+          <span class="sm">Confianza</span>
+          <span class="smd" style="font-weight:600; color:#6E4B00">Media · 62 %</span>
+        </div>
+        <span class="bar"><i style="width:62%; background:#B57A00"></i></span>
+        <p class="note" style="margin: 4px 0 0">
+          Cambiar el plazo no mueve la talla ni el esfuerzo: sólo el FTE necesario.
+        </p>
+      </div>
+    </div>
+
+    <!-- El paso. Cada pregunta declara su tipo, su driver y a qué salidas
+         aporta; debajo, la derivación de la respuesta dada. -->
+    <div class="frame">
+      <div class="fhead">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <h2 class="h2" style="margin: 0">Negocio y cliente</h2>
+          <p class="note" style="margin: 0">Dimensión 1 de 7 · las preguntas activas de la versión vigente</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px">
+          <span class="tag t-gray" style="min-width:0">4 preguntas</span>
+          <span class="tag t-gray" style="min-width:0">Aporta 11 % del score</span>
+        </div>
+      </div>
+
+      <!-- N1 · Binaria -->
+      <div class="q">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px">
+          <span class="smd"><span class="mono" style="color:#74747E; margin-right:8px">N1</span>¿Impacta directamente clientes, comercios aliados o canales digitales?</span>
+          <span style="display: flex; flex: none; gap: 6px">
+            <span class="tag t-blue" style="min-width:0">Binaria</span>
+            <span class="tag t-gray" style="min-width:0">Peso 2</span>
+          </span>
+        </div>
+        <span class="seg"><span>No</span><span class="on">Sí</span></span>
+        <div class="deriv">
+          <span>Sí</span><span class="arrow">→</span>
+          <b class="num">1,00</b><span class="arrow">→</span>
+          <span>driver <b>Exposición a cliente</b></span><span class="arrow">→</span>
+          <span class="out o-size">Tamaño ×2</span>
+          <span class="out o-risk">Riesgo ×1</span>
+          <span class="out o-off">Esfuerzo —</span>
+        </div>
+      </div>
+
+      <!-- N2 · Evaluativa. En el modelo de hoy esta pregunta es sí/no; con
+           niveles deja de castigar igual a "cartera" que a "core de pagos". -->
+      <div class="q">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px">
+          <span class="smd"><span class="mono" style="color:#74747E; margin-right:8px">N2</span>¿Qué tan crítica es la capacidad de negocio que soporta (originación, pagos, tarjetas, crédito, cartera, recaudo)?</span>
+          <span style="display: flex; flex: none; gap: 6px">
+            <span class="tag t-purple" style="min-width:0">Evaluativa</span>
+            <span class="tag t-gray" style="min-width:0">Peso 3</span>
+          </span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px">
+          <span class="chip">No crítica <span class="n">0</span></span>
+          <span class="chip">De soporte <span class="n">1</span></span>
+          <span class="chip">Relevante <span class="n">2</span></span>
+          <span class="chip chip-on">Crítica <span class="n">3</span></span>
+          <span class="chip">Core transaccional <span class="n">4</span></span>
+        </div>
+        <div class="deriv">
+          <span>Crítica</span><span class="arrow">→</span>
+          <b class="num">0,75</b><span class="arrow">→</span>
+          <span>driver <b>Criticidad de negocio</b></span><span class="arrow">→</span>
+          <span class="out o-size">Tamaño ×1</span>
+          <span class="out o-eff">Esfuerzo ×3</span>
+          <span class="out o-risk">Riesgo ×2</span>
+        </div>
+      </div>
+
+      <!-- N3 · Binaria que NO aporta a tamaño: el ejemplo de "reglas
+           independientes por salida" que pide la HU. -->
+      <div class="q">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px">
+          <span class="smd"><span class="mono" style="color:#74747E; margin-right:8px">N3</span>¿Tiene fecha comprometida por negocio, campaña, aliado, regulador o auditoría?</span>
+          <span style="display: flex; flex: none; gap: 6px">
+            <span class="tag t-blue" style="min-width:0">Binaria</span>
+            <span class="tag t-gray" style="min-width:0">Peso 2</span>
+          </span>
+        </div>
+        <span class="seg"><span>No</span><span class="on">Sí</span></span>
+        <div class="deriv">
+          <span>Sí</span><span class="arrow">→</span>
+          <b class="num">1,00</b><span class="arrow">→</span>
+          <span>driver <b>Compromiso externo</b></span><span class="arrow">→</span>
+          <span class="out o-off">Tamaño —</span>
+          <span class="out o-off">Esfuerzo —</span>
+          <span class="out o-risk">Riesgo ×2</span>
+          <span style="color:#74747E">— una fecha comprometida no agranda el alcance, baja la confianza</span>
+        </div>
+      </div>
+
+      <!-- N4 · Cuantitativa. Hoy se responde con cinco chips de rango; el
+           número real se pierde y la traza no puede reconstruirse. -->
+      <div class="q">
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px">
+          <span class="smd"><span class="mono" style="color:#74747E; margin-right:8px">N4</span>¿Cuántas áreas de negocio u operación deben coordinarse?</span>
+          <span style="display: flex; flex: none; gap: 6px">
+            <span class="tag t-green" style="min-width:0">Cuantitativa</span>
+            <span class="tag t-gray" style="min-width:0">Peso 1</span>
+          </span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px">
+          <span class="inp"><span class="val">4</span><span class="adorn">áreas</span></span>
+          <div style="flex: 1; max-width: 460px; display: flex; flex-direction: column; gap: 4px">
+            <div class="tramos">
+              <span>0</span><span>1</span><span>2</span><span class="on">3 – 4</span><span>5 o más</span>
+            </div>
+            <div class="note" style="display:flex; justify-content:space-between">
+              <span>0,00</span><span>1,00</span>
+            </div>
+          </div>
+        </div>
+        <div class="deriv">
+          <span><b class="num">4</b> áreas</span><span class="arrow">→</span>
+          <span>tramo <b>3 – 4</b></span><span class="arrow">→</span>
+          <b class="num">0,75</b><span class="arrow">→</span>
+          <span>driver <b>Coordinación organizacional</b></span><span class="arrow">→</span>
+          <span class="out o-size">Tamaño ×1</span>
+          <span class="out o-eff">Esfuerzo ×1</span>
+        </div>
+      </div>
+
+      <div class="ffoot">
+        <span class="note">4 de 4 respondidas · esta dimensión suma 28,0 de 32,0 puntos posibles</span>
+        <div style="display: flex; gap: 8px">
+          <span class="btn btn-s">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+            Tamizaje
+          </span>
+          <span class="btn btn-p">
+            Alcance funcional
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

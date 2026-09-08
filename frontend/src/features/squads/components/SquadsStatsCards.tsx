@@ -84,7 +84,7 @@ export const SquadsStatsCards: React.FC<SquadsStatsCardsProps> = ({
         title="CAPACIDAD ASIGNADA"
         headline={{
           value: fte(stats.allocatedFte),
-          note: `de ${fte(stats.chapterFte)} FTE · ${assignedPct}% del chapter`,
+          note: `de ${fte(stats.chapterFte)} FTE · ${assignedPct}%`,
         }}
         legend="inline"
         items={[

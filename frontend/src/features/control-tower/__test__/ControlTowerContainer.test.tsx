@@ -75,7 +75,9 @@ describe("ControlTowerContainer", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "Torre de control" })
     ).toBeInTheDocument();
-    expect(await screen.findByText("FTE DEL CHAPTER")).toBeInTheDocument();
+    expect(
+      await screen.findByText("FTE", { selector: "span.text-label" })
+    ).toBeInTheDocument();
     expect(screen.getByText("PERSONAS CON MARGEN")).toBeInTheDocument();
     expect(screen.getByText("Personas con margen")).toBeInTheDocument();
     expect(screen.getByText("Ocupación por célula")).toBeInTheDocument();

@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", system-ui, sans-serif; background: #FAFAFB; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 8px; }
+    .k { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+         text-transform: uppercase; color: #74747E; }
+    .sm { font-size: 13px; line-height: 20px; color: #55555E; }
+    .req { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-top: 1px solid #F4F4F5; }
+    .mark { width: 22px; height: 22px; border-radius: 999px; flex: none; display: flex;
+            align-items: center; justify-content: center; }
+  </style>
+</helmet>
+
+<div style="padding: 26px 28px; display: flex; flex-direction: column; gap: 18px">
+
+  <div>
+    <div style="font-size: 13px; color: #74747E; padding-bottom: 6px">Kafka Migration / Fase 2 · Estimación por backlog</div>
+    <div style="font-size: 24px; line-height: 30px; font-weight: 600; color: #26262C">Todavía no se puede estimar por backlog</div>
+    <div class="sm" style="padding-top: 4px">Esta fase lee el backlog real, así que necesita que exista y que sepamos dónde está.</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; align-items: start">
+
+    <div class="card" style="padding: 16px 18px">
+      <div class="k" style="padding-bottom: 4px">Lo que falta</div>
+
+      <div class="req" style="border-top: none">
+        <span class="mark" style="background: #E7F3EC">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0D5239" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        <div>
+          <div style="font-size: 14px; font-weight: 600; color: #26262C">Evaluación temprana cerrada</div>
+          <div class="sm">Talla M · cerrada el 12 ene por Tomás Giraldo</div>
+        </div>
+      </div>
+
+      <div class="req">
+        <span class="mark" style="background: #FBE9EA">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#700C13" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </span>
+        <div style="flex: 1">
+          <div style="font-size: 14px; font-weight: 600; color: #26262C">Épica de Azure DevOps vinculada</div>
+          <div class="sm">Sin esto no hay backlog que leer. Lo vincula el líder técnico de la célula.</div>
+          <div style="display: flex; gap: 8px; padding-top: 10px">
+            <div style="flex: 1; height: 34px; border: 1px solid #E3E3E6; border-radius: 8px; background: #fff;
+                        display: flex; align-items: center; padding: 0 11px; font-size: 13px; color: #74747E">
+              Buscar la épica por título o por id…
+            </div>
+            <div style="height: 34px; padding: 0 14px; border-radius: 8px; background: #C9151F; color: #fff;
+                        font-size: 13px; font-weight: 600; display: flex; align-items: center">Vincular</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="req">
+        <span class="mark" style="background: #FBF2DE">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6E4B00" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+        </span>
+        <div>
+          <div style="font-size: 14px; font-weight: 600; color: #26262C">Arquitectura definida</div>
+          <div class="sm">La marca el líder técnico. Sin ella el backlog todavía se mueve y estimarlo es estimar humo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 10px">
+        <div class="k">Mientras tanto</div>
+        <div class="sm">La iniciativa sigue con la talla de la evaluación temprana, y así viaja a la Torre de control y al listado de Células.</div>
+        <div style="display: flex; align-items: center; gap: 12px; border-top: 1px solid #E3E3E6; padding-top: 12px">
+          <div style="display: inline-flex; align-items: center; justify-content: center; height: 30px; min-width: 40px;
+                      padding: 0 11px; border-radius: 6px; background: #EDE9FE; color: #5B21B6; font-size: 16px; font-weight: 700">M</div>
+          <div>
+            <div style="font-size: 15px; font-weight: 600; color: #26262C">3.0 – 6.0 PM</div>
+            <div class="sm">2.5 – 3.5 FTE</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+        <div class="k">Por qué se bloquea y no se deja pasar</div>
+        <div class="sm">Una estimación por backlog sobre un backlog a medias da un número peor que no tenerlo: parece medido, y no lo está. Bloquear es lo honesto.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

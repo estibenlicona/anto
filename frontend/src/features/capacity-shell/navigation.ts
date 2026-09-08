@@ -39,6 +39,14 @@ export const CAPACITY_HOME_ID = "cap-home";
  * guard niega.
  */
 export const CAPACITY_SECTION_PERMISSION = {
+  // "Mi Línea": las mismas pantallas de gente, acotadas a los colaboradores de
+  // quien mira. Exigen el mismo permiso que su gemela sin acotar — el permiso
+  // dice a qué pantalla se entra, no con qué alcance.
+  "mi-linea-colaboradores": LEAD_SECTION_PERMISSION["lead-personas"],
+  "mi-linea-ausencias": LEAD_SECTION_PERMISSION["lead-ausencias"],
+  "mi-linea-dedicacion": LEAD_SECTION_PERMISSION["lead-dedicacion"],
+  "mi-linea-competencias": LEAD_SECTION_PERMISSION["lead-competencias"],
+  "mi-linea-facturacion": LEAD_SECTION_PERMISSION["lead-facturacion"],
   "lead-iniciativas": LEAD_SECTION_PERMISSION["lead-iniciativas"],
   // Literal y no `LEAD_SECTION_PERMISSION`: Equipos nació después de que los
   // dos shells se fusionaran, así que no tiene id heredado de ninguno.
@@ -61,8 +69,54 @@ export const capacityNavGroups: CapacityNavGroupConfig[] = [
     label: "",
     items: [{ id: CAPACITY_HOME_ID, label: "Inicio", href: "", icon: "home" }],
   },
+  // Los dos grupos responden dos preguntas distintas sobre las mismas
+  // pantallas. "Mi Línea": ¿qué pasa con la gente que gestiono? — las cinco
+  // pantallas de personas, acotadas a los colaboradores de quien mira.
+  // "Organización": ¿cómo está la organización? — la estructura y la demanda,
+  // sin acotar. Colaboradores aparece en los dos a propósito: es la misma
+  // pantalla, con y sin recorte.
   {
-    label: "Iniciativas",
+    label: "Mi Línea",
+    items: [
+      {
+        id: "mi-linea-colaboradores",
+        label: "Colaboradores",
+        href: "mi-linea/colaboradores",
+        icon: "user",
+        permission: CAPACITY_SECTION_PERMISSION["mi-linea-colaboradores"],
+      },
+      {
+        id: "mi-linea-ausencias",
+        label: "Ausencias",
+        href: "mi-linea/ausencias",
+        icon: "calendar",
+        permission: CAPACITY_SECTION_PERMISSION["mi-linea-ausencias"],
+      },
+      {
+        id: "mi-linea-dedicacion",
+        label: "Dedicación",
+        href: "mi-linea/dedicacion",
+        icon: "backlog",
+        permission: CAPACITY_SECTION_PERMISSION["mi-linea-dedicacion"],
+      },
+      {
+        id: "mi-linea-competencias",
+        label: "Competencias",
+        href: "mi-linea/competencias",
+        icon: "expertise",
+        permission: CAPACITY_SECTION_PERMISSION["mi-linea-competencias"],
+      },
+      {
+        id: "mi-linea-facturacion",
+        label: "Facturación",
+        href: "mi-linea/facturacion",
+        icon: "document",
+        permission: CAPACITY_SECTION_PERMISSION["mi-linea-facturacion"],
+      },
+    ],
+  },
+  {
+    label: "Organización",
     items: [
       {
         id: "lead-iniciativas",
@@ -71,11 +125,6 @@ export const capacityNavGroups: CapacityNavGroupConfig[] = [
         icon: "initiative",
         permission: CAPACITY_SECTION_PERMISSION["lead-iniciativas"],
       },
-    ],
-  },
-  {
-    label: "Capacidad",
-    items: [
       {
         id: "lead-equipos",
         label: "Equipos",
@@ -94,38 +143,10 @@ export const capacityNavGroups: CapacityNavGroupConfig[] = [
       },
       {
         id: "lead-personas",
-        label: "Personas",
+        label: "Colaboradores",
         href: "personas",
         icon: "user",
         permission: CAPACITY_SECTION_PERMISSION["lead-personas"],
-      },
-      {
-        id: "lead-ausencias",
-        label: "Ausencias",
-        href: "ausencias",
-        icon: "calendar",
-        permission: CAPACITY_SECTION_PERMISSION["lead-ausencias"],
-      },
-      {
-        id: "lead-dedicacion",
-        label: "Dedicación",
-        href: "dedicacion",
-        icon: "backlog",
-        permission: CAPACITY_SECTION_PERMISSION["lead-dedicacion"],
-      },
-      {
-        id: "lead-facturacion",
-        label: "Facturación",
-        href: "facturacion",
-        icon: "document",
-        permission: CAPACITY_SECTION_PERMISSION["lead-facturacion"],
-      },
-      {
-        id: "lead-competencias",
-        label: "Competencias",
-        href: "competencias",
-        icon: "expertise",
-        permission: CAPACITY_SECTION_PERMISSION["lead-competencias"],
       },
     ],
   },
@@ -180,10 +201,15 @@ export const capacityNavGroups: CapacityNavGroupConfig[] = [
 /** Título largo por entrada — alimenta el breadcrumb, como en los shells originales. */
 export const capacityRouteTitles: Record<string, string> = {
   [CAPACITY_HOME_ID]: "Gestión de Capacidad",
+  "mi-linea-colaboradores": "Mis colaboradores",
+  "mi-linea-ausencias": "Ausencias de mi línea",
+  "mi-linea-dedicacion": "Capacidad de mi línea",
+  "mi-linea-competencias": "Competencias de mi línea",
+  "mi-linea-facturacion": "Prefacturación de mi línea",
   "lead-iniciativas": "Gestionar Iniciativas",
   "lead-equipos": "Equipos",
   "lead-celulas": "Gestionar Células",
-  "lead-personas": "Gestionar Personas",
+  "lead-personas": "Gestionar Colaboradores",
   "lead-ausencias": "Gestionar Ausencias",
   "lead-dedicacion": "Capacidad",
   "lead-facturacion": "Prefacturación",

@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+    .it { display: flex; align-items: center; gap: 12px; height: 34px; padding: 0 10px;
+          border-left: 2px solid transparent; border-radius: 8px; font-size: 14px;
+          line-height: 22px; color: #55555E; }
+    .it.on { border-left-color: #C9151F; background: #FFF1F2; color: #26262C; font-weight: 600; }
+    .gl { padding: 0 12px 8px; font-size: 12px; line-height: 16px; font-weight: 600;
+          letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; }
+    .dot { width: 18px; height: 18px; flex: none; border-radius: 4px; background: #E3E3E6; }
+    .it.on .dot { background: #C9151F; }
+    .sm { font-size: 13px; line-height: 20px; color: #55555E; }
+    .col { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 8px; padding: 16px 10px 12px; }
+    .nota { font-size: 13px; line-height: 20px; color: #55555E; padding: 10px 12px 0; }
+    .tick { color: #16794C; font-weight: 600; }
+    .cross { color: #C9151F; font-weight: 600; }
+  </style>
+</helmet>
+
+<div style="height: 620px; background: #FAFAFB; padding: 26px 28px; display: flex; flex-direction: column; gap: 18px">
+
+  <div>
+    <div style="font-size: 24px; line-height: 30px; font-weight: 600; color: #26262C">Cómo llamar al grupo</div>
+    <div class="sm" style="padding-top: 6px">Sin "Mi". Tiene que decir de quién habla el grupo y funcionar igual para el líder de expertise y el técnico.</div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+
+    <div class="col">
+      <div class="gl">Colaboradores a cargo</div>
+      <div class="it on"><span class="dot"></span>Colaboradores</div>
+      <div class="it"><span class="dot"></span>Ausencias</div>
+      <div class="it"><span class="dot"></span>Dedicación</div>
+      <div class="nota"><span class="tick">Dice exactamente qué agrupa.</span> Largo para el ancho del menú; puede partirse en dos renglones.</div>
+    </div>
+
+    <div class="col">
+      <div class="gl">A cargo</div>
+      <div class="it on"><span class="dot"></span>Colaboradores</div>
+      <div class="it"><span class="dot"></span>Ausencias</div>
+      <div class="it"><span class="dot"></span>Dedicación</div>
+      <div class="nota"><span class="tick">Corto y entra en una línea.</span> Solo, no dice a cargo de qué — lo resuelve el primer ítem.</div>
+    </div>
+
+    <div class="col">
+      <div class="gl">Gestión de colaboradores</div>
+      <div class="it on"><span class="dot"></span>Colaboradores</div>
+      <div class="it"><span class="dot"></span>Ausencias</div>
+      <div class="it"><span class="dot"></span>Dedicación</div>
+      <div class="nota"><span class="tick">Nombra la actividad,</span> no la pertenencia. <span class="cross">Pero no distingue</span> los tuyos del resto.</div>
+    </div>
+
+    <div class="col">
+      <div class="gl">Bajo tu responsabilidad</div>
+      <div class="it on"><span class="dot"></span>Colaboradores</div>
+      <div class="it"><span class="dot"></span>Ausencias</div>
+      <div class="it"><span class="dot"></span>Dedicación</div>
+      <div class="nota"><span class="tick">Le habla a la persona</span> sin decir "mi". El más largo de los cuatro.</div>
+    </div>
+
+  </div>
+
+  <div style="background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 8px; padding: 14px 16px">
+    <div style="font-size: 14px; font-weight: 600; color: #26262C; padding-bottom: 6px">El grupo de al lado también necesita nombre</div>
+    <div class="sm">Le puse <b>Organización</b> a lo que no gestionás y sólo consultás: Iniciativas, Equipos, Células. Alternativas: <b>Estructura</b>, <b>La organización</b>, o dejarlo sin rótulo si sólo quedan tres ítems.</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -136,7 +136,7 @@ export const AbsencesContainer: React.FC = () => {
         <EmptyState
           icon={<Icon name="calendar" size={32} />}
           title={`Sin ausencias en ${month.monthTitle.toLowerCase()}`}
-          description="Cuando registres vacaciones, permisos o incapacidades del chapter, este mes las va a mostrar con su impacto en capacidad."
+          description="Cuando registres vacaciones, permisos o incapacidades, este mes las va a mostrar con su impacto en capacidad."
           action={
             <Button variant="primary" onClick={openRegister}>
               Registrar ausencia

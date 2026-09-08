@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", system-ui, sans-serif; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+    .it { display: flex; align-items: center; gap: 12px; height: 34px; padding: 0 10px;
+          border-left: 2px solid transparent; border-radius: 8px; font-size: 14px;
+          line-height: 22px; color: #55555E; }
+    .it.on { border-left-color: #C9151F; background: #FFF1F2; color: #26262C; font-weight: 600; }
+    .gl { padding: 0 12px 8px; font-size: 12px; line-height: 16px; font-weight: 600;
+          letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; }
+    .dot { width: 18px; height: 18px; flex: none; border-radius: 4px; background: #E3E3E6; }
+    .it.on .dot { background: #C9151F; }
+    .pill { display: inline-flex; align-items: center; height: 19px; padding: 0 7px;
+            border-radius: 999px; background: #C9151F; color: #fff; font-size: 11px; font-weight: 600; }
+    .sm { font-size: 13px; line-height: 20px; color: #55555E; }
+    .bar { width: 248px; background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 8px;
+           padding: 14px 8px; display: flex; flex-direction: column; gap: 3px; }
+    .cap { font-size: 14px; font-weight: 600; color: #26262C; padding: 0 0 8px 2px; }
+    .nota { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 8px;
+            padding: 14px 16px; }
+  </style>
+</helmet>
+
+<div style="height: 660px; background: #FAFAFB; padding: 26px 28px; display: flex; flex-direction: column; gap: 18px">
+
+  <div>
+    <div style="font-size: 24px; line-height: 30px; font-weight: 600; color: #26262C">El mismo menú, tres alcances</div>
+    <div class="sm" style="padding-top: 6px">Ningún ítem nuevo: lo que cambia por rol es a quiénes alcanza el grupo de arriba, y qué ve cada quien.</div>
+  </div>
+
+  <div style="display: flex; gap: 22px; align-items: flex-start">
+
+    <div>
+      <div class="cap">Líder de Expertise</div>
+      <div class="bar">
+        <div class="it"><span class="dot"></span>Inicio</div>
+        <div class="gl" style="padding-top: 14px">Colaboradores a cargo</div>
+        <div class="it on"><span class="dot"></span>Colaboradores</div>
+        <div class="it"><span class="dot"></span>Ausencias<span class="pill" style="margin-left: auto">3</span></div>
+        <div class="it"><span class="dot"></span>Dedicación</div>
+        <div class="it"><span class="dot"></span>Competencias</div>
+        <div class="it"><span class="dot"></span>Facturación</div>
+        <div class="gl" style="padding-top: 14px">Organización</div>
+        <div class="it"><span class="dot"></span>Iniciativas</div>
+        <div class="it"><span class="dot"></span>Equipos</div>
+        <div class="it"><span class="dot"></span>Células</div>
+      </div>
+      <div class="sm" style="width: 248px; padding-top: 10px">Los de su línea, estén en la célula que estén.</div>
+    </div>
+
+    <div>
+      <div class="cap">Líder Técnico</div>
+      <div class="bar">
+        <div class="it"><span class="dot"></span>Inicio</div>
+        <div class="gl" style="padding-top: 14px">Colaboradores a cargo</div>
+        <div class="it on"><span class="dot"></span>Colaboradores</div>
+        <div class="it"><span class="dot"></span>Dedicación<span class="pill" style="margin-left: auto">2</span></div>
+        <div class="it"><span class="dot"></span>Competencias</div>
+        <div class="gl" style="padding-top: 14px">Organización</div>
+        <div class="it"><span class="dot"></span>Iniciativas</div>
+        <div class="it"><span class="dot"></span>Equipos</div>
+        <div class="it"><span class="dot"></span>Células</div>
+      </div>
+      <div class="sm" style="width: 248px; padding-top: 10px">Los de su célula, vengan de la línea que vengan. Sin Ausencias ni Facturación: no aprueba ni factura.</div>
+    </div>
+
+    <div>
+      <div class="cap">Administrador</div>
+      <div class="bar">
+        <div class="it"><span class="dot"></span>Inicio</div>
+        <div class="gl" style="padding-top: 14px">Organización</div>
+        <div class="it on"><span class="dot"></span>Colaboradores</div>
+        <div class="it"><span class="dot"></span>Ausencias</div>
+        <div class="it"><span class="dot"></span>Dedicación</div>
+        <div class="it"><span class="dot"></span>Competencias</div>
+        <div class="it"><span class="dot"></span>Facturación</div>
+        <div class="it"><span class="dot"></span>Iniciativas</div>
+        <div class="it"><span class="dot"></span>Equipos</div>
+        <div class="it"><span class="dot"></span>Células</div>
+        <div class="gl" style="padding-top: 14px">Configuración</div>
+        <div class="it" style="opacity: .55"><span class="dot"></span>Sprints…</div>
+      </div>
+      <div class="sm" style="width: 248px; padding-top: 10px">No tiene gente a cargo: el grupo no aparece y todo vive en Organización.</div>
+    </div>
+
+  </div>
+
+  <div class="nota">
+    <div style="font-size: 14px; font-weight: 600; color: #26262C; padding-bottom: 6px">La consecuencia que hay que aceptar</div>
+    <div class="sm">Un mismo ítem cambia de grupo según quién entra: "Colaboradores" está bajo <b>Colaboradores a cargo</b> para un líder y bajo <b>Organización</b> para el administrador. Es una sola pantalla, y el rótulo del grupo es lo que dice de quiénes habla. Alguien que sea líder de expertise <i>y</i> además líder técnico de una célula ve un solo grupo, con la unión de su gente — hay que confirmar que eso es lo correcto y no dos grupos separados.</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -23,8 +23,8 @@ export const ControlTowerContainer: React.FC = () => {
           Torre de control
         </h1>
         <p className="text-body-sm text-neutral-subtle">
-          Capacidad del chapter de un vistazo: quién tiene margen, dónde falta
-          gente y a quién mover
+          La capacidad de un vistazo: quién tiene margen, dónde falta gente y a
+          quién mover
         </p>
       </div>
 

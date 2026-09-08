@@ -68,7 +68,7 @@ export const TeamFormDrawer: React.FC<TeamFormDrawerProps> = ({
           <p className="mt-1 text-body-sm text-neutral-subtle">
             {team
               ? "Actualiza la información de este equipo."
-              : "Registra un nuevo equipo del chapter."}
+              : "Registra un nuevo equipo."}
           </p>
         </DrawerHeader>
         <DrawerBody className="p-0">

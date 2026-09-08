@@ -10,11 +10,8 @@ import type {
   PrefactureDto,
 } from "@features/billing/services/billingService";
 import { getAllocationsSnapshot } from "./allocations.handlers";
-import {
-  getCompaniesSnapshot,
-  getPeopleSnapshot,
-  peopleFor,
-} from "./people.handlers";
+import { getCompaniesSnapshot, getPeopleSnapshot } from "./people.handlers";
+import { scopePeople } from "./chapters";
 // El descuento por ausencias no se digita: sale de las ausencias aprobadas.
 // La cuenta de días hábiles vive en el handler de ausencias, así que una misma
 // ausencia se lee igual en las dos pantallas.
@@ -308,7 +305,9 @@ export const billingHandlers = [
     if (!PERIOD_RE.test(period)) return bad("Período inválido");
     // Una fila por persona externa: la que ya tiene registro del período, y
     // la que todavía no, en blanco.
-    const rows: PrefactureDto[] = externals(peopleFor(request)).map((e) => {
+    const rows: PrefactureDto[] = externals(
+      scopePeople(request, getPeopleSnapshot())
+    ).map((e) => {
       const found = prefactures.find(
         (p) => p.personId === e.personId && p.period === period
       );
@@ -326,7 +325,7 @@ export const billingHandlers = [
     const period = body?.period ?? "";
     if (!PERIOD_RE.test(period)) return bad("Período inválido");
     // Idempotente: los registros que ya existen no se tocan.
-    const created = externals(peopleFor(request))
+    const created = externals(getPeopleSnapshot())
       .filter(
         (e) =>
           !prefactures.some(

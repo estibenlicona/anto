@@ -16,11 +16,11 @@ const month: AbsencesMonth = {
 };
 
 describe("AbsencesStatsCards", () => {
-  it("lee el descuento contra el FTE del chapter, al pie de la cifra", () => {
+  it("lee el descuento contra el FTE, al pie de la cifra", () => {
     render(<AbsencesStatsCards month={month} chapterFte={17.8} />);
     // Misma anatomía que las otras dos cards: arriba la cifra sola, abajo la
     // unidad y su referencia.
-    const referencia = screen.getByText("de 17.8 FTE del chapter");
+    const referencia = screen.getByText("de 17.8 FTE");
     expect(referencia).toBeInTheDocument();
     expect(screen.getByText(/−0.50/)).not.toBe(referencia);
     expect(screen.getByText(/−0.50/).textContent!.trim()).toBe("−0.50");
@@ -37,16 +37,16 @@ describe("AbsencesStatsCards", () => {
     expect(screen.queryByText("Backend Platform")).not.toBeInTheDocument();
   });
 
-  it("sin total del chapter muestra el descuento solo, sin fracción sobre cero", () => {
+  it("sin total muestra el descuento solo, sin fracción sobre cero", () => {
     render(<AbsencesStatsCards month={month} chapterFte={null} />);
-    expect(screen.queryByText(/del chapter/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/de .* FTE/)).not.toBeInTheDocument();
     expect(screen.getByText("FTE")).toBeInTheDocument();
     expect(screen.getByText(/−0.50/)).toBeInTheDocument();
   });
 
   it("con el total en cero tampoco divide", () => {
     render(<AbsencesStatsCards month={month} chapterFte={0} />);
-    expect(screen.queryByText(/del chapter/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/de .* FTE/)).not.toBeInTheDocument();
     expect(screen.getByText("FTE")).toBeInTheDocument();
   });
 
@@ -58,7 +58,7 @@ describe("AbsencesStatsCards", () => {
       />
     );
     expect(screen.getByText(/0.00/)).toBeInTheDocument();
-    expect(screen.getByText("de 17.8 FTE del chapter")).toBeInTheDocument();
+    expect(screen.getByText("de 17.8 FTE")).toBeInTheDocument();
     expect(
       screen.queryByText(
         "Ninguna ausencia aprobada este mes descuenta capacidad."

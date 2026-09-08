@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 12px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; display: flex;
+             align-items: baseline; justify-content: space-between; gap: 12px; }
+    .cfoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-sm { gap: 6px; padding: 4px 12px; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+    .btn-off { background: #F4F4F5; color: #A0A0A8; border-color: #74747E2E; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-purple { background: #EFEAFB; color: #3D2894; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-ok { background: #E7F3EC; color: #0D5239; } .b-ok .dot { background: #116B4B; }
+    .b-warn { background: #FBF2DE; color: #6E4B00; } .b-warn .dot { background: #B57A00; }
+    .b-neu { background: #F4F4F5; color: #55555E; } .b-neu .dot { background: #A0A0A8; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6; }
+    td { padding: 10px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .r { text-align: right; }
+    .grouprow td { background: #FAFAFB; padding-top: 8px; padding-bottom: 8px; }
+    .selrow td { background: #FFF1F2; box-shadow: inset 2px 0 0 #C9151F; }
+
+    .alert { display: flex; gap: 14px; border-left: 2px solid; border-radius: 0 8px 8px 0; padding: 16px; }
+    .a-info { border-color: #1B5FBF; background: #E8F0FC; } .a-info .at { color: #154A96; }
+    .at { font-size: 14px; line-height: 22px; font-weight: 600; margin-bottom: 4px; }
+
+    .kv { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+          padding: 7px 0; border-top: 1px solid #F4F4F5; }
+    .kv:first-of-type { border-top: 0; }
+    .audit { display: grid; grid-template-columns: 84px minmax(0,1fr); gap: 10px;
+             padding: 9px 0; border-top: 1px solid #F4F4F5; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Administración <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Parámetros del modelo</span></div>
+
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 class="h1" style="margin: 0">Modelos de estimación</h1>
+      <p class="sm" style="margin: 0; max-width: 640px">
+        Un modelo por fase, cada uno con sus versiones. Lo que se publica queda inmutable:
+        las estimaciones ya hechas siguen leyendo la versión con la que se calcularon.
+      </p>
+    </div>
+    <span class="btn btn-p">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Nuevo modelo
+    </span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; align-items: start">
+
+    <div class="card" style="overflow: hidden">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:22%">Versión</th>
+            <th style="width:16%">Estado</th>
+            <th style="width:28%">Vigencia</th>
+            <th class="r" style="width:14%">Estimaciones</th>
+            <th style="width:20%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="grouprow">
+            <td colspan="5">
+              <div style="display:flex; align-items:center; gap:10px">
+                <span class="h3">Modelo Paramétrico</span>
+                <span class="tag t-gray" style="min-width:0">Fase 1</span>
+                <span class="note">Estimación temprana · 30 preguntas en 7 dimensiones</span>
+              </div>
+            </td>
+          </tr>
+          <tr class="selrow">
+            <td><span class="mono" style="font-weight:600">v1.5</span></td>
+            <td><span class="badge b-warn"><span class="dot"></span>Borrador</span></td>
+            <td class="note">Sin publicar · editada hace 20 min</td>
+            <td class="r num">0</td>
+            <td class="r"><span class="btn btn-s btn-sm">Seguir editando</span></td>
+          </tr>
+          <tr>
+            <td><span class="mono" style="font-weight:600">v1.4</span></td>
+            <td><span class="badge b-ok"><span class="dot"></span>Vigente</span></td>
+            <td class="num sm">desde 02 feb 2026</td>
+            <td class="r num">12</td>
+            <td class="r">
+              <span style="display:inline-flex; align-items:center; gap:6px" class="note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#74747E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                No editable
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="mono">v1.3</span></td>
+            <td><span class="badge b-neu"><span class="dot"></span>Archivada</span></td>
+            <td class="num sm">12 ene – 02 feb 2026</td>
+            <td class="r num">47</td>
+            <td class="r"><span class="note">Ver</span></td>
+          </tr>
+          <tr>
+            <td><span class="mono">v1.2</span></td>
+            <td><span class="badge b-neu"><span class="dot"></span>Archivada</span></td>
+            <td class="num sm">03 oct 2025 – 12 ene 2026</td>
+            <td class="r num">61</td>
+            <td class="r"><span class="note">Ver</span></td>
+          </tr>
+
+          <tr class="grouprow">
+            <td colspan="5">
+              <div style="display:flex; align-items:center; gap:10px">
+                <span class="h3">Refinado por Backlog</span>
+                <span class="tag t-blue" style="min-width:0">Fase 2</span>
+                <span class="note">Estimación refinada · entra el backlog de la épica</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="mono" style="font-weight:600">v0.4</span></td>
+            <td><span class="badge b-warn"><span class="dot"></span>Borrador</span></td>
+            <td class="note">Sin publicar · en uso por 1 iniciativa en curso</td>
+            <td class="r num">0</td>
+            <td class="r"><span class="btn btn-s btn-sm">Seguir editando</span></td>
+          </tr>
+          <tr>
+            <td><span class="mono">v0.3</span></td>
+            <td><span class="badge b-ok"><span class="dot"></span>Vigente</span></td>
+            <td class="num sm">desde 20 ene 2026</td>
+            <td class="r num">3</td>
+            <td class="r">
+              <span style="display:inline-flex; align-items:center; gap:6px" class="note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#74747E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                No editable
+              </span>
+            </td>
+          </tr>
+
+          <tr class="grouprow">
+            <td colspan="5">
+              <div style="display:flex; align-items:center; gap:10px">
+                <span class="h3">Juicio experto guiado</span>
+                <span class="tag t-blue" style="min-width:0">Fase 2</span>
+                <span class="note">Alternativa cuando no hay backlog cargado</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="mono">v1.1</span></td>
+            <td><span class="badge b-neu"><span class="dot"></span>Inactiva</span></td>
+            <td class="note">Nunca publicada</td>
+            <td class="r num">0</td>
+            <td class="r"><span class="note">Ver</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="cfoot" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+        <span class="note">3 modelos · 8 versiones · 123 estimaciones históricas</span>
+        <span class="note">Las versiones archivadas se conservan: sin ellas, 108 estimaciones dejarían de ser reproducibles.</span>
+      </div>
+    </div>
+
+    <!-- Panel de la versión seleccionada -->
+    <div style="display: flex; flex-direction: column; gap: 16px">
+
+      <div class="card">
+        <div class="chead">
+          <div style="display:flex; align-items:center; gap:10px">
+            <h2 class="h3" style="margin:0">Paramétrico v1.5</h2>
+            <span class="badge b-warn"><span class="dot"></span>Borrador</span>
+          </div>
+        </div>
+        <div class="cbody">
+          <div class="kv"><span class="sm">Dimensiones</span><span class="smd num">7 <span class="note">· 7 activas</span></span></div>
+          <div class="kv"><span class="sm">Preguntas</span><span class="smd num">32 <span class="note">· 2 nuevas</span></span></div>
+          <div class="kv"><span class="sm">Opciones de respuesta</span><span class="smd num">134</span></div>
+          <div class="kv"><span class="sm">Drivers</span><span class="smd num">9</span></div>
+          <div class="kv"><span class="sm">Pesos por salida</span><span class="smd num">96 <span class="note">· 4 cambiados</span></span></div>
+          <div class="kv"><span class="sm">Reglas de talla</span><span class="smd num">5 <span class="note">· 1 umbral movido</span></span></div>
+          <div class="kv"><span class="sm">Parámetros de esfuerzo</span><span class="smd num">5 tallas × 3 percentiles</span></div>
+          <div class="kv"><span class="sm">Mix base</span><span class="smd num">6 perfiles × 5 tallas</span></div>
+          <div class="kv"><span class="sm">Modificadores de mix</span><span class="smd num">6</span></div>
+        </div>
+        <div class="cfoot" style="display:flex; gap:8px">
+          <span class="btn btn-s" style="flex:1">Seguir editando</span>
+          <span class="btn btn-p" style="flex:1">Validar y publicar</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chead"><h2 class="h3" style="margin:0">Historial de cambios</h2></div>
+        <div class="cbody">
+          <div class="audit">
+            <span class="note num">hoy 09:14</span>
+            <div>
+              <div class="smd">Peso de <span class="mono">T3</span> en Esfuerzo: 2 → 3</div>
+              <div class="note">Tomás Giraldo · «las pruebas de carga se subestiman de forma sistemática»</div>
+            </div>
+          </div>
+          <div class="audit">
+            <span class="note num">ayer 17:40</span>
+            <div>
+              <div class="smd">Umbral S / M movido de 40 a 44</div>
+              <div class="note">Tomás Giraldo · propuesto por la calibración de febrero</div>
+            </div>
+          </div>
+          <div class="audit">
+            <span class="note num">ayer 17:32</span>
+            <div>
+              <div class="smd">Dos preguntas nuevas en Operación y soporte</div>
+              <div class="note">Laura Mesa</div>
+            </div>
+          </div>
+          <div class="audit">
+            <span class="note num">04 feb</span>
+            <div>
+              <div class="smd">Versión creada a partir de la v1.4</div>
+              <div class="note">Tomás Giraldo</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert a-info">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B5FBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        <div>
+          <p class="at" style="margin:0">Por qué la v1.4 no se puede editar</p>
+          <p class="sm" style="margin:0; color:#26262C">Ya calculó 12 estimaciones. Cambiarle un peso reescribiría
+            resultados que alguien usó para decidir. Para cambiar algo se crea una versión nueva a partir de ella
+            — que es de donde salió esta v1.5.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { billingService, type PrefactureDto } from "../services/billingService";
 import { billingAdapter } from "../adapters/BillingAdapter";
+import {
+  scopeParam,
+  useCapacityScope,
+} from "@features/capacity-shell/CapacityScopeContext";
 
 const LOAD_ERROR = "Error al cargar la prefacturación";
 
@@ -10,10 +14,12 @@ export const useBillingPeriod = (period: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
+  // El alcance lo declara la ruta: "Mi Línea" pide recorte, el resto no.
+  const scope = scopeParam(useCapacityScope());
 
   useEffect(() => {
     let cancelled = false;
-    billingService.listPeriod(period).then(
+    billingService.listPeriod(period, scope).then(
       (result) => {
         if (cancelled) return;
         setRows(result);
@@ -28,7 +34,7 @@ export const useBillingPeriod = (period: string) => {
     return () => {
       cancelled = true;
     };
-  }, [period, reloadTick]);
+  }, [period, reloadTick, scope]);
 
   const refetch = useCallback(() => {
     setError(null);

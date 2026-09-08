@@ -11,7 +11,6 @@ import { ToastProvider } from "@tuya-ui/components";
 import { http, HttpResponse } from "msw";
 import { server } from "../../../mocks/server";
 import { setAccessTokenProvider } from "@shared/services/accessToken";
-import { CHAPTERS } from "../../../mocks/handlers/chapters";
 import { resetDedicationMock } from "../../../mocks/handlers/dedication.handlers";
 import { resetPersonDetailMock } from "../../../mocks/handlers/personDetail.handlers";
 import { resetAllocationsMock } from "../../../mocks/handlers/allocations.handlers";
@@ -338,15 +337,43 @@ describe("DedicationContainer", () => {
     expect(screen.getByText(/Actualizado hace/)).toBeInTheDocument();
   });
 
-  it("sin colaboradores a cargo muestra el estado vacío y no la tabla", async () => {
-    const sinGente = CHAPTERS.find((c) => c.name === "Datos Avanzados")!;
-    setAccessTokenProvider(
-      () => `simulated.${sinGente.leadEntraObjectId}.token`
+  it("sin colaboradores muestra el estado vacío y no la tabla", async () => {
+    // Sin acotar por titular ya no hay forma de llegar al vacío entrando como
+    // el lead de un chapter sin gente: el caso se produce cuando no hay
+    // ninguna persona registrada, y se ejercita vaciando la respuesta.
+    server.use(
+      http.get("/dedication/collaborators", () =>
+        HttpResponse.json({
+          items: [],
+          page: 1,
+          pageSize: 10,
+          total: 0,
+          totalPages: 0,
+          summary: {
+            total: 0,
+            possibleOverload: 0,
+            possibleUnderload: 0,
+            usual: 0,
+            notEvaluable: 0,
+            noIdentity: 0,
+            noSprint: 0,
+            insufficientHistory: 0,
+            overloadPeople: [],
+            underloadPeople: [],
+          },
+          sprint: null,
+          settings: {
+            hoursPerSprint: 80,
+            historyWindow: 6,
+            minSprintsToEvaluate: 3,
+            tolerancePercentage: 25,
+          },
+          lastSyncedAt: null,
+        })
+      )
     );
     renderContainer();
-    expect(
-      await screen.findByText("Sin colaboradores a cargo")
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Sin colaboradores")).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 

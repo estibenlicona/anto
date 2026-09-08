@@ -10,7 +10,7 @@ import { clampPagination, paginate } from "@shared/services/pagination";
 // la persona, y eso sólo lo sabe el mock de personas. Lectura en un solo
 // sentido (allocations → people); people no importa a nadie, así que no hay
 // ciclo.
-import { getPeopleSnapshot, peopleFor } from "./people.handlers";
+import { getPeopleSnapshot } from "./people.handlers";
 
 const now = new Date().toISOString();
 
@@ -201,12 +201,8 @@ export const allocationsHandlers = [
       .getAll("level")
       .map(Number)
       .filter((n) => !Number.isNaN(n));
-    // Sólo las asignaciones de la gente a cargo de quien pide. Acá se usa
-    // `peopleFor` y no la vista de scope.ts para no importar en círculo: este
-    // módulo es el dueño de las asignaciones y scope.ts las lee de él.
-    const visibles = new Set(peopleFor(request).map((p) => p.id));
     const bySquad = allocations
-      .filter((a) => a.squadId === squadId && visibles.has(a.personId))
+      .filter((a) => a.squadId === squadId)
       .map(enrich);
     return HttpResponse.json(
       paginate(filterAllocations(bySquad, search, levels), page, pageSize)

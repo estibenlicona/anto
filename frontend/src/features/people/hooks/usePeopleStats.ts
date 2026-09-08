@@ -1,20 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
 import { personService, type PeopleStats } from "../services/personService";
+import {
+  scopeParam,
+  useCapacityScope,
+} from "@features/capacity-shell/CapacityScopeContext";
 
 /**
- * Resumen agregado sobre todas las personas registradas — independiente de
+ * Resumen agregado sobre las personas del alcance de la pantalla — independiente de
  * `usePeople` (página, búsqueda y filtros no lo afectan).
  */
 export const usePeopleStats = () => {
   const [stats, setStats] = useState<PeopleStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const scope = scopeParam(useCapacityScope());
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const result = await personService.getStats();
+      const result = await personService.getStats(scope);
       setStats(result);
     } catch (err) {
       setError(
@@ -23,11 +28,11 @@ export const usePeopleStats = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [scope]);
 
   useEffect(() => {
     let cancelled = false;
-    personService.getStats().then(
+    personService.getStats(scope).then(
       (result) => {
         if (cancelled) return;
         setStats(result);
@@ -44,7 +49,7 @@ export const usePeopleStats = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [scope]);
 
   return { stats, loading, error, refetch: load };
 };

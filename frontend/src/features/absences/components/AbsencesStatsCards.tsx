@@ -73,7 +73,7 @@ export const AbsencesStatsCards: React.FC<{
               cards: arriba la cifra sola, abajo lo que la hace legible. */}
           <span className="mt-auto text-body-sm text-neutral-subtle">
             {chapterFte && chapterFte > 0
-              ? `de ${chapterFte.toFixed(1)} FTE del chapter`
+              ? `de ${chapterFte.toFixed(1)} FTE`
               : "FTE"}
           </span>
         </CardBody>

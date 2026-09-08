@@ -589,25 +589,20 @@ describe("mock de balance de carga", () => {
     });
   });
 
-  it("acotado por chapter: un lead sólo lista y abre a su gente", async () => {
+  it("sin acotar: un lead lista y abre a cualquiera, no sólo a su gente", async () => {
     const core = CHAPTERS.find((c) => c.name === "Core y Datos")!;
     setAccessTokenProvider(() => `simulated.${core.leadEntraObjectId}.token`);
 
+    // Carlos es de su chapter y Valentina no: con el token del lead de Core y
+    // Datos los dos están, porque ninguna pantalla recorta ya por titular.
     const list = await all();
     const names = list.items.map((r) => r.person.name);
     expect(names).toContain("Carlos López");
-    expect(names).not.toContain("Valentina Ospina");
-    expect(list.summary.total).toBeLessThan(18);
-    // Valentina queda fuera del chapter, pero Paula y Sebastián no: los dos de
-    // la célula que cayó entera cuentan en el indicador.
-    expect(list.summary.possibleUnderload).toBe(2);
+    expect(names).toContain("Valentina Ospina");
 
     expect(
       await status(() => dedicationService.getCollaborator(VALENTINA))
-    ).toBe(404);
-    expect(
-      await status(() => dedicationService.syncCollaborator(VALENTINA))
-    ).toBe(404);
+    ).toBe(200);
     expect(await status(() => dedicationService.getCollaborator(CARLOS))).toBe(
       200
     );

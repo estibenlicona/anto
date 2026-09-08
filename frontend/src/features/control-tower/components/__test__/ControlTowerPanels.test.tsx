@@ -88,11 +88,12 @@ describe("ControlTowerStatsCards", () => {
     );
     expect(container).toBeEmptyDOMElement();
     rerender(<ControlTowerStatsCards overview={overview} loading={false} />);
-    expect(screen.getByText("FTE DEL CHAPTER")).toBeInTheDocument();
     expect(
-      screen.getByText("del FTE del chapter sin asignar", { exact: false })
-        .textContent
-    ).toBe("61% del FTE del chapter sin asignar");
+      screen.getByText("FTE", { selector: "span.text-label" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("del FTE sin asignar", { exact: false }).textContent
+    ).toBe("61% del FTE sin asignar");
     expect(screen.getByText("9")).toBeInTheDocument();
     expect(screen.getByText("sin célula", { exact: false }).textContent).toBe(
       "6 sin célula"

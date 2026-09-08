@@ -1,0 +1,335 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 12px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; display: flex;
+             align-items: baseline; justify-content: space-between; gap: 12px; }
+    .cfoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-purple { background: #EFEAFB; color: #3D2894; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-warn { background: #FBF2DE; color: #6E4B00; } .b-warn .dot { background: #B57A00; }
+
+    .chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+            font-size: 14px; line-height: 22px; border: 1px solid #E3E3E6; background: #FFFFFF; color: #26262C; }
+    .chip .n { font-variant-numeric: tabular-nums; color: #74747E; }
+    .chip-on { border-color: #26262C; background: #26262C; color: #FFFFFF; }
+    .chip-on .n { color: #FFFFFF; }
+    .seg { display: inline-flex; border: 1px solid #E3E3E6; border-radius: 8px; overflow: hidden; }
+    .seg > span { padding: 6px 14px; font-size: 14px; line-height: 22px; font-weight: 500; color: #26262C; }
+    .seg > span.on { background: #26262C; color: #FFFFFF; }
+    .sel { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #E3E3E6;
+           border-radius: 8px; background: #FFFFFF; padding: 8px 12px; font-size: 14px;
+           line-height: 22px; color: #26262C; font-weight: 500; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6; }
+    td { padding: 10px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .r { text-align: right; }
+
+    .alert { display: flex; gap: 14px; border-left: 2px solid; border-radius: 0 8px 8px 0; padding: 16px; }
+    .a-info { border-color: #1B5FBF; background: #E8F0FC; } .a-info .at { color: #154A96; }
+    .at { font-size: 14px; line-height: 22px; font-weight: 600; margin-bottom: 4px; }
+
+    .bar { height: 6px; border-radius: 8px; background: #F4F4F5; overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 8px; }
+    .q { border-bottom: 1px solid #E3E3E6; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .q:last-of-type { border-bottom: 0; }
+    .delta-up { color: #6E4B00; font-weight: 600; }
+    .delta-dn { color: #0D5239; font-weight: 600; }
+
+    .story { display: grid; grid-template-columns: 64px minmax(0,1fr) 56px; gap: 12px;
+             align-items: center; padding: 7px 0; border-top: 1px solid #F4F4F5; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Iniciativas <span style="color:#C9C9CE">/</span> Kafka Migration <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Fase 2 · Estimación refinada</span></div>
+
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 class="h1" style="margin: 0">Kafka Migration</h1>
+        <span class="badge b-warn"><span class="dot"></span>Fase 2 en curso</span>
+      </div>
+      <p class="sm" style="margin: 0">Backend Platform · Product Owner: Paola Henao · plazo objetivo 6 meses</p>
+    </div>
+    <!-- La Fase 2 no hereda el algoritmo de la Fase 1: elige su modelo. -->
+    <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end">
+      <span class="lbl">Modelo de Fase 2</span>
+      <span class="sel">
+        Refinado por Backlog v0.4
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#74747E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </span>
+      <span class="note">Otras disponibles: Juicio experto guiado v1.1</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 452px; gap: 16px; align-items: start">
+
+    <!-- Entradas: otro conjunto, no las 30 preguntas de la Fase 1. -->
+    <div style="display: flex; flex-direction: column; gap: 16px">
+
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Entrada 1 · El backlog de la épica</h2>
+          <span class="note mono">Azure DevOps · KAF-1180 · sincronizado hace 2 h</span>
+        </div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 14px">
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px">
+            <div>
+              <span class="lbl">Historias</span>
+              <div class="num" style="font-size:22px;line-height:30px;font-weight:600">34</div>
+            </div>
+            <div>
+              <span class="lbl">Puntos</span>
+              <div class="num" style="font-size:22px;line-height:30px;font-weight:600">248</div>
+            </div>
+            <div>
+              <span class="lbl">Sin estimar</span>
+              <div class="num" style="font-size:22px;line-height:30px;font-weight:600;color:#6E4B00">4</div>
+            </div>
+            <div>
+              <span class="lbl">Factor vigente</span>
+              <div class="num" style="font-size:22px;line-height:30px;font-weight:600">33,5</div>
+              <div class="note">puntos por PM</div>
+            </div>
+          </div>
+
+          <!-- El backlog tal como llegó. Un total limpio escondería que hay
+               cuatro historias sin puntos, que son las que abren el rango. -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; padding-bottom:2px">
+              <span class="lbl">Reparto por historia</span>
+              <span class="note">las cuatro sin estimar, marcadas</span>
+            </div>
+            <div class="story"><span class="mono note">KAF-1203</span><span class="bar"><i style="width:100%; background:#1B5FBF"></i></span><span class="num sm r">21</span></div>
+            <div class="story"><span class="mono note">KAF-1207</span><span class="bar"><i style="width:62%; background:#1B5FBF"></i></span><span class="num sm r">13</span></div>
+            <div class="story"><span class="mono note">KAF-1211</span><span class="bar" style="background:#FBF2DE"><i style="width:100%; background:repeating-linear-gradient(135deg,#B57A00 0 4px,#FBF2DE 4px 8px)"></i></span><span class="num sm r" style="color:#6E4B00">?</span></div>
+            <div class="story"><span class="mono note">KAF-1214</span><span class="bar"><i style="width:38%; background:#1B5FBF"></i></span><span class="num sm r">8</span></div>
+            <div class="story"><span class="mono note">KAF-1218</span><span class="bar" style="background:#FBF2DE"><i style="width:100%; background:repeating-linear-gradient(135deg,#B57A00 0 4px,#FBF2DE 4px 8px)"></i></span><span class="num sm r" style="color:#6E4B00">?</span></div>
+            <div class="story"><span class="note" style="grid-column: 1 / -1; padding-top:6px">…29 historias más · 2 sin estimar</span></div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+                      background:#FAFAFB; border-radius:8px; padding:12px 14px">
+            <span class="num smd">248 puntos</span>
+            <span style="color:#C9C9CE">÷</span>
+            <span class="num smd">33,5 pts/PM</span>
+            <span style="color:#C9C9CE">=</span>
+            <span class="num" style="font-size:18px;line-height:26px;font-weight:600">7,40 PM</span>
+            <span class="note" style="margin-left:8px">El factor lo calibran los cierres de la célula, no se supone.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Entrada 2 · Tres preguntas de refinamiento</h2>
+          <span class="note">Cuestionario propio de la Fase 2</span>
+        </div>
+
+        <div class="q">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px">
+            <span class="smd"><span class="mono" style="color:#74747E;margin-right:8px">R1</span>Después del discovery, ¿qué tan estable es el alcance?</span>
+            <span style="display:flex; flex:none; gap:6px">
+              <span class="tag t-purple" style="min-width:0">Evaluativa</span>
+              <span class="tag t-gray" style="min-width:0">Peso 3</span>
+            </span>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px">
+            <span class="chip">Abierto <span class="n">0</span></span>
+            <span class="chip">Cambiante <span class="n">1</span></span>
+            <span class="chip">Acotado <span class="n">2</span></span>
+            <span class="chip chip-on">Estable <span class="n">3</span></span>
+            <span class="chip">Congelado <span class="n">4</span></span>
+          </div>
+        </div>
+
+        <div class="q">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px">
+            <span class="smd"><span class="mono" style="color:#74747E;margin-right:8px">R2</span>¿La arquitectura está definida y validada por el equipo de arquitectura?</span>
+            <span style="display:flex; flex:none; gap:6px">
+              <span class="tag t-blue" style="min-width:0">Binaria</span>
+              <span class="tag t-gray" style="min-width:0">Peso 2</span>
+            </span>
+          </div>
+          <span class="seg"><span>No</span><span class="on">Sí</span></span>
+        </div>
+
+        <div class="q">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px">
+            <span class="smd"><span class="mono" style="color:#74747E;margin-right:8px">R3</span>¿Cuántos sprints de historia tiene el equipo con esta tecnología?</span>
+            <span style="display:flex; flex:none; gap:6px">
+              <span class="tag t-green" style="min-width:0">Cuantitativa</span>
+              <span class="tag t-gray" style="min-width:0">Peso 2</span>
+            </span>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px">
+            <span style="display:inline-flex; border:1px solid #E3E3E6; border-radius:8px; overflow:hidden">
+              <span class="num" style="padding:8px 12px; width:72px; font-size:14px">6</span>
+              <span style="display:flex;align-items:center;padding:0 12px;background:#F4F4F5;border-left:1px solid #E3E3E6;font-size:14px;color:#74747E">sprints</span>
+            </span>
+            <span class="note">tramo 4 – 8 → 0,50 · driver Experiencia del equipo · Esfuerzo ×2 · Confianza ×2</span>
+          </div>
+        </div>
+
+        <div class="cfoot" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+          <span class="note">3 de 3 respondidas · la Fase 2 no vuelve a preguntar lo de la Fase 1</span>
+          <span class="btn btn-p">Guardar Fase 2</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultado y comparación -->
+    <div style="display: flex; flex-direction: column; gap: 16px">
+
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Resultado de la Fase 2</h2>
+          <span class="tag t-green" style="min-width:0">Confianza alta</span>
+        </div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; align-items: center; gap: 14px">
+            <span class="tag t-amber" style="font-size:22px; line-height:30px; font-weight:700; min-width:52px">L</span>
+            <div>
+              <div class="num" style="font-size:26px;line-height:32px;font-weight:600">7,4 PM</div>
+              <div class="note">rango 5,5 – 9,2 · FTE 1,23 a 6 meses</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div style="display:flex; justify-content:space-between; align-items:baseline">
+              <span class="sm">Confianza</span><span class="smd num" style="font-weight:600">84 / 100</span>
+            </div>
+            <span class="bar"><i style="width:84%; background:#116B4B"></i></span>
+            <span class="note">Sube por el backlog real y la arquitectura validada; baja 8 puntos por las 4 historias sin estimar.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- La comparación, que es el motivo de tener dos fases. -->
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Fase 1 → Fase 2</h2>
+          <span class="note">La Fase 1 no se modifica</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:36%">Métrica</th>
+              <th class="r" style="width:22%">Fase 1</th>
+              <th class="r" style="width:22%">Fase 2</th>
+              <th class="r" style="width:20%">Δ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Talla</td>
+              <td class="r"><span class="tag t-amber">L</span></td>
+              <td class="r"><span class="tag t-amber">L</span></td>
+              <td class="r note">igual</td>
+            </tr>
+            <tr>
+              <td>PM esperado</td>
+              <td class="r num">8,0</td>
+              <td class="r num">7,4</td>
+              <td class="r num delta-dn">−7,5 %</td>
+            </tr>
+            <tr>
+              <td>Rango PM</td>
+              <td class="r num">6,0 – 10,0</td>
+              <td class="r num">5,5 – 9,2</td>
+              <td class="r num delta-dn">−0,3 amplitud</td>
+            </tr>
+            <tr>
+              <td>FTE a 6 meses</td>
+              <td class="r num">1,33</td>
+              <td class="r num">1,23</td>
+              <td class="r num delta-dn">−0,10</td>
+            </tr>
+            <tr>
+              <td>Confianza</td>
+              <td class="r num">62</td>
+              <td class="r num">84</td>
+              <td class="r num delta-dn">+22</td>
+            </tr>
+            <tr>
+              <td>QA Engineer</td>
+              <td class="r num">22 %</td>
+              <td class="r num">27 %</td>
+              <td class="r num delta-up">+5 pp</td>
+            </tr>
+            <tr>
+              <td>Backend Dev</td>
+              <td class="r num">56 %</td>
+              <td class="r num">50 %</td>
+              <td class="r num delta-dn">−6 pp</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="cfoot">
+          <span class="note">El backlog trajo más historias de pruebas de las que suponía el mix base de la talla L.</span>
+        </div>
+      </div>
+
+      <div class="alert a-info">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B5FBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        <div>
+          <p class="at" style="margin:0">La Fase 1 queda como está</p>
+          <p class="sm" style="margin:0; color:#26262C">Sus 8,0 PM con el modelo v1.3 siguen guardados y visibles. Sin esa
+            distancia entre las dos, no hay nada que calibrar cuando llegue el cierre.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

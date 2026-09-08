@@ -100,7 +100,7 @@ export const PeopleList: React.FC<PeopleListProps> = ({
       <EmptyState
         icon={<Icon name="user" size={32} />}
         title="Todavía no hay personas"
-        description="Registra la primera persona para empezar a construir la capacidad del chapter."
+        description="Registra la primera persona para empezar a construir la capacidad."
         action={
           <Button variant="primary" onClick={onCreate}>
             Nueva persona

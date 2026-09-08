@@ -125,8 +125,8 @@ describe("coherencia menú ↔ rutas del módulo", () => {
       }))
   );
 
-  it("hay trece entradas con permiso", () => {
-    expect(entradas).toHaveLength(13);
+  it("hay catorce entradas con permiso", () => {
+    expect(entradas).toHaveLength(14);
   });
 
   it.each(entradas)(

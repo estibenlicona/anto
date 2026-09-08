@@ -31,7 +31,7 @@ export const SpanFocusSkills: React.FC<SpanFocusSkillsProps> = ({ skills }) => {
         {/* Dicho, y no deducido de la ubicación: la columna también muestra el
             detalle de una persona, y las dos lecturas se parecen. */}
         <p className="text-body-sm text-neutral-subtlest">
-          Agregado del chapter, no de una persona
+          Agregado del conjunto, no de una persona
         </p>
       </div>
 

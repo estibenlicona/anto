@@ -55,7 +55,7 @@ export const PersonStacksPanel: React.FC<PersonStacksPanelProps> = ({
           </span>
           <span className={SECONDARY_TEXT}>
             Sin esto, la persona no aparece al filtrar por stack ni cuenta en la
-            cobertura del chapter.
+            cobertura de stacks.
           </span>
           <Button variant="secondary" size="small" onClick={onEdit}>
             Agregar stacks

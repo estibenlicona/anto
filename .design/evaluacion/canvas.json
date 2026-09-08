@@ -1,0 +1,84 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1240,
+      "h": 700,
+      "title": "Las tres fases en la iniciativa"
+    },
+    {
+      "file": "Gate.dc.html",
+      "x": 1360,
+      "y": 0,
+      "w": 1100,
+      "h": 560,
+      "title": "Fase 2 bloqueada · falta la épica"
+    },
+    {
+      "file": "Fase2.dc.html",
+      "x": 0,
+      "y": 840,
+      "w": 1240,
+      "h": 800,
+      "title": "Fase 2 · Estimación por backlog"
+    },
+    {
+      "file": "Cierre.dc.html",
+      "x": 1360,
+      "y": 840,
+      "w": 1240,
+      "h": 840,
+      "title": "Fase 3 · Cierre y calibración"
+    },
+    {
+      "file": "Cocomo.dc.html",
+      "x": 1360,
+      "y": 1780,
+      "w": 1240,
+      "h": 700,
+      "title": "Fase 2 · Los factores del modelo"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "la-idea",
+      "x": 0,
+      "y": -240,
+      "w": 700,
+      "text": "LA IDEA\n\nTres estimaciones que conviven, ninguna reemplaza a la anterior:\n\n1. TEMPRANA — la que ya tenés. Una apuesta con lo que se sabe antes de que exista el backlog.\n2. POR BACKLOG — se lee la épica de Azure y se estima sobre historias reales.\n3. CIERRE Y CALIBRACIÓN — qué costó de verdad, y por qué se desvió.\n\nLa distancia entre las tres ES la calibración. Guardar sólo la última tira el aprendizaje."
+    },
+    {
+      "id": "de-donde-sale",
+      "x": 740,
+      "y": -240,
+      "w": 620,
+      "text": "NO ES INVENTADO\n\nTu documento de roles ya describe esto como el \"Gate de Etapa 2\": Etapa 1 completada, más Epic mapeado, más arquitectura definida, habilitan la estimación refinada.\n\nEsta propuesta le pone pantalla a esa decisión que ya tomaste, con el vocabulario que ya usa la app: tallas XS a XL con su rango en persona-mes, y el mix Backend Dev / QA Engineer / Arquitecto."
+    },
+    {
+      "id": "lo-visual",
+      "x": 0,
+      "y": 1700,
+      "w": 1240,
+      "text": "LO QUE HACE QUE SE ENTIENDA DE UN VISTAZO\n\nLa misma barra comparativa aparece en las tres pantallas: temprana, backlog y real, siempre en ese orden y con el mismo color. En el cierre las tres se ven juntas y el desvío se lee sin hacer una cuenta.\n\nEn Fase 2 el backlog se muestra tal como llegó, con las historias sin estimar marcadas: son las que abren el rango. Un total limpio escondería que cuatro historias no tienen puntos.\n\nEn el cierre, cada novedad declara a qué afectó — plazo, esfuerzo o ambos. Sin eso, un desvío del 23 % queda como culpa de quien estimó."
+    },
+    {
+      "id": "cocomo",
+      "x": 2700,
+      "y": 0,
+      "w": 640,
+      "text": "COCOMO II, Y SU LETRA CHICA\n\nTu doc ya lo pedía para la Etapa 2. Dos cosas que hay que resolver para que el ±25 % sea real y no decorativo:\n\n1. COCOMO se alimenta de tamaño absoluto (KSLOC o puntos de función). Un punto de historia es una medida del equipo, no absoluta. La conversión no se supone: la calibran las iniciativas ya cerradas — que es justo lo que produce la Fase 3.\n\n2. Pide 22 factores. Veinte describen a la organización y viven en Parámetros del modelo, versionados. Por iniciativa se responden los cuatro que de verdad cambian."
+    },
+    {
+      "id": "para-decidir",
+      "x": 1360,
+      "y": 2520,
+      "w": 760,
+      "text": "PARA DECIDIR\n\n1. ¿Quién cierra la estimación de Fase 2? Tu doc dice que el líder técnico mapea la épica y marca arquitectura, pero no quién firma el número.\n\n2. ¿La talla de Fase 2 reemplaza a la de Fase 1 en el resto de la app, o conviven y manda la más nueva?\n\n3. El factor puntos → KSLOC: ¿por célula, como lo dibujé, o uno solo para toda la organización? Por célula es más fiel y necesita más cierres para ser confiable.\n\n4. Con menos de N iniciativas cerradas el factor no es confiable. ¿Qué hace la Fase 2 mientras tanto: se bloquea, o estima avisando que el factor es provisional?"
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

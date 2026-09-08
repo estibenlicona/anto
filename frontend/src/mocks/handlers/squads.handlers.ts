@@ -15,7 +15,7 @@ import { clampPagination, paginate } from "@shared/services/pagination";
 // dos) y es de sólo lectura, así que no hay ciclo ni mutación cruzada.
 import { getAllocationsSnapshot } from "./allocations.handlers";
 import { availableFteOf, fteOfPercentages, round1 } from "./fte";
-import { vistaDe, type Vista } from "./scope";
+import { getPeopleSnapshot } from "./people.handlers";
 import { getInitiativesSnapshot } from "./initiatives.handlers";
 // Misma dirección de sólo lectura que con allocations/initiatives: el nombre
 // del equipo se resuelve contra el snapshot de equipos, nunca al revés (ver
@@ -105,15 +105,16 @@ let squads: StoredSquad[] = initialSquads.map((s) => ({ ...s }));
 /**
  * Σ availableFte de las personas que aparecen en estas asignaciones.
  *
- * Las asignaciones que llegan acá salen de la vista, así que su persona está
- * entre las visibles y el `?? 0` no se dispara. Si alguna vez se le pasaran
- * las asignaciones sin acotar, ese cero silencioso haría que la célula
- * pareciera al tope sin que nada fallara: por eso el cruce se hace siempre
- * contra `vista.people` y no contra el snapshot completo.
+ * Personas y asignaciones salen del mismo conjunto —todo lo registrado—, así
+ * que la persona de cada asignación está siempre presente y el `?? 0` no se
+ * dispara. Si alguna vez vuelve a acotarse (la vista personal), hay que
+ * filtrar **las dos puntas**: pasar las asignaciones sin acotar junto a
+ * personas acotadas haría que ese cero silencioso mostrara la célula al tope
+ * sin que nada fallara.
  */
 function peopleAvailableFteOf(
   own: ReturnType<typeof getAllocationsSnapshot>,
-  people: Vista["people"]
+  people: ReturnType<typeof getPeopleSnapshot>
 ): number {
   return availableFteOf(
     own.map((a) => ({
@@ -154,12 +155,13 @@ function teamNameOf(teamId: string): string {
   return getTeamsSnapshot().find((t) => t.id === teamId)?.name ?? "";
 }
 
-/**
- * Suma equipo y capacidad de una célula desde las asignaciones vigentes —las
- * de las personas que quien pidió alcanza a ver, ver scope.ts—.
- */
-function enrich(squad: StoredSquad, vista: Vista): SquadDto {
-  const own = vista.allocations.filter((a) => a.squadId === squad.id);
+/** Suma equipo y capacidad de una célula desde las asignaciones vigentes. */
+function enrich(
+  squad: StoredSquad,
+  people: ReturnType<typeof getPeopleSnapshot>,
+  allocations: ReturnType<typeof getAllocationsSnapshot>
+): SquadDto {
+  const own = allocations.filter((a) => a.squadId === squad.id);
   // La fórmula vive en ./fte: Torre, Células y Líneas comparten la cuenta.
   const sum = (pick: (a: (typeof own)[number]) => number) =>
     fteOfPercentages(own.map(pick));
@@ -174,15 +176,18 @@ function enrich(squad: StoredSquad, vista: Vista): SquadDto {
     allocatedFte: sum((a) => a.dedicationPercentage),
     bauFte: sum((a) => a.bauPercentage),
     transformationFte: sum((a) => a.transformationPercentage),
-    peopleAvailableFte: peopleAvailableFteOf(own, vista.people),
+    peopleAvailableFte: peopleAvailableFteOf(own, people),
     activeInitiatives: activeInitiativesOf(squad.id),
   };
 }
 
 /** Resumen del equipo de una célula: sus asignaciones cruzadas con las personas. */
-function computeTeamStats(squad: StoredSquad, vista: Vista): SquadTeamStats {
-  const own = vista.allocations.filter((a) => a.squadId === squad.id);
-  const people = vista.people;
+function computeTeamStats(
+  squad: StoredSquad,
+  people: ReturnType<typeof getPeopleSnapshot>,
+  allocations: ReturnType<typeof getAllocationsSnapshot>
+): SquadTeamStats {
+  const own = allocations.filter((a) => a.squadId === squad.id);
   const members = own
     .map((a) => people.find((p) => p.id === a.personId))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
@@ -199,7 +204,7 @@ function computeTeamStats(squad: StoredSquad, vista: Vista): SquadTeamStats {
     allocatedFte: sum((a) => a.dedicationPercentage),
     bauFte: sum((a) => a.bauPercentage),
     transformationFte: sum((a) => a.transformationPercentage),
-    peopleAvailableFte: peopleAvailableFteOf(own, vista.people),
+    peopleAvailableFte: peopleAvailableFteOf(own, people),
   };
 }
 
@@ -227,8 +232,12 @@ function filterSquads(
   return filtered;
 }
 
-function computeStats(source: StoredSquad[], vista: Vista): SquadsStats {
-  const enriched = source.map((s) => enrich(s, vista));
+function computeStats(
+  source: StoredSquad[],
+  people: ReturnType<typeof getPeopleSnapshot>,
+  allocations: ReturnType<typeof getAllocationsSnapshot>
+): SquadsStats {
+  const enriched = source.map((s) => enrich(s, people, allocations));
   const total = (pick: (s: SquadDto) => number) =>
     round1(enriched.reduce((acc, s) => acc + pick(s), 0));
   return {
@@ -241,7 +250,7 @@ function computeStats(source: StoredSquad[], vista: Vista): SquadsStats {
     allocatedFte: total((s) => s.allocatedFte),
     bauFte: total((s) => s.bauFte),
     transformationFte: total((s) => s.transformationFte),
-    chapterFte: availableFteOf(vista.people),
+    chapterFte: availableFteOf(people),
     byCriticality: CRITICALITY_VALUES.map((criticality) => ({
       criticality,
       count: source.filter((s) => s.criticality === criticality).length,
@@ -285,8 +294,10 @@ function teamExists(teamId: string): boolean {
 }
 
 export const squadsHandlers = [
-  http.get(SQUADS_STATS_URL, ({ request }) => {
-    return HttpResponse.json(computeStats(squads, vistaDe(request)));
+  http.get(SQUADS_STATS_URL, () => {
+    return HttpResponse.json(
+      computeStats(squads, getPeopleSnapshot(), getAllocationsSnapshot())
+    );
   }),
 
   http.get(SQUADS_URL, ({ request }) => {
@@ -304,16 +315,15 @@ export const squadsHandlers = [
     const teamIds = url.searchParams.getAll("teamId");
     const filtered = filterSquads(squads, search, criticalities, teamIds);
     const result = paginate(filtered, page, pageSize);
-    // Las células se listan todas: son del chapter, no de una persona. Lo que
-    // se acota es su equipo y las cifras que salen de él.
-    const vista = vistaDe(request);
+    const people = getPeopleSnapshot();
+    const allocations = getAllocationsSnapshot();
     return HttpResponse.json({
       ...result,
-      items: result.items.map((s) => enrich(s, vista)),
+      items: result.items.map((s) => enrich(s, people, allocations)),
     });
   }),
 
-  http.get(`${SQUADS_URL}/:id/team-stats`, ({ params, request }) => {
+  http.get(`${SQUADS_URL}/:id/team-stats`, ({ params }) => {
     const existing = squads.find((s) => s.id === params.id);
     if (!existing) {
       return HttpResponse.json(
@@ -321,10 +331,12 @@ export const squadsHandlers = [
         { status: 404 }
       );
     }
-    return HttpResponse.json(computeTeamStats(existing, vistaDe(request)));
+    return HttpResponse.json(
+      computeTeamStats(existing, getPeopleSnapshot(), getAllocationsSnapshot())
+    );
   }),
 
-  http.get(`${SQUADS_URL}/:id`, ({ params, request }) => {
+  http.get(`${SQUADS_URL}/:id`, ({ params }) => {
     const existing = squads.find((s) => s.id === params.id);
     if (!existing) {
       return HttpResponse.json(
@@ -332,7 +344,9 @@ export const squadsHandlers = [
         { status: 404 }
       );
     }
-    return HttpResponse.json(enrich(existing, vistaDe(request)));
+    return HttpResponse.json(
+      enrich(existing, getPeopleSnapshot(), getAllocationsSnapshot())
+    );
   }),
 
   http.post(SQUADS_URL, async ({ request }) => {
@@ -361,9 +375,12 @@ export const squadsHandlers = [
     };
     squads = [...squads, created];
     // Recién creada: sin asignaciones, así que enrich() devuelve ceros.
-    return HttpResponse.json(enrich(created, vistaDe(request)), {
-      status: 201,
-    });
+    return HttpResponse.json(
+      enrich(created, getPeopleSnapshot(), getAllocationsSnapshot()),
+      {
+        status: 201,
+      }
+    );
   }),
 
   http.put(`${SQUADS_URL}/:id`, async ({ request, params }) => {
@@ -397,7 +414,9 @@ export const squadsHandlers = [
       updatedAtUtc: new Date().toISOString(),
     };
     squads = squads.map((s) => (s.id === id ? updated : s));
-    return HttpResponse.json(enrich(updated, vistaDe(request)));
+    return HttpResponse.json(
+      enrich(updated, getPeopleSnapshot(), getAllocationsSnapshot())
+    );
   }),
 
   http.delete(`${SQUADS_URL}/:id`, ({ params }) => {

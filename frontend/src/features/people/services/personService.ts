@@ -155,7 +155,9 @@ export const personService = {
     search?: string,
     levels?: Level[],
     seniorities?: Seniority[],
-    stacks?: string[]
+    stacks?: string[],
+    /** `"mine"` acota a los colaboradores del titular; omitido, trae todo. */
+    scope?: "mine"
   ): Promise<PagedResult<PersonDto>> => {
     // Serializado a mano: el default de axios para arrays emite `seniority[]=`,
     // pero el mock y el backend real esperan la clave repetida sin corchetes
@@ -167,6 +169,7 @@ export const personService = {
     levels?.forEach((l) => params.append("level", String(l)));
     seniorities?.forEach((s) => params.append("seniority", s));
     stacks?.forEach((s) => params.append("stack", s));
+    if (scope) params.set("scope", scope);
 
     const response = await httpClient.get<PagedResult<PersonDto>>(PEOPLE_URL, {
       params,
@@ -262,8 +265,10 @@ export const personService = {
     return response.data;
   },
 
-  getStats: async (): Promise<PeopleStats> => {
-    const response = await httpClient.get<PeopleStats>(PEOPLE_STATS_URL);
+  getStats: async (scope?: "mine"): Promise<PeopleStats> => {
+    const response = await httpClient.get<PeopleStats>(PEOPLE_STATS_URL, {
+      params: scope ? { scope } : undefined,
+    });
     return response.data;
   },
 };

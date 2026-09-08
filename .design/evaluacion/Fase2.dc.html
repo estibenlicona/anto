@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+  <style>
+    body { margin: 0; font-family: "IBM Plex Sans", system-ui, sans-serif; background: #FAFAFB; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 8px; }
+    .k { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+         text-transform: uppercase; color: #74747E; }
+    .sm { font-size: 13px; line-height: 20px; color: #55555E; }
+    .row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid #F4F4F5; }
+    .sp { margin-left: auto; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; color: #26262C; }
+    .tag { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 4px;
+           font-size: 12px; font-weight: 600; }
+    .talla { display: inline-flex; align-items: center; justify-content: center; height: 30px;
+             min-width: 40px; padding: 0 11px; border-radius: 6px; font-size: 16px; font-weight: 700; }
+  </style>
+</helmet>
+
+<div style="padding: 26px 28px; display: flex; flex-direction: column; gap: 18px">
+
+  <div>
+    <div style="font-size: 13px; color: #74747E; padding-bottom: 6px">Kafka Migration / Fase 2 · Estimación por backlog</div>
+    <div style="font-size: 24px; line-height: 30px; font-weight: 600; color: #26262C">Estimar con el backlog real</div>
+    <div class="sm" style="padding-top: 4px">La épica está vinculada, así que el backlog se lee de Azure DevOps en vez de suponerse.</div>
+  </div>
+
+  <!-- El vínculo con Azure: el requisito de esta fase, visible arriba de todo -->
+  <div class="card" style="padding: 14px 18px; display: flex; align-items: center; gap: 14px">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#116B4B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    <div>
+      <div style="font-size: 14px; font-weight: 600; color: #26262C">Épica vinculada · TUYA-4417 “Migración de mensajería a Kafka”</div>
+      <div class="sm">Traído hace 2 h · 34 historias, 6 features · proyecto Core Banking</div>
+    </div>
+    <div style="margin-left: auto; display: flex; gap: 10px">
+      <div style="height: 32px; padding: 0 12px; border: 1px solid #E3E3E6; border-radius: 8px; background: #fff;
+                  font-size: 13px; font-weight: 600; color: #26262C; display: flex; align-items: center; gap: 7px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#55555E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg>
+        Traer de nuevo
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; align-items: start">
+
+    <!-- El backlog, tal como llegó -->
+    <div class="card" style="padding: 16px 18px">
+      <div style="display: flex; align-items: center; gap: 10px; padding-bottom: 6px">
+        <div class="k" style="padding: 0">El backlog que trajimos</div>
+        <div class="sm" style="margin-left: auto">248 puntos</div>
+      </div>
+
+      <div class="row" style="border-top: none">
+        <span class="tag" style="background: #EDE9FE; color: #5B21B6">Feature</span>
+        <div style="font-size: 14px; color: #26262C">Productores y esquemas</div>
+        <span class="sp">89</span>
+      </div>
+      <div class="row" style="padding-left: 18px">
+        <span class="tag" style="background: #F4F4F5; color: #55555E">Historia</span>
+        <div style="font-size: 14px; color: #26262C">Publicar eventos de transacción</div>
+        <span class="sp">21</span>
+      </div>
+      <div class="row" style="padding-left: 18px">
+        <span class="tag" style="background: #F4F4F5; color: #55555E">Historia</span>
+        <div style="font-size: 14px; color: #26262C">Registro de esquemas Avro</div>
+        <span class="sp">13</span>
+      </div>
+      <div class="row" style="padding-left: 18px">
+        <span class="tag" style="background: #FBF2DE; color: #6E4B00">Sin estimar</span>
+        <div style="font-size: 14px; color: #26262C">Reintentos y cola de descarte</div>
+        <span class="sp" style="color: #6E4B00">—</span>
+      </div>
+
+      <div class="row">
+        <span class="tag" style="background: #EDE9FE; color: #5B21B6">Feature</span>
+        <div style="font-size: 14px; color: #26262C">Consumidores de core</div>
+        <span class="sp">76</span>
+      </div>
+      <div class="row">
+        <span class="tag" style="background: #EDE9FE; color: #5B21B6">Feature</span>
+        <div style="font-size: 14px; color: #26262C">Observabilidad y alertas</div>
+        <span class="sp">45</span>
+      </div>
+      <div class="row">
+        <span class="tag" style="background: #EDE9FE; color: #5B21B6">Feature</span>
+        <div style="font-size: 14px; color: #26262C">Corte y convivencia</div>
+        <span class="sp">38</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px; border-top: 1px solid #E3E3E6; margin-top: 10px; padding-top: 12px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E4B00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <div class="sm" style="color: #6E4B00">4 historias sin estimar. La cifra de abajo no las cuenta y por eso el rango se abre.</div>
+      </div>
+    </div>
+
+    <!-- Lo que el backlog dice, contra lo que dijo la evaluación temprana -->
+    <div style="display: flex; flex-direction: column; gap: 16px">
+
+      <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 14px">
+        <div class="k">Del backlog al esfuerzo</div>
+
+        <!-- Cada paso dice de dónde sale su número: sin eso el resultado es
+             un oráculo, y nadie discute con un oráculo. -->
+        <div style="display: flex; flex-direction: column; gap: 0">
+
+          <div style="display: flex; align-items: baseline; gap: 10px; padding-bottom: 10px">
+            <div style="font-size: 14px; font-weight: 600; color: #26262C">248 puntos</div>
+            <div class="sm" style="margin-left: auto">del backlog</div>
+          </div>
+
+          <div style="display: flex; align-items: baseline; gap: 10px; padding: 10px 0; border-top: 1px solid #F4F4F5">
+            <div style="font-size: 14px; font-weight: 600; color: #26262C">6.4 KSLOC</div>
+            <div class="sm" style="margin-left: auto">× 0.026 calibrado con 7 cierres</div>
+          </div>
+
+          <div style="display: flex; align-items: baseline; gap: 10px; padding: 10px 0; border-top: 1px solid #F4F4F5">
+            <div style="font-size: 14px; font-weight: 600; color: #26262C">COCOMO II</div>
+            <div class="sm" style="margin-left: auto">4 factores propios · 18 heredados</div>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid #E3E3E6">
+            <span class="talla" style="background: #DBEAFE; color: #1E40AF">L</span>
+            <div>
+              <div style="font-size: 20px; line-height: 26px; font-weight: 600; color: #26262C">6.4 PM</div>
+              <div class="sm">4.8 – 8.0 con el ±25 % del modelo</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid #E3E3E6; padding-top: 10px; display: flex; align-items: center; gap: 8px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#55555E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          <div class="sm">Ver los factores</div>
+        </div>
+      </div>
+
+      <div class="card" style="padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+        <div class="k">Contra la evaluación temprana</div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span class="talla" style="background: #EDE9FE; color: #5B21B6; height: 26px; font-size: 14px">M</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#74747E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          <span class="talla" style="background: #DBEAFE; color: #1E40AF; height: 26px; font-size: 14px">L</span>
+          <div class="sm" style="margin-left: auto; color: #6E4B00; font-weight: 600">+1 talla</div>
+        </div>
+        <div class="sm">Sube una talla: el backlog trajo la observabilidad y el corte, que la evaluación temprana no había considerado.</div>
+        <div style="border-top: 1px solid #E3E3E6; padding-top: 12px; display: flex; gap: 10px">
+          <div style="height: 34px; padding: 0 14px; border-radius: 8px; background: #C9151F; color: #fff;
+                      font-size: 14px; font-weight: 600; display: flex; align-items: center">Guardar estimación</div>
+          <div style="height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid #E3E3E6; background: #fff;
+                      font-size: 14px; font-weight: 600; color: #26262C; display: flex; align-items: center">Mantener M</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

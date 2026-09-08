@@ -1,0 +1,413 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h2 { font-size: 18px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 12px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; }
+    .frame { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px; overflow: hidden; }
+    .fhead { border-bottom: 1px solid #E3E3E6; padding: 16px 20px; display: flex;
+             align-items: flex-end; justify-content: space-between; gap: 16px; }
+    .ffoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 14px 20px;
+             display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-purple { background: #EFEAFB; color: #3D2894; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6; }
+    td { padding: 10px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tfoot td { background: #FAFAFB; font-weight: 600; border-bottom: 0; border-top: 1px solid #E3E3E6; }
+    .r { text-align: right; }
+
+    .alert { display: flex; gap: 14px; border-left: 2px solid; border-radius: 0 8px 8px 0; padding: 16px; }
+    .a-warn { border-color: #B57A00; background: #FBF2DE; } .a-warn .at { color: #6E4B00; }
+    .at { font-size: 14px; line-height: 22px; font-weight: 600; margin-bottom: 4px; }
+
+    .bar { height: 6px; border-radius: 8px; background: #F4F4F5; overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 8px; }
+
+    /* Escala de tallas: las cinco bandas a escala del score, con la marca
+       encima. Un 2px de fondo entre bandas para que se lean como cinco. */
+    .scale { display: flex; gap: 2px; height: 12px; position: relative; }
+    .scale > span { border-radius: 3px; }
+    .marker { position: absolute; top: -5px; width: 3px; height: 22px; border-radius: 2px;
+              background: #26262C; box-shadow: 0 0 0 2px #FFFFFF; }
+
+    .pmtrack { position: relative; height: 30px; background: #FAFAFB; border-radius: 6px; }
+    .pmtrack .grid { position: absolute; top: 0; bottom: 0; width: 1px; background: #EFEFF0; }
+    .pmrng { position: absolute; top: 9px; height: 12px; border-radius: 6px; background: #2563EB; }
+    .pmpt { position: absolute; top: 4px; width: 3px; height: 22px; border-radius: 2px;
+            background: #26262C; box-shadow: 0 0 0 2px #FFFFFF; }
+    .axis { position: relative; height: 18px; }
+    .axis span { position: absolute; transform: translateX(-50%); }
+
+    .out { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; }
+    .metric { font-size: 34px; line-height: 40px; font-weight: 600; letter-spacing: -0.02em; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Iniciativas <span style="color:#C9C9CE">/</span> Kafka Migration <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Fase 1 · Resultado</span></div>
+
+  <div class="frame">
+    <div class="fhead">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <h2 class="h2" style="margin: 0">Resultado de la estimación temprana</h2>
+        <p class="note" style="margin: 0">26 de 30 preguntas respondidas · Modelo Paramétrico v1.4</p>
+      </div>
+      <span class="tag t-gray mono" style="min-width:0">Sin guardar</span>
+    </div>
+
+    <!-- Las tres salidas, separadas. El modelo las mantiene independientes y la
+         pantalla lo respeta: el riesgo no agranda la talla, baja la confianza. -->
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); border-bottom: 1px solid #E3E3E6">
+      <div class="out" style="border-right: 1px solid #E3E3E6">
+        <span class="lbl">Salida 1 · Tamaño</span>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span class="tag t-amber" style="font-size:22px; line-height:30px; font-weight:700; min-width:52px">L</span>
+          <div>
+            <div class="num" style="font-size:22px;line-height:30px;font-weight:600">68,4</div>
+            <div class="note">score sobre 100 · banda 61 – 80</div>
+          </div>
+        </div>
+        <span class="sm">Iniciativa grande</span>
+      </div>
+      <div class="out" style="border-right: 1px solid #E3E3E6">
+        <span class="lbl">Salida 2 · Esfuerzo</span>
+        <div style="display: flex; align-items: baseline; gap: 8px">
+          <span class="metric num">8,0</span>
+          <span class="sm">PM esperados</span>
+        </div>
+        <span class="sm">Entre 6,0 y 10,0 · P10 – P90</span>
+      </div>
+      <div class="out">
+        <span class="lbl">Salida 3 · Confianza</span>
+        <div style="display: flex; align-items: baseline; gap: 8px">
+          <span class="metric" style="color:#6E4B00">Media</span>
+          <span class="num sm">62 / 100</span>
+        </div>
+        <span class="sm">No cambia la talla ni el esfuerzo: cambia cuánto creerles</span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: minmax(0,1fr) 372px">
+
+      <div style="border-right: 1px solid #E3E3E6; display: flex; flex-direction: column">
+
+        <!-- Tamaño -->
+        <div style="padding: 16px 20px; border-bottom: 1px solid #E3E3E6; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: baseline; justify-content: space-between">
+            <h3 class="h3" style="margin:0">Dónde cae el score</h3>
+            <span class="note">Umbrales de la v1.4</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <div class="scale">
+              <span style="width:20%; background:#EFEFF0"></span>
+              <span style="width:20%; background:#EFEFF0"></span>
+              <span style="width:20%; background:#EFEFF0"></span>
+              <span style="width:20%; background:#B57A00"></span>
+              <span style="width:20%; background:#EFEFF0"></span>
+              <span class="marker" style="left:68.4%"></span>
+            </div>
+            <div class="note num" style="display:flex">
+              <span style="width:20%">XS · 0–20</span>
+              <span style="width:20%">S · 21–40</span>
+              <span style="width:20%">M · 41–60</span>
+              <span style="width:20%; color:#6E4B00; font-weight:600">L · 61–80</span>
+              <span style="width:20%">XL · 81–100</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Esfuerzo -->
+        <div style="padding: 16px 20px; border-bottom: 1px solid #E3E3E6; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: baseline; justify-content: space-between">
+            <h3 class="h3" style="margin:0">Esfuerzo en persona-mes</h3>
+            <span class="note">Parámetros de esfuerzo de la talla L</span>
+          </div>
+          <div class="pmtrack">
+            <span class="grid" style="left:0%"></span><span class="grid" style="left:16.7%"></span>
+            <span class="grid" style="left:33.3%"></span><span class="grid" style="left:50%"></span>
+            <span class="grid" style="left:66.7%"></span><span class="grid" style="left:83.3%"></span>
+            <span class="grid" style="left:100%"></span>
+            <span class="pmrng" style="left:50%; width:33.3%"></span>
+            <span class="pmpt" style="left:66.7%"></span>
+          </div>
+          <div class="axis num note">
+            <span style="left:0%">0</span><span style="left:16.7%">2</span><span style="left:33.3%">4</span>
+            <span style="left:50%">6</span><span style="left:66.7%">8</span><span style="left:83.3%">10</span>
+            <span style="left:100%">12 PM</span>
+          </div>
+          <div style="display: flex; gap: 24px">
+            <div><span class="lbl">P10 · optimista</span><div class="num smd" style="font-weight:600">6,0 PM</div></div>
+            <div><span class="lbl">P50 · esperado</span><div class="num smd" style="font-weight:600">8,0 PM</div></div>
+            <div><span class="lbl">P90 · pesimista</span><div class="num smd" style="font-weight:600">10,0 PM</div></div>
+            <div><span class="lbl">Amplitud</span><div class="num smd" style="font-weight:600">1,7× entre extremos</div></div>
+          </div>
+        </div>
+
+        <!-- Plazo → FTE -->
+        <div style="padding: 16px 20px; border-bottom: 1px solid #E3E3E6; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: baseline; justify-content: space-between">
+            <h3 class="h3" style="margin:0">Capacidad que exige el plazo</h3>
+            <span class="note">El plazo es la única entrada que se cambia sin responder nada</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+                      background:#FAFAFB; border-radius: 8px; padding: 12px 14px">
+            <span class="num smd">8,0 PM</span>
+            <span style="color:#C9C9CE">÷</span>
+            <span class="num smd">6 meses</span>
+            <span style="color:#C9C9CE">=</span>
+            <span class="num" style="font-size:18px; line-height:26px; font-weight:600">1,33 FTE</span>
+            <span class="sm" style="margin-left:8px">promedio durante todo el plazo</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px">
+            <div style="border:1px solid #E3E3E6; border-radius:8px; padding:8px 12px">
+              <div class="note">3 meses</div><div class="num smd" style="font-weight:600">2,67 FTE</div>
+            </div>
+            <div style="border:2px solid #26262C; border-radius:8px; padding:7px 11px">
+              <div class="note">6 meses</div><div class="num smd" style="font-weight:600">1,33 FTE</div>
+            </div>
+            <div style="border:1px solid #E3E3E6; border-radius:8px; padding:8px 12px">
+              <div class="note">9 meses</div><div class="num smd" style="font-weight:600">0,89 FTE</div>
+            </div>
+            <div style="border:1px solid #E3E3E6; border-radius:8px; padding:8px 12px">
+              <div class="note">12 meses</div><div class="num smd" style="font-weight:600">0,67 FTE</div>
+            </div>
+          </div>
+          <p class="note" style="margin:0">La talla sigue siendo L y el esfuerzo 8,0 PM en las cuatro columnas.</p>
+        </div>
+
+        <!-- Mix -->
+        <div style="display: flex; flex-direction: column">
+          <div style="padding: 16px 20px 10px; display: flex; align-items: baseline; justify-content: space-between">
+            <h3 class="h3" style="margin:0">Demanda por perfil</h3>
+            <span class="note">Mix base de la talla L + modificadores por driver</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:30%">Capacidad</th>
+                <th style="width:34%">Participación</th>
+                <th class="r" style="width:12%">%</th>
+                <th class="r" style="width:12%">FTE</th>
+                <th style="width:12%"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Backend Dev</td>
+                <td><span class="bar"><i style="width:56%; background:#1B5FBF"></i></span></td>
+                <td class="r num">56</td>
+                <td class="r num">0,74</td>
+                <td class="note">base 60</td>
+              </tr>
+              <tr>
+                <td>QA Engineer</td>
+                <td><span class="bar"><i style="width:22%; background:#1B5FBF"></i></span></td>
+                <td class="r num">22</td>
+                <td class="r num">0,29</td>
+                <td class="note" style="color:#6E4B00">base 18 · +4 pp</td>
+              </tr>
+              <tr>
+                <td>Business Analyst</td>
+                <td><span class="bar"><i style="width:11%; background:#1B5FBF"></i></span></td>
+                <td class="r num">11</td>
+                <td class="r num">0,15</td>
+                <td class="note">base 11</td>
+              </tr>
+              <tr>
+                <td>Arquitecto</td>
+                <td><span class="bar"><i style="width:11%; background:#1B5FBF"></i></span></td>
+                <td class="r num">11</td>
+                <td class="r num">0,15</td>
+                <td class="note">base 11</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>Total</td>
+                <td class="note" style="font-weight:400">+4 pp a QA por el driver Criticidad de negocio</td>
+                <td class="r num">100</td>
+                <td class="r num">1,33</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Columna derecha: por qué esta talla, y por qué esta confianza -->
+      <div style="display: flex; flex-direction: column">
+
+        <div style="padding: 16px 20px; border-bottom: 1px solid #E3E3E6; display: flex; flex-direction: column; gap: 12px">
+          <h3 class="h3" style="margin:0">De dónde viene el score</h3>
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline">
+                <span class="smd">Negocio y cliente</span>
+                <span class="num note">88 % · pesa 11 %</span>
+              </div>
+              <span class="bar" style="margin-top:4px"><i style="width:88%; background:#116B4B"></i></span>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline">
+                <span class="smd">Integraciones</span>
+                <span class="num note">78 % · pesa 14 %</span>
+              </div>
+              <span class="bar" style="margin-top:4px"><i style="width:78%; background:#116B4B"></i></span>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline">
+                <span class="smd">Datos y seguridad</span>
+                <span class="num note">69 % · pesa 19 %</span>
+              </div>
+              <span class="bar" style="margin-top:4px"><i style="width:69%; background:#116B4B"></i></span>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline">
+                <span class="smd">Alcance funcional</span>
+                <span class="num note">65 % · pesa 14 %</span>
+              </div>
+              <span class="bar" style="margin-top:4px"><i style="width:65%; background:#116B4B"></i></span>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline">
+                <span class="smd">Tecnología y arquitectura</span>
+                <span class="num note">63 % · pesa 19 %</span>
+              </div>
+              <span class="bar" style="margin-top:4px"><i style="width:63%; background:#116B4B"></i></span>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline">
+                <span class="smd">Incertidumbre y dependencias</span>
+                <span class="num note">63 % · pesa 10 %</span>
+              </div>
+              <span class="bar" style="margin-top:4px"><i style="width:63%; background:#116B4B"></i></span>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline">
+                <span class="smd">Operación y soporte</span>
+                <span class="num note">56 % · pesa 13 %</span>
+              </div>
+              <span class="bar" style="margin-top:4px"><i style="width:56%; background:#116B4B"></i></span>
+            </div>
+          </div>
+          <div class="note num" style="border-top: 1px solid #E3E3E6; padding-top: 10px">
+            191,5 de 280 puntos posibles = 68,4
+          </div>
+        </div>
+
+        <!-- Confianza: la salida que hoy no existe. Sin las fuentes, un
+             "Media" es una opinión sin apelación. -->
+        <div style="padding: 16px 20px; border-bottom: 1px solid #E3E3E6; display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: baseline; justify-content: space-between">
+            <h3 class="h3" style="margin:0">Qué le baja la confianza</h3>
+            <span class="tag t-amber" style="min-width:0">62 / 100</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display:flex; align-items:flex-start; gap:10px">
+              <span class="tag t-amber num" style="min-width:44px">−18</span>
+              <div>
+                <div class="smd">4 preguntas sin responder</div>
+                <div class="note">O3, O4, D3 y D4 · cobertura 87 %</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:10px">
+              <span class="tag t-amber num" style="min-width:44px">−14</span>
+              <div>
+                <div class="smd">Incertidumbre declarada por el equipo</div>
+                <div class="note">D1 requerimiento aún ambiguo · D2 dependencias sin confirmar</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:flex-start; gap:10px">
+              <span class="tag t-amber num" style="min-width:44px">−6</span>
+              <div>
+                <div class="smd">Un driver sin evidencia</div>
+                <div class="note">I2 terceros externos quedó marcado «por confirmar»</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 8px">
+          <h3 class="h3" style="margin:0">Con qué se va a guardar</h3>
+          <div style="display:flex; justify-content:space-between"><span class="sm">Modelo</span><span class="smd mono">Paramétrico v1.4</span></div>
+          <div style="display:flex; justify-content:space-between"><span class="sm">Cuestionario</span><span class="smd mono">preguntas v8</span></div>
+          <div style="display:flex; justify-content:space-between"><span class="sm">Pesos</span><span class="smd mono">pesos v4</span></div>
+          <div style="display:flex; justify-content:space-between"><span class="sm">Reglas de talla</span><span class="smd mono">umbrales v2</span></div>
+          <div style="display:flex; justify-content:space-between"><span class="sm">Mix</span><span class="smd mono">mix v5</span></div>
+          <p class="note" style="margin: 6px 0 0; border-top:1px solid #E3E3E6; padding-top:10px">
+            Este snapshot queda congelado. Si mañana cambian los pesos, esta
+            estimación sigue diciendo lo mismo.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ffoot">
+      <span class="note">Al guardar, la iniciativa queda con talla L y 1,33 FTE de demanda. Activarla es otro paso.</span>
+      <div style="display: flex; gap: 8px">
+        <span class="btn btn-s">Revisar respuestas</span>
+        <span class="btn btn-p">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
+          Guardar Fase 1
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert a-warn">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B57A00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+    <div>
+      <p class="at" style="margin:0">Cuatro preguntas sin responder abren el rango</p>
+      <p class="sm" style="margin:0; color:#26262C">Responder Operación y soporte completo subiría la confianza a Alta y
+        angostaría el rango a 6,8 – 9,2 PM. La talla no cambiaría.</p>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

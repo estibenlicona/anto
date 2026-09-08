@@ -3,6 +3,10 @@ import {
   careerPlanService,
   type SpanSummaryDto,
 } from "../services/careerPlanService";
+import {
+  scopeParam,
+  useCapacityScope,
+} from "@features/capacity-shell/CapacityScopeContext";
 
 /**
  * El resumen del span: una sola petición, y no vuelve a pedirse al acotar o
@@ -16,10 +20,12 @@ export const useSpanSummary = () => {
   const [summary, setSummary] = useState<SpanSummaryDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // El alcance lo declara la ruta: "Mi Línea" pide recorte, el resto no.
+  const scope = scopeParam(useCapacityScope());
 
   useEffect(() => {
     let cancelled = false;
-    careerPlanService.getSpanSummary().then(
+    careerPlanService.getSpanSummary(scope).then(
       (data) => {
         if (cancelled) return;
         setSummary(data);
@@ -36,7 +42,7 @@ export const useSpanSummary = () => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [scope]);
 
   return { summary, loading, error };
 };

@@ -25,7 +25,7 @@ export const ControlTowerStatsCards: React.FC<ControlTowerStatsCardsProps> = ({
           con el punto de leyenda visible porque DistributionCard lo dibuja
           sobre blanco. */}
       <DistributionCard
-        title="FTE DEL CHAPTER"
+        title="FTE"
         total={overview.chapterFte}
         totalNoun="FTE"
         items={[
@@ -42,7 +42,7 @@ export const ControlTowerStatsCards: React.FC<ControlTowerStatsCardsProps> = ({
             <span className="font-bold tabular-nums text-neutral-default">
               {freePct}%
             </span>{" "}
-            del FTE del chapter sin asignar
+            del FTE sin asignar
           </>
         }
       />

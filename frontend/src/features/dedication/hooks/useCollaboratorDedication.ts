@@ -5,6 +5,10 @@ import {
   dedicationAdapter,
   type CollaboratorList,
 } from "../adapters/DedicationAdapter";
+import {
+  scopeParam,
+  useCapacityScope,
+} from "@features/capacity-shell/CapacityScopeContext";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -38,6 +42,8 @@ export const useCollaboratorDedication = (
    */
   const [sprint, setSprint] = useState<string | null>(initialSprint);
   const [reloadTick, setReloadTick] = useState(0);
+  // El alcance lo declara la ruta: "Mi Línea" pide recorte, el resto no.
+  const scope = scopeParam(useCapacityScope());
   const [settled, setSettled] = useState<Settled>({
     key: "",
     list: null,
@@ -59,7 +65,8 @@ export const useCollaboratorDedication = (
       .listCollaborators(
         { search: debouncedSearch, squadIds },
         { page, pageSize },
-        sprint ?? undefined
+        sprint ?? undefined,
+        scope
       )
       .then(
         (dto) => {
@@ -93,6 +100,7 @@ export const useCollaboratorDedication = (
     sprint,
     reloadTick,
     requestKey,
+    scope,
   ]);
 
   const loading = settled.key !== requestKey;

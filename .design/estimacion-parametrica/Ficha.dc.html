@@ -1,0 +1,394 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 12px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-sm { gap: 6px; padding: 4px 12px; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+    .btn-off { background: #F4F4F5; color: #A0A0A8; border-color: #74747E2E; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-red { background: #FBE9EA; color: #700C13; }
+    .t-purple { background: #EFEAFB; color: #3D2894; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-ok { background: #E7F3EC; color: #0D5239; } .b-ok .dot { background: #116B4B; }
+    .b-warn { background: #FBF2DE; color: #6E4B00; } .b-warn .dot { background: #B57A00; }
+    .b-neu { background: #F4F4F5; color: #26262C; } .b-neu .dot { background: #74747E; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E;
+         border-bottom: 1px solid #E3E3E6; }
+    td { padding: 10px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .r { text-align: right; }
+
+    .alert { display: flex; gap: 14px; border-left: 2px solid; border-radius: 0 8px 8px 0; padding: 16px; }
+    .a-info { border-color: #1B5FBF; background: #E8F0FC; } .a-info .at { color: #154A96; }
+    .at { font-size: 14px; line-height: 22px; font-weight: 600; margin-bottom: 4px; }
+
+    .bar { height: 6px; border-radius: 8px; background: #F4F4F5; overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 8px; }
+
+    /* Eje compartido de las tres estimaciones: una sola escala 0–14 PM.
+       Sin ella cada barra se leería contra su propio máximo. */
+    .axis { position: relative; height: 22px; }
+    .axis span { position: absolute; transform: translateX(-50%); }
+    .track { position: relative; height: 26px; background: #FAFAFB; border-radius: 6px; }
+    .track .grid { position: absolute; top: 0; bottom: 0; width: 1px; background: #EFEFF0; }
+    .rng { position: absolute; top: 7px; height: 12px; border-radius: 6px; }
+    .pt { position: absolute; top: 3px; width: 3px; height: 20px; border-radius: 2px; background: #26262C; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Gestión de Capacidad <span style="color:#C9C9CE">/</span> Iniciativas <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Kafka Migration</span></div>
+
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 24px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 class="h1" style="margin: 0">Kafka Migration</h1>
+        <span class="badge b-ok"><span class="dot"></span>Activa</span>
+      </div>
+      <p class="sm" style="margin: 0">Backend Platform · Product Owner: Paola Henao · plazo objetivo 6 meses (31 mar 2026)</p>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <span class="btn btn-s">Editar iniciativa</span>
+      <span class="btn btn-p">Continuar Fase 2</span>
+    </div>
+  </div>
+
+  <!-- Las tres fases conviven. Ninguna reemplaza a la anterior: esa es la
+       regla que hace posible la calibración, y por eso son tres tarjetas
+       y no un solo bloque que se sobrescribe. -->
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+
+    <div class="card" style="display: flex; flex-direction: column">
+      <div class="chead" style="display: flex; align-items: center; gap: 10px">
+        <span style="width:24px;height:24px;border-radius:9999px;background:#116B4B;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span>
+        <span class="h3">Estimación temprana</span>
+        <span class="badge b-ok" style="margin-left:auto"><span class="dot"></span>Cerrada</span>
+      </div>
+      <div class="cbody" style="display: flex; flex-direction: column; gap: 12px; flex: 1">
+        <p class="sm" style="margin:0">Drivers cuantitativos y evaluativos sobre lo que se sabe antes de que exista el backlog.</p>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span class="tag t-amber" style="font-size:16px; font-weight:700; min-width:44px">L</span>
+          <div>
+            <div class="num" style="font-size:16px;line-height:26px;font-weight:600">8,0 PM esperados</div>
+            <div class="note">6,0 – 10,0 PM · score 68,4 · FTE 1,33</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px">
+          <span class="lbl" style="letter-spacing:.06em">Confianza</span>
+          <span style="display:flex; gap:2px">
+            <i style="width:14px;height:6px;border-radius:2px;background:#B57A00"></i>
+            <i style="width:14px;height:6px;border-radius:2px;background:#B57A00"></i>
+            <i style="width:14px;height:6px;border-radius:2px;background:#EFEFF0"></i>
+          </span>
+          <span class="smd">Media</span>
+        </div>
+        <div class="note mono" style="border-top:1px solid #E3E3E6; padding-top:10px; margin-top:auto">
+          Paramétrico v1.3 · 12 ene 2026 · Tomás Giraldo
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="display: flex; flex-direction: column; border-color: #B57A00">
+      <div class="chead" style="display: flex; align-items: center; gap: 10px">
+        <span style="width:24px;height:24px;border-radius:9999px;background:#B57A00;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span>
+        <span class="h3">Estimación refinada</span>
+        <span class="badge b-warn" style="margin-left:auto"><span class="dot"></span>En curso</span>
+      </div>
+      <div class="cbody" style="display: flex; flex-direction: column; gap: 12px; flex: 1">
+        <p class="sm" style="margin:0">Otro modelo, otras entradas: el backlog real de la épica y las preguntas de discovery.</p>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span class="tag t-amber" style="font-size:16px; font-weight:700; min-width:44px">L</span>
+          <div>
+            <div class="num" style="font-size:16px;line-height:26px;font-weight:600">7,4 PM esperados</div>
+            <div class="note">5,5 – 9,2 PM · 248 puntos · FTE 1,23</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px">
+          <span class="lbl" style="letter-spacing:.06em">Confianza</span>
+          <span style="display:flex; gap:2px">
+            <i style="width:14px;height:6px;border-radius:2px;background:#116B4B"></i>
+            <i style="width:14px;height:6px;border-radius:2px;background:#116B4B"></i>
+            <i style="width:14px;height:6px;border-radius:2px;background:#116B4B"></i>
+          </span>
+          <span class="smd">Alta</span>
+        </div>
+        <div class="note mono" style="border-top:1px solid #E3E3E6; padding-top:10px; margin-top:auto">
+          Refinado por Backlog v0.4 · borrador sin guardar
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="display: flex; flex-direction: column; background: #FCFCFD">
+      <div class="chead" style="display: flex; align-items: center; gap: 10px">
+        <span style="width:24px;height:24px;border-radius:9999px;background:#E3E3E6;color:#74747E;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span>
+        <span class="h3" style="color:#55555E">Cierre y registro de realidad</span>
+        <span class="badge b-neu" style="margin-left:auto"><span class="dot"></span>Al cerrar</span>
+      </div>
+      <div class="cbody" style="display: flex; flex-direction: column; gap: 12px; flex: 1">
+        <p class="sm" style="margin:0">PM, duración, FTE y mix reales, y a qué se debió cada diferencia.</p>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span class="tag" style="background:#FFFFFF;border:1px dashed #C9C9CE;color:#A0A0A8;font-size:16px;font-weight:700;min-width:44px">—</span>
+          <div>
+            <div class="num" style="font-size:16px;line-height:26px;font-weight:600;color:#A0A0A8">Sin datos</div>
+            <div class="note">Se habilita cuando la iniciativa pasa a Cerrada</div>
+          </div>
+        </div>
+        <div class="note" style="border-top:1px solid #E3E3E6; padding-top:10px; margin-top:auto">
+          Es lo único que alimenta la calibración del modelo.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 12px; align-items: start">
+
+    <!-- La comparación. Las tres estimaciones contra un eje compartido:
+         la distancia entre ellas es el dato, no cada cifra por separado. -->
+    <div class="card">
+      <div class="chead" style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
+        <h2 class="h3" style="margin:0">Cómo se movió la estimación</h2>
+        <span class="note">Esfuerzo en persona-mes · misma escala en las tres</span>
+      </div>
+
+      <div class="cbody" style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: grid; grid-template-columns: 132px minmax(0,1fr) 96px; gap: 12px; align-items: center">
+          <div>
+            <div class="smd" style="font-weight:600">Fase 1 · temprana</div>
+            <div class="note">Paramétrico v1.3</div>
+          </div>
+          <div class="track">
+            <span class="grid" style="left:0%"></span><span class="grid" style="left:14.3%"></span>
+            <span class="grid" style="left:28.6%"></span><span class="grid" style="left:42.9%"></span>
+            <span class="grid" style="left:57.1%"></span><span class="grid" style="left:71.4%"></span>
+            <span class="grid" style="left:85.7%"></span><span class="grid" style="left:100%"></span>
+            <span class="rng" style="left:42.9%; width:28.6%; background:#2563EB"></span>
+            <span class="pt" style="left:57.1%"></span>
+          </div>
+          <div class="r">
+            <div class="num" style="font-size:16px;font-weight:600">8,0 PM</div>
+            <div class="note">6,0 – 10,0</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 132px minmax(0,1fr) 96px; gap: 12px; align-items: center">
+          <div>
+            <div class="smd" style="font-weight:600">Fase 2 · refinada</div>
+            <div class="note">Refinado v0.4</div>
+          </div>
+          <div class="track">
+            <span class="grid" style="left:0%"></span><span class="grid" style="left:14.3%"></span>
+            <span class="grid" style="left:28.6%"></span><span class="grid" style="left:42.9%"></span>
+            <span class="grid" style="left:57.1%"></span><span class="grid" style="left:71.4%"></span>
+            <span class="grid" style="left:85.7%"></span><span class="grid" style="left:100%"></span>
+            <span class="rng" style="left:39.3%; width:26.4%; background:#A21CAF"></span>
+            <span class="pt" style="left:52.9%"></span>
+          </div>
+          <div class="r">
+            <div class="num" style="font-size:16px;font-weight:600">7,4 PM</div>
+            <div class="note">5,5 – 9,2</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 132px minmax(0,1fr) 96px; gap: 12px; align-items: center">
+          <div>
+            <div class="smd" style="font-weight:600; color:#74747E">Real · al cerrar</div>
+            <div class="note">Fase 3</div>
+          </div>
+          <div class="track" style="border: 1px dashed #E3E3E6; background: transparent">
+            <span class="note" style="position:absolute; left:12px; top:4px">Sin datos todavía</span>
+          </div>
+          <div class="r"><span class="note">—</span></div>
+        </div>
+
+        <div class="axis num note" style="margin-left: 144px; margin-right: 108px">
+          <span style="left:0%">0</span><span style="left:14.3%">2</span><span style="left:28.6%">4</span>
+          <span style="left:42.9%">6</span><span style="left:57.1%">8</span><span style="left:71.4%">10</span>
+          <span style="left:85.7%">12</span><span style="left:100%">14 PM</span>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #E3E3E6">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:34%">Métrica</th>
+              <th class="r" style="width:22%">Fase 1</th>
+              <th class="r" style="width:22%">Fase 2</th>
+              <th class="r" style="width:22%">Real</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Talla</td>
+              <td class="r"><span class="tag t-amber">L</span></td>
+              <td class="r"><span class="tag t-amber">L</span></td>
+              <td class="r note">—</td>
+            </tr>
+            <tr>
+              <td>PM esperado</td>
+              <td class="r num">8,0</td>
+              <td class="r num">7,4 <span class="note">(−7,5 %)</span></td>
+              <td class="r note">—</td>
+            </tr>
+            <tr>
+              <td>Amplitud del rango</td>
+              <td class="r num">4,0 PM</td>
+              <td class="r num">3,7 PM</td>
+              <td class="r note">—</td>
+            </tr>
+            <tr>
+              <td>FTE requerido <span class="note">a 6 meses</span></td>
+              <td class="r num">1,33</td>
+              <td class="r num">1,23</td>
+              <td class="r note">—</td>
+            </tr>
+            <tr>
+              <td>Confianza</td>
+              <td class="r"><span class="tag t-amber" style="min-width:0">Media</span></td>
+              <td class="r"><span class="tag t-green" style="min-width:0">Alta</span></td>
+              <td class="r note">—</td>
+            </tr>
+            <tr>
+              <td>Mix de capacidades</td>
+              <td class="r sm">4 perfiles</td>
+              <td class="r sm">4 perfiles · <span style="color:#26262C">+5 pp QA</span></td>
+              <td class="r note">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px">
+
+      <!-- Demanda por perfil. Una sola barra por fila y el nombre a la
+           izquierda: la identidad la da la etiqueta, no el color. -->
+      <div class="card">
+        <div class="chead" style="display: flex; align-items: baseline; justify-content: space-between">
+          <h2 class="h3" style="margin:0">Demanda por perfil</h2>
+          <span class="note">Fase 2 · 1,23 FTE</span>
+        </div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <span class="smd">Backend Dev</span>
+              <span class="num note">50 % · 0,62 FTE</span>
+            </div>
+            <span class="bar"><i style="width:50%; background:#1B5FBF"></i></span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <span class="smd">QA Engineer</span>
+              <span class="num note">27 % · 0,33 FTE</span>
+            </div>
+            <span class="bar"><i style="width:27%; background:#1B5FBF"></i></span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <span class="smd">Business Analyst</span>
+              <span class="num note">12 % · 0,15 FTE</span>
+            </div>
+            <span class="bar"><i style="width:12%; background:#1B5FBF"></i></span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <span class="smd">Arquitecto</span>
+              <span class="num note">11 % · 0,13 FTE</span>
+            </div>
+            <span class="bar"><i style="width:11%; background:#1B5FBF"></i></span>
+          </div>
+          <p class="note" style="margin: 0; border-top: 1px solid #E3E3E6; padding-top: 10px">
+            Es demanda de perfiles, no asignación de personas. Las personas salen
+            del matching contra la capacidad de la célula.
+          </p>
+        </div>
+      </div>
+
+      <!-- El snapshot. Sin él, un cambio de parámetros reescribiría el pasado. -->
+      <div class="card">
+        <div class="chead"><h2 class="h3" style="margin:0">Con qué se calculó</h2></div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; justify-content: space-between; gap: 12px">
+            <span class="sm">Modelo</span><span class="smd mono">Paramétrico v1.3</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 12px">
+            <span class="sm">Cuestionario</span><span class="smd mono">preguntas v7</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 12px">
+            <span class="sm">Pesos</span><span class="smd mono">pesos v3</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 12px">
+            <span class="sm">Reglas de talla</span><span class="smd mono">umbrales v2</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 12px">
+            <span class="sm">Mix</span><span class="smd mono">mix v4</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #E3E3E6; padding-top: 8px">
+            <span class="sm">Calculado</span><span class="smd mono num">12 ene 2026 14:22</span>
+          </div>
+          <span class="sm" style="text-decoration: underline; text-underline-offset: 4px; margin-top: 2px">Ver la traza del cálculo</span>
+        </div>
+      </div>
+
+      <div class="alert a-info">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B5FBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 16v-5"/><path d="M12 8h.01"/></svg>
+        <div>
+          <p class="at" style="margin:0">Los parámetros cambiaron desde esta estimación</p>
+          <p class="sm" style="margin:0; color:#26262C">La versión vigente hoy es la v1.4. Esta ficha sigue mostrando
+            lo que dio la v1.3, que es con la que se decidió. Recalcular es un acto explícito.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

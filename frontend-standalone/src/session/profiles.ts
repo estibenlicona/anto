@@ -39,7 +39,6 @@ const ALL_SECTIONS = [
 ];
 
 const LEAD_SECTIONS = [
-  "Iniciativas",
   "Celulas",
   "Personas",
   "Ausencias",
@@ -68,7 +67,7 @@ export const PROFILES: SimulatedProfile[] = [
     id: "lead-core",
     label: "Tomás Giraldo · Core y Datos",
     description:
-      "Líder de Expertise con trece personas a cargo. Las 8 secciones de capacidad; sin Configuración.",
+      "Líder de Expertise con trece personas a cargo. Las 7 secciones de capacidad; sin Iniciativas ni Configuración.",
     oid: "22222222-2222-2222-2222-222222222222",
     upn: "tomas.giraldo@tuya.local",
     name: "Tomás Giraldo",

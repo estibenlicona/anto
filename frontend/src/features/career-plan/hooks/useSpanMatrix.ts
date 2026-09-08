@@ -8,6 +8,10 @@ import {
   type SpanMatrixView,
   type SpanOptions,
 } from "../adapters/SpanMatrixAdapter";
+import {
+  scopeParam,
+  useCapacityScope,
+} from "@features/capacity-shell/CapacityScopeContext";
 
 /**
  * El span se pide entero una vez; acotar y ordenar son de la pantalla y no
@@ -19,10 +23,12 @@ export const useSpanMatrix = (options: SpanOptions) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
+  // El alcance lo declara la ruta: "Mi Línea" pide recorte, el resto no.
+  const scope = scopeParam(useCapacityScope());
 
   useEffect(() => {
     let cancelled = false;
-    careerPlanService.getSpan().then(
+    careerPlanService.getSpan(scope).then(
       (data) => {
         if (cancelled) return;
         setDto(data);
@@ -39,7 +45,7 @@ export const useSpanMatrix = (options: SpanOptions) => {
     return () => {
       cancelled = true;
     };
-  }, [reloadTick]);
+  }, [reloadTick, scope]);
 
   const { groups, skillIds, sort } = options;
   const span: SpanMatrixView | null = useMemo(

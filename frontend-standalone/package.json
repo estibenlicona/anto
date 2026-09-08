@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Gestión de Capacidad como aplicación independiente (sin Module Federation): login simulado + barra propia + las pantallas de ../frontend/src con datos de MSW.",
   "scripts": {
-    "dev": "cross-env VITE_USE_MOCKS=true vite --port 4500 --strictPort",
+    "dev": "kill-port 4500 && cross-env VITE_USE_MOCKS=true vite --port 4500 --strictPort",
     "build": "cross-env VITE_USE_MOCKS=true vite build",
     "preview": "vite preview --port 4500 --strictPort",
     "typecheck": "tsc --noEmit -p tsconfig.json"
@@ -24,6 +24,7 @@
     "@types/react-dom": "19.2.4",
     "@vitejs/plugin-react": "6.0.5",
     "cross-env": "^10.1.0",
+    "kill-port": "^2.0.1",
     "postcss": "8.5.26",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",

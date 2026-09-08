@@ -14,7 +14,8 @@ import {
   getClosedAssessmentsSnapshot,
   type ClosedAssessmentSnapshot,
 } from "./assessments.handlers";
-import { getPeopleSnapshot, peopleFor } from "./people.handlers";
+import { getPeopleSnapshot } from "./people.handlers";
+import { scopePeople } from "./chapters";
 import { actionSeeds } from "./career-plan.seeds";
 
 const SPAN_URL = "/career-plan/span";
@@ -51,8 +52,9 @@ function latestClosed(
 function buildSpan(request: Request): SpanMatrixDto {
   const catalog = getSkillsCatalogSnapshot();
   const closed = getClosedAssessmentsSnapshot();
-  // Las personas del chapter de quien pidió: el span es la foto de su gente.
-  const people = peopleFor(request);
+  // La foto del conjunto que la pantalla pidió: todo, o sólo los
+  // colaboradores del titular con `?scope=mine`.
+  const people = scopePeople(request, getPeopleSnapshot());
 
   // Sólo las activas: una habilidad retirada del catálogo no es algo sobre lo
   // que el líder pueda actuar hoy, aunque siga en evaluaciones anteriores.
@@ -193,11 +195,6 @@ function buildPlan(personId: string): PersonPlanDto | null {
   };
 }
 
-/** Sólo lectura del agregado del span. */
-export function getSpanSnapshot(request: Request): SpanMatrixDto {
-  return buildSpan(request);
-}
-
 /**
  * Las brechas de un ciclo: se recorre la evaluación cerrada de ese ciclo, no
  * la vigente, y se compara contra lo que el rol pide **hoy**.
@@ -210,11 +207,12 @@ export function getSpanSnapshot(request: Request): SpanMatrixDto {
  */
 function gapsInCycle(cycle: string, request: Request): number {
   const catalog = getSkillsCatalogSnapshot();
-  // La serie histórica se acota igual que la foto de hoy: si no, la tarjeta
-  // de tendencia contaría brechas de gente de otro chapter al lado de un
-  // total que no las cuenta, y las dos cifras se contradirían en la misma
-  // fila. Es la misma trampa que el resto del resumen ya evita.
-  const delChapter = new Set(peopleFor(request).map((p) => p.id));
+  // La serie histórica se lee sobre el mismo conjunto que la foto de hoy —
+  // todas las personas registradas—, para que la tarjeta de tendencia y el
+  // total no puedan contradecirse en la misma fila.
+  const delChapter = new Set(
+    scopePeople(request, getPeopleSnapshot()).map((p) => p.id)
+  );
 
   // Una por persona, no una por evaluación cerrada: nada impide cerrar dos en
   // el mismo ciclo, y sumarlas contaría dos veces las brechas de esa persona.
@@ -362,11 +360,15 @@ function buildSpanSummary(request: Request): SpanSummaryDto {
     0
   );
 
-  // Cargos del chapter sin nivel declarado en alguna habilidad activa: es lo
+  // Cargos sin nivel declarado en alguna habilidad activa: es lo
   // que produce las celdas que no se pueden medir. Por cargo y no por rol: lo
   // que se le exige a alguien depende de a qué se dedica, no de cómo participa
   // en la aplicación.
-  const positions = [...new Set(peopleFor(request).map((p) => p.position))];
+  const positions = [
+    ...new Set(
+      scopePeople(request, getPeopleSnapshot()).map((p) => p.position)
+    ),
+  ];
   const activas = catalog.skills.filter((s) => s.active);
   // El catálogo lista **todos** los cargos en cada habilidad y deja el nivel
   // en `null` cuando no lo declara: preguntar si el cargo está en la lista

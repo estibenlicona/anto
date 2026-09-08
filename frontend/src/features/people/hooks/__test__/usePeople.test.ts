@@ -58,7 +58,15 @@ describe("usePeople", () => {
 
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(personService.list).toHaveBeenCalledWith(1, 10, "", [], [], []);
+    expect(personService.list).toHaveBeenCalledWith(
+      1,
+      10,
+      "",
+      [],
+      [],
+      [],
+      undefined
+    );
     expect(result.current.people).toHaveLength(1);
     expect(result.current.people[0].name).toBe("María González");
     expect(result.current.error).toBeNull();
@@ -98,7 +106,15 @@ describe("usePeople", () => {
     });
 
     await waitFor(() =>
-      expect(personService.list).toHaveBeenLastCalledWith(2, 10, "", [], [], [])
+      expect(personService.list).toHaveBeenLastCalledWith(
+        2,
+        10,
+        "",
+        [],
+        [],
+        [],
+        undefined
+      )
     );
   });
 
@@ -111,7 +127,15 @@ describe("usePeople", () => {
       result.current.onPageChange(2);
     });
     await waitFor(() =>
-      expect(personService.list).toHaveBeenLastCalledWith(2, 10, "", [], [], [])
+      expect(personService.list).toHaveBeenLastCalledWith(
+        2,
+        10,
+        "",
+        [],
+        [],
+        [],
+        undefined
+      )
     );
 
     act(() => {
@@ -119,7 +143,15 @@ describe("usePeople", () => {
     });
 
     await waitFor(() =>
-      expect(personService.list).toHaveBeenLastCalledWith(1, 20, "", [], [], [])
+      expect(personService.list).toHaveBeenLastCalledWith(
+        1,
+        20,
+        "",
+        [],
+        [],
+        [],
+        undefined
+      )
     );
   });
 
@@ -128,7 +160,15 @@ describe("usePeople", () => {
     renderHook(() => usePeople(100));
 
     await waitFor(() =>
-      expect(personService.list).toHaveBeenCalledWith(1, 100, "", [], [], [])
+      expect(personService.list).toHaveBeenCalledWith(
+        1,
+        100,
+        "",
+        [],
+        [],
+        [],
+        undefined
+      )
     );
   });
 
@@ -141,7 +181,15 @@ describe("usePeople", () => {
       result.current.onPageChange(2);
     });
     await waitFor(() =>
-      expect(personService.list).toHaveBeenLastCalledWith(2, 10, "", [], [], [])
+      expect(personService.list).toHaveBeenLastCalledWith(
+        2,
+        10,
+        "",
+        [],
+        [],
+        [],
+        undefined
+      )
     );
 
     act(() => {
@@ -156,7 +204,8 @@ describe("usePeople", () => {
         "maría",
         [],
         [],
-        []
+        [],
+        undefined
       )
     );
   });
@@ -176,7 +225,8 @@ describe("usePeople", () => {
         "",
         [],
         ["Intermediate"],
-        []
+        [],
+        undefined
       )
     );
   });
@@ -194,7 +244,8 @@ describe("usePeople", () => {
         "",
         [],
         [],
-        ["Azure", "AS400"]
+        ["Azure", "AS400"],
+        undefined
       )
     );
     expect(result.current.stacks).toEqual(["Azure", "AS400"]);

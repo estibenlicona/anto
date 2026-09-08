@@ -177,13 +177,17 @@ const SPAN_URL = "/career-plan/span";
 const SPAN_SUMMARY_URL = "/career-plan/span/summary";
 
 export const careerPlanService = {
-  getSpan: async (): Promise<SpanMatrixDto> => {
-    const response = await httpClient.get<SpanMatrixDto>(SPAN_URL);
+  getSpan: async (scope?: "mine"): Promise<SpanMatrixDto> => {
+    const response = await httpClient.get<SpanMatrixDto>(SPAN_URL, {
+      params: scope ? { scope } : undefined,
+    });
     return response.data;
   },
 
-  getSpanSummary: async (): Promise<SpanSummaryDto> => {
-    const response = await httpClient.get<SpanSummaryDto>(SPAN_SUMMARY_URL);
+  getSpanSummary: async (scope?: "mine"): Promise<SpanSummaryDto> => {
+    const response = await httpClient.get<SpanSummaryDto>(SPAN_SUMMARY_URL, {
+      params: scope ? { scope } : undefined,
+    });
     return response.data;
   },
 
