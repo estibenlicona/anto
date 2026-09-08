@@ -7,10 +7,11 @@ namespace GestionCapacidad.Application.Mappings;
 
 public static class SquadMappings
 {
-    public static SquadDto ToDto(Squad squad, SquadAggregate aggregate) =>
+    public static SquadDto ToDto(Squad squad, SquadAggregate aggregate, string teamName) =>
         new(squad.Id,
             squad.Name,
-            squad.Tribe,
+            squad.TeamId,
+            teamName,
             squad.Criticality.Value,
             squad.Description,
             squad.CreatedAtUtc,
@@ -23,9 +24,9 @@ public static class SquadMappings
             aggregate.PeopleAvailableFte,
             aggregate.ActiveInitiative);
 
-    public static CreateSquadResponse ToCreateResponse(Squad squad, SquadAggregate aggregate) =>
-        new(ToDto(squad, aggregate));
+    public static CreateSquadResponse ToCreateResponse(Squad squad, SquadAggregate aggregate, string teamName) =>
+        new(ToDto(squad, aggregate, teamName));
 
-    public static UpdateSquadResponse ToUpdateResponse(Squad squad, SquadAggregate aggregate) =>
-        new(ToDto(squad, aggregate));
+    public static UpdateSquadResponse ToUpdateResponse(Squad squad, SquadAggregate aggregate, string teamName) =>
+        new(ToDto(squad, aggregate, teamName));
 }

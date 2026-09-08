@@ -30,7 +30,9 @@ export interface SquadActiveInitiativeDto {
 export interface SquadDto {
   id: string;
   name: string;
-  team: string;
+  teamId: string;
+  /** Nombre del equipo, resuelto contra el catálogo — sólo lectura. */
+  teamName: string;
   criticality: Criticality;
   description: string | null;
   createdAtUtc: string;
@@ -65,7 +67,7 @@ export interface SquadDto {
 
 export interface CreateSquadRequest {
   name: string;
-  team: string;
+  teamId: string;
   criticality: Criticality;
   description?: string;
 }
@@ -111,7 +113,8 @@ export const squadService = {
     page: number,
     pageSize: number,
     search?: string,
-    criticalities?: Criticality[]
+    criticalities?: Criticality[],
+    teamIds?: string[]
   ): Promise<PagedResult<SquadDto>> => {
     // Serializado a mano por el mismo motivo que personService: el default de
     // axios para arrays emite `criticality[]=`, y el backend bindea
@@ -121,6 +124,7 @@ export const squadService = {
     params.set("pageSize", String(pageSize));
     if (search) params.set("search", search);
     criticalities?.forEach((c) => params.append("criticality", c));
+    teamIds?.forEach((id) => params.append("teamId", id));
     const response = await httpClient.get<PagedResult<SquadDto>>(SQUADS_URL, {
       params,
     });

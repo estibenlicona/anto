@@ -12,7 +12,8 @@ vi.mock("../../services/squadService", () => ({
 const dto = {
   id: "1",
   name: "Backend Platform",
-  team: "Ecosistema Digital",
+  teamId: "t1",
+  teamName: "Ecosistema Digital",
   criticality: "High" as const,
   description: "Servicios core",
   memberCount: 2,

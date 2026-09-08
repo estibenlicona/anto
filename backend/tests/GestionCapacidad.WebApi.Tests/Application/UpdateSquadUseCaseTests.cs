@@ -11,6 +11,7 @@ namespace GestionCapacidad.WebApi.Tests.Application;
 public sealed class UpdateSquadUseCaseTests
 {
     private readonly Mock<ISquadRepository> _repository = new();
+    private readonly Mock<ITeamRepository> _teams = new();
     private readonly Mock<IAllocationRepository> _allocations = new();
     private readonly Mock<IPersonRepository> _people = new();
     private readonly Mock<IInitiativeRepository> _initiatives = new();
@@ -19,10 +20,12 @@ public sealed class UpdateSquadUseCaseTests
 
     private UpdateSquadUseCase CreateUseCase()
     {
+        _teams.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(TestDataFactory.CreateTeam(name: "Riesgo y Fraude"));
         _allocations.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Allocation>());
         _people.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Person>());
         _initiatives.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Initiative>());
-        return new UpdateSquadUseCase(_repository.Object, _allocations.Object, _people.Object, _initiatives.Object, _unitOfWork.Object, _validator);
+        return new UpdateSquadUseCase(_repository.Object, _teams.Object, _allocations.Object, _people.Object, _initiatives.Object, _unitOfWork.Object, _validator);
     }
 
     [Fact]
@@ -45,6 +48,7 @@ public sealed class UpdateSquadUseCaseTests
 
         Assert.Equal("New Name", response.Squad.Name);
         Assert.Equal("Critical", response.Squad.Criticality);
+        Assert.Equal(request.TeamId, response.Squad.TeamId);
         Assert.NotEqual(default, response.Squad.UpdatedAtUtc);
         _repository.Verify(r => r.Update(It.IsAny<Squad>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -60,6 +64,25 @@ public sealed class UpdateSquadUseCaseTests
             .ReturnsAsync((Squad?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() => CreateUseCase().ExecuteAsync(request));
+
+        _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_ThrowsBadRequest_WhenTeamDoesNotExist()
+    {
+        Squad squad = TestDataFactory.CreateSquad();
+        UpdateSquadRequest request = TestDataFactory.UpdateSquadRequest(id: squad.Id);
+        UpdateSquadUseCase useCase = CreateUseCase();
+
+        _repository
+            .Setup(r => r.GetByIdAsync(squad.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(squad);
+        _teams
+            .Setup(r => r.GetByIdAsync(request.TeamId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Team?)null);
+
+        await Assert.ThrowsAsync<BadRequestException>(() => useCase.ExecuteAsync(request));
 
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }

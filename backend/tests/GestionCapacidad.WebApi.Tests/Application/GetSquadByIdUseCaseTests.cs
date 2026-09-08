@@ -10,16 +10,18 @@ namespace GestionCapacidad.WebApi.Tests.Application;
 public sealed class GetSquadByIdUseCaseTests
 {
     private readonly Mock<ISquadRepository> _repository = new();
+    private readonly Mock<ITeamRepository> _teams = new();
     private readonly Mock<IAllocationRepository> _allocations = new();
     private readonly Mock<IPersonRepository> _people = new();
     private readonly Mock<IInitiativeRepository> _initiatives = new();
 
     private GetSquadByIdUseCase CreateUseCase()
     {
+        _teams.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Team?)null);
         _allocations.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Allocation>());
         _people.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Person>());
         _initiatives.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Initiative>());
-        return new GetSquadByIdUseCase(_repository.Object, _allocations.Object, _people.Object, _initiatives.Object);
+        return new GetSquadByIdUseCase(_repository.Object, _teams.Object, _allocations.Object, _people.Object, _initiatives.Object);
     }
 
     [Fact]

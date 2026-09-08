@@ -11,11 +11,11 @@ public sealed class Squad : AggregateRoot
     {
     }
 
-    public Squad(string name, Criticality criticality, string tribe, string? description)
+    public Squad(string name, Criticality criticality, Guid teamId, string? description)
     {
         SetName(name);
         Criticality = criticality;
-        SetTribe(tribe);
+        SetTeamId(teamId);
         SetDescription(description);
 
         AddDomainEvent(new SquadCreatedEvent(Id, Name));
@@ -25,7 +25,7 @@ public sealed class Squad : AggregateRoot
 
     public Criticality Criticality { get; private set; } = Criticality.Medium;
 
-    public string Tribe { get; private set; } = string.Empty;
+    public Guid TeamId { get; private set; }
 
     public string? Description { get; private set; }
 
@@ -52,10 +52,17 @@ public sealed class Squad : AggregateRoot
         AddDomainEvent(new SquadCriticalityChangedEvent(Id, oldCriticality, newCriticality));
     }
 
-    public void MoveTribe(string tribe)
+    public void ChangeTeam(Guid teamId)
     {
-        SetTribe(tribe);
+        if (TeamId == teamId)
+        {
+            return;
+        }
+
+        var oldTeamId = TeamId;
+        SetTeamId(teamId);
         MarkUpdated();
+        AddDomainEvent(new SquadTeamChangedEvent(Id, oldTeamId, teamId));
     }
 
     public void UpdateDescription(string? description)
@@ -89,10 +96,14 @@ public sealed class Squad : AggregateRoot
         Name = name.Trim();
     }
 
-    private void SetTribe(string tribe)
+    private void SetTeamId(Guid teamId)
     {
-        EnsureRequired(tribe, nameof(Tribe), 100);
-        Tribe = tribe.Trim();
+        if (teamId == Guid.Empty)
+        {
+            throw new DomainException($"{nameof(TeamId)} is required.");
+        }
+
+        TeamId = teamId;
     }
 
     private void SetDescription(string? description)

@@ -72,19 +72,17 @@ public sealed class UpdateSquadValidatorTests
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateSquadRequest.Criticality));
     }
 
-    // ── Tribe ─────────────────────────────────────────────────────────────────
+    // ── TeamId ────────────────────────────────────────────────────────────────
 
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public async Task ValidateAsync_RejectsEmptyTribe(string tribe)
+    [Fact]
+    public async Task ValidateAsync_RejectsEmptyTeamId()
     {
-        UpdateSquadRequest request = TestDataFactory.UpdateSquadRequest(tribe: tribe);
+        UpdateSquadRequest request = TestDataFactory.UpdateSquadRequest(teamId: Guid.Empty);
 
         ValidationResult result = await _validator.ValidateAsync(request);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateSquadRequest.Team));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateSquadRequest.TeamId));
     }
 
     // ── Description ───────────────────────────────────────────────────────────

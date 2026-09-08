@@ -116,12 +116,21 @@ public static class DevelopmentDataSeeder
         ["Nicolás Betancur"] = [("React Native", 3), ("React", 2), ("Java", 2)],
     };
 
+    /// <summary>Los equipos del mock: catálogo referenciado por las células.</summary>
+    private static readonly (string Name, string? Description)[] Teams =
+    [
+        ("Ecosistema Digital", null),
+        ("Riesgo y Fraude", null),
+        ("Pagos", null),
+        ("Datos y Analítica", null),
+    ];
+
     /// <summary>
-    /// Las células del mock: nombre, tribu (equipo) y criticidad. Pagos
+    /// Las células del mock: nombre, equipo y criticidad. Pagos
     /// Instantáneos queda sin gente a propósito: la pantalla tiene que
     /// saber mostrar una célula vacía.
     /// </summary>
-    private static readonly (string Name, string Tribe, string Criticality)[] Squads =
+    private static readonly (string Name, string Team, string Criticality)[] Squads =
     [
         ("Backend Platform", "Ecosistema Digital", "High"),
         ("Canales Digitales", "Ecosistema Digital", "Critical"),
@@ -288,12 +297,21 @@ public static class DevelopmentDataSeeder
 
         dbContext.People.AddRange(seeded);
 
+        // Equipos, sembrados antes que las células para poder resolver su Id.
+        var teamByName = new Dictionary<string, Team>();
+        foreach ((string name, string? description) in Teams)
+        {
+            var team = new Team(name, description);
+            teamByName[name] = team;
+            dbContext.Teams.Add(team);
+        }
+
         // Células y asignaciones del mock, resueltas por nombre. Con esto la
         // utilización de las personas deja de ser 0 desde el primer arranque.
         var squadByName = new Dictionary<string, Squad>();
-        foreach ((string name, string tribe, string criticality) in Squads)
+        foreach ((string name, string team, string criticality) in Squads)
         {
-            var squad = new Squad(name, Criticality.From(criticality), tribe, description: null);
+            var squad = new Squad(name, Criticality.From(criticality), teamByName[team].Id, description: null);
             squadByName[name] = squad;
             dbContext.Squads.Add(squad);
         }

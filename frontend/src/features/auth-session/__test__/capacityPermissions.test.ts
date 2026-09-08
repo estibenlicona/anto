@@ -31,8 +31,12 @@ describe("mapCapacityRoles", () => {
     expect(mapCapacityRoles("Capacidad.Celulas")).toEqual([]);
   });
 
-  it("el catálogo cubre las doce secciones del módulo", () => {
-    expect(CAPACITY_PERMISSIONS).toHaveLength(12);
+  it("traduce el sub-claim Capacidad.Equipos a la sección Equipos", () => {
+    expect(mapCapacityRoles(["Capacidad.Equipos"])).toEqual(["Equipos"]);
+  });
+
+  it("el catálogo cubre las trece secciones del módulo", () => {
+    expect(CAPACITY_PERMISSIONS).toHaveLength(13);
   });
 });
 

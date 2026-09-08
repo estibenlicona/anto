@@ -19,7 +19,7 @@ public sealed record PersonDetailAllocationDto(
     Guid SquadId,
     string SquadName,
     string SquadCriticality,
-    string SquadTribe,
+    string SquadTeamName,
     string SquadDescription,
     IReadOnlyList<string> Teammates,
     decimal DedicationPercentage,

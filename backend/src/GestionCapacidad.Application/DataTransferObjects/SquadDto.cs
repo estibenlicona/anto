@@ -10,7 +10,8 @@ namespace GestionCapacidad.Application.DataTransferObjects;
 public sealed record SquadDto(
     Guid Id,
     string Name,
-    string Team,
+    Guid TeamId,
+    string TeamName,
     string Criticality,
     string? Description,
     DateTime CreatedAtUtc,

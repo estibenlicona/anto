@@ -23,3 +23,16 @@ C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core
 C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\refint\GestionCapacidad.RestClient.dll
 C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\GestionCapacidad.RestClient.pdb
 C:\Users\Lenovo i5\Repos\app-gestion-capacidad\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\ref\GestionCapacidad.RestClient.dll
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\bin\Debug\net10.0\GestionCapacidad.RestClient.deps.json
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\bin\Debug\net10.0\GestionCapacidad.RestClient.dll
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\bin\Debug\net10.0\GestionCapacidad.RestClient.pdb
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\GestionCapacidad.RestClient.csproj.AssemblyReference.cache
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\GestionCapacidad.RestClient.GeneratedMSBuildEditorConfig.editorconfig
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\GestionCapacidad.RestClient.AssemblyInfoInputs.cache
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\GestionCapacidad.RestClient.AssemblyInfo.cs
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\GestionCapacidad.RestClient.csproj.CoreCompileInputs.cache
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\GestionCapacidad.RestClient.sourcelink.json
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\GestionCapacidad.RestClient.dll
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\refint\GestionCapacidad.RestClient.dll
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\GestionCapacidad.RestClient.pdb
+C:\Repos\anto\backend\src\GestionCapacidad.Core\RestClient\obj\Debug\net10.0\ref\GestionCapacidad.RestClient.dll

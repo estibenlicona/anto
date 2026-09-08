@@ -59,6 +59,7 @@ const CAP_SECTIONS = [
   "Parametros",
   "Habilidades",
   "Lineas",
+  "Equipos",
   "DevOps",
 ];
 const capRole = (section) => `Capacidad.${section}`;

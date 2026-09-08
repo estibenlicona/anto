@@ -13,6 +13,7 @@ namespace GestionCapacidad.Application.UseCases.Squads.UpdateSquad;
 
 public sealed class UpdateSquadUseCase(
     ISquadRepository squadRepository,
+    ITeamRepository teamRepository,
     IAllocationRepository allocationRepository,
     IPersonRepository personRepository,
     IInitiativeRepository initiativeRepository,
@@ -35,9 +36,15 @@ public sealed class UpdateSquadUseCase(
             throw new NotFoundException($"Squad with id '{request.Id}' was not found.");
         }
 
+        Team? team = await teamRepository.GetByIdAsync(request.TeamId, cancellationToken);
+        if (team is null)
+        {
+            throw new BadRequestException($"Team with id '{request.TeamId}' was not found.");
+        }
+
         squad.Rename(request.Name);
         squad.ChangeCriticality(Criticality.From(request.Criticality));
-        squad.MoveTribe(request.Team);
+        squad.ChangeTeam(request.TeamId);
         squad.UpdateDescription(request.Description);
 
         squadRepository.Update(squad);
@@ -48,6 +55,6 @@ public sealed class UpdateSquadUseCase(
             await personRepository.GetAllAsync(cancellationToken),
             await initiativeRepository.GetAllAsync(cancellationToken));
 
-        return SquadMappings.ToUpdateResponse(squad, aggregates.For(squad.Id));
+        return SquadMappings.ToUpdateResponse(squad, aggregates.For(squad.Id), team.Name);
     }
 }

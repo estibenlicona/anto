@@ -7,6 +7,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 {
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Squad> Squads => Set<Squad>();
+    public DbSet<Team> Teams => Set<Team>();
     public DbSet<Person> People => Set<Person>();
     public DbSet<BauTask> BauTasks => Set<BauTask>();
     public DbSet<Initiative> Initiatives => Set<Initiative>();

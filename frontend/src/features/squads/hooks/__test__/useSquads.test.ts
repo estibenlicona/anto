@@ -12,7 +12,8 @@ vi.mock("../../services/squadService", () => ({
 const mockDto = {
   id: "1",
   name: "Backend Platform",
-  team: "Ecosistema Digital",
+  teamId: "t1",
+  teamName: "Ecosistema Digital",
   criticality: "High" as const,
   description: "Servicios core",
   memberCount: 0,
@@ -47,7 +48,7 @@ describe("useSquads", () => {
 
     expect(result.current.loading).toBe(true);
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(squadService.list).toHaveBeenCalledWith(1, 10, undefined, []);
+    expect(squadService.list).toHaveBeenCalledWith(1, 10, undefined, [], []);
     expect(result.current.squads).toEqual([
       {
         ...mockDto,
@@ -92,7 +93,13 @@ describe("useSquads", () => {
     });
 
     await waitFor(() =>
-      expect(squadService.list).toHaveBeenLastCalledWith(2, 10, undefined, [])
+      expect(squadService.list).toHaveBeenLastCalledWith(
+        2,
+        10,
+        undefined,
+        [],
+        []
+      )
     );
   });
 
@@ -101,7 +108,7 @@ describe("useSquads", () => {
     renderHook(() => useSquads(100));
 
     await waitFor(() =>
-      expect(squadService.list).toHaveBeenCalledWith(1, 100, undefined, [])
+      expect(squadService.list).toHaveBeenCalledWith(1, 100, undefined, [], [])
     );
   });
 
@@ -116,7 +123,13 @@ describe("useSquads", () => {
         result.current.onPageChange(3);
       });
       await waitFor(() =>
-        expect(squadService.list).toHaveBeenLastCalledWith(3, 10, undefined, [])
+        expect(squadService.list).toHaveBeenLastCalledWith(
+          3,
+          10,
+          undefined,
+          [],
+          []
+        )
       );
 
       act(() => {
@@ -127,7 +140,13 @@ describe("useSquads", () => {
         vi.advanceTimersByTime(300);
       });
       await waitFor(() =>
-        expect(squadService.list).toHaveBeenLastCalledWith(1, 10, "pagos", [])
+        expect(squadService.list).toHaveBeenLastCalledWith(
+          1,
+          10,
+          "pagos",
+          [],
+          []
+        )
       );
     } finally {
       vi.useRealTimers();
@@ -143,7 +162,13 @@ describe("useSquads", () => {
       result.current.onPageChange(2);
     });
     await waitFor(() =>
-      expect(squadService.list).toHaveBeenLastCalledWith(2, 10, undefined, [])
+      expect(squadService.list).toHaveBeenLastCalledWith(
+        2,
+        10,
+        undefined,
+        [],
+        []
+      )
     );
 
     act(() => {
@@ -151,10 +176,46 @@ describe("useSquads", () => {
     });
     expect(result.current.page).toBe(1);
     await waitFor(() =>
-      expect(squadService.list).toHaveBeenLastCalledWith(1, 10, undefined, [
-        "Critical",
-        "High",
-      ])
+      expect(squadService.list).toHaveBeenLastCalledWith(
+        1,
+        10,
+        undefined,
+        ["Critical", "High"],
+        []
+      )
+    );
+  });
+
+  it("filtering by team sends the values and goes back to page 1", async () => {
+    vi.mocked(squadService.list).mockResolvedValue(pagedOf([mockDto]));
+    const { result } = renderHook(() => useSquads());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    act(() => {
+      result.current.onPageChange(2);
+    });
+    await waitFor(() =>
+      expect(squadService.list).toHaveBeenLastCalledWith(
+        2,
+        10,
+        undefined,
+        [],
+        []
+      )
+    );
+
+    act(() => {
+      result.current.onTeamIdsChange(["t1", "t2"]);
+    });
+    expect(result.current.page).toBe(1);
+    await waitFor(() =>
+      expect(squadService.list).toHaveBeenLastCalledWith(
+        1,
+        10,
+        undefined,
+        [],
+        ["t1", "t2"]
+      )
     );
   });
 });

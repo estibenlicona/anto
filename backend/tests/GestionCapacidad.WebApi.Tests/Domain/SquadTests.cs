@@ -9,15 +9,18 @@ public sealed class SquadTests
 {
     // ── Construction ──────────────────────────────────────────────────────────
 
+    private static readonly Guid PaymentsTeamId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    private static readonly Guid DataTeamId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
     [Fact]
     public void Create_WithValidData_Succeeds()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", "Core payment processing squad");
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, "Core payment processing squad");
 
         Assert.NotEqual(Guid.Empty, squad.Id);
         Assert.Equal("Backend Platform", squad.Name);
         Assert.Equal(Criticality.Critical, squad.Criticality);
-        Assert.Equal("Payments", squad.Tribe);
+        Assert.Equal(PaymentsTeamId, squad.TeamId);
         Assert.Equal("Core payment processing squad", squad.Description);
         Assert.Null(squad.DevOpsBoardId);
         Assert.NotEqual(default, squad.CreatedAtUtc);
@@ -27,7 +30,7 @@ public sealed class SquadTests
     [Fact]
     public void Create_WithNullDescription_Succeeds()
     {
-        var squad = new Squad("Backend Platform", Criticality.High, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.High, PaymentsTeamId, null);
 
         Assert.Null(squad.Description);
     }
@@ -35,7 +38,7 @@ public sealed class SquadTests
     [Fact]
     public void Create_TrimsWhitespaceName()
     {
-        var squad = new Squad("  Backend Platform  ", Criticality.Critical, "Payments", null);
+        var squad = new Squad("  Backend Platform  ", Criticality.Critical, PaymentsTeamId, null);
 
         Assert.Equal("Backend Platform", squad.Name);
     }
@@ -43,7 +46,7 @@ public sealed class SquadTests
     [Fact]
     public void Create_RaisesSquadCreatedEvent()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
 
         var domainEvent = Assert.Single(squad.DomainEvents.OfType<SquadCreatedEvent>());
         Assert.Equal(squad.Id, domainEvent.SquadId);
@@ -58,7 +61,7 @@ public sealed class SquadTests
     public void Create_WithEmptyName_ThrowsDomainException(string name)
     {
         Assert.Throws<DomainException>(() =>
-            new Squad(name, Criticality.Critical, "Payments", null));
+            new Squad(name, Criticality.Critical, PaymentsTeamId, null));
     }
 
     [Fact]
@@ -67,27 +70,16 @@ public sealed class SquadTests
         var longName = new string('A', 201);
 
         Assert.Throws<DomainException>(() =>
-            new Squad(longName, Criticality.Critical, "Payments", null));
+            new Squad(longName, Criticality.Critical, PaymentsTeamId, null));
     }
 
-    // ── Tribe validation ──────────────────────────────────────────────────────
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public void Create_WithEmptyTribe_ThrowsDomainException(string tribe)
-    {
-        Assert.Throws<DomainException>(() =>
-            new Squad("Backend Platform", Criticality.Critical, tribe, null));
-    }
+    // ── TeamId validation ─────────────────────────────────────────────────────
 
     [Fact]
-    public void Create_WithTribeExceedingMaxLength_ThrowsDomainException()
+    public void Create_WithEmptyTeamId_ThrowsDomainException()
     {
-        var longTribe = new string('T', 101);
-
         Assert.Throws<DomainException>(() =>
-            new Squad("Backend Platform", Criticality.Critical, longTribe, null));
+            new Squad("Backend Platform", Criticality.Critical, Guid.Empty, null));
     }
 
     // ── Description validation ────────────────────────────────────────────────
@@ -98,7 +90,7 @@ public sealed class SquadTests
         var longDescription = new string('D', 501);
 
         Assert.Throws<DomainException>(() =>
-            new Squad("Backend Platform", Criticality.Critical, "Payments", longDescription));
+            new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, longDescription));
     }
 
     // ── Rename ────────────────────────────────────────────────────────────────
@@ -106,7 +98,7 @@ public sealed class SquadTests
     [Fact]
     public void Rename_WithValidName_ChangesName()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         squad.ClearDomainEvents();
 
         squad.Rename("Data Platform");
@@ -118,7 +110,7 @@ public sealed class SquadTests
     [Fact]
     public void Rename_RaisesSquadRenamedEvent()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         squad.ClearDomainEvents();
 
         squad.Rename("Data Platform");
@@ -132,7 +124,7 @@ public sealed class SquadTests
     [Fact]
     public void Rename_WithEmptyName_ThrowsDomainException()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
 
         Assert.Throws<DomainException>(() => squad.Rename(string.Empty));
     }
@@ -142,7 +134,7 @@ public sealed class SquadTests
     [Fact]
     public void ChangeCriticality_WithDifferentValue_UpdatesCriticality()
     {
-        var squad = new Squad("Backend Platform", Criticality.Low, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Low, PaymentsTeamId, null);
         squad.ClearDomainEvents();
 
         squad.ChangeCriticality(Criticality.Critical);
@@ -154,7 +146,7 @@ public sealed class SquadTests
     [Fact]
     public void ChangeCriticality_RaisesSquadCriticalityChangedEvent()
     {
-        var squad = new Squad("Backend Platform", Criticality.Low, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Low, PaymentsTeamId, null);
         squad.ClearDomainEvents();
 
         squad.ChangeCriticality(Criticality.Critical);
@@ -168,7 +160,7 @@ public sealed class SquadTests
     [Fact]
     public void ChangeCriticality_WithSameValue_DoesNotRaiseEvent()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         squad.ClearDomainEvents();
 
         squad.ChangeCriticality(Criticality.Critical);
@@ -176,26 +168,51 @@ public sealed class SquadTests
         Assert.Empty(squad.DomainEvents.OfType<SquadCriticalityChangedEvent>());
     }
 
-    // ── MoveTribe ─────────────────────────────────────────────────────────────
+    // ── ChangeTeam ────────────────────────────────────────────────────────────
 
     [Fact]
-    public void MoveTribe_WithValidTribe_ChangesTribe()
+    public void ChangeTeam_WithDifferentValue_UpdatesTeamId()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         squad.ClearDomainEvents();
 
-        squad.MoveTribe("Data");
+        squad.ChangeTeam(DataTeamId);
 
-        Assert.Equal("Data", squad.Tribe);
+        Assert.Equal(DataTeamId, squad.TeamId);
         Assert.NotNull(squad.UpdatedAtUtc);
     }
 
     [Fact]
-    public void MoveTribe_WithEmptyTribe_ThrowsDomainException()
+    public void ChangeTeam_RaisesSquadTeamChangedEvent()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
+        squad.ClearDomainEvents();
 
-        Assert.Throws<DomainException>(() => squad.MoveTribe(string.Empty));
+        squad.ChangeTeam(DataTeamId);
+
+        var domainEvent = Assert.Single(squad.DomainEvents.OfType<SquadTeamChangedEvent>());
+        Assert.Equal(squad.Id, domainEvent.SquadId);
+        Assert.Equal(PaymentsTeamId, domainEvent.OldTeamId);
+        Assert.Equal(DataTeamId, domainEvent.NewTeamId);
+    }
+
+    [Fact]
+    public void ChangeTeam_WithSameValue_DoesNotRaiseEvent()
+    {
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
+        squad.ClearDomainEvents();
+
+        squad.ChangeTeam(PaymentsTeamId);
+
+        Assert.Empty(squad.DomainEvents.OfType<SquadTeamChangedEvent>());
+    }
+
+    [Fact]
+    public void ChangeTeam_WithEmptyGuid_ThrowsDomainException()
+    {
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
+
+        Assert.Throws<DomainException>(() => squad.ChangeTeam(Guid.Empty));
     }
 
     // ── UpdateDescription ─────────────────────────────────────────────────────
@@ -203,7 +220,7 @@ public sealed class SquadTests
     [Fact]
     public void UpdateDescription_WithValidText_ChangesDescription()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", "Old");
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, "Old");
         squad.ClearDomainEvents();
 
         squad.UpdateDescription("New description");
@@ -215,7 +232,7 @@ public sealed class SquadTests
     [Fact]
     public void UpdateDescription_WithNull_ClearsDescription()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", "Some description");
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, "Some description");
 
         squad.UpdateDescription(null);
 
@@ -225,7 +242,7 @@ public sealed class SquadTests
     [Fact]
     public void UpdateDescription_ExceedingMaxLength_ThrowsDomainException()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         var longDesc = new string('D', 501);
 
         Assert.Throws<DomainException>(() => squad.UpdateDescription(longDesc));
@@ -236,7 +253,7 @@ public sealed class SquadTests
     [Fact]
     public void LinkDevOpsBoard_SetsDevOpsBoardId()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         var boardId = Guid.NewGuid();
         squad.ClearDomainEvents();
 
@@ -249,7 +266,7 @@ public sealed class SquadTests
     [Fact]
     public void LinkDevOpsBoard_RaisesSquadDevOpsBoardLinkedEvent()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         var boardId = Guid.NewGuid();
         squad.ClearDomainEvents();
 
@@ -263,7 +280,7 @@ public sealed class SquadTests
     [Fact]
     public void LinkDevOpsBoard_WithEmptyGuid_ThrowsDomainException()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
 
         Assert.Throws<DomainException>(() => squad.LinkDevOpsBoard(Guid.Empty));
     }
@@ -271,7 +288,7 @@ public sealed class SquadTests
     [Fact]
     public void UnlinkDevOpsBoard_ClearsDevOpsBoardId()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         squad.LinkDevOpsBoard(Guid.NewGuid());
         squad.ClearDomainEvents();
 
@@ -284,7 +301,7 @@ public sealed class SquadTests
     [Fact]
     public void UnlinkDevOpsBoard_RaisesSquadDevOpsBoardUnlinkedEvent()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         var boardId = Guid.NewGuid();
         squad.LinkDevOpsBoard(boardId);
         squad.ClearDomainEvents();
@@ -300,7 +317,7 @@ public sealed class SquadTests
     [Fact]
     public void ClearDomainEvents_RemovesAllEvents()
     {
-        var squad = new Squad("Backend Platform", Criticality.Critical, "Payments", null);
+        var squad = new Squad("Backend Platform", Criticality.Critical, PaymentsTeamId, null);
         Assert.NotEmpty(squad.DomainEvents);
 
         squad.ClearDomainEvents();

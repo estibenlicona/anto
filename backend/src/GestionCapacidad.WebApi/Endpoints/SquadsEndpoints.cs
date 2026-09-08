@@ -72,11 +72,12 @@ public sealed class SquadsEndpoints : IEndpointDefinition
         int page = 1,
         int pageSize = 10,
         string? search = null,
-        string[]? criticality = null)
+        string[]? criticality = null,
+        Guid[]? teamId = null)
     {
         (int clampedPage, int clampedPageSize) = PaginationQueryExtensions.ClampPagination(page, pageSize);
         GetSquadsResponse response = await getSquadsUseCase.ExecuteAsync(
-            new GetSquadsRequest(clampedPage, clampedPageSize, search, criticality), cancellationToken);
+            new GetSquadsRequest(clampedPage, clampedPageSize, search, criticality, teamId), cancellationToken);
         return Results.Ok(response.Squads);
     }
 

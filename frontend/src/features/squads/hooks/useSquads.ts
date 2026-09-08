@@ -23,6 +23,7 @@ export const useSquads = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 300);
   const [criticalities, setCriticalities] = useState<Criticality[]>([]);
+  const [teamIds, setTeamIds] = useState<string[]>([]);
 
   // Un solo camino de carga: el efecto lo dispara al cambiar los parámetros y
   // `refetch` lo vuelve a correr tras una mutación. El `cancelled` evita que
@@ -35,7 +36,13 @@ export const useSquads = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     setLoading(true);
     setError(null);
     squadService
-      .list(page, pageSize, debouncedSearch || undefined, criticalities)
+      .list(
+        page,
+        pageSize,
+        debouncedSearch || undefined,
+        criticalities,
+        teamIds
+      )
       .then(
         (result) => {
           if (cancelled) return;
@@ -55,7 +62,7 @@ export const useSquads = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     return () => {
       cancelled = true;
     };
-  }, [page, pageSize, debouncedSearch, criticalities, reloadTick]);
+  }, [page, pageSize, debouncedSearch, criticalities, teamIds, reloadTick]);
 
   const refetch = useCallback(() => {
     setReloadTick((tick) => tick + 1);
@@ -76,6 +83,11 @@ export const useSquads = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     setCriticalities(values);
   }, []);
 
+  const onTeamIdsChange = useCallback((values: string[]) => {
+    setPage(1);
+    setTeamIds(values);
+  }, []);
+
   return {
     squads,
     loading,
@@ -91,5 +103,7 @@ export const useSquads = (initialPageSize: number = DEFAULT_PAGE_SIZE) => {
     onSearchChange,
     criticalities,
     onCriticalitiesChange,
+    teamIds,
+    onTeamIdsChange,
   };
 };

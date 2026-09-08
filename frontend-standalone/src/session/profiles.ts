@@ -34,6 +34,7 @@ const ALL_SECTIONS = [
   "Parametros",
   "Habilidades",
   "Lineas",
+  "Equipos",
   "DevOps",
 ];
 
@@ -52,7 +53,7 @@ export const PROFILES: SimulatedProfile[] = [
     id: "admin",
     label: "Ana Administradora",
     description:
-      "Administradora de la plataforma: las 12 secciones, incluida Configuración y DevOps. Ve a todas las personas.",
+      "Administradora de la plataforma: las 13 secciones, incluida Configuración y DevOps. Ve a todas las personas.",
     oid: "11111111-1111-1111-1111-111111111111",
     upn: "ana.admin@tuya.local",
     name: "Ana Administradora",

@@ -50,6 +50,7 @@ export const CAPACITY_SECTION_PERMISSION = {
   "admin-parametros": ADMIN_SECTION_PERMISSION["admin-parametros"],
   "admin-habilidades": ADMIN_SECTION_PERMISSION["admin-habilidades"],
   "admin-lineas": ADMIN_SECTION_PERMISSION["admin-lineas"],
+  "admin-equipos": "Equipos",
   "admin-devops": ADMIN_SECTION_PERMISSION["admin-devops"],
 } as const satisfies Record<string, CapacityPermission>;
 
@@ -149,6 +150,15 @@ export const capacityNavGroups: CapacityNavGroupConfig[] = [
         icon: "team",
         permission: CAPACITY_SECTION_PERMISSION["admin-lineas"],
       },
+      {
+        id: "admin-equipos",
+        label: "Equipos",
+        href: "equipos",
+        // `folder`: agrupa células, no es el mismo concepto que `team`
+        // (arriba, el equipo de expertise de una persona).
+        icon: "folder",
+        permission: CAPACITY_SECTION_PERMISSION["admin-equipos"],
+      },
     ],
   },
   {
@@ -179,6 +189,7 @@ export const capacityRouteTitles: Record<string, string> = {
   "admin-parametros": "Parámetros del modelo",
   "admin-habilidades": "Habilidades",
   "admin-lineas": "Líneas de expertise",
+  "admin-equipos": "Equipos",
   "admin-devops": "Integración DevOps",
 };
 

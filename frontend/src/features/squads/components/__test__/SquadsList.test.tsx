@@ -12,7 +12,8 @@ const squad: Squad = {
   assignmentStatus: { kind: "sin-demanda" },
   id: "1",
   name: "Backend Platform",
-  team: "Ecosistema Digital",
+  teamId: "t1",
+  teamName: "Ecosistema Digital",
   criticality: "High",
   criticalityLabel: "Alta",
   description: "Servicios core",
@@ -49,6 +50,8 @@ const baseProps: SquadsListProps = {
   onSearchChange: noop,
   selectedCriticalities: [],
   onCriticalitiesChange: noop,
+  selectedTeamIds: [],
+  onTeamIdsChange: noop,
 };
 
 function renderList(overrides: Partial<SquadsListProps> = {}) {
@@ -553,5 +556,38 @@ describe("SquadsList", () => {
     expect(screen.getByLabelText("Baja")).toBeInTheDocument();
     fireEvent.click(screen.getByLabelText("Crítica"));
     expect(onCriticalitiesChange).toHaveBeenCalledWith(["Critical"]);
+  });
+
+  describe("el filtro de Equipo", () => {
+    it("filtra por equipo, con las opciones del catálogo completo", async () => {
+      const onTeamIdsChange = vi.fn();
+      renderList({ squads: [squad], onTeamIdsChange });
+
+      fireEvent.click(screen.getByRole("button", { name: /Equipo/ }));
+      const option = await screen.findByLabelText("Riesgo y Fraude");
+      fireEvent.click(option);
+
+      expect(onTeamIdsChange).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.any(String)])
+      );
+    });
+
+    it("es combinable con Criticidad: marcar en uno no cierra el otro", async () => {
+      const onCriticalitiesChange = vi.fn();
+      const onTeamIdsChange = vi.fn();
+      renderList({
+        squads: [squad],
+        onCriticalitiesChange,
+        onTeamIdsChange,
+      });
+
+      fireEvent.click(screen.getByRole("button", { name: /Criticidad/ }));
+      fireEvent.click(await screen.findByLabelText("Crítica"));
+      expect(onCriticalitiesChange).toHaveBeenCalledWith(["Critical"]);
+
+      fireEvent.click(screen.getByRole("button", { name: /Equipo/ }));
+      fireEvent.click(await screen.findByLabelText("Pagos"));
+      expect(onTeamIdsChange).toHaveBeenCalled();
+    });
   });
 });

@@ -7,7 +7,8 @@ import type { Squad } from "../../adapters/SquadAdapter";
 const squad: Squad = {
   id: "1",
   name: "Backend Platform",
-  team: "Ecosistema Digital",
+  teamId: "t1",
+  teamName: "Ecosistema Digital",
   criticality: "High",
   criticalityLabel: "Alta",
   description: "Servicios core y APIs compartidas.",

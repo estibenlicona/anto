@@ -1,24 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\GestionCapacidad.RabbitMQ.csproj": {}
+    "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\GestionCapacidad.RabbitMQ.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\GestionCapacidad.RabbitMQ.csproj": {
+    "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\GestionCapacidad.RabbitMQ.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\GestionCapacidad.RabbitMQ.csproj",
+        "projectUniqueName": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\GestionCapacidad.RabbitMQ.csproj",
         "projectName": "GestionCapacidad.RabbitMQ",
-        "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\GestionCapacidad.RabbitMQ.csproj",
-        "packagesPath": "C:\\Users\\Lenovo i5\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\obj\\",
+        "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\GestionCapacidad.RabbitMQ.csproj",
+        "packagesPath": "C:\\Users\\estiben\\.nuget\\packages\\",
+        "outputPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RabbitMQ\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Lenovo i5\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\estiben\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -102,11 +102,15 @@
             "Microsoft.Azure.AppConfiguration.AspNetCore": "7.2.0",
             "Microsoft.Data.SqlClient": "6.1.1",
             "Microsoft.EntityFrameworkCore.Design": "10.0.1",
+            "Microsoft.EntityFrameworkCore.InMemory": "10.0.1",
             "Microsoft.EntityFrameworkCore.Sqlite": "10.0.1",
             "Microsoft.EntityFrameworkCore.SqlServer": "10.0.1",
             "Microsoft.Extensions.Configuration": "10.0.0",
             "Microsoft.Extensions.Configuration.Abstractions": "10.0.1",
             "Microsoft.Extensions.Configuration.Binder": "10.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "10.0.0",
+            "Microsoft.Extensions.Configuration.Json": "10.0.0",
+            "Microsoft.Extensions.Configuration.UserSecrets": "10.0.0",
             "Microsoft.Extensions.DependencyInjection": "10.0.1",
             "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
             "Microsoft.Extensions.Diagnostics.HealthChecks": "10.0.0",
@@ -119,10 +123,12 @@
             "Microsoft.Extensions.Options": "10.0.1",
             "Microsoft.Extensions.Options.ConfigurationExtensions": "10.0.0",
             "Microsoft.Extensions.Resilience": "10.0.0",
+            "Microsoft.Extensions.TimeProvider.Testing": "9.0.0",
             "Microsoft.NET.Test.Sdk": "17.11.1",
             "MongoDB.Driver": "2.25.0",
             "MongoDB.EntityFrameworkCore": "8.0.0",
             "Moq": "4.20.70",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
             "OpenTelemetry": "1.16.0",
             "OpenTelemetry.Exporter.Console": "1.16.0",
             "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.16.0",

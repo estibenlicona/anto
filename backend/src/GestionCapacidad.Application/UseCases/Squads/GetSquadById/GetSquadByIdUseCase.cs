@@ -8,6 +8,7 @@ namespace GestionCapacidad.Application.UseCases.Squads.GetSquadById;
 
 public sealed class GetSquadByIdUseCase(
     ISquadRepository squadRepository,
+    ITeamRepository teamRepository,
     IAllocationRepository allocationRepository,
     IPersonRepository personRepository,
     IInitiativeRepository initiativeRepository) : IUseCase<GetSquadByIdRequest, GetSquadByIdResponse>
@@ -22,11 +23,13 @@ public sealed class GetSquadByIdUseCase(
             throw new NotFoundException($"Squad with id '{request.Id}' was not found.");
         }
 
+        Team? team = await teamRepository.GetByIdAsync(squad.TeamId, cancellationToken);
+
         SquadAggregates aggregates = SquadAggregates.Build(
             await allocationRepository.GetAllAsync(cancellationToken),
             await personRepository.GetAllAsync(cancellationToken),
             await initiativeRepository.GetAllAsync(cancellationToken));
 
-        return new GetSquadByIdResponse(SquadMappings.ToDto(squad, aggregates.For(squad.Id)));
+        return new GetSquadByIdResponse(SquadMappings.ToDto(squad, aggregates.For(squad.Id), team?.Name ?? string.Empty));
     }
 }

@@ -19,6 +19,7 @@ export const CAPACITY_PERMISSIONS = [
   "Parametros",
   "Habilidades",
   "Lineas",
+  "Equipos",
   "DevOps",
 ] as const;
 

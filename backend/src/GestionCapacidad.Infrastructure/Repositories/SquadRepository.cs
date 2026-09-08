@@ -19,11 +19,21 @@ public sealed class SquadRepository(ApplicationDbContext dbContext)
             cancellationToken);
     }
 
+    public async Task<bool> ExistsByTeamIdAsync(
+        Guid teamId,
+        CancellationToken cancellationToken = default)
+    {
+        return await DbContext.Squads.AnyAsync(
+            s => s.TeamId == teamId,
+            cancellationToken);
+    }
+
     public async Task<(IReadOnlyList<Squad> Items, int TotalCount)> GetPagedAsync(
         int page,
         int pageSize,
         string? search = null,
         IReadOnlyCollection<string>? criticalities = null,
+        IReadOnlyCollection<Guid>? teamIds = null,
         CancellationToken cancellationToken = default)
     {
         IQueryable<Squad> query = DbContext.Squads.AsNoTracking();
@@ -31,7 +41,11 @@ public sealed class SquadRepository(ApplicationDbContext dbContext)
         if (!string.IsNullOrWhiteSpace(search))
         {
             string term = search.Trim().ToLower();
-            query = query.Where(s => s.Name.ToLower().Contains(term) || s.Tribe.ToLower().Contains(term));
+            List<Guid> matchingTeamIds = await DbContext.Teams
+                .Where(t => t.Name.ToLower().Contains(term))
+                .Select(t => t.Id)
+                .ToListAsync(cancellationToken);
+            query = query.Where(s => s.Name.ToLower().Contains(term) || matchingTeamIds.Contains(s.TeamId));
         }
 
         if (criticalities is { Count: > 0 })
@@ -44,6 +58,11 @@ public sealed class SquadRepository(ApplicationDbContext dbContext)
                 .Select(c => c!)
                 .ToList();
             query = query.Where(s => valid.Contains(s.Criticality));
+        }
+
+        if (teamIds is { Count: > 0 })
+        {
+            query = query.Where(s => teamIds.Contains(s.TeamId));
         }
 
         int totalCount = await query.CountAsync(cancellationToken);

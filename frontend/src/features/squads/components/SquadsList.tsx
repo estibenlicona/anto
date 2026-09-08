@@ -29,6 +29,7 @@ import {
 import { TableStatusRow } from "@shared/components/TableStatusRow";
 import { modulePath } from "@shared/services/modulePath";
 import { getPersonInitials } from "@features/people/adapters/PersonAdapter";
+import { useTeams } from "@features/teams/hooks/useTeams";
 // El mapa de talla → color se importa, no se copia: dos mapas que empiezan
 // iguales divergen en silencio la primera vez que se toca uno.
 import {
@@ -66,6 +67,10 @@ const CRITICALITY_OPTIONS = CRITICALITY_ORDER.map((value) => ({
   value,
   label: CRITICALITY_LABELS[value],
 }));
+
+// Todos los equipos del catálogo, no sólo los que tienen células — para
+// poder elegir uno vacío y ver "Sin resultados" (spec de squads).
+const ALL_TEAMS_PAGE_SIZE = 100;
 
 // Mismo tratamiento secundario que el correo bajo el nombre en PeopleList:
 // el tamaño de `text-label` sin su semibold ni su tracking de rúbrica.
@@ -154,6 +159,8 @@ export interface SquadsListProps {
   onSearchChange: (value: string) => void;
   selectedCriticalities: Criticality[];
   onCriticalitiesChange: (values: Criticality[]) => void;
+  selectedTeamIds: string[];
+  onTeamIdsChange: (values: string[]) => void;
 }
 
 export const SquadsList: React.FC<SquadsListProps> = ({
@@ -174,9 +181,15 @@ export const SquadsList: React.FC<SquadsListProps> = ({
   onSearchChange,
   selectedCriticalities,
   onCriticalitiesChange,
+  selectedTeamIds,
+  onTeamIdsChange,
 }) => {
+  const { teams } = useTeams(ALL_TEAMS_PAGE_SIZE);
+  const teamOptions = teams.map((t) => ({ value: t.id, label: t.name }));
   const hasActiveFilter =
-    search.trim().length > 0 || selectedCriticalities.length > 0;
+    search.trim().length > 0 ||
+    selectedCriticalities.length > 0 ||
+    selectedTeamIds.length > 0;
 
   // Sin ninguna célula y sin filtro puesto, el estado vacío se queda con la
   // pantalla: una barra de búsqueda y un filtro sobre la nada no ofrecen nada
@@ -225,6 +238,12 @@ export const SquadsList: React.FC<SquadsListProps> = ({
             onChange={(values) =>
               onCriticalitiesChange(values as Criticality[])
             }
+          />
+          <FilterButton
+            label="Equipo"
+            options={teamOptions}
+            selected={selectedTeamIds}
+            onChange={(values) => onTeamIdsChange(values as string[])}
           />
         </>
       }
@@ -321,7 +340,7 @@ export const SquadsList: React.FC<SquadsListProps> = ({
                     )}
                   </div>
                 </TableCell>
-                <TableCell>{squad.team}</TableCell>
+                <TableCell>{squad.teamName}</TableCell>
                 <TableCell>
                   <Badge
                     dot={false}

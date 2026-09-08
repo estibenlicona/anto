@@ -19,9 +19,8 @@ public sealed class UpdateSquadValidator : AbstractValidator<UpdateSquadRequest>
             .Must(BeValidCriticality)
             .WithMessage($"Criticality must be one of: {string.Join(", ", Criticality.ValidValues)}.");
 
-        RuleFor(r => r.Team)
-            .NotEmpty()
-            .MaximumLength(100);
+        RuleFor(r => r.TeamId)
+            .NotEmpty();
 
         RuleFor(r => r.Description)
             .MaximumLength(500)

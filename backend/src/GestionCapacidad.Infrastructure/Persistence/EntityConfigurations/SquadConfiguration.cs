@@ -27,9 +27,8 @@ public sealed class SquadConfiguration : IEntityTypeConfiguration<Squad>
                 vo  => vo.Value,
                 raw => Criticality.From(raw));
 
-        builder.Property(s => s.Tribe)
-            .IsRequired()
-            .HasMaxLength(100);
+        builder.Property(s => s.TeamId)
+            .IsRequired();
 
         builder.Property(s => s.Description)
             .IsRequired(false)
@@ -46,5 +45,7 @@ public sealed class SquadConfiguration : IEntityTypeConfiguration<Squad>
 
         builder.HasIndex(s => s.Name)
             .IsUnique();
+
+        builder.HasIndex(s => s.TeamId);
     }
 }

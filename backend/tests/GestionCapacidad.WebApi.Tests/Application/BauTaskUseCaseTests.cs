@@ -16,7 +16,7 @@ public sealed class BauTaskUseCaseTests
     private readonly Mock<ISquadRepository> _squadRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
 
-    private Squad BuildSquad() => new("Backend", Criticality.High, "Payments", null);
+    private Squad BuildSquad() => new("Backend", Criticality.High, Guid.NewGuid(), null);
 
     // ── CreateBauTask ──────────────────────────────────────────────────────────
 

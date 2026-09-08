@@ -77,30 +77,17 @@ public sealed class CreateSquadValidatorTests
         Assert.True(result.IsValid);
     }
 
-    // ── Tribe ─────────────────────────────────────────────────────────────────
-
-    [Theory]
-    [InlineData("")]
-    [InlineData("   ")]
-    public async Task ValidateAsync_RejectsEmptyTribe(string tribe)
-    {
-        CreateSquadRequest request = TestDataFactory.CreateSquadRequest(tribe: tribe);
-
-        ValidationResult result = await _validator.ValidateAsync(request);
-
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSquadRequest.Team));
-    }
+    // ── TeamId ────────────────────────────────────────────────────────────────
 
     [Fact]
-    public async Task ValidateAsync_RejectsTribeExceedingMaxLength()
+    public async Task ValidateAsync_RejectsEmptyTeamId()
     {
-        CreateSquadRequest request = TestDataFactory.CreateSquadRequest(tribe: new string('T', 101));
+        CreateSquadRequest request = TestDataFactory.CreateSquadRequest(teamId: Guid.Empty);
 
         ValidationResult result = await _validator.ValidateAsync(request);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSquadRequest.Team));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateSquadRequest.TeamId));
     }
 
     // ── Description ───────────────────────────────────────────────────────────

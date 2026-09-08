@@ -17,6 +17,7 @@ import { sprintConfigHandlers } from "./sprint-config.handlers";
 import { skillsHandlers } from "./skills.handlers";
 import { squadsHandlers } from "./squads.handlers";
 import { tallaBandsHandlers } from "./talla-bands.handlers";
+import { teamsHandlers } from "./teams.handlers";
 
 // Punto único de extensión: cuando se agregue una feature nueva con
 // llamadas HTTP, sumar su archivo de handlers acá.
@@ -42,4 +43,5 @@ export const handlers = [
   ...skillsHandlers,
   ...squadsHandlers,
   ...tallaBandsHandlers,
+  ...teamsHandlers,
 ];

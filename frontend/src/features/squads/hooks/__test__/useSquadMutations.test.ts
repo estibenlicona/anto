@@ -13,7 +13,7 @@ vi.mock("../../services/squadService", () => ({
 
 const formValues = {
   name: "Nueva",
-  team: "Tribu",
+  teamId: "t1",
   criticality: "Low" as const,
   description: "",
 };
@@ -21,7 +21,8 @@ const formValues = {
 const squad = {
   id: "1",
   name: "Existente",
-  team: "Tribu",
+  teamId: "t1",
+  teamName: "Tribu",
   criticality: "Medium" as const,
   criticalityLabel: "Media",
   description: "",

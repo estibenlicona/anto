@@ -15,6 +15,7 @@
           "GestionCapacidad.RestClient": "1.0.0",
           "GestionCapacidad.WebApi": "1.0.0",
           "Microsoft.EntityFrameworkCore.Sqlite": "10.0.1",
+          "Microsoft.Extensions.TimeProvider.Testing": "9.0.0",
           "Microsoft.NET.Test.Sdk": "17.11.1",
           "Moq": "4.20.70",
           "SQLitePCLRaw.lib.e_sqlite3": "2.1.12",
@@ -383,6 +384,17 @@
           }
         }
       },
+      "Microsoft.EntityFrameworkCore.InMemory/10.0.1": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "10.0.1"
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.EntityFrameworkCore.InMemory.dll": {
+            "assemblyVersion": "10.0.1.0",
+            "fileVersion": "10.0.125.57005"
+          }
+        }
+      },
       "Microsoft.EntityFrameworkCore.Relational/10.0.1": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "10.0.1"
@@ -540,6 +552,14 @@
           "lib/net10.0/Microsoft.Extensions.Telemetry.Abstractions.dll": {
             "assemblyVersion": "10.0.0.0",
             "fileVersion": "10.0.25.55903"
+          }
+        }
+      },
+      "Microsoft.Extensions.TimeProvider.Testing/9.0.0": {
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.TimeProvider.Testing.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.24.55605"
           }
         }
       },
@@ -986,6 +1006,27 @@
           "lib/netstandard2.0/Newtonsoft.Json.dll": {
             "assemblyVersion": "13.0.0.0",
             "fileVersion": "13.0.1.25517"
+          }
+        }
+      },
+      "Npgsql/10.0.0": {
+        "runtime": {
+          "lib/net10.0/Npgsql.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.0.0"
+          }
+        }
+      },
+      "Npgsql.EntityFrameworkCore.PostgreSQL/10.0.0": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "10.0.1",
+          "Microsoft.EntityFrameworkCore.Relational": "10.0.1",
+          "Npgsql": "10.0.0"
+        },
+        "runtime": {
+          "lib/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.0.0"
           }
         }
       },
@@ -1624,12 +1665,15 @@
       },
       "GestionCapacidad.Infrastructure/1.0.0": {
         "dependencies": {
+          "Azure.Identity": "1.14.2",
           "GestionCapacidad.Application": "1.0.0",
           "GestionCapacidad.Domain": "1.0.0",
           "GestionCapacidad.RestClient": "1.0.0",
+          "Microsoft.EntityFrameworkCore.InMemory": "10.0.1",
           "Microsoft.EntityFrameworkCore.SqlServer": "10.0.1",
           "MongoDB.Driver": "2.25.0",
           "MongoDB.EntityFrameworkCore": "8.0.0",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
           "SharpCompress": "0.48.1",
           "Snappier": "1.1.5"
         },
@@ -1899,6 +1943,13 @@
       "path": "microsoft.entityframeworkcore.abstractions/10.0.1",
       "hashPath": "microsoft.entityframeworkcore.abstractions.10.0.1.nupkg.sha512"
     },
+    "Microsoft.EntityFrameworkCore.InMemory/10.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-f0HNO4Hp80AJLGkv/gV95q9yrPJ7CPfCjNq5trcLsXH75GurM/62D4m2YyXmkyQfeT4MRFXZSBPdhDBOx1CTQQ==",
+      "path": "microsoft.entityframeworkcore.inmemory/10.0.1",
+      "hashPath": "microsoft.entityframeworkcore.inmemory.10.0.1.nupkg.sha512"
+    },
     "Microsoft.EntityFrameworkCore.Relational/10.0.1": {
       "type": "package",
       "serviceable": true,
@@ -2003,6 +2054,13 @@
       "sha512": "sha512-M17n6IpgutodXxwTZk1r5Jp2ZZ995FJTKMxiEQSr6vT3iwRfRq2HWzzrR1B6N3MpJhDfI2QuMdCOLUq++GCsQg==",
       "path": "microsoft.extensions.telemetry.abstractions/10.0.0",
       "hashPath": "microsoft.extensions.telemetry.abstractions.10.0.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.TimeProvider.Testing/9.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-BVLDMoIt7le5yghYHvnlshFg7IBPwftA62Dz2i1GuEzL83KJ14z+tG3+sWwfSQPWaoRxetwATyo1Sl+4cUIcbA==",
+      "path": "microsoft.extensions.timeprovider.testing/9.0.0",
+      "hashPath": "microsoft.extensions.timeprovider.testing.9.0.0.nupkg.sha512"
     },
     "Microsoft.Identity.Client/4.73.1": {
       "type": "package",
@@ -2143,6 +2201,20 @@
       "sha512": "sha512-ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A==",
       "path": "newtonsoft.json/13.0.1",
       "hashPath": "newtonsoft.json.13.0.1.nupkg.sha512"
+    },
+    "Npgsql/10.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-xZAYhPOU2rUIFpV48xsqhCx9vXs6Y+0jX2LCoSEfDFYMw9jtAOUk3iQsCnDLrFIv9NT3JGMihn7nnuZsPKqJmA==",
+      "path": "npgsql/10.0.0",
+      "hashPath": "npgsql.10.0.0.nupkg.sha512"
+    },
+    "Npgsql.EntityFrameworkCore.PostgreSQL/10.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-E2+uSWxSB8LdsUVwPaqRWOcGOP92biry2JEwc0KJMdLJF+aZdczeIdEXVwEyv4nSVMQJH0o8tLhyAMiR6VF0lw==",
+      "path": "npgsql.entityframeworkcore.postgresql/10.0.0",
+      "hashPath": "npgsql.entityframeworkcore.postgresql.10.0.0.nupkg.sha512"
     },
     "OpenTelemetry/1.16.0": {
       "type": "package",

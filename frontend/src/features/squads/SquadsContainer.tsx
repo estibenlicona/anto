@@ -27,6 +27,8 @@ export const SquadsContainer: React.FC = () => {
     onSearchChange,
     criticalities: selectedCriticalities,
     onCriticalitiesChange,
+    teamIds: selectedTeamIds,
+    onTeamIdsChange,
   } = useSquads();
   const { criticalities, loading: criticalitiesLoading } = useCriticalities();
   const { create, update, remove, creating, updating, removing } =
@@ -137,6 +139,8 @@ export const SquadsContainer: React.FC = () => {
         onSearchChange={onSearchChange}
         selectedCriticalities={selectedCriticalities}
         onCriticalitiesChange={onCriticalitiesChange}
+        selectedTeamIds={selectedTeamIds}
+        onTeamIdsChange={onTeamIdsChange}
       />
       <SquadFormDrawer
         key={formKey}

@@ -47,6 +47,11 @@ const AdminDevOpsPage = lazy(() =>
     default: m.AdminDevOpsPage,
   }))
 );
+const AdminTeamsPage = lazy(() =>
+  import("@pages/AdminTeamsPage/AdminTeamsPage").then((m) => ({
+    default: m.AdminTeamsPage,
+  }))
+);
 const LeadSquadsPage = lazy(() =>
   import("@pages/LeadSquadsPage/LeadSquadsPage").then((m) => ({
     default: m.LeadSquadsPage,
@@ -179,7 +184,14 @@ const CapacityHome: React.FC = () => {
     return <ChapterLeadHomePage />;
   }
   if (
-    hasPermission("Sprints", "Parametros", "Habilidades", "Lineas", "DevOps")
+    hasPermission(
+      "Sprints",
+      "Parametros",
+      "Habilidades",
+      "Lineas",
+      "Equipos",
+      "DevOps"
+    )
   ) {
     return <AdminHomePage />;
   }
@@ -341,6 +353,14 @@ export const CapacityRoutes: React.FC<{
           element={
             <RequirePermission permission={P["admin-lineas"]}>
               <AdminExpertiseLinesPage />
+            </RequirePermission>
+          }
+        />
+        <Route
+          path="equipos"
+          element={
+            <RequirePermission permission={P["admin-equipos"]}>
+              <AdminTeamsPage />
             </RequirePermission>
           }
         />

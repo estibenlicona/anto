@@ -11,6 +11,8 @@ public sealed record SquadCriticalityChangedEvent(
     ValueObjects.Criticality OldCriticality,
     ValueObjects.Criticality NewCriticality) : IDomainEvent;
 
+public sealed record SquadTeamChangedEvent(Guid SquadId, Guid OldTeamId, Guid NewTeamId) : IDomainEvent;
+
 public sealed record SquadDevOpsBoardLinkedEvent(Guid SquadId, Guid BoardId) : IDomainEvent;
 
 public sealed record SquadDevOpsBoardUnlinkedEvent(Guid SquadId) : IDomainEvent;

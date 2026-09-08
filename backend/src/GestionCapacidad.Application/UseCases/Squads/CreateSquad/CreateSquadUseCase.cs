@@ -13,6 +13,7 @@ namespace GestionCapacidad.Application.UseCases.Squads.CreateSquad;
 
 public sealed class CreateSquadUseCase(
     ISquadRepository squadRepository,
+    ITeamRepository teamRepository,
     IAllocationRepository allocationRepository,
     IPersonRepository personRepository,
     IInitiativeRepository initiativeRepository,
@@ -34,10 +35,16 @@ public sealed class CreateSquadUseCase(
             throw new BadRequestException($"A squad named '{request.Name}' already exists.");
         }
 
+        Team? team = await teamRepository.GetByIdAsync(request.TeamId, cancellationToken);
+        if (team is null)
+        {
+            throw new BadRequestException($"Team with id '{request.TeamId}' was not found.");
+        }
+
         var squad = new Squad(
             request.Name,
             Criticality.From(request.Criticality),
-            request.Team,
+            request.TeamId,
             request.Description);
 
         await squadRepository.AddAsync(squad, cancellationToken);
@@ -48,6 +55,6 @@ public sealed class CreateSquadUseCase(
             await personRepository.GetAllAsync(cancellationToken),
             await initiativeRepository.GetAllAsync(cancellationToken));
 
-        return SquadMappings.ToCreateResponse(squad, aggregates.For(squad.Id));
+        return SquadMappings.ToCreateResponse(squad, aggregates.For(squad.Id), team.Name);
     }
 }

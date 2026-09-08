@@ -2,6 +2,6 @@ namespace GestionCapacidad.Application.UseCases.Squads.CreateSquad;
 
 public sealed record CreateSquadRequest(
     string Name,
-    string Team,
+    Guid TeamId,
     string Criticality,
     string? Description);

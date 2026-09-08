@@ -17,6 +17,16 @@ import { getAllocationsSnapshot } from "./allocations.handlers";
 import { availableFteOf, fteOfPercentages, round1 } from "./fte";
 import { vistaDe, type Vista } from "./scope";
 import { getInitiativesSnapshot } from "./initiatives.handlers";
+// Misma dirección de sólo lectura que con allocations/initiatives: el nombre
+// del equipo se resuelve contra el snapshot de equipos, nunca al revés (ver
+// teams.handlers.ts, que sí lee de acá para el conteo de células).
+import { getTeamsSnapshot } from "./teams.handlers";
+import {
+  TEAM_DATOS_Y_ANALITICA_ID,
+  TEAM_ECOSISTEMA_DIGITAL_ID,
+  TEAM_PAGOS_ID,
+  TEAM_RIESGO_Y_FRAUDE_ID,
+} from "./teams.seeds";
 
 const SQUADS_URL = "/squads";
 const SQUADS_STATS_URL = "/squads/stats";
@@ -29,6 +39,7 @@ const now = new Date().toISOString();
 // Los campos calculados (personas, capacidad, iniciativas) se derivan al responder.
 export type StoredSquad = Omit<
   SquadDto,
+  | "teamName"
   | "memberCount"
   | "members"
   | "allocatedFte"
@@ -44,7 +55,7 @@ const initialSquads: StoredSquad[] = [
   {
     id: "11111111-1111-1111-1111-111111111111",
     name: "Backend Platform",
-    team: "Ecosistema Digital",
+    teamId: TEAM_ECOSISTEMA_DIGITAL_ID,
     criticality: "High",
     description: "Servicios core y APIs compartidas.",
     createdAtUtc: now,
@@ -53,7 +64,7 @@ const initialSquads: StoredSquad[] = [
   {
     id: "22222222-2222-2222-2222-222222222222",
     name: "Canales Digitales",
-    team: "Ecosistema Digital",
+    teamId: TEAM_ECOSISTEMA_DIGITAL_ID,
     criticality: "Critical",
     description: "App móvil y banca en línea.",
     createdAtUtc: now,
@@ -62,7 +73,7 @@ const initialSquads: StoredSquad[] = [
   {
     id: "33333333-3333-3333-3333-333333333333",
     name: "Fraude Tarjetas",
-    team: "Riesgo y Fraude",
+    teamId: TEAM_RIESGO_Y_FRAUDE_ID,
     criticality: "Critical",
     description:
       "Motor de scoring transaccional, reglas antifraude y monitoreo en tiempo real de las operaciones con tarjeta.",
@@ -72,7 +83,7 @@ const initialSquads: StoredSquad[] = [
   {
     id: "44444444-4444-4444-4444-444444444444",
     name: "Pagos Instantáneos",
-    team: "Pagos",
+    teamId: TEAM_PAGOS_ID,
     criticality: "Low",
     description: null,
     createdAtUtc: now,
@@ -81,7 +92,7 @@ const initialSquads: StoredSquad[] = [
   {
     id: "55555555-5555-5555-5555-555555555555",
     name: "Plataforma de Datos",
-    team: "Datos y Analítica",
+    teamId: TEAM_DATOS_Y_ANALITICA_ID,
     criticality: "Medium",
     description: "Lakehouse, pipelines y gobierno de datos.",
     createdAtUtc: now,
@@ -138,6 +149,11 @@ function activeInitiativesOf(squadId: string): SquadActiveInitiativeDto[] {
     }));
 }
 
+/** Nombre del equipo referenciado, resuelto contra el catálogo — igual patrón que activeInitiativesOf. */
+function teamNameOf(teamId: string): string {
+  return getTeamsSnapshot().find((t) => t.id === teamId)?.name ?? "";
+}
+
 /**
  * Suma equipo y capacidad de una célula desde las asignaciones vigentes —las
  * de las personas que quien pidió alcanza a ver, ver scope.ts—.
@@ -149,6 +165,7 @@ function enrich(squad: StoredSquad, vista: Vista): SquadDto {
     fteOfPercentages(own.map(pick));
   return {
     ...squad,
+    teamName: teamNameOf(squad.teamId),
     memberCount: own.length,
     members: [...own]
       .sort((a, b) => a.personName.localeCompare(b.personName))
@@ -189,7 +206,8 @@ function computeTeamStats(squad: StoredSquad, vista: Vista): SquadTeamStats {
 function filterSquads(
   source: StoredSquad[],
   search: string | null,
-  criticalities: Criticality[]
+  criticalities: Criticality[],
+  teamIds: string[]
 ): StoredSquad[] {
   let filtered = source;
   if (search) {
@@ -197,11 +215,14 @@ function filterSquads(
     filtered = filtered.filter(
       (s) =>
         s.name.toLowerCase().includes(term) ||
-        s.team.toLowerCase().includes(term)
+        teamNameOf(s.teamId).toLowerCase().includes(term)
     );
   }
   if (criticalities.length > 0) {
     filtered = filtered.filter((s) => criticalities.includes(s.criticality));
+  }
+  if (teamIds.length > 0) {
+    filtered = filtered.filter((s) => teamIds.includes(s.teamId));
   }
   return filtered;
 }
@@ -216,7 +237,7 @@ function computeStats(source: StoredSquad[], vista: Vista): SquadsStats {
     atCapacityCount: enriched.filter(
       (s) => s.memberCount > 0 && s.allocatedFte >= s.peopleAvailableFte
     ).length,
-    teamCount: new Set(source.map((s) => s.team)).size,
+    teamCount: new Set(source.map((s) => s.teamId)).size,
     allocatedFte: total((s) => s.allocatedFte),
     bauFte: total((s) => s.bauFte),
     transformationFte: total((s) => s.transformationFte),
@@ -249,14 +270,18 @@ function isValidCreateRequest(value: unknown): value is CreateSquadRequest {
     typeof v.name === "string" &&
     v.name.length > 0 &&
     v.name.length <= 200 &&
-    typeof v.team === "string" &&
-    v.team.length > 0 &&
-    v.team.length <= 100 &&
+    typeof v.teamId === "string" &&
+    v.teamId.length > 0 &&
     (v.description === undefined ||
       (typeof v.description === "string" && v.description.length <= 500)) &&
     typeof v.criticality === "string" &&
     CRITICALITY_VALUES.includes(v.criticality as Criticality)
   );
+}
+
+/** El `teamId` tiene que existir en el catálogo de equipos — mismo tratamiento que un id de catálogo inexistente en el resto del mock. */
+function teamExists(teamId: string): boolean {
+  return getTeamsSnapshot().some((t) => t.id === teamId);
 }
 
 export const squadsHandlers = [
@@ -276,7 +301,8 @@ export const squadsHandlers = [
       .filter((c): c is Criticality =>
         CRITICALITY_VALUES.includes(c as Criticality)
       );
-    const filtered = filterSquads(squads, search, criticalities);
+    const teamIds = url.searchParams.getAll("teamId");
+    const filtered = filterSquads(squads, search, criticalities, teamIds);
     const result = paginate(filtered, page, pageSize);
     // Las células se listan todas: son del chapter, no de una persona. Lo que
     // se acota es su equipo y las cifras que salen de él.
@@ -317,11 +343,17 @@ export const squadsHandlers = [
         { status: 400 }
       );
     }
+    if (!teamExists(body.teamId)) {
+      return HttpResponse.json(
+        { message: "El equipo seleccionado no existe" },
+        { status: 400 }
+      );
+    }
     const nowIso = new Date().toISOString();
     const created: StoredSquad = {
       id: crypto.randomUUID(),
       name: body.name,
-      team: body.team,
+      teamId: body.teamId,
       criticality: body.criticality,
       description: body.description ?? null,
       createdAtUtc: nowIso,
@@ -350,10 +382,16 @@ export const squadsHandlers = [
         { status: 400 }
       );
     }
+    if (!teamExists(body.teamId)) {
+      return HttpResponse.json(
+        { message: "El equipo seleccionado no existe" },
+        { status: 400 }
+      );
+    }
     const updated: StoredSquad = {
       ...existing,
       name: body.name,
-      team: body.team,
+      teamId: body.teamId,
       criticality: body.criticality,
       description: body.description ?? null,
       updatedAtUtc: new Date().toISOString(),

@@ -14,6 +14,7 @@ public sealed class GetPersonDetailUseCaseTests
     private readonly Mock<IPersonRepository> _people = new();
     private readonly Mock<ICompanyRepository> _companies = new();
     private readonly Mock<ISquadRepository> _squads = new();
+    private readonly Mock<ITeamRepository> _teams = new();
     private readonly Mock<IAllocationRepository> _allocations = new();
     private readonly Mock<IExpertiseLineRepository> _lines = new();
     private readonly Mock<IChapterCatalog> _chapters = new();
@@ -27,6 +28,7 @@ public sealed class GetPersonDetailUseCaseTests
     public GetPersonDetailUseCaseTests()
     {
         _squads.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Squad>());
+        _teams.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Team>());
         _allocations.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Allocation>());
         _lines.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<ExpertiseLine>());
         _chapters.Setup(c => c.Entries).Returns(Array.Empty<ChapterCatalogEntry>());
@@ -39,7 +41,7 @@ public sealed class GetPersonDetailUseCaseTests
     }
 
     private GetPersonDetailUseCase NewUseCase() => new(
-        _people.Object, _companies.Object, _squads.Object, _allocations.Object, _lines.Object, _chapters.Object,
+        _people.Object, _companies.Object, _squads.Object, _teams.Object, _allocations.Object, _lines.Object, _chapters.Object,
         _initiatives.Object, _sprints.Object, _snapshots.Object, _settings.Object, _absences.Object, _timeProvider);
 
     private void HavePeople(params Person[] people)

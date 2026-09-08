@@ -55,13 +55,13 @@ public static class TestDataFactory
     public static CreateSquadRequest CreateSquadRequest(
         string? name = null,
         string? criticality = null,
-        string? tribe = null,
+        Guid? teamId = null,
         string? description = null)
     {
         var faker = new Faker();
         return new CreateSquadRequest(
             name ?? faker.Commerce.Department(),
-            tribe ?? faker.Commerce.Categories(1)[0],
+            teamId ?? Guid.NewGuid(),
             criticality ?? "High",
             description);
     }
@@ -70,14 +70,14 @@ public static class TestDataFactory
         Guid? id = null,
         string? name = null,
         string? criticality = null,
-        string? tribe = null,
+        Guid? teamId = null,
         string? description = null)
     {
         var faker = new Faker();
         return new UpdateSquadRequest(
             id ?? Guid.NewGuid(),
             name ?? faker.Commerce.Department(),
-            tribe ?? faker.Commerce.Categories(1)[0],
+            teamId ?? Guid.NewGuid(),
             criticality ?? "Medium",
             description);
     }
@@ -85,14 +85,26 @@ public static class TestDataFactory
     public static Squad CreateSquad(
         string? name = null,
         Criticality? criticality = null,
-        string? tribe = null,
+        Guid? teamId = null,
         string? description = null)
     {
         var faker = new Faker();
         return new Squad(
             name ?? faker.Commerce.Department(),
             criticality ?? Criticality.High,
-            tribe ?? faker.Commerce.Categories(1)[0],
+            teamId ?? Guid.NewGuid(),
+            description);
+    }
+
+    // ── Team ──────────────────────────────────────────────────────────────────
+
+    public static Team CreateTeam(
+        string? name = null,
+        string? description = null)
+    {
+        var faker = new Faker();
+        return new Team(
+            name ?? faker.Commerce.Department(),
             description);
     }
 

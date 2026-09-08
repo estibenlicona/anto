@@ -14,7 +14,8 @@ vi.mock("@shared/services/httpClient", () => ({
 const mockSquad = {
   id: "1",
   name: "Backend Platform",
-  team: "Ecosistema Digital",
+  teamId: "t1",
+  teamName: "Ecosistema Digital",
   criticality: "High" as const,
   description: "Servicios core",
   createdAtUtc: "2026-01-01T00:00:00Z",
@@ -55,6 +56,17 @@ describe("squadService", () => {
     );
   });
 
+  it("list serializes repeated teamId params, combinable with criticality", async () => {
+    vi.mocked(httpClient.get).mockResolvedValue({
+      data: { items: [], page: 1, pageSize: 10, totalCount: 0, totalPages: 0 },
+    });
+    await squadService.list(1, 10, undefined, ["Critical"], ["t1", "t2"]);
+    const [, config] = vi.mocked(httpClient.get).mock.calls[0];
+    expect((config!.params as URLSearchParams).toString()).toBe(
+      "page=1&pageSize=10&criticality=Critical&teamId=t1&teamId=t2"
+    );
+  });
+
   it("getById and getTeamStats call their per-squad endpoints", async () => {
     vi.mocked(httpClient.get).mockResolvedValue({ data: mockSquad });
     expect(await squadService.getById("1")).toEqual(mockSquad);
@@ -77,7 +89,7 @@ describe("squadService", () => {
   it("create calls httpClient.post with the request and returns the created squad", async () => {
     const request = {
       name: "Nueva",
-      team: "Tribu",
+      teamId: "t1",
       criticality: "Low" as const,
     };
     vi.mocked(httpClient.post).mockResolvedValue({ data: mockSquad });
@@ -89,7 +101,7 @@ describe("squadService", () => {
   it("update calls httpClient.put with the id in the path", async () => {
     const request = {
       name: "Editada",
-      team: "Tribu",
+      teamId: "t1",
       criticality: "Medium" as const,
     };
     vi.mocked(httpClient.put).mockResolvedValue({ data: mockSquad });

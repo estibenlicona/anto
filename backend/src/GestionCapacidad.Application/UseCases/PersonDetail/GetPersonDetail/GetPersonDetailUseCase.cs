@@ -22,6 +22,7 @@ public sealed class GetPersonDetailUseCase(
     IPersonRepository personRepository,
     ICompanyRepository companyRepository,
     ISquadRepository squadRepository,
+    ITeamRepository teamRepository,
     IAllocationRepository allocationRepository,
     IExpertiseLineRepository expertiseLineRepository,
     IChapterCatalog chapterCatalog,
@@ -44,6 +45,8 @@ public sealed class GetPersonDetailUseCase(
         IReadOnlyList<Allocation> allAllocations = await allocationRepository.GetAllAsync(cancellationToken);
         IReadOnlyList<Squad> allSquads = await squadRepository.GetAllAsync(cancellationToken);
         Dictionary<Guid, Person> peopleById = allPeople.ToDictionary(p => p.Id);
+        Dictionary<Guid, string> teamNamesById = (await teamRepository.GetAllAsync(cancellationToken))
+            .ToDictionary(t => t.Id, t => t.Name);
 
         PersonDerivedData derived = PersonDerivedData.Build(allPeople, allAllocations);
         PersonDto personDto = PersonMappings.ToDto(person, derived);
@@ -64,7 +67,7 @@ public sealed class GetPersonDetailUseCase(
         (string? lineName, string? lineLeadName) = ResolveExpertiseLine(
             person, await expertiseLineRepository.GetAllAsync(cancellationToken), peopleById);
 
-        PersonDetailAllocationDto? allocationDto = BuildAllocation(person, allAllocations, allSquads, peopleById);
+        PersonDetailAllocationDto? allocationDto = BuildAllocation(person, allAllocations, allSquads, peopleById, teamNamesById);
 
         DevOpsIdentityDto? devOpsIdentity = null;
         if (person.DevOpsUserId is string devOpsUserId)
@@ -139,7 +142,11 @@ public sealed class GetPersonDetailUseCase(
     }
 
     private static PersonDetailAllocationDto? BuildAllocation(
-        Person person, IReadOnlyList<Allocation> allAllocations, IReadOnlyList<Squad> allSquads, IReadOnlyDictionary<Guid, Person> peopleById)
+        Person person,
+        IReadOnlyList<Allocation> allAllocations,
+        IReadOnlyList<Squad> allSquads,
+        IReadOnlyDictionary<Guid, Person> peopleById,
+        IReadOnlyDictionary<Guid, string> teamNamesById)
     {
         Allocation? own = allAllocations.FirstOrDefault(a => a.PersonId == person.Id);
         if (own is null)
@@ -159,9 +166,11 @@ public sealed class GetPersonDetailUseCase(
 
         int requiredLevel = SuggestedSquadCalculator.RequiredLevelFor(squad?.Name, person.Position);
 
+        string teamName = squad is not null ? teamNamesById.GetValueOrDefault(squad.TeamId, string.Empty) : string.Empty;
+
         return new PersonDetailAllocationDto(
             own.Id, own.SquadId, squad?.Name ?? string.Empty, squad?.Criticality.Value ?? "Low",
-            squad?.Tribe ?? string.Empty, squad?.Description ?? string.Empty, teammates,
+            teamName, squad?.Description ?? string.Empty, teammates,
             own.DedicationPercentage.Value, own.BauPercentage.Value, own.TransformationPercentage.Value,
             DateOnly.FromDateTime(own.CreatedAtUtc), requiredLevel);
     }

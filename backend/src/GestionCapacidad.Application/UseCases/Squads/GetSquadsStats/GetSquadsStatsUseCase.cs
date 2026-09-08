@@ -41,7 +41,7 @@ public sealed class GetSquadsStatsUseCase(
             // Con gente y sin margen: el asignado alcanzó (o superó) lo que su
             // gente declara disponible — ver la nota de FteMath.
             AtCapacityCount: perSquad.Count(a => a.MemberCount > 0 && a.AllocatedFte >= a.PeopleAvailableFte),
-            TeamCount: squads.Select(s => s.Tribe).Distinct(StringComparer.Ordinal).Count(),
+            TeamCount: squads.Select(s => s.TeamId).Distinct().Count(),
             AllocatedFte: Total(a => a.AllocatedFte),
             BauFte: Total(a => a.BauFte),
             TransformationFte: Total(a => a.TransformationFte),

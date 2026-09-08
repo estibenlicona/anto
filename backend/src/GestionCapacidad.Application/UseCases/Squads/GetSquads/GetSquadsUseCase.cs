@@ -8,6 +8,7 @@ namespace GestionCapacidad.Application.UseCases.Squads.GetSquads;
 
 public sealed class GetSquadsUseCase(
     ISquadRepository squadRepository,
+    ITeamRepository teamRepository,
     IAllocationRepository allocationRepository,
     IPersonRepository personRepository,
     IInitiativeRepository initiativeRepository)
@@ -22,6 +23,7 @@ public sealed class GetSquadsUseCase(
             request.PageSize,
             request.Search,
             request.Criticalities,
+            request.TeamIds,
             cancellationToken);
 
         SquadAggregates aggregates = SquadAggregates.Build(
@@ -29,7 +31,12 @@ public sealed class GetSquadsUseCase(
             await personRepository.GetAllAsync(cancellationToken),
             await initiativeRepository.GetAllAsync(cancellationToken));
 
-        var dtos = squads.Select(s => SquadMappings.ToDto(s, aggregates.For(s.Id))).ToList();
+        IReadOnlyList<Team> teams = await teamRepository.GetAllAsync(cancellationToken);
+        Dictionary<Guid, string> teamNamesById = teams.ToDictionary(t => t.Id, t => t.Name);
+
+        var dtos = squads
+            .Select(s => SquadMappings.ToDto(s, aggregates.For(s.Id), teamNamesById.GetValueOrDefault(s.TeamId, string.Empty)))
+            .ToList();
 
         return new GetSquadsResponse(
             PagedResult<SquadDto>.Create(dtos, totalCount, request.Page, request.PageSize));

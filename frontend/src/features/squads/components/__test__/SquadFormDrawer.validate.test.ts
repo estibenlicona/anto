@@ -15,7 +15,7 @@ import type { SquadFormValues } from "../../adapters/SquadAdapter";
  */
 const validValues: SquadFormValues = {
   name: "Backend Platform",
-  team: "Ecosistema Digital",
+  teamId: "t1",
   criticality: "High",
   description: "",
 };
@@ -45,14 +45,9 @@ describe("SquadFormDrawer validate", () => {
   });
 
   it("requires a team", () => {
-    expect(validate({ ...validValues, team: "" }).team).toBe(
-      "El equipo es obligatorio"
+    expect(validate({ ...validValues, teamId: "" }).teamId).toBe(
+      "Selecciona un equipo"
     );
-  });
-
-  it("rejects a team longer than 100 characters", () => {
-    const errors = validate({ ...validValues, team: "a".repeat(101) });
-    expect(errors.team).toBe("El equipo no puede superar los 100 caracteres");
   });
 
   it("requires a criticality", () => {
@@ -80,19 +75,19 @@ describe("SquadFormDrawer validate", () => {
 describe("SquadFormDrawer countMissingRequiredFields", () => {
   const base: SquadFormValues = {
     name: "Backend",
-    team: "Digital",
+    teamId: "t1",
     criticality: "High",
     description: "",
   };
 
   it("cuenta nombre, equipo y criticidad; la descripción no es obligatoria", () => {
     expect(countMissingRequiredFields(base)).toBe(0);
-    expect(countMissingRequiredFields({ ...base, team: "  " })).toBe(1);
+    expect(countMissingRequiredFields({ ...base, teamId: "" })).toBe(1);
     expect(
       countMissingRequiredFields({
         ...base,
         name: "",
-        team: "",
+        teamId: "",
         criticality: "",
       })
     ).toBe(3);

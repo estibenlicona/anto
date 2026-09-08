@@ -19,9 +19,11 @@ public sealed class GetSquadsStatsUseCaseTests
     [Fact]
     public async Task ExecuteAsync_ComputesTotalsAtCapacityAndBuckets()
     {
-        Squad full = TestDataFactory.CreateSquad(name: "Llena", criticality: Criticality.Critical, tribe: "Equipo A");
-        Squad free = TestDataFactory.CreateSquad(name: "Con margen", criticality: Criticality.High, tribe: "Equipo A");
-        Squad empty = TestDataFactory.CreateSquad(name: "Vacía", criticality: Criticality.Low, tribe: "Equipo B");
+        var teamA = Guid.NewGuid();
+        var teamB = Guid.NewGuid();
+        Squad full = TestDataFactory.CreateSquad(name: "Llena", criticality: Criticality.Critical, teamId: teamA);
+        Squad free = TestDataFactory.CreateSquad(name: "Con margen", criticality: Criticality.High, teamId: teamA);
+        Squad empty = TestDataFactory.CreateSquad(name: "Vacía", criticality: Criticality.Low, teamId: teamB);
 
         Person parttime = TestDataFactory.CreatePerson(name: "Parcial");
         parttime.UpdateAvailability(Fte.From(0.5f));

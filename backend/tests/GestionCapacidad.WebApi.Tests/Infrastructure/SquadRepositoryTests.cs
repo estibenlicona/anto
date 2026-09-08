@@ -87,6 +87,40 @@ public sealed class SquadRepositoryTests
         Assert.False(exists);
     }
 
+    // ── ExistsByTeamId ────────────────────────────────────────────────────────
+
+    [Fact]
+    public async Task ExistsByTeamIdAsync_ReturnsTrue_WhenTeamHasSquads()
+    {
+        await using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+        await using ApplicationDbContext dbContext = await CreateDbContextAsync(connection);
+        var repository = new SquadRepository(dbContext);
+        var unitOfWork = new UnitOfWork(dbContext);
+        var teamId = Guid.NewGuid();
+        Squad squad = TestDataFactory.CreateSquad(teamId: teamId);
+
+        await repository.AddAsync(squad);
+        await unitOfWork.SaveChangesAsync();
+
+        bool exists = await repository.ExistsByTeamIdAsync(teamId);
+
+        Assert.True(exists);
+    }
+
+    [Fact]
+    public async Task ExistsByTeamIdAsync_ReturnsFalse_WhenTeamHasNoSquads()
+    {
+        await using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+        await using ApplicationDbContext dbContext = await CreateDbContextAsync(connection);
+        var repository = new SquadRepository(dbContext);
+
+        bool exists = await repository.ExistsByTeamIdAsync(Guid.NewGuid());
+
+        Assert.False(exists);
+    }
+
     // ── GetAll ────────────────────────────────────────────────────────────────
 
     [Fact]

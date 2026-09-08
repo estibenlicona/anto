@@ -10,6 +10,7 @@ namespace GestionCapacidad.WebApi.Tests.Application;
 public sealed class GetSquadsUseCaseTests
 {
     private readonly Mock<ISquadRepository> _repository = new();
+    private readonly Mock<ITeamRepository> _teams = new();
     private readonly Mock<IAllocationRepository> _allocations = new();
     private readonly Mock<IPersonRepository> _people = new();
     private readonly Mock<IInitiativeRepository> _initiatives = new();
@@ -18,13 +19,14 @@ public sealed class GetSquadsUseCaseTests
         IReadOnlyList<Allocation>? allocations = null,
         IReadOnlyList<Person>? people = null)
     {
+        _teams.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<Team>());
         _allocations.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(allocations ?? Array.Empty<Allocation>());
         _people.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(people ?? Array.Empty<Person>());
         _initiatives.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<Initiative>());
-        return new GetSquadsUseCase(_repository.Object, _allocations.Object, _people.Object, _initiatives.Object);
+        return new GetSquadsUseCase(_repository.Object, _teams.Object, _allocations.Object, _people.Object, _initiatives.Object);
     }
 
     [Fact]
@@ -38,7 +40,7 @@ public sealed class GetSquadsUseCaseTests
         };
 
         _repository
-            .Setup(r => r.GetPagedAsync(1, 10, null, null, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetPagedAsync(1, 10, null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync((squads, squads.Length));
 
         GetSquadsResponse response = await CreateUseCase().ExecuteAsync(new GetSquadsRequest(1, 10));
@@ -52,7 +54,7 @@ public sealed class GetSquadsUseCaseTests
     public async Task ExecuteAsync_ReturnsEmpty_WhenNoSquadsExist()
     {
         _repository
-            .Setup(r => r.GetPagedAsync(1, 10, null, null, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetPagedAsync(1, 10, null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Array.Empty<Squad>(), 0));
 
         GetSquadsResponse response = await CreateUseCase().ExecuteAsync(new GetSquadsRequest(1, 10));
@@ -69,6 +71,7 @@ public sealed class GetSquadsUseCaseTests
             .Setup(r => r.GetPagedAsync(
                 1, 10, "backend",
                 It.Is<IReadOnlyCollection<string>>(c => c.SequenceEqual(new[] { "High", "Critical" })),
+                null,
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((squads, squads.Length));
 
@@ -77,7 +80,25 @@ public sealed class GetSquadsUseCaseTests
 
         Assert.Single(response.Squads.Items);
         _repository.Verify(r => r.GetPagedAsync(
-            1, 10, "backend", It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<CancellationToken>()), Times.Once);
+            1, 10, "backend", It.IsAny<IReadOnlyCollection<string>>(), null, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PassesTeamIds_ToTheRepository()
+    {
+        var teamId = Guid.NewGuid();
+        var squads = new[] { TestDataFactory.CreateSquad(name: "Backend Platform", teamId: teamId) };
+        _repository
+            .Setup(r => r.GetPagedAsync(
+                1, 10, null, null,
+                It.Is<IReadOnlyCollection<Guid>>(c => c.SequenceEqual(new[] { teamId })),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((squads, squads.Length));
+
+        GetSquadsResponse response = await CreateUseCase()
+            .ExecuteAsync(new GetSquadsRequest(1, 10, TeamIds: new[] { teamId }));
+
+        Assert.Single(response.Squads.Items);
     }
 
     [Fact]
@@ -98,7 +119,7 @@ public sealed class GetSquadsUseCaseTests
         };
 
         _repository
-            .Setup(r => r.GetPagedAsync(1, 10, null, null, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetPagedAsync(1, 10, null, null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync((new[] { squad }, 1));
 
         GetSquadsResponse response = await CreateUseCase(allocations, people)

@@ -11,6 +11,7 @@ import {
   Textarea,
 } from "@tuya-ui/components";
 import { FormSection } from "@shared/components/FormSection";
+import { useTeams } from "@features/teams/hooks/useTeams";
 import {
   emptySquadFormValues,
   squadAdapter,
@@ -24,6 +25,10 @@ import {
   validate,
   type FieldErrors,
 } from "./squadFormValidation";
+
+// Suficiente para traer el catálogo completo sin paginar, mismo criterio que
+// otros selectores poblados por un catálogo pequeño.
+const ALL_TEAMS_PAGE_SIZE = 100;
 
 export interface SquadFormDrawerProps {
   open: boolean;
@@ -54,6 +59,8 @@ export const SquadFormDrawer: React.FC<SquadFormDrawerProps> = ({
   );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const { teams, loading: teamsLoading } = useTeams(ALL_TEAMS_PAGE_SIZE);
+  const teamOptions = teams.map((t) => ({ value: t.id, label: t.name }));
 
   const missingRequiredCount = submitted
     ? countMissingRequiredFields(values)
@@ -96,13 +103,22 @@ export const SquadFormDrawer: React.FC<SquadFormDrawerProps> = ({
                 error={errors.name}
                 onChange={(e) => setValues({ ...values, name: e.target.value })}
               />
-              <Input
+              <Select
                 label="Equipo"
                 required
-                placeholder="Ej. Ecosistema Digital"
-                value={values.team}
-                error={errors.team}
-                onChange={(e) => setValues({ ...values, team: e.target.value })}
+                placeholder="Seleccionar equipo…"
+                options={teamOptions}
+                loading={teamsLoading}
+                hint={
+                  !teamsLoading && teamOptions.length === 0
+                    ? "No hay equipos todavía. Crea uno primero desde el módulo de Equipos."
+                    : undefined
+                }
+                value={values.teamId || undefined}
+                error={errors.teamId}
+                onValueChange={(value) =>
+                  setValues({ ...values, teamId: value })
+                }
               />
             </div>
           </FormSection>

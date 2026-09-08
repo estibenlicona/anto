@@ -49,28 +49,22 @@ El sistema SHALL permitir crear una iniciativa desde un drawer con nombre (oblig
 - **WHEN** el Chapter Lead edita el plazo objetivo de una iniciativa evaluada
 - **THEN** la talla no cambia y el FTE esperado se recalcula con el nuevo plazo
 
-### Requirement: Cambiar el estado de una iniciativa
-El sistema SHALL permitir **Activar** una iniciativa sólo si tiene talla (evaluación guardada) **y su célula no tiene ya una iniciativa activa**, y **Cerrar** sólo si está activa. Una célula SHALL sostener como mucho una iniciativa activa a la vez: activar una segunda SHALL rechazarse con un mensaje que nombre la condición y diga qué hacer (cerrar la activa antes), en español y sin cerrar la confirmación. La regla es del dominio, no de la pantalla: el servidor SHALL rechazarla aunque la interfaz no lo haya impedido.
+### Requirement: Activar y cerrar iniciativas
+El sistema SHALL permitir **Activar** una iniciativa sólo si tiene talla (evaluación guardada), y **Cerrar** sólo si está activa. Una célula SHALL poder sostener **varias iniciativas activas a la vez**: cuántas iniciativas activas o en evaluación tiene una célula NO SHALL estar limitado, y activar una iniciativa NO SHALL depender del estado de las demás iniciativas de su célula. Cada activación suma la demanda de esa iniciativa a su célula (ver capacidad `squads`).
 
 Las acciones no disponibles SHALL mostrarse deshabilitadas en el menú de la fila, con el mismo tratamiento con que hoy se deshabilita "Activar" sin talla: el menú NO SHALL explicar el motivo. Activar SHALL pedir confirmación indicando que la iniciativa pasará a contar como demanda; cerrar SHALL pedir confirmación.
-
-Cuántas iniciativas **en evaluación** tiene una célula NO SHALL estar limitado: la regla alcanza sólo al estado Activa.
 
 #### Scenario: Activar sin talla
 - **WHEN** el Chapter Lead abre el menú de una iniciativa sin evaluación guardada
 - **THEN** "Activar" está deshabilitado
 
 #### Scenario: Activar con la célula ya ocupada
-- **WHEN** el Chapter Lead abre el menú de una iniciativa evaluada cuya célula ya tiene otra iniciativa activa
-- **THEN** "Activar" está deshabilitado, igual que lo está para una iniciativa sin evaluar
-
-#### Scenario: El servidor rechaza la segunda activación
-- **WHEN** llega una petición de activar una iniciativa en una célula que ya tiene una activa
-- **THEN** el sistema la rechaza sin cambiar ningún estado, y la pantalla muestra el motivo en español dentro de la confirmación, que sigue abierta
+- **WHEN** el Chapter Lead activa una iniciativa evaluada cuya célula ya tiene otra iniciativa activa, y confirma
+- **THEN** la activación procede: ambas iniciativas quedan activas, las dos cuentan en la card de activas y en el FTE demandado, y ninguna pantalla ofrece cerrar la anterior como requisito
 
 #### Scenario: Varias iniciativas en evaluación en la misma célula
 - **WHEN** una célula tiene dos iniciativas en evaluación y ninguna activa
-- **THEN** ambas se pueden evaluar y activar mientras la célula siga sin activa; activar una deja a la otra sin poder activarse hasta que la primera se cierre
+- **THEN** ambas se pueden evaluar y activar, y activar una no impide activar la otra
 
 #### Scenario: Activar una iniciativa evaluada
 - **WHEN** el Chapter Lead activa una iniciativa con talla y confirma

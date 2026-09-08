@@ -11,7 +11,8 @@ public sealed class SquadDtoExample : IExamplesProvider<SquadDto>
     public SquadDto GetExamples() => new(
         Id: Guid.Parse("22222222-2222-2222-2222-222222222222"),
         Name: "Backend Platform",
-        Team: "Ecosistema Digital",
+        TeamId: Guid.Parse("66666666-6666-6666-6666-666666666666"),
+        TeamName: "Ecosistema Digital",
         Criticality: "High",
         Description: "Célula responsable de la plataforma de servicios",
         CreatedAtUtc: DateTime.Parse("2025-11-01T08:00:00Z"),
@@ -34,7 +35,7 @@ public sealed class CreateSquadRequestExample : IExamplesProvider<CreateSquadReq
 {
     public CreateSquadRequest GetExamples() => new(
         Name: "Backend Platform",
-        Team: "Ecosistema Digital",
+        TeamId: Guid.Parse("66666666-6666-6666-6666-666666666666"),
         Criticality: "High",
         Description: "Célula responsable de la plataforma de servicios");
 }
@@ -54,7 +55,7 @@ public sealed class UpdateSquadRequestExample : IExamplesProvider<UpdateSquadReq
     public UpdateSquadRequest GetExamples() => new(
         Id: Guid.Parse("22222222-2222-2222-2222-222222222222"),
         Name: "Backend Platform",
-        Team: "Ecosistema Digital",
+        TeamId: Guid.Parse("66666666-6666-6666-6666-666666666666"),
         Criticality: "Critical",
         Description: "Célula responsable de la plataforma y la pasarela de pagos");
 }

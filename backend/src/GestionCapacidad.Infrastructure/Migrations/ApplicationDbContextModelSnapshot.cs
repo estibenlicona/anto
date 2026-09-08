@@ -791,10 +791,8 @@ namespace GestionCapacidad.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<string>("Tribe")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -803,6 +801,8 @@ namespace GestionCapacidad.Infrastructure.Migrations
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("TeamId");
 
                     b.ToTable("Squads", (string)null);
 
@@ -831,6 +831,37 @@ namespace GestionCapacidad.Infrastructure.Migrations
                     b.ToTable("TallaBandSets", (string)null);
 
                     b.HasAnnotation("Mongo:CollectionName", "TallaBandSets");
+                });
+
+            modelBuilder.Entity("GestionCapacidad.Domain.Entities.Team", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Teams", (string)null);
+
+                    b.HasAnnotation("Mongo:CollectionName", "Teams");
                 });
 
             modelBuilder.Entity("GestionCapacidad.Domain.Entities.Assessment", b =>

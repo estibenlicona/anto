@@ -7,6 +7,8 @@ import { resetSquadsMock } from "../squads.handlers";
 import { resetInitiativesMock } from "../initiatives.handlers";
 import { resetAllocationsMock } from "../allocations.handlers";
 import { resetPeopleMock } from "../people.handlers";
+import { resetTeamsMock } from "../teams.handlers";
+import { TEAM_ECOSISTEMA_DIGITAL_ID, TEAM_PAGOS_ID } from "../teams.seeds";
 
 const BACKEND = "11111111-1111-1111-1111-111111111111";
 const CANALES = "22222222-2222-2222-2222-222222222222";
@@ -32,6 +34,7 @@ describe("GET /squads (campos calculados y filtros)", () => {
     resetSquadsMock();
     resetAllocationsMock();
     resetPeopleMock();
+    resetTeamsMock();
   });
 
   it("deriva equipo y capacidad de las asignaciones de cada célula", async () => {
@@ -107,7 +110,7 @@ describe("GET /squads (campos calculados y filtros)", () => {
   it("una célula recién creada sale con los campos calculados en cero", async () => {
     const created = await squadService.create({
       name: "Nueva",
-      team: "Tribu",
+      teamId: TEAM_PAGOS_ID,
       criticality: "Low",
     });
     expect(created).toMatchObject({
@@ -175,47 +178,59 @@ describe("GET /squads (campos calculados y filtros)", () => {
     resetInitiativesMock();
   });
 
-  it("persiste y devuelve la agrupación en team, en el alta y en la edición", async () => {
+  it("persiste y devuelve la agrupación en teamId/teamName, en el alta y en la edición", async () => {
     const creada = await squadService.create({
       name: "Contrato",
-      team: "Ecosistema Digital",
+      teamId: TEAM_ECOSISTEMA_DIGITAL_ID,
       criticality: "Low",
     });
-    expect(creada.team).toBe("Ecosistema Digital");
+    expect(creada.teamId).toBe(TEAM_ECOSISTEMA_DIGITAL_ID);
+    expect(creada.teamName).toBe("Ecosistema Digital");
 
     const editada = await squadService.update(creada.id, {
       name: "Contrato",
-      team: "Medios de Pago",
+      teamId: TEAM_PAGOS_ID,
       criticality: "Low",
     });
-    expect(editada.team).toBe("Medios de Pago");
+    expect(editada.teamId).toBe(TEAM_PAGOS_ID);
+    expect(editada.teamName).toBe("Pagos");
 
     const releida = await squadService.getById(creada.id);
-    expect(releida.team).toBe("Medios de Pago");
+    expect(releida.teamId).toBe(TEAM_PAGOS_ID);
   });
 
-  it("rechaza un cuerpo que mande la agrupación en tribe", async () => {
-    // El nombre viejo del campo no es un alias: para el handler es una célula
-    // sin agrupación, y falla la validación de obligatorio en vez de guardarla
-    // a medias.
+  it("rechaza un cuerpo que mande la agrupación en team (texto libre, campo viejo)", async () => {
+    // El campo viejo no es un alias: para el handler es una célula sin
+    // `teamId`, y falla la validación de obligatorio en vez de guardarla a
+    // medias.
     await expect(
       squadService.create({
         name: "Con el nombre viejo",
-        tribe: "Ecosistema Digital",
+        team: "Ecosistema Digital",
         criticality: "Low",
       } as unknown as Parameters<typeof squadService.create>[0])
     ).rejects.toBeDefined();
   });
 
-  it("busca por nombre o tribu sin distinguir mayúsculas", async () => {
+  it("rechaza un teamId que no existe en el catálogo de equipos", async () => {
+    await expect(
+      squadService.create({
+        name: "Célula huérfana",
+        teamId: "no-existe",
+        criticality: "Low",
+      })
+    ).rejects.toBeDefined();
+  });
+
+  it("busca por nombre o por el nombre del equipo, sin distinguir mayúsculas", async () => {
     const byName = await squadService.list(1, 100, "BACKEND");
     expect(byName.items.map((s) => s.name)).toEqual(["Backend Platform"]);
 
     const byTeam = await squadService.list(1, 100, "ecosistema");
     expect(byTeam.totalCount).toBe(2);
-    expect(byTeam.items.every((s) => s.team === "Ecosistema Digital")).toBe(
-      true
-    );
+    expect(
+      byTeam.items.every((s) => s.teamId === TEAM_ECOSISTEMA_DIGITAL_ID)
+    ).toBe(true);
   });
 
   it("filtra por una o más criticidades y pagina sobre el subconjunto", async () => {
@@ -232,6 +247,31 @@ describe("GET /squads (campos calculados y filtros)", () => {
       result.items.every((s) => ["Critical", "Low"].includes(s.criticality))
     ).toBe(true);
   });
+
+  it("filtra por uno o más equipos, combinable con criticidad", async () => {
+    const byTeam = await squadService.list(1, 100, undefined, undefined, [
+      TEAM_ECOSISTEMA_DIGITAL_ID,
+    ]);
+    expect(byTeam.totalCount).toBe(2);
+    expect(
+      byTeam.items.every((s) => s.teamId === TEAM_ECOSISTEMA_DIGITAL_ID)
+    ).toBe(true);
+
+    const combined = await squadService.list(
+      1,
+      100,
+      undefined,
+      ["Critical"],
+      [TEAM_ECOSISTEMA_DIGITAL_ID]
+    );
+    expect(
+      combined.items.every(
+        (s) =>
+          s.teamId === TEAM_ECOSISTEMA_DIGITAL_ID &&
+          s.criticality === "Critical"
+      )
+    ).toBe(true);
+  });
 });
 
 describe("GET /squads/stats", () => {
@@ -239,6 +279,7 @@ describe("GET /squads/stats", () => {
     resetSquadsMock();
     resetAllocationsMock();
     resetPeopleMock();
+    resetTeamsMock();
   });
 
   it("agrega total, sin equipo y tribus sobre todas las células", async () => {
@@ -250,7 +291,7 @@ describe("GET /squads/stats", () => {
     expect(stats.withoutPeopleCount).toBe(
       squads.filter((s) => s.memberCount === 0).length
     );
-    expect(stats.teamCount).toBe(new Set(squads.map((s) => s.team)).size);
+    expect(stats.teamCount).toBe(new Set(squads.map((s) => s.teamId)).size);
     // Al tope: con equipo y asignado ≥ disponible; una sin equipo no cuenta.
     expect(stats.atCapacityCount).toBe(
       squads.filter(

@@ -1,24 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\tests\\GestionCapacidad.WebApi.Tests\\GestionCapacidad.WebApi.Tests.csproj": {}
+    "C:\\Repos\\anto\\backend\\tests\\GestionCapacidad.WebApi.Tests\\GestionCapacidad.WebApi.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj": {
+    "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj",
+        "projectUniqueName": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj",
         "projectName": "GestionCapacidad.Application",
-        "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj",
-        "packagesPath": "C:\\Users\\Lenovo i5\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\obj\\",
+        "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj",
+        "packagesPath": "C:\\Users\\estiben\\.nuget\\packages\\",
+        "outputPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Lenovo i5\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\estiben\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -34,8 +34,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj"
               }
             }
           }
@@ -91,11 +91,15 @@
             "Microsoft.Azure.AppConfiguration.AspNetCore": "7.2.0",
             "Microsoft.Data.SqlClient": "6.1.1",
             "Microsoft.EntityFrameworkCore.Design": "10.0.1",
+            "Microsoft.EntityFrameworkCore.InMemory": "10.0.1",
             "Microsoft.EntityFrameworkCore.Sqlite": "10.0.1",
             "Microsoft.EntityFrameworkCore.SqlServer": "10.0.1",
             "Microsoft.Extensions.Configuration": "10.0.0",
             "Microsoft.Extensions.Configuration.Abstractions": "10.0.1",
             "Microsoft.Extensions.Configuration.Binder": "10.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "10.0.0",
+            "Microsoft.Extensions.Configuration.Json": "10.0.0",
+            "Microsoft.Extensions.Configuration.UserSecrets": "10.0.0",
             "Microsoft.Extensions.DependencyInjection": "10.0.1",
             "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
             "Microsoft.Extensions.Diagnostics.HealthChecks": "10.0.0",
@@ -108,10 +112,12 @@
             "Microsoft.Extensions.Options": "10.0.1",
             "Microsoft.Extensions.Options.ConfigurationExtensions": "10.0.0",
             "Microsoft.Extensions.Resilience": "10.0.0",
+            "Microsoft.Extensions.TimeProvider.Testing": "9.0.0",
             "Microsoft.NET.Test.Sdk": "17.11.1",
             "MongoDB.Driver": "2.25.0",
             "MongoDB.EntityFrameworkCore": "8.0.0",
             "Moq": "4.20.70",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
             "OpenTelemetry": "1.16.0",
             "OpenTelemetry.Exporter.Console": "1.16.0",
             "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.16.0",
@@ -429,21 +435,21 @@
         }
       }
     },
-    "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj": {
+    "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj",
+        "projectUniqueName": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj",
         "projectName": "GestionCapacidad.RestClient",
-        "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj",
-        "packagesPath": "C:\\Users\\Lenovo i5\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RestClient\\obj\\",
+        "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj",
+        "packagesPath": "C:\\Users\\estiben\\.nuget\\packages\\",
+        "outputPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RestClient\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Lenovo i5\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\estiben\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -537,11 +543,15 @@
             "Microsoft.Azure.AppConfiguration.AspNetCore": "7.2.0",
             "Microsoft.Data.SqlClient": "6.1.1",
             "Microsoft.EntityFrameworkCore.Design": "10.0.1",
+            "Microsoft.EntityFrameworkCore.InMemory": "10.0.1",
             "Microsoft.EntityFrameworkCore.Sqlite": "10.0.1",
             "Microsoft.EntityFrameworkCore.SqlServer": "10.0.1",
             "Microsoft.Extensions.Configuration": "10.0.0",
             "Microsoft.Extensions.Configuration.Abstractions": "10.0.1",
             "Microsoft.Extensions.Configuration.Binder": "10.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "10.0.0",
+            "Microsoft.Extensions.Configuration.Json": "10.0.0",
+            "Microsoft.Extensions.Configuration.UserSecrets": "10.0.0",
             "Microsoft.Extensions.DependencyInjection": "10.0.1",
             "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
             "Microsoft.Extensions.Diagnostics.HealthChecks": "10.0.0",
@@ -554,10 +564,12 @@
             "Microsoft.Extensions.Options": "10.0.1",
             "Microsoft.Extensions.Options.ConfigurationExtensions": "10.0.0",
             "Microsoft.Extensions.Resilience": "10.0.0",
+            "Microsoft.Extensions.TimeProvider.Testing": "9.0.0",
             "Microsoft.NET.Test.Sdk": "17.11.1",
             "MongoDB.Driver": "2.25.0",
             "MongoDB.EntityFrameworkCore": "8.0.0",
             "Moq": "4.20.70",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
             "OpenTelemetry": "1.16.0",
             "OpenTelemetry.Exporter.Console": "1.16.0",
             "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.16.0",
@@ -875,21 +887,21 @@
         }
       }
     },
-    "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
+    "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj",
+        "projectUniqueName": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj",
         "projectName": "GestionCapacidad.Domain",
-        "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj",
-        "packagesPath": "C:\\Users\\Lenovo i5\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\obj\\",
+        "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj",
+        "packagesPath": "C:\\Users\\estiben\\.nuget\\packages\\",
+        "outputPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Lenovo i5\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\estiben\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -941,11 +953,15 @@
             "Microsoft.Azure.AppConfiguration.AspNetCore": "7.2.0",
             "Microsoft.Data.SqlClient": "6.1.1",
             "Microsoft.EntityFrameworkCore.Design": "10.0.1",
+            "Microsoft.EntityFrameworkCore.InMemory": "10.0.1",
             "Microsoft.EntityFrameworkCore.Sqlite": "10.0.1",
             "Microsoft.EntityFrameworkCore.SqlServer": "10.0.1",
             "Microsoft.Extensions.Configuration": "10.0.0",
             "Microsoft.Extensions.Configuration.Abstractions": "10.0.1",
             "Microsoft.Extensions.Configuration.Binder": "10.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "10.0.0",
+            "Microsoft.Extensions.Configuration.Json": "10.0.0",
+            "Microsoft.Extensions.Configuration.UserSecrets": "10.0.0",
             "Microsoft.Extensions.DependencyInjection": "10.0.1",
             "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
             "Microsoft.Extensions.Diagnostics.HealthChecks": "10.0.0",
@@ -958,10 +974,12 @@
             "Microsoft.Extensions.Options": "10.0.1",
             "Microsoft.Extensions.Options.ConfigurationExtensions": "10.0.0",
             "Microsoft.Extensions.Resilience": "10.0.0",
+            "Microsoft.Extensions.TimeProvider.Testing": "9.0.0",
             "Microsoft.NET.Test.Sdk": "17.11.1",
             "MongoDB.Driver": "2.25.0",
             "MongoDB.EntityFrameworkCore": "8.0.0",
             "Moq": "4.20.70",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
             "OpenTelemetry": "1.16.0",
             "OpenTelemetry.Exporter.Console": "1.16.0",
             "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.16.0",
@@ -1279,21 +1297,21 @@
         }
       }
     },
-    "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj": {
+    "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj",
         "projectName": "GestionCapacidad.Infrastructure",
-        "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj",
-        "packagesPath": "C:\\Users\\Lenovo i5\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Infrastructure\\obj\\",
+        "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\estiben\\.nuget\\packages\\",
+        "outputPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Lenovo i5\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\estiben\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -1309,14 +1327,14 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj"
               },
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj"
               },
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj"
               }
             }
           }
@@ -1344,9 +1362,19 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
+            "Azure.Identity": {
+              "target": "Package",
+              "version": "[1.14.2, )",
+              "versionCentrallyManaged": true
+            },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.EntityFrameworkCore.InMemory": {
               "target": "Package",
               "version": "[10.0.1, )",
               "versionCentrallyManaged": true
@@ -1359,6 +1387,21 @@
             "Microsoft.Extensions.Configuration.Abstractions": {
               "target": "Package",
               "version": "[10.0.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": {
+              "target": "Package",
+              "version": "[10.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[10.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Configuration.UserSecrets": {
+              "target": "Package",
+              "version": "[10.0.0, )",
               "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.DependencyInjection.Abstractions": {
@@ -1379,6 +1422,11 @@
             "MongoDB.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[10.0.0, )",
               "versionCentrallyManaged": true
             },
             "SharpCompress": {
@@ -1409,11 +1457,15 @@
             "Microsoft.Azure.AppConfiguration.AspNetCore": "7.2.0",
             "Microsoft.Data.SqlClient": "6.1.1",
             "Microsoft.EntityFrameworkCore.Design": "10.0.1",
+            "Microsoft.EntityFrameworkCore.InMemory": "10.0.1",
             "Microsoft.EntityFrameworkCore.Sqlite": "10.0.1",
             "Microsoft.EntityFrameworkCore.SqlServer": "10.0.1",
             "Microsoft.Extensions.Configuration": "10.0.0",
             "Microsoft.Extensions.Configuration.Abstractions": "10.0.1",
             "Microsoft.Extensions.Configuration.Binder": "10.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "10.0.0",
+            "Microsoft.Extensions.Configuration.Json": "10.0.0",
+            "Microsoft.Extensions.Configuration.UserSecrets": "10.0.0",
             "Microsoft.Extensions.DependencyInjection": "10.0.1",
             "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
             "Microsoft.Extensions.Diagnostics.HealthChecks": "10.0.0",
@@ -1426,10 +1478,12 @@
             "Microsoft.Extensions.Options": "10.0.1",
             "Microsoft.Extensions.Options.ConfigurationExtensions": "10.0.0",
             "Microsoft.Extensions.Resilience": "10.0.0",
+            "Microsoft.Extensions.TimeProvider.Testing": "9.0.0",
             "Microsoft.NET.Test.Sdk": "17.11.1",
             "MongoDB.Driver": "2.25.0",
             "MongoDB.EntityFrameworkCore": "8.0.0",
             "Moq": "4.20.70",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
             "OpenTelemetry": "1.16.0",
             "OpenTelemetry.Exporter.Console": "1.16.0",
             "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.16.0",
@@ -1747,21 +1801,21 @@
         }
       }
     },
-    "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj": {
+    "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj",
+        "projectUniqueName": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj",
         "projectName": "GestionCapacidad.WebApi",
-        "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj",
-        "packagesPath": "C:\\Users\\Lenovo i5\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.WebApi\\obj\\",
+        "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj",
+        "packagesPath": "C:\\Users\\estiben\\.nuget\\packages\\",
+        "outputPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.WebApi\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Lenovo i5\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\estiben\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -1777,14 +1831,14 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj"
               },
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj"
               },
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj"
               }
             }
           }
@@ -1835,6 +1889,13 @@
             "Microsoft.Data.SqlClient": {
               "target": "Package",
               "version": "[6.1.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.1, )",
               "versionCentrallyManaged": true
             },
             "Microsoft.Extensions.Diagnostics.HealthChecks": {
@@ -1935,11 +1996,15 @@
             "Microsoft.Azure.AppConfiguration.AspNetCore": "7.2.0",
             "Microsoft.Data.SqlClient": "6.1.1",
             "Microsoft.EntityFrameworkCore.Design": "10.0.1",
+            "Microsoft.EntityFrameworkCore.InMemory": "10.0.1",
             "Microsoft.EntityFrameworkCore.Sqlite": "10.0.1",
             "Microsoft.EntityFrameworkCore.SqlServer": "10.0.1",
             "Microsoft.Extensions.Configuration": "10.0.0",
             "Microsoft.Extensions.Configuration.Abstractions": "10.0.1",
             "Microsoft.Extensions.Configuration.Binder": "10.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "10.0.0",
+            "Microsoft.Extensions.Configuration.Json": "10.0.0",
+            "Microsoft.Extensions.Configuration.UserSecrets": "10.0.0",
             "Microsoft.Extensions.DependencyInjection": "10.0.1",
             "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
             "Microsoft.Extensions.Diagnostics.HealthChecks": "10.0.0",
@@ -1952,10 +2017,12 @@
             "Microsoft.Extensions.Options": "10.0.1",
             "Microsoft.Extensions.Options.ConfigurationExtensions": "10.0.0",
             "Microsoft.Extensions.Resilience": "10.0.0",
+            "Microsoft.Extensions.TimeProvider.Testing": "9.0.0",
             "Microsoft.NET.Test.Sdk": "17.11.1",
             "MongoDB.Driver": "2.25.0",
             "MongoDB.EntityFrameworkCore": "8.0.0",
             "Moq": "4.20.70",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
             "OpenTelemetry": "1.16.0",
             "OpenTelemetry.Exporter.Console": "1.16.0",
             "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.16.0",
@@ -2416,21 +2483,21 @@
         }
       }
     },
-    "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\tests\\GestionCapacidad.WebApi.Tests\\GestionCapacidad.WebApi.Tests.csproj": {
+    "C:\\Repos\\anto\\backend\\tests\\GestionCapacidad.WebApi.Tests\\GestionCapacidad.WebApi.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\tests\\GestionCapacidad.WebApi.Tests\\GestionCapacidad.WebApi.Tests.csproj",
+        "projectUniqueName": "C:\\Repos\\anto\\backend\\tests\\GestionCapacidad.WebApi.Tests\\GestionCapacidad.WebApi.Tests.csproj",
         "projectName": "GestionCapacidad.WebApi.Tests",
-        "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\tests\\GestionCapacidad.WebApi.Tests\\GestionCapacidad.WebApi.Tests.csproj",
-        "packagesPath": "C:\\Users\\Lenovo i5\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\tests\\GestionCapacidad.WebApi.Tests\\obj\\",
+        "projectPath": "C:\\Repos\\anto\\backend\\tests\\GestionCapacidad.WebApi.Tests\\GestionCapacidad.WebApi.Tests.csproj",
+        "packagesPath": "C:\\Users\\estiben\\.nuget\\packages\\",
+        "outputPath": "C:\\Repos\\anto\\backend\\tests\\GestionCapacidad.WebApi.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "centralPackageVersionsManagementEnabled": true,
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Lenovo i5\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\estiben\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -2446,20 +2513,20 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Application\\GestionCapacidad.Application.csproj"
               },
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Core\\RestClient\\GestionCapacidad.RestClient.csproj"
               },
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Domain\\GestionCapacidad.Domain.csproj"
               },
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.Infrastructure\\GestionCapacidad.Infrastructure.csproj"
               },
-              "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj": {
-                "projectPath": "C:\\Users\\Lenovo i5\\Repos\\app-gestion-capacidad\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj"
+              "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj": {
+                "projectPath": "C:\\Repos\\anto\\backend\\src\\GestionCapacidad.WebApi\\GestionCapacidad.WebApi.csproj"
               }
             }
           }
@@ -2517,6 +2584,11 @@
               "version": "[10.0.1, )",
               "versionCentrallyManaged": true
             },
+            "Microsoft.Extensions.TimeProvider.Testing": {
+              "target": "Package",
+              "version": "[9.0.0, )",
+              "versionCentrallyManaged": true
+            },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.11.1, )",
@@ -2564,11 +2636,15 @@
             "Microsoft.Azure.AppConfiguration.AspNetCore": "7.2.0",
             "Microsoft.Data.SqlClient": "6.1.1",
             "Microsoft.EntityFrameworkCore.Design": "10.0.1",
+            "Microsoft.EntityFrameworkCore.InMemory": "10.0.1",
             "Microsoft.EntityFrameworkCore.Sqlite": "10.0.1",
             "Microsoft.EntityFrameworkCore.SqlServer": "10.0.1",
             "Microsoft.Extensions.Configuration": "10.0.0",
             "Microsoft.Extensions.Configuration.Abstractions": "10.0.1",
             "Microsoft.Extensions.Configuration.Binder": "10.0.0",
+            "Microsoft.Extensions.Configuration.EnvironmentVariables": "10.0.0",
+            "Microsoft.Extensions.Configuration.Json": "10.0.0",
+            "Microsoft.Extensions.Configuration.UserSecrets": "10.0.0",
             "Microsoft.Extensions.DependencyInjection": "10.0.1",
             "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.1",
             "Microsoft.Extensions.Diagnostics.HealthChecks": "10.0.0",
@@ -2581,10 +2657,12 @@
             "Microsoft.Extensions.Options": "10.0.1",
             "Microsoft.Extensions.Options.ConfigurationExtensions": "10.0.0",
             "Microsoft.Extensions.Resilience": "10.0.0",
+            "Microsoft.Extensions.TimeProvider.Testing": "9.0.0",
             "Microsoft.NET.Test.Sdk": "17.11.1",
             "MongoDB.Driver": "2.25.0",
             "MongoDB.EntityFrameworkCore": "8.0.0",
             "Moq": "4.20.70",
+            "Npgsql.EntityFrameworkCore.PostgreSQL": "10.0.0",
             "OpenTelemetry": "1.16.0",
             "OpenTelemetry.Exporter.Console": "1.16.0",
             "OpenTelemetry.Exporter.OpenTelemetryProtocol": "1.16.0",

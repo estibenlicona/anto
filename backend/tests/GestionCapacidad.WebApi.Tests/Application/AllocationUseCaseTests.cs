@@ -21,7 +21,7 @@ public sealed class AllocationUseCaseTests
         new(name, "123", "entra", "alice@co.com", "Dev", PersonRole.Contributor,
             Level.Avanzado, Seniority.Intermediate, Modality.Hybrid, Fte.FullTime, 5000m, new DateOnly(2023, 1, 1));
 
-    private Squad BuildSquad() => new("Backend", Criticality.High, "Payments", null);
+    private Squad BuildSquad() => new("Backend", Criticality.High, Guid.NewGuid(), null);
 
     private Allocation BuildAllocation(Guid personId, Guid squadId) =>
         new(personId, squadId, null,

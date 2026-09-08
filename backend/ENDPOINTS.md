@@ -1,6 +1,6 @@
 # Endpoints y lógica del backend
 
-El contrato completo vive en [`oas.json`](./oas.json) (OpenAPI 3.1, 88 operaciones). Este documento lo aterriza para implementarlo **sin depender del mock**: por módulo, cada endpoint con sus esquemas, las reglas de negocio que debe cumplir (con la spec de OpenSpec que las gobierna) y su estado frente a `backend/src`.
+El contrato completo vive en [`oas.json`](./oas.json) (OpenAPI 3.1, 93 operaciones). Este documento lo aterriza para implementarlo **sin depender del mock**: por módulo, cada endpoint con sus esquemas, las reglas de negocio que debe cumplir (con la spec de OpenSpec que las gobierna) y su estado frente a `backend/src`.
 
 **Fuente de verdad.** Lo que el frontend consume: los tipos TypeScript de `frontend/src/features/*/services` y la semántica de los handlers de `frontend/src/mocks/handlers`. Cuando el backend real y este contrato difieran, gana el contrato: el front ya funciona contra estas formas.
 
@@ -32,7 +32,8 @@ El contrato completo vive en [`oas.json`](./oas.json) (OpenAPI 3.1, 88 operacion
 | Evaluaciones | 4 | 4 | 0 | 0 |
 | Catálogo de habilidades | 7 | 7 | 0 | 0 |
 | Células | 7 | 6 | 1 | 0 |
-| **Total** | **88** | **85** | **3** | **0** |
+| Equipos | 5 | 5 | 0 | 0 |
+| **Total** | **93** | **90** | **3** | **0** |
 
 ## Ausencias
 
@@ -240,13 +241,26 @@ El contrato completo vive en [`oas.json`](./oas.json) (OpenAPI 3.1, 88 operacion
 
 | | Endpoint | Request | Response | Errores | Estado |
 |---|---|---|---|---|---|
-| 🟡 | `GET /squads` — Listado paginado de células | — | `PagedResultOfSquadDto` | — | Desalineado (estado-asignacion-celulas): el contrato pasó de `activeInitiative` (una o null) a `activeInitiatives` (lista con `fteMin`/`fteMax` por iniciativa); .NET todavía devuelve la forma vieja. El resto de los agregados y los filtros `search`/`criticality` intactos. |
-| 🟢 | `POST /squads` — Alta de célula | `CreateSquadRequest` | `SquadDto` | 400 | Implementado: Misma forma base (name, team, criticality, description). |
+| 🟡 | `GET /squads` — Listado paginado de células | — | `PagedResultOfSquadDto` | — | Desalineado (estado-asignacion-celulas): el contrato pasó de `activeInitiative` (una o null) a `activeInitiatives` (lista con `fteMin`/`fteMax` por iniciativa); .NET todavía devuelve la forma vieja. El resto de los agregados y los filtros `search`/`criticality`/`teamId` intactos. `team` (texto libre) pasó a `teamId`+`teamName` contra el catálogo de Equipos (change `add-teams-module`) — sí implementado en .NET. |
+| 🟢 | `POST /squads` — Alta de célula | `CreateSquadRequest` | `SquadDto` | 400 | Implementado: Misma forma base (name, teamId, criticality, description); `team` (texto libre) pasó a `teamId` — referencia al catálogo de Equipos, 400 si no existe. |
 | 🟢 | `GET /squads/{id}` — Detalle de una célula | — | `SquadDto` | 404 | Implementado: Mismo DTO enriquecido del listado. |
-| 🟢 | `PUT /squads/{id}` — Edición de célula | `CreateSquadRequest` | `SquadDto` | 400, 404 | Implementado: Misma forma base. |
+| 🟢 | `PUT /squads/{id}` — Edición de célula | `CreateSquadRequest` | `SquadDto` | 400, 404 | Implementado: Misma forma base; `team` → `teamId` igual que en el alta. |
 | 🟢 | `DELETE /squads/{id}` — Baja de célula | — | `204` | 404 | Implementado: Misma ruta y semántica. |
 | 🟢 | `GET /squads/{id}/team-stats` — Resumen de las personas de la célula | — | `SquadTeamStats` | 404 | Implementado: Equipo completo ordenado por nombre; expertos = nivel 4, principiantes = nivel 1. |
 | 🟢 | `GET /squads/stats` — Resumen agregado de células (sin paginar ni filtrar) | — | `SquadsStats` | — | Implementado: Al tope = con gente y asignado ≥ disponible; `chapterFte` = Σ disponible de todas las personas; los 4 niveles de criticidad siempre presentes. |
+
+## Equipos
+
+**Reglas.** Catálogo de equipos: nombre único (sin distinguir mayúsculas) y descripción opcional. `squadCount` lo calcula el servidor contando las células que referencian el equipo — de sólo lectura, nunca se envía en alta/edición. No se puede eliminar un equipo con `squadCount > 0`: responde 409 explicando que hay que reasignar o eliminar esas células primero.
+→ Specs: [`openspec/specs/teams/spec.md`](../openspec/specs/teams/spec.md).
+
+| | Endpoint | Request | Response | Errores | Estado |
+|---|---|---|---|---|---|
+| 🟢 | `GET /teams` — Listado paginado de equipos | — | `PagedResultOfTeamDto` | — | Implementado: filtros `page`/`pageSize`/`search` (por nombre). |
+| 🟢 | `POST /teams` — Alta de equipo | `CreateTeamRequest` | `TeamDto` | 400 | Implementado: nombre obligatorio ≤100 y único, descripción opcional ≤500. |
+| 🟢 | `GET /teams/{id}` — Detalle de un equipo | — | `TeamDto` | 404 | Implementado. |
+| 🟢 | `PUT /teams/{id}` — Edición de equipo | `CreateTeamRequest` | `TeamDto` | 400, 404 | Implementado: misma forma que el alta. |
+| 🟢 | `DELETE /teams/{id}` — Baja de equipo | — | `204` | 404, 409 | Implementado: 409 si el equipo tiene células asociadas (`ConflictException`), con el nombre del equipo en el mensaje. |
 
 ## Existente en .NET sin consumidor
 

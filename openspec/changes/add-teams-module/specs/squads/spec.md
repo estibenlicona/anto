@@ -1,0 +1,205 @@
+## MODIFIED Requirements
+
+### Requirement: Listar células
+El sistema SHALL mostrar un listado paginado de las células registradas, con al menos nombre, descripción, equipo, criticidad, personas asignadas, sus iniciativas activas con su talla, su capacidad asignada y su estado de asignación visibles por fila, y SHALL exponer por fila un menú de acciones que permite editar o eliminar esa célula.
+
+El nombre SHALL ser el texto principal de la primera columna y SHALL ser un enlace a la página de detalle de esa célula, con el tratamiento de enlace neutro del sistema de diseño (no el color de marca; en reposo no se distingue del texto plano y revela su condición de enlace al pasar el puntero y al recibir el foco), igual que el nombre en el listado de Personas. La descripción (si tiene) SHALL mostrarse debajo, con menor jerarquía visual y truncada a una sola línea, con el texto completo accesible al pasar el puntero; la descripción NO SHALL ocupar una columna propia.
+
+El **equipo** SHALL mostrarse por su nombre, resuelto contra el catálogo de equipos (ver capacidad `teams`); una célula siempre tiene equipo, así que la columna NO SHALL necesitar un caso "sin equipo".
+
+La criticidad SHALL mostrarse con el componente de estado del sistema de diseño, con el rol de color que corresponde al nivel (Crítica en peligro, Alta en advertencia, Media en información, Baja en neutro) y con su etiqueta en español, nunca con el código que devuelve el backend.
+
+Las personas asignadas SHALL mostrarse como sus avatares —hasta tres, con el excedente indicado— junto con el total de personas asignadas; una célula sin asignaciones SHALL mostrar "Sin personas" con menor jerarquía visual, sin avatares.
+
+La capacidad SHALL mostrarse de forma gráfica: el FTE asignado a la célula (suma de los % de dedicación de sus asignaciones, con un decimal) frente al FTE disponible de sus personas (suma del FTE disponible de las personas asignadas), el porcentaje de ocupación que representa coloreado por estado (éxito por debajo del 85 %, advertencia entre 85 y 99 %, peligro al 100 % o más), una barra de tramos separados cuyos tramos son el FTE de BAU y el de Transformación sobre el FTE disponible de sus personas —con los tonos de acento del sistema de diseño, los mismos que usa el detalle de la célula y la card de capacidad del resumen—, una leyenda con ambas cifras y la lectura del FTE libre ("N libre", o "Al tope" cuando no queda). Una célula sin asignaciones SHALL mostrar 0.0 FTE, la barra vacía y "Sin capacidad asignada".
+
+Las iniciativas activas de la célula SHALL mostrarse en una columna propia: una línea por iniciativa activa, con la talla primero —con el mismo componente de etiqueta y el mismo color por talla que el módulo de Iniciativas; una misma talla NO SHALL verse de dos colores distintos según la pantalla— y el nombre de la iniciativa a continuación, en la misma línea, truncado con el texto completo accesible al pasar el puntero, como enlace neutro a su evaluación. La columna SHALL mostrar todas las iniciativas activas de la célula, alineadas entre sí; NO SHALL colapsarlas en un contador. La fila NO SHALL mostrar las iniciativas en evaluación de la célula, ni cuántas son. Una célula sin iniciativas activas SHALL ocupar el lugar de la talla con un guion y mostrar "Sin iniciativa" con menor jerarquía visual; ese guion es relleno visual y NO SHALL leerse como contenido. La columna SHALL informar y NO SHALL ofrecer acciones.
+
+Una iniciativa sólo se activa con evaluación guardada (ver capacidad `initiatives`), así que toda iniciativa activa tiene talla y demanda de FTE: la columna NO SHALL necesitar un caso "sin evaluar".
+
+El estado de asignación SHALL compararse así: la demanda de la célula es la suma de los rangos de FTE mínimo–máximo de sus iniciativas activas, y la cobertura es el FTE total asignado a la célula. El estado SHALL mostrarse como la señal del balance de carga de Dedicación: sólo el icono, en una columna propia contigua a la de capacidad, con forma distinta además de rol de color (nunca sólo el color) y sin badge ni texto visible — el mismo glifo que esa señal usa: tendencia hacia arriba para sub-asignada (la demanda supera lo asignado), check para en rango, tendencia hacia abajo para sobre-asignada (holgura) y el icono de vacío para sin demanda. La etiqueta del estado, el desvío y el desglose demanda–asignado SHALL viajar en el tooltip del icono y en su nombre accesible, y el icono SHALL poder recibir foco para abrir esa explicación con teclado:
+
+- **Sub-asignada** (rol de peligro), cuando la cobertura está por debajo de la suma de mínimos. Su explicación SHALL decir cuánto falta, con un decimal ("faltan N FTE").
+- **En rango** (rol de éxito), cuando la cobertura cae dentro del rango de la suma de mínimos a la suma de máximos, extremos incluidos.
+- **Sobre-asignada** (rol de advertencia, como la señal de holgura en Dedicación), cuando la cobertura supera la suma de máximos. Su explicación SHALL decir cuánto sobra, con un decimal ("sobran N FTE").
+- **Sin demanda** (rol neutro), cuando la célula no tiene iniciativas activas; su explicación NO SHALL llevar cifra.
+
+La tolerancia de la lectura es el propio rango de la evaluación, así que el listado NO SHALL aplicar ningún umbral adicional propio.
+
+El sistema SHALL permitir buscar células por nombre o equipo (coincidencia parcial, sin distinguir mayúsculas, resuelta contra el nombre del equipo del catálogo) y filtrar por criticidad y por equipo (selección múltiple en ambos, con el mismo componente de filtro para los dos), combinables entre sí y con la paginación; al cambiar la búsqueda o cualquier filtro, el listado vuelve a la primera página.
+
+#### Scenario: Listado con datos
+- **WHEN** el Chapter Lead abre la pantalla de Células y existen células registradas
+- **THEN** el sistema muestra una página de resultados con una fila por cada célula de esa página, con su nombre y descripción, equipo, criticidad en español, personas, sus iniciativas activas con su talla, capacidad asignada y estado de asignación, junto con el total de células y la navegación entre páginas
+
+#### Scenario: Nombre como enlace al detalle
+- **WHEN** el Chapter Lead hace clic en el nombre de una célula
+- **THEN** el sistema navega a la página de detalle de esa célula sin recargar la aplicación
+
+#### Scenario: Descripción larga
+- **WHEN** una célula tiene una descripción que no cabe en una línea de su columna
+- **THEN** la fila muestra la descripción truncada a una línea sin alterar la altura de las demás filas, y el texto completo queda disponible al pasar el puntero
+
+#### Scenario: Nombre del equipo en la fila
+- **WHEN** una célula pertenece a un equipo del catálogo
+- **THEN** la fila muestra el nombre de ese equipo
+
+#### Scenario: Célula con equipo
+- **WHEN** una célula tiene una o más personas asignadas
+- **THEN** la fila muestra los avatares de hasta tres de ellas (con el excedente como "+N") y el total de personas, y cada avatar lleva las mismas iniciales y color que esa persona tiene en el módulo de Personas
+
+#### Scenario: Célula sin equipo
+- **WHEN** una célula no tiene ninguna asignación
+- **THEN** la fila muestra "Sin personas" en la columna de personas y, en la de capacidad, 0.0 FTE con la barra vacía y "Sin capacidad asignada"
+
+#### Scenario: Capacidad asignada de una célula
+- **WHEN** una célula tiene asignaciones con 80% (50 BAU / 30 Transformación) y 100% (60 BAU / 40 Transformación) de dedicación, de dos personas con 1.0 FTE disponible cada una
+- **THEN** la fila muestra 1.8 / 2.0 FTE, 90% en color de advertencia, una barra con un tramo de BAU proporcional a 1.1 y otro de Transformación proporcional a 0.7 sobre 2.0, la leyenda BAU 1.1 · Transf. 0.7 y "0.2 libre"
+
+#### Scenario: Célula al tope
+- **WHEN** el FTE asignado de una célula iguala o supera el FTE disponible de sus personas
+- **THEN** la fila muestra el porcentaje en color de peligro y la lectura "Al tope" en lugar del FTE libre
+
+#### Scenario: Célula con espacio
+- **WHEN** el FTE asignado de una célula está por debajo del 85 % del FTE disponible de sus personas
+- **THEN** la fila muestra el porcentaje en color de éxito y el FTE libre con un decimal
+
+#### Scenario: Célula con una iniciativa vigente
+- **WHEN** una célula tiene una única iniciativa activa, evaluada con talla M
+- **THEN** la fila muestra, en una sola línea, la etiqueta M —con la misma etiqueta y color que esa talla tiene en el módulo de Iniciativas— y a continuación el nombre de la iniciativa como enlace neutro a su evaluación
+
+#### Scenario: Célula con varias iniciativas vigentes
+- **WHEN** una célula tiene dos iniciativas activas y además una en evaluación
+- **THEN** la columna de iniciativas muestra las dos activas, cada una en su línea con su talla y su nombre como enlace a su evaluación; la que está en evaluación no aparece, no se cuenta y no agrega un "+N"
+
+#### Scenario: Iniciativa vigente sin evaluar
+- **WHEN** la única iniciativa vigente de una célula está en evaluación y todavía no tiene talla
+- **THEN** la fila muestra "Sin iniciativa" y no una etiqueta "Sin evaluar": una iniciativa activa siempre tiene evaluación guardada, así que ese caso no existe en esta columna
+
+#### Scenario: Célula sin iniciativas vigentes
+- **WHEN** una célula no tiene ninguna iniciativa activa, sea porque no tiene ninguna, porque las que tiene están en evaluación o porque las que tenía se cerraron
+- **THEN** la fila muestra un guion en el lugar de la talla y "Sin iniciativa" con menor jerarquía visual, alineado con los nombres de las demás filas; el guion no se anuncia como contenido
+
+#### Scenario: Célula sub-asignada
+- **WHEN** una célula con 1.0 FTE asignado tiene dos iniciativas activas cuyas demandas suman un rango de 1.5–2.5 FTE
+- **THEN** la columna de asignación muestra la señal de tendencia hacia arriba en rol de peligro, sin texto visible, y su tooltip y nombre accesible dicen "Sub-asignada: faltan 0.5 FTE" con la demanda 1.5–2.5 FTE frente al 1.0 asignado
+
+#### Scenario: Célula en rango
+- **WHEN** una célula con 2.0 FTE asignados tiene iniciativas activas cuya demanda suma un rango de 1.5–2.5 FTE
+- **THEN** la columna de asignación muestra el check en rol de éxito, y su explicación dice "En rango" sin cifra de desvío
+
+#### Scenario: Célula sobre-asignada
+- **WHEN** una célula con 3.0 FTE asignados tiene iniciativas activas cuya demanda suma un rango de 1.5–2.5 FTE
+- **THEN** la columna de asignación muestra la señal de tendencia hacia abajo en rol de advertencia, y su explicación dice "Sobre-asignada: sobran 0.5 FTE"
+
+#### Scenario: Célula sin demanda
+- **WHEN** una célula no tiene iniciativas activas, tenga o no capacidad asignada
+- **THEN** la columna de asignación muestra el icono de vacío en rol neutro, y su explicación dice "Sin demanda" sin cifra
+
+#### Scenario: Célula con demanda y sin personas
+- **WHEN** una célula sin ninguna asignación tiene una iniciativa activa con demanda 1.0–1.5 FTE
+- **THEN** la columna de asignación muestra la señal de sub-asignada y su explicación dice "faltan 1.0 FTE": la falta se mide contra el mínimo de la demanda
+
+#### Scenario: La cobertura coincide con un extremo del rango
+- **WHEN** el FTE asignado de una célula es exactamente la suma de mínimos o la suma de máximos de sus iniciativas activas
+- **THEN** la columna de asignación muestra la señal de en rango: los extremos pertenecen al rango
+
+#### Scenario: La talla dice lo mismo en las dos pantallas
+- **WHEN** el Chapter Lead compara la talla de una iniciativa en el listado de Células con la de esa misma iniciativa en el listado de Iniciativas
+- **THEN** son la misma etiqueta y el mismo color, porque ambas resuelven la talla contra el mismo mapa y no contra uno propio de cada pantalla
+
+#### Scenario: Equipo y Personas son dos columnas distintas
+- **WHEN** el Chapter Lead mira una fila del listado
+- **THEN** la columna "Equipo" muestra el equipo del catálogo al que pertenece la célula y la columna "Personas" muestra quiénes la integran, con rótulos distintos: ninguna columna del listado repite el rótulo de otra
+
+#### Scenario: Listado vacío
+- **WHEN** el Chapter Lead abre la pantalla de Células y no existe ninguna célula registrada
+- **THEN** el sistema muestra un estado vacío que invita a crear la primera célula, sin mostrar una tabla vacía ni un error
+
+#### Scenario: Buscar células
+- **WHEN** el Chapter Lead escribe un texto en el buscador del listado
+- **THEN** el sistema muestra sólo las células cuyo nombre o el nombre de su equipo contienen ese texto (sin distinguir mayúsculas), vuelve a la primera página y actualiza el total y la paginación sobre el subconjunto filtrado
+
+#### Scenario: Filtrar por criticidad
+- **WHEN** el Chapter Lead selecciona una o más criticidades en el filtro
+- **THEN** el sistema muestra sólo las células con alguna de esas criticidades, vuelve a la primera página, y actualiza el total y la paginación sobre el subconjunto filtrado
+
+#### Scenario: Filtrar por equipo
+- **WHEN** el Chapter Lead selecciona uno o más equipos en el filtro de equipo
+- **THEN** el sistema muestra sólo las células de alguno de esos equipos, vuelve a la primera página, y actualiza el total y la paginación sobre el subconjunto filtrado; el filtro es combinable con el de criticidad y con la búsqueda
+
+#### Scenario: Sin resultados para la búsqueda o el filtro
+- **WHEN** la búsqueda o algún filtro activo no coincide con ninguna célula
+- **THEN** el sistema muestra un estado vacío de "sin resultados" que invita a ajustar la búsqueda o los filtros, distinto del estado vacío de "todavía no hay células", y mantiene visibles el buscador y los filtros
+
+#### Scenario: Los controles siguen ahí mientras recarga
+- **WHEN** el Chapter Lead cambia la búsqueda o algún filtro y el listado vuelve a pedir datos
+- **THEN** la búsqueda y los filtros siguen en pantalla y conservan su estado; lo único que muestra que está cargando es la zona de resultados
+
+#### Scenario: Elegir varios criterios sin reabrir el filtro
+- **WHEN** el Chapter Lead abre el filtro de criticidad o de equipo y marca dos valores seguidos
+- **THEN** el panel del filtro sigue abierto entre una selección y la otra, y el listado refleja los criterios marcados
+
+#### Scenario: Error al cargar el listado
+- **WHEN** la petición para obtener las células falla (error de red o del servidor)
+- **THEN** el sistema muestra un mensaje de error y una forma de reintentar la carga, sin dejar la pantalla en blanco o en carga indefinida
+
+#### Scenario: Cambiar de página
+- **WHEN** el Chapter Lead navega a una página distinta del listado de células
+- **THEN** el sistema muestra las células correspondientes a esa página, conservando la búsqueda y los filtros activos, sin recargar toda la aplicación
+
+#### Scenario: Menú de acciones por fila
+- **WHEN** el Chapter Lead abre el menú de acciones de una fila del listado
+- **THEN** el sistema muestra las opciones para editar o eliminar esa célula, sin una opción "Ver equipo" (la gestión del equipo vive en el módulo de Equipos)
+
+#### Scenario: Ver el equipo de una célula
+- **WHEN** el Chapter Lead quiere ver o gestionar las personas de una célula desde el listado
+- **THEN** lo hace haciendo clic en el nombre de la célula, que abre su página de detalle con la sección Personas; el menú de fila ya no ofrece "Ver equipo" ni navega a una pantalla de Capacidades
+
+### Requirement: Crear célula
+El sistema SHALL permitir crear una nueva célula capturando nombre, equipo, criticidad y descripción opcional, validando los mismos límites que aplica el backend antes de enviar la petición. El **equipo** SHALL elegirse de una selección restringida a los equipos vigentes del catálogo (ver capacidad `teams`), no como texto libre, con el mismo tratamiento que ya tiene la criticidad: el selector muestra los equipos existentes por su nombre, y la petición al backend lleva el identificador del equipo elegido. El formulario SHALL presentarse en un panel lateral (no en un diálogo centrado), con el mismo patrón que el formulario de Personas: encabezado con título y subtítulo según el modo, campos agrupados en secciones con rótulo e ícono, campos obligatorios marcados, textos de ayuda donde el campo lo necesita, y un pie con el contador de obligatorios sin completar y las acciones de cancelar y confirmar.
+
+La descripción SHALL capturarse en un campo de varias líneas, con alto visible para más de un renglón.
+
+#### Scenario: Alta válida
+- **WHEN** el Chapter Lead completa nombre (no vacío, máx. 200 caracteres), elige un equipo del catálogo y una criticidad válida (`Critical`, `High`, `Medium` o `Low`), con descripción opcional (máx. 500 caracteres), y confirma
+- **THEN** el sistema crea la célula, la agrega al listado y confirma el éxito de la operación
+
+#### Scenario: Validación de campos requeridos
+- **WHEN** el Chapter Lead intenta confirmar el alta sin nombre, sin equipo elegido o sin criticidad seleccionada
+- **THEN** el sistema impide el envío y señala qué campos faltan, sin llamar al backend
+
+#### Scenario: Validación de longitud
+- **WHEN** el Chapter Lead ingresa un nombre de más de 200 caracteres o una descripción de más de 500 caracteres
+- **THEN** el sistema impide el envío y señala el campo que excede el límite, sin llamar al backend
+
+#### Scenario: Error del servidor al crear
+- **WHEN** el Chapter Lead confirma un alta válida en el cliente pero el backend responde con error (400 o 500)
+- **THEN** el sistema muestra el motivo del error devuelto por el backend y conserva los datos ingresados en el formulario para que el usuario pueda corregir o reintentar
+
+#### Scenario: Resumen de campos obligatorios sin completar
+- **WHEN** el Chapter Lead intenta confirmar el alta o la edición sin completar todos los campos obligatorios
+- **THEN** el sistema muestra, junto a los botones de confirmar/cancelar, la cantidad de campos obligatorios que todavía faltan por completar
+
+#### Scenario: Presentación del formulario
+- **WHEN** el Chapter Lead abre el alta o la edición de una célula
+- **THEN** el formulario se abre como panel lateral con las secciones "Identificación" (nombre, equipo) y "Clasificación" (criticidad, descripción), nombre y equipo marcados como obligatorios, la descripción en un campo de varias líneas, y el pie con cancelar y confirmar
+
+#### Scenario: Opciones de equipo
+- **WHEN** el Chapter Lead abre el selector de equipo en el formulario de alta o edición
+- **THEN** el sistema muestra los equipos vigentes del catálogo por su nombre; si todavía no existe ningún equipo, el selector lo indica e invita a crear uno primero desde el módulo de Equipos
+
+### Requirement: Editar célula
+El sistema SHALL permitir editar nombre, equipo, criticidad y descripción de una célula existente, aplicando las mismas reglas de validación que en el alta, incluida la elección de equipo desde el catálogo.
+
+#### Scenario: Edición válida
+- **WHEN** el Chapter Lead modifica uno o más campos de una célula existente con valores válidos, incluido un cambio de equipo, y confirma
+- **THEN** el sistema actualiza la célula, refleja los nuevos valores en el listado y confirma el éxito de la operación
+
+#### Scenario: Formulario precargado
+- **WHEN** el Chapter Lead abre la edición de una célula existente
+- **THEN** el sistema precarga el formulario con los valores actuales de esa célula, incluido su equipo seleccionado en el selector
+
+#### Scenario: Error del servidor al editar
+- **WHEN** el Chapter Lead confirma una edición válida en el cliente pero el backend responde con error (400 o 404)
+- **THEN** el sistema muestra el motivo del error y no descarta los cambios pendientes del usuario en el formulario

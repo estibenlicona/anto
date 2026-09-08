@@ -18,6 +18,7 @@ import { getBalanceSignalsSnapshot } from "./dedication.handlers";
 import { getLineOfPerson } from "./expertise-lines.handlers";
 import { getCompaniesSnapshot, getPeopleSnapshot } from "./people.handlers";
 import { getSquadsSnapshot } from "./squads.handlers";
+import { getTeamsSnapshot } from "./teams.handlers";
 import {
   CONTRACT_ENDS_AT,
   COST_BANDS,
@@ -110,7 +111,8 @@ export function computePersonDetail(personId: string): PersonDetailDto | null {
       squadId: own.squadId,
       squadName: squad?.name ?? own.squadName,
       squadCriticality: squad?.criticality ?? "Low",
-      squadTribe: squad?.team ?? "",
+      squadTribe:
+        getTeamsSnapshot().find((t) => t.id === squad?.teamId)?.name ?? "",
       squadDescription: squad?.description ?? "",
       teammates,
       dedicationPercentage: own.dedicationPercentage,

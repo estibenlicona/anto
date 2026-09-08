@@ -51,7 +51,7 @@ export const SquadDetailHeader: React.FC<SquadDetailHeaderProps> = ({
         </Badge>
         <span className="inline-flex items-center gap-1.5 text-body-sm text-neutral-subtle">
           <Icon name="team" size={16} />
-          {squad.team}
+          {squad.teamName}
         </span>
       </div>
       {squad.description && (

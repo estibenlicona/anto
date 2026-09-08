@@ -50,7 +50,7 @@ Los avatares que aparezcan en el resumen o en el listado SHALL usar el mismo col
 - **THEN** el listado sigue mostrándose y operando con normalidad, sin que la falta del resumen bloquee la pantalla
 
 ### Requirement: Listar células
-El sistema SHALL mostrar un listado paginado de las células registradas, con al menos nombre, descripción, equipo, criticidad, personas asignadas, su iniciativa activa con su talla y capacidad asignada visibles por fila, y SHALL exponer por fila un menú de acciones que permite editar o eliminar esa célula.
+El sistema SHALL mostrar un listado paginado de las células registradas, con al menos nombre, descripción, equipo, criticidad, personas asignadas, sus iniciativas activas con su talla, su capacidad asignada y su **estado de asignación** visibles por fila, y SHALL exponer por fila un menú de acciones que permite editar o eliminar esa célula.
 
 El nombre SHALL ser el texto principal de la primera columna y SHALL ser un enlace a la página de detalle de esa célula, con el tratamiento de enlace neutro del sistema de diseño (no el color de marca; en reposo no se distingue del texto plano y revela su condición de enlace al pasar el puntero y al recibir el foco), igual que el nombre en el listado de Personas. La descripción (si tiene) SHALL mostrarse debajo, con menor jerarquía visual y truncada a una sola línea, con el texto completo accesible al pasar el puntero; la descripción NO SHALL ocupar una columna propia.
 
@@ -60,19 +60,24 @@ Las personas asignadas SHALL mostrarse como sus avatares —hasta tres, con el e
 
 La capacidad SHALL mostrarse de forma gráfica: el FTE asignado a la célula (suma de los % de dedicación de sus asignaciones, con un decimal) frente al FTE disponible de sus personas (suma del FTE disponible de las personas asignadas), el porcentaje de ocupación que representa coloreado por estado (éxito por debajo del 85 %, advertencia entre 85 y 99 %, peligro al 100 % o más), una barra de tramos separados cuyos tramos son el FTE de BAU y el de Transformación sobre el FTE disponible de sus personas —con los tonos de acento del sistema de diseño, los mismos que usa el detalle de la célula y la card de capacidad del resumen—, una leyenda con ambas cifras y la lectura del FTE libre ("N libre", o "Al tope" cuando no queda). Una célula sin asignaciones SHALL mostrar 0.0 FTE, la barra vacía y "Sin capacidad asignada".
 
-La iniciativa activa de la célula SHALL mostrarse en una columna propia, contigua a la de capacidad porque es la que la explica: la **talla** SHALL ir primero, con el mismo componente de etiqueta y el mismo color por talla que el módulo de Iniciativas —una misma talla NO SHALL verse de dos colores distintos según la pantalla—, y el nombre de la iniciativa SHALL ir **en la misma línea**, a continuación, truncado con el texto completo accesible al pasar el puntero, como enlace neutro a su evaluación. La etiqueta de talla es corta y de ancho parejo, así que hace de columna dentro de la celda y los nombres SHALL quedar alineados de una fila a la otra; la celda NO SHALL apilar talla y nombre en dos alturas.
+Las **iniciativas activas** de la célula SHALL mostrarse en una columna propia: una línea por iniciativa activa, con la **talla** primero —con el mismo componente de etiqueta y el mismo color por talla que el módulo de Iniciativas; una misma talla NO SHALL verse de dos colores distintos según la pantalla— y el nombre de la iniciativa a continuación, en la misma línea, truncado con el texto completo accesible al pasar el puntero, como enlace neutro a su evaluación. La columna SHALL mostrar **todas** las iniciativas activas de la célula, alineadas entre sí; NO SHALL colapsarlas en un contador. La fila NO SHALL mostrar las iniciativas en evaluación de la célula, ni cuántas son: la columna responde por el trabajo que la célula ejecuta, no por el que todavía se está dimensionando. Una célula sin iniciativas activas SHALL ocupar el lugar de la talla con un guion y mostrar "Sin iniciativa" con menor jerarquía visual, tenga o no iniciativas en evaluación; ese guion es relleno visual y NO SHALL leerse como contenido. La columna SHALL informar y NO SHALL ofrecer acciones: asignar o cambiar las iniciativas de una célula no vive en el listado.
 
-Una célula sin iniciativa activa SHALL ocupar el lugar de la talla con un guion, para que su texto siga alineado con los nombres de las demás filas; ese guion es relleno visual y NO SHALL leerse como contenido: lo que se anuncia es "Sin iniciativa".
+Una iniciativa sólo se activa con evaluación guardada (ver capacidad `initiatives`), así que toda iniciativa activa tiene talla y demanda de FTE: la columna NO SHALL necesitar un caso "sin evaluar".
 
-Una célula SHALL tener como mucho una iniciativa activa, y la columna SHALL mostrar exactamente esa: una talla y un nombre por fila, nunca varias. La fila NO SHALL mostrar las iniciativas en evaluación de la célula, ni cuántas son: la columna responde por el trabajo que la célula ejecuta, no por el que todavía se está dimensionando, y una célula puede tener varias en evaluación sin que ninguna la ocupe. Una célula sin iniciativa activa SHALL mostrar "Sin iniciativa" con menor jerarquía visual, tenga o no iniciativas en evaluación. La columna SHALL informar y NO SHALL ofrecer acciones: asignar o cambiar la iniciativa de una célula no vive en el listado.
+El **estado de asignación** SHALL compararse así: la **demanda** de la célula es la suma de los rangos de FTE mínimo–máximo de sus iniciativas activas (los que salieron de la evaluación de cada una), y la **cobertura** es el FTE total asignado a la célula (la misma suma de dedicaciones de la columna de capacidad, sin mirar el desglose BAU/Transformación). El estado SHALL mostrarse **como la señal del balance de carga de Dedicación**: sólo el icono, en una columna propia contigua a la de capacidad, con forma distinta además de rol de color (nunca sólo el color) y sin badge ni texto visible — el mismo glifo que esa señal usa: tendencia hacia arriba para sub-asignada (la demanda supera lo asignado), check para en rango, tendencia hacia abajo para sobre-asignada (holgura) y el icono de vacío para sin demanda; una misma señal NO SHALL verse con dos glifos distintos según la pantalla. La etiqueta del estado, el desvío y el desglose demanda–asignado SHALL viajar en el tooltip del icono y en su nombre accesible, y el icono SHALL poder recibir foco para abrir esa explicación con teclado:
 
-Una iniciativa sólo se activa con evaluación guardada (ver capacidad `initiatives`), así que la iniciativa activa siempre tiene talla: la columna NO SHALL necesitar un caso "sin evaluar".
+- **Sub-asignada** (rol de peligro), cuando la cobertura está por debajo de la suma de mínimos: el trabajo comprometido no se cubre ni dedicándolo todo. Su explicación SHALL decir cuánto falta, con un decimal ("faltan N FTE").
+- **En rango** (rol de éxito), cuando la cobertura cae dentro del rango de la suma de mínimos a la suma de máximos, extremos incluidos.
+- **Sobre-asignada** (rol de advertencia, como la señal de holgura en Dedicación: es una decisión de carga, no contexto), cuando la cobertura supera la suma de máximos: la demanda está cubierta y el excedente se lee como BAU. Su explicación SHALL decir cuánto sobra, con un decimal ("sobran N FTE").
+- **Sin demanda** (rol neutro), cuando la célula no tiene iniciativas activas; su explicación NO SHALL llevar cifra.
+
+La tolerancia de la lectura es el propio rango de la evaluación —las bandas de talla parametrizables en Admin—, así que el listado NO SHALL aplicar ningún umbral adicional propio.
 
 El sistema SHALL permitir buscar células por nombre o equipo (coincidencia parcial, sin distinguir mayúsculas) y filtrar por criticidad (selección múltiple), combinables con la paginación; al cambiar la búsqueda o el filtro, el listado vuelve a la primera página.
 
 #### Scenario: Listado con datos
 - **WHEN** el Chapter Lead abre la pantalla de Células y existen células registradas
-- **THEN** el sistema muestra una página de resultados con una fila por cada célula de esa página, con su nombre y descripción, equipo, criticidad en español, personas, su iniciativa activa con su talla y capacidad asignada, junto con el total de células y la navegación entre páginas
+- **THEN** el sistema muestra una página de resultados con una fila por cada célula de esa página, con su nombre y descripción, equipo, criticidad en español, personas, sus iniciativas activas con su talla, capacidad asignada y estado de asignación, junto con el total de células y la navegación entre páginas
 
 #### Scenario: Nombre como enlace al detalle
 - **WHEN** el Chapter Lead hace clic en el nombre de una célula
@@ -87,7 +92,7 @@ El sistema SHALL permitir buscar células por nombre o equipo (coincidencia parc
 - **THEN** la fila muestra los avatares de hasta tres de ellas (con el excedente como "+N") y el total de personas, y cada avatar lleva las mismas iniciales y color que esa persona tiene en el módulo de Personas
 
 #### Scenario: Célula sin equipo
-- **WHEN** una célula no tiene ninguna persona asignada
+- **WHEN** una célula no tiene ninguna asignación
 - **THEN** la fila muestra "Sin personas" en la columna de personas y, en la de capacidad, 0.0 FTE con la barra vacía y "Sin capacidad asignada"
 
 #### Scenario: Capacidad asignada de una célula
@@ -103,20 +108,44 @@ El sistema SHALL permitir buscar células por nombre o equipo (coincidencia parc
 - **THEN** la fila muestra el porcentaje en color de éxito y el FTE libre con un decimal
 
 #### Scenario: Célula con una iniciativa vigente
-- **WHEN** una célula tiene su iniciativa activa, evaluada con talla M
+- **WHEN** una célula tiene una única iniciativa activa, evaluada con talla M
 - **THEN** la fila muestra, en una sola línea, la etiqueta M —con la misma etiqueta y color que esa talla tiene en el módulo de Iniciativas— y a continuación el nombre de la iniciativa como enlace neutro a su evaluación
 
 #### Scenario: Célula con varias iniciativas vigentes
-- **WHEN** una célula tiene una iniciativa activa y además dos en evaluación
-- **THEN** la fila muestra sólo la talla y el nombre de la activa; las que están en evaluación no aparecen, no se cuentan y no agregan una segunda talla, un "+N" ni un texto del tipo "3 iniciativas"
+- **WHEN** una célula tiene dos iniciativas activas y además una en evaluación
+- **THEN** la columna de iniciativas muestra las dos activas, cada una en su línea con su talla y su nombre como enlace a su evaluación; la que está en evaluación no aparece, no se cuenta y no agrega un "+N"
 
 #### Scenario: Iniciativa vigente sin evaluar
 - **WHEN** la única iniciativa vigente de una célula está en evaluación y todavía no tiene talla
 - **THEN** la fila muestra "Sin iniciativa" y no una etiqueta "Sin evaluar": una iniciativa activa siempre tiene evaluación guardada, así que ese caso no existe en esta columna
 
 #### Scenario: Célula sin iniciativas vigentes
-- **WHEN** una célula no tiene ninguna iniciativa activa, sea porque no tiene ninguna, porque las que tiene están en evaluación o porque la que tenía se cerró
+- **WHEN** una célula no tiene ninguna iniciativa activa, sea porque no tiene ninguna, porque las que tiene están en evaluación o porque las que tenía se cerraron
 - **THEN** la fila muestra un guion en el lugar de la talla y "Sin iniciativa" con menor jerarquía visual, alineado con los nombres de las demás filas; el guion no se anuncia como contenido
+
+#### Scenario: Célula sub-asignada
+- **WHEN** una célula con 1.0 FTE asignado tiene dos iniciativas activas cuyas demandas suman un rango de 1.5–2.5 FTE
+- **THEN** la columna de asignación muestra la señal de tendencia hacia arriba en rol de peligro, sin texto visible, y su tooltip y nombre accesible dicen "Sub-asignada: faltan 0.5 FTE" con la demanda 1.5–2.5 FTE frente al 1.0 asignado
+
+#### Scenario: Célula en rango
+- **WHEN** una célula con 2.0 FTE asignados tiene iniciativas activas cuya demanda suma un rango de 1.5–2.5 FTE
+- **THEN** la columna de asignación muestra el check en rol de éxito, y su explicación dice "En rango" sin cifra de desvío
+
+#### Scenario: Célula sobre-asignada
+- **WHEN** una célula con 3.0 FTE asignados tiene iniciativas activas cuya demanda suma un rango de 1.5–2.5 FTE
+- **THEN** la columna de asignación muestra la señal de tendencia hacia abajo en rol de advertencia, y su explicación dice "Sobre-asignada: sobran 0.5 FTE"
+
+#### Scenario: Célula sin demanda
+- **WHEN** una célula no tiene iniciativas activas, tenga o no capacidad asignada
+- **THEN** la columna de asignación muestra el icono de vacío en rol neutro, y su explicación dice "Sin demanda" sin cifra
+
+#### Scenario: Célula con demanda y sin personas
+- **WHEN** una célula sin ninguna asignación tiene una iniciativa activa con demanda 1.0–1.5 FTE
+- **THEN** la columna de asignación muestra la señal de sub-asignada y su explicación dice "faltan 1.0 FTE": la falta se mide contra el mínimo de la demanda
+
+#### Scenario: La cobertura coincide con un extremo del rango
+- **WHEN** el FTE asignado de una célula es exactamente la suma de mínimos o la suma de máximos de sus iniciativas activas
+- **THEN** la columna de asignación muestra la señal de en rango: los extremos pertenecen al rango
 
 #### Scenario: La talla dice lo mismo en las dos pantallas
 - **WHEN** el Chapter Lead compara la talla de una iniciativa en el listado de Células con la de esa misma iniciativa en el listado de Iniciativas

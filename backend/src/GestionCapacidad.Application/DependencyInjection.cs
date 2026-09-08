@@ -77,6 +77,11 @@ using GestionCapacidad.Application.UseCases.Squads.GetSquads;
 using GestionCapacidad.Application.UseCases.Squads.GetSquadsStats;
 using GestionCapacidad.Application.UseCases.Squads.GetSquadTeamStats;
 using GestionCapacidad.Application.UseCases.Squads.UpdateSquad;
+using GestionCapacidad.Application.UseCases.Teams.CreateTeam;
+using GestionCapacidad.Application.UseCases.Teams.DeleteTeam;
+using GestionCapacidad.Application.UseCases.Teams.GetTeamById;
+using GestionCapacidad.Application.UseCases.Teams.GetTeams;
+using GestionCapacidad.Application.UseCases.Teams.UpdateTeam;
 using GestionCapacidad.Application.UseCases.CareerPlan.GetSpanMatrix;
 using GestionCapacidad.Application.UseCases.CareerPlan.GetSpanSummary;
 using GestionCapacidad.Application.UseCases.CareerPlan.GetPersonPlan;
@@ -125,6 +130,13 @@ public static class DependencyInjection
         services.AddScoped<DeleteSquadUseCase>();
         services.AddScoped<GetSquadsStatsUseCase>();
         services.AddScoped<GetSquadTeamStatsUseCase>();
+
+        // Teams
+        services.AddScoped<CreateTeamUseCase>();
+        services.AddScoped<GetTeamsUseCase>();
+        services.AddScoped<GetTeamByIdUseCase>();
+        services.AddScoped<UpdateTeamUseCase>();
+        services.AddScoped<DeleteTeamUseCase>();
 
         // People
         services.AddScoped<CreatePersonUseCase>();

@@ -83,7 +83,8 @@ export function deriveAssignmentStatus(
 export interface Squad {
   id: string;
   name: string;
-  team: string;
+  teamId: string;
+  teamName: string;
   criticality: Criticality;
   criticalityLabel: string;
   description: string;
@@ -101,14 +102,14 @@ export interface Squad {
 
 export interface SquadFormValues {
   name: string;
-  team: string;
+  teamId: string;
   criticality: Criticality | "";
   description: string;
 }
 
 export const emptySquadFormValues: SquadFormValues = {
   name: "",
-  team: "",
+  teamId: "",
   criticality: "",
   description: "",
 };
@@ -117,7 +118,8 @@ export const squadAdapter = {
   toEntity: (dto: SquadDto): Squad => ({
     id: dto.id,
     name: dto.name,
-    team: dto.team,
+    teamId: dto.teamId,
+    teamName: dto.teamName,
     criticality: dto.criticality,
     criticalityLabel: CRITICALITY_LABELS[dto.criticality] ?? dto.criticality,
     description: dto.description ?? "",
@@ -146,14 +148,14 @@ export const squadAdapter = {
 
   toFormValues: (squad: Squad): SquadFormValues => ({
     name: squad.name,
-    team: squad.team,
+    teamId: squad.teamId,
     criticality: squad.criticality,
     description: squad.description,
   }),
 
   toCreateRequest: (values: SquadFormValues): CreateSquadRequest => ({
     name: values.name.trim(),
-    team: values.team.trim(),
+    teamId: values.teamId,
     criticality: values.criticality as Criticality,
     description: values.description.trim() || undefined,
   }),

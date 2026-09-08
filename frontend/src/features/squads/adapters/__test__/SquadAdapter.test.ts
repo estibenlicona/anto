@@ -9,7 +9,8 @@ import type { SquadDto } from "../../services/squadService";
 const dto: SquadDto = {
   id: "1",
   name: "Backend Platform",
-  team: "Ecosistema Digital",
+  teamId: "t1",
+  teamName: "Ecosistema Digital",
   criticality: "High",
   description: "Servicios core",
   memberCount: 4,
@@ -33,7 +34,8 @@ describe("squadAdapter", () => {
     expect(entity).toEqual({
       id: "1",
       name: "Backend Platform",
-      team: "Ecosistema Digital",
+      teamId: "t1",
+      teamName: "Ecosistema Digital",
       criticality: "High",
       criticalityLabel: "Alta",
       description: "Servicios core",
@@ -175,7 +177,7 @@ describe("squadAdapter", () => {
     const entity = squadAdapter.toEntity(dto);
     expect(squadAdapter.toFormValues(entity)).toEqual({
       name: "Backend Platform",
-      team: "Ecosistema Digital",
+      teamId: "t1",
       criticality: "High",
       description: "Servicios core",
     });
@@ -184,13 +186,13 @@ describe("squadAdapter", () => {
   it("maps form values to a create request, trimming and dropping an empty description", () => {
     const request = squadAdapter.toCreateRequest({
       name: "  Nueva Célula  ",
-      team: "  Tribu  ",
+      teamId: "t2",
       criticality: "Medium",
       description: "   ",
     });
     expect(request).toEqual({
       name: "Nueva Célula",
-      team: "Tribu",
+      teamId: "t2",
       criticality: "Medium",
       description: undefined,
     });
@@ -199,7 +201,7 @@ describe("squadAdapter", () => {
   it("maps form values to an update request the same way as create", () => {
     const values = {
       name: "Célula",
-      team: "Tribu",
+      teamId: "t2",
       criticality: "Low" as const,
       description: "Detalle",
     };
