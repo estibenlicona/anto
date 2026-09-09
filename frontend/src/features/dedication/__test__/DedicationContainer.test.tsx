@@ -74,7 +74,7 @@ describe("DedicationContainer", () => {
       "text-warning-default"
     );
     const usual = cardOf("CARGA HABITUAL");
-    expect(within(usual).getByText("2")).toBeInTheDocument();
+    expect(within(usual).getByText("6")).toBeInTheDocument();
     expect(
       within(usual).getByText("Dentro de la tolerancia de sus señales")
     ).toBeInTheDocument();
@@ -169,8 +169,11 @@ describe("DedicationContainer", () => {
         name: "Posible subasignación · 3 señales concurrentes",
       })
     ).toHaveClass("text-warning-default");
+    // Por el nombre completo no: a la carga habitual se le suman las señales
+    // concurrentes que haya y la anotación de célula, y lo que se comprueba
+    // acá es el color de la señal.
     expect(
-      screen.getAllByRole("img", { name: "Carga habitual" })[0]
+      screen.getAllByRole("img", { name: /^Carga habitual/ })[0]
     ).toHaveClass("text-success-default");
     // El estado intermedio ya no existe en ninguna fila.
     expect(screen.queryByRole("img", { name: /Revisar/ })).toBeNull();

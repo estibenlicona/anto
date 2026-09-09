@@ -21,6 +21,11 @@ export const SEBASTIAN = "peeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
 export const ISABELLA = "phhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh";
 export const MATEO = "piiiiiii-iiii-iiii-iiii-iiiiiiiiiiii";
 export const SOFIA = "pjjjjjjj-jjjj-jjjj-jjjj-jjjjjjjjjjjj";
+// La letra sale del orden en el listado de personas (`people.handlers.ts`):
+// Tomás es el 11.º, Emilio el 13.º y Nicolás el 15.º.
+export const TOMAS = "pkkkkkkk-kkkk-kkkk-kkkk-kkkkkkkkkkkk";
+export const EMILIO = "pmmmmmmm-mmmm-mmmm-mmmm-mmmmmmmmmmmm";
+export const NICOLAS = "pooooooo-oooo-oooo-oooo-oooooooooooo";
 
 /** Lo que el mock guarda de una identidad vinculada: el usuario de DevOps y cuándo. */
 export interface SeedIdentity {
@@ -180,6 +185,36 @@ export const DEVOPS_USERS: DevOpsUserDto[] = [
     teams: ["Backend Platform"],
     boards: ["Backend Core"],
   },
+  // Los tres que faltaban de las células con gente asignada. Sin usuario de
+  // DevOps, una persona asignada al 100 % quedaba fuera del balance de carga
+  // de su célula, y la célula se leía sobre la mitad de su gente.
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a6f",
+    displayName: "Nicolás Betancur",
+    email: "nicolas.betancur@tuya.com",
+    avatarUrl: null,
+    projects: ["Canales Digitales"],
+    teams: ["Canales Digitales"],
+    boards: ["Canales · Móvil"],
+  },
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a70",
+    displayName: "Emilio Naranjo",
+    email: "emilio.naranjo@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: ["Fraude Tarjetas"],
+    boards: ["Fraude Board"],
+  },
+  {
+    id: "7f0a1c2e-9b3d-4e5f-8a6b-1c2d3e4f5a71",
+    displayName: "Tomás Giraldo",
+    email: "tomas.giraldo@tuya.com",
+    avatarUrl: null,
+    projects: ["Core Bancario"],
+    teams: ["Fraude Tarjetas"],
+    boards: ["Fraude Board"],
+  },
 ];
 
 /** El usuario de DevOps con ese correo; las semillas se escriben por correo porque se leen mejor. */
@@ -208,6 +243,14 @@ export const LINKED_IDENTITIES: Record<string, SeedIdentity> = {
   [LAURA]: linkedFrom("laura.ruiz@tuya.com", "2026-07-25"),
   [MATEO]: linkedFrom("mateo.vargas@tuya.com", "2026-07-27"),
   [SOFIA]: linkedFrom("sofia.herrera@tuya.com", "2026-07-27"),
+  // Toda persona con asignación en una célula está vinculada: si no lo
+  // estuviera, la célula declararía su dedicación y el balance de carga no
+  // podría decir nada de ella, que es la contradicción que hay que evitar.
+  // El caso "sin identidad" lo sostiene Camila, que no tiene célula.
+  [DIEGO]: linkedFrom("diego.salazar@tuya.com", "2026-07-25"),
+  [NICOLAS]: linkedFrom("nicolas.betancur@tuya.com", "2026-07-27"),
+  [EMILIO]: linkedFrom("emilio.naranjo@tuya.com", "2026-07-28"),
+  [TOMAS]: linkedFrom("tomas.giraldo@tuya.com", "2026-07-20"),
 };
 
 /**

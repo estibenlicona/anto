@@ -93,18 +93,26 @@ describe("mock de balance de carga", () => {
       "Usual",
       "Usual",
     ]);
-    expect(
-      list.items.slice(10).every((r) => r.balance.signal === "NotEvaluable")
-    ).toBe(true);
+    // El orden por rango se comprueba sobre el listado entero y no con un
+    // corte fijo: cuántas filas hay de cada señal cambia con las semillas, que
+    // el rango se respete no.
+    const rank = { PossibleOverload: 0, PossibleUnderload: 0, Usual: 1, NotEvaluable: 2 };
+    const ranks = list.items.map(
+      (r) => rank[r.balance.signal as keyof typeof rank]
+    );
+    expect([...ranks].sort((a, b) => a - b)).toEqual(ranks);
     expect(list.items.map((r) => r.balance.signal)).not.toContain("Review");
 
     expect(list.summary).toEqual({
       total: 18,
       possibleOverload: 5,
       possibleUnderload: 3,
-      usual: 2,
-      notEvaluable: 8,
-      noIdentity: 6,
+      usual: 6,
+      notEvaluable: 4,
+      // Camila y Lucía: las dos sin célula. Quien tiene asignación declarada
+      // está vinculado, o su célula diría que dedica el 100 % y el balance no
+      // podría decir nada de él.
+      noIdentity: 2,
       noSprint: 1,
       insufficientHistory: 1,
       overloadPeople: [
@@ -292,12 +300,19 @@ describe("mock de balance de carga", () => {
       expect.arrayContaining([SEBASTIAN, PAULA])
     );
 
-    // Valentina cae igual de fuerte pero es la única medida de su célula: sin
-    // comportamiento de equipo contra el cual contrastar, no hay descuento.
+    // Valentina cae igual de fuerte, pero su célula **no** la acompaña: Emilio
+    // y Tomás están en carga habitual. Es el contraste con el caso de arriba —
+    // cuando uno solo cae, la conversación es con esa persona; cuando caen dos
+    // de dos, es con la entrada de trabajo de la célula.
     const valentina = items.find((r) => r.person.id === VALENTINA)!;
-    expect(valentina.balance.squadContext).toBe("NoSquad");
+    expect(valentina.balance.squadContext).toBe("Different");
     expect(valentina.balance.underCount).toBe(3);
     expect(valentina.balance.signal).toBe("PossibleUnderload");
+
+    // El caso sin contexto de célula lo sostiene quien no tiene célula.
+    const mateo = items.find((r) => r.person.id === MATEO)!;
+    expect(mateo.allocation).toBeNull();
+    expect(mateo.balance.squadContext).toBe("NoSquad");
   });
 
   it("sin célula sigue siendo evaluable; sin identidad, sin sprints y sin histórico no lo son", async () => {

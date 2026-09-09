@@ -113,6 +113,17 @@ const LAKEHOUSE: SeedEpic = {
   title: "Lakehouse · ingesta",
   initiativeId: "ini-lakehouse",
 };
+/**
+ * La iniciativa activa de Plataforma de Datos. El sprint en curso cuelga de
+ * acá y no de Lakehouse: aquélla ya está cerrada en el catálogo, y comprometer
+ * trabajo de hoy contra una iniciativa cerrada deja al balance de carga
+ * diciendo algo que el backlog contradice.
+ */
+const DATA_MESH: SeedEpic = {
+  id: "ep-data-mesh",
+  title: "Data Mesh · gobierno",
+  initiativeId: "ini-mesh",
+};
 /** Épica sin iniciativa mapeada: cuenta como iniciativa simultánea sin nombre. */
 const PAGOS_F1: SeedEpic = {
   id: "ep-pagos-f1",
@@ -986,13 +997,13 @@ const SEBASTIAN_SPRINTS = collaborator("Data Platform", 12500, {
     activity: { 0: [2], 1: [1], 3: [1] },
     stories: [
       [
-        "Ajustes de la ingesta de comercios",
+        "Contratos de datos del dominio de comercios",
         "Initiative",
         5,
         "Closed",
-        LAKEHOUSE,
+        DATA_MESH,
       ],
-      ["Documentar el modelo semántico", "Initiative", 4, "Closed", LAKEHOUSE],
+      ["Documentar el modelo semántico", "Initiative", 4, "Closed", DATA_MESH],
     ],
   },
 });
@@ -1133,11 +1144,11 @@ const PAULA_SPRINTS = collaborator("Data Platform", 12600, {
     activity: { 0: [1], 2: [2] },
     stories: [
       [
-        "Refrescar el tablero de conciliación",
+        "Catálogo federado del dominio de riesgo",
         "Initiative",
         5,
         "Closed",
-        LAKEHOUSE,
+        DATA_MESH,
       ],
       ["Revisión de las métricas del cierre", "Bau", 3, "Closed"],
     ],
@@ -1453,10 +1464,42 @@ const CAMILA_SPRINTS = collaborator("Pagos · Stories", 12900, {
   },
 });
 
-// ── Diego Salazar · sin identidad vinculada ──────────────────────────────────
-// El mismo caso que Camila, con dos sprints sellados: sigue por debajo del
-// mínimo de 3 que exige el Calendario.
+// ── Diego Salazar · Canales Digitales · 1.0 · Carga habitual ─────────────────
+// Está asignado al 100 % en su célula, así que tiene que poder medirse: cuatro
+// sprints sellados superan el mínimo de 3 que exige el Calendario. Sus
+// historias cuelgan de Onboarding App, la iniciativa activa de Canales.
 const DIEGO_SPRINTS = collaborator("Canales", 13000, {
+  S14: {
+    carryOver: 1,
+    wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+    activity: spread(1019, 9, 1, 0),
+    stories: [
+      [
+        "Alta de usuario desde el canal móvil",
+        "Initiative",
+        5,
+        "Closed",
+        ONBOARDING,
+      ],
+      ["Ajuste de mensajes de error del formulario", "Bau", 3, "Closed"],
+    ],
+  },
+  S15: {
+    carryOver: 1,
+    wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+    activity: spread(1020, 10, 1, 1),
+    stories: [
+      [
+        "Verificación por correo en el alta",
+        "Initiative",
+        5,
+        "Closed",
+        ONBOARDING,
+      ],
+      ["Corrección de un enlace roto del canal", "Bau", 2, "Closed"],
+      ["Soporte a una consulta de operación", "Bau", 2, "Closed"],
+    ],
+  },
   S16: {
     carryOver: 1,
     wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
@@ -1663,7 +1706,7 @@ const MATEO_SPRINTS = collaborator("Datos · Analítica", 13200, {
         "Initiative",
         5,
         "Active",
-        LAKEHOUSE,
+        DATA_MESH,
       ],
       ["Indicadores del motor de pagos", "Initiative", 5, "Active", PAYMENTS],
       [
@@ -1753,6 +1796,275 @@ const SOFIA_SPRINTS = collaborator("Backend Core", 13300, {
  * deja la vinculación en la identidad—. Daniela está vinculada y no aparece
  * acá: DevOps no le devuelve sprints, y ese es su caso.
  */
+// ── Nicolás Betancur · Canales Digitales · 1.0 · Carga habitual ──────────────
+// El tercero de Canales. Con él la célula queda medida entera —Laura, Diego y
+// Nicolás—, que es lo que hace comparable la lectura de la célula contra la de
+// cada persona.
+const NICOLAS_SPRINTS = collaborator("Canales · Móvil", 13600, {
+  S14: {
+    carryOver: 1,
+    wip: [1, 2, 2, 2, 1, 1, 1, 1, 1, 1],
+    activity: spread(1061, 12, 1, 0),
+    stories: [
+      [
+        "Pantalla de captura de documento",
+        "Initiative",
+        8,
+        "Closed",
+        ONBOARDING,
+      ],
+      ["Actualización de la librería de la app", "Bau", 3, "Closed"],
+    ],
+  },
+  S15: {
+    carryOver: 1,
+    wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+    activity: spread(1062, 13, 1, 1),
+    stories: [
+      [
+        "Lectura de datos del documento en el móvil",
+        "Initiative",
+        8,
+        "Closed",
+        ONBOARDING,
+      ],
+      ["Corrección de un cierre inesperado en Android", "Bau", 3, "Closed"],
+    ],
+  },
+  S16: {
+    carryOver: 1,
+    wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+    activity: spread(1063, 11, 1, 0),
+    stories: [
+      [
+        "Permisos de cámara y galería",
+        "Initiative",
+        5,
+        "Closed",
+        ONBOARDING,
+      ],
+      ["Soporte a una incidencia de la tienda de apps", "Bau", 3, "Closed"],
+      ["Revisión de métricas de adopción", "Bau", 2, "Closed"],
+    ],
+  },
+  S17: {
+    carryOver: 1,
+    wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+    activity: spread(1064, 12, 1, 1),
+    stories: [
+      [
+        "Estado del alta en el perfil del usuario",
+        "Initiative",
+        8,
+        "Closed",
+        ONBOARDING,
+      ],
+      ["Ajustes de accesibilidad en el móvil", "Bau", 3, "Closed"],
+    ],
+  },
+  S18: {
+    snapshot: "Provisional",
+    wip: [1, 1, 1, 1],
+    activity: { 0: [2], 2: [1], 3: [1] },
+    stories: [
+      [
+        "Reintento del alta desde el móvil",
+        "Initiative",
+        5,
+        "Active",
+        ONBOARDING,
+      ],
+      ["Actualización de dependencias del móvil", "Bau", 3, "New"],
+    ],
+  },
+});
+
+// ── Emilio Naranjo · Fraude Tarjetas · 1.0 · Carga habitual ──────────────────
+// Seguridad dentro de la célula de fraude: su trabajo cuelga de la iniciativa
+// activa de su célula, igual que el de Valentina.
+const EMILIO_SPRINTS = collaborator("Fraude Board", 13700, {
+  S14: {
+    carryOver: 1,
+    wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+    activity: spread(1071, 11, 1, 0),
+    stories: [
+      [
+        "Reglas de bloqueo por geolocalización",
+        "Initiative",
+        8,
+        "Closed",
+        FRAUD,
+      ],
+      ["Rotación de llaves del servicio de scoring", "Bau", 3, "Closed"],
+    ],
+  },
+  S15: {
+    carryOver: 1,
+    wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+    activity: spread(1072, 12, 1, 1),
+    stories: [
+      [
+        "Endurecimiento del canal de notificación",
+        "Initiative",
+        8,
+        "Closed",
+        FRAUD,
+      ],
+      ["Atención de un hallazgo de AppSec", "Bau", 3, "Closed"],
+    ],
+  },
+  S16: {
+    carryOver: 1,
+    wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+    activity: spread(1073, 10, 1, 0),
+    stories: [
+      [
+        "Auditoría de accesos al motor de reglas",
+        "Initiative",
+        5,
+        "Closed",
+        FRAUD,
+      ],
+      ["Revisión de dependencias vulnerables", "Bau", 3, "Closed"],
+      ["Soporte a una revisión de cumplimiento", "Bau", 2, "Closed"],
+    ],
+  },
+  S17: {
+    carryOver: 1,
+    wip: [1, 2, 2, 1, 1, 1, 1, 1, 1, 1],
+    activity: spread(1074, 13, 1, 1),
+    stories: [
+      [
+        "Cifrado de los datos del expediente de fraude",
+        "Initiative",
+        8,
+        "Closed",
+        FRAUD,
+      ],
+      ["Atención de alertas del SIEM", "Bau", 3, "Closed"],
+    ],
+  },
+  S18: {
+    snapshot: "Provisional",
+    wip: [1, 1, 1, 1],
+    activity: { 1: [2], 3: [1] },
+    stories: [
+      [
+        "Segregación de roles del motor de reglas",
+        "Initiative",
+        5,
+        "Active",
+        FRAUD,
+      ],
+      ["Revisión de un incidente de acceso", "Bau", 3, "New"],
+    ],
+  },
+});
+
+// ── Tomás Giraldo · Fraude Tarjetas · 1.0 · Varias iniciativas ───────────────
+// Es arquitecto y líder técnico, así que toca más de un frente a la vez: la
+// multitarea que se le ve es la de su rol, no una señal de sobrecarga.
+const TOMAS_SPRINTS = collaborator("Fraude Board", 13800, {
+  S14: {
+    carryOver: 2,
+    wip: [2, 3, 3, 2, 2, 2, 2, 2, 1, 1],
+    activity: spread(1081, 14, 1, 1),
+    stories: [
+      [
+        "Diseño del motor de reglas de fraude",
+        "Initiative",
+        8,
+        "Closed",
+        FRAUD,
+      ],
+      [
+        "Revisión de arquitectura del motor de pagos",
+        "Initiative",
+        5,
+        "Closed",
+        PAYMENTS,
+      ],
+      ["Atención de consultas de arquitectura", "Bau", 3, "Closed"],
+    ],
+  },
+  S15: {
+    carryOver: 2,
+    wip: [2, 3, 3, 2, 2, 2, 2, 2, 1, 1],
+    activity: spread(1082, 15, 1, 1),
+    stories: [
+      [
+        "Contrato de eventos del scoring",
+        "Initiative",
+        8,
+        "Closed",
+        FRAUD,
+      ],
+      [
+        "Guía de resiliencia para las células",
+        "Initiative",
+        5,
+        "Closed",
+        PAYMENTS,
+      ],
+      ["Revisión de diseños de otras células", "Bau", 3, "Closed"],
+    ],
+  },
+  S16: {
+    carryOver: 2,
+    wip: [2, 3, 3, 2, 2, 2, 2, 1, 1, 1],
+    activity: spread(1083, 13, 1, 0),
+    stories: [
+      [
+        "Modelo de datos del expediente de fraude",
+        "Initiative",
+        8,
+        "Closed",
+        FRAUD,
+      ],
+      ["Acompañamiento a la migración de Kafka", "Initiative", 5, "Closed", KAFKA],
+      ["Atención de consultas de arquitectura", "Bau", 3, "Closed"],
+    ],
+  },
+  S17: {
+    carryOver: 2,
+    wip: [2, 3, 3, 2, 2, 2, 2, 2, 1, 1],
+    activity: spread(1084, 16, 1, 1),
+    stories: [
+      [
+        "Estrategia de reintentos del scoring",
+        "Initiative",
+        8,
+        "Closed",
+        FRAUD,
+      ],
+      [
+        "Revisión de la arquitectura del alta",
+        "Initiative",
+        5,
+        "Closed",
+        ONBOARDING,
+      ],
+      ["Revisión de diseños de otras células", "Bau", 3, "Closed"],
+    ],
+  },
+  S18: {
+    snapshot: "Provisional",
+    wip: [2, 2, 2, 1],
+    activity: { 0: [2, 0, 1], 2: [1] },
+    stories: [
+      [
+        "Definición de los umbrales del motor",
+        "Initiative",
+        8,
+        "Active",
+        FRAUD,
+      ],
+      ["Acompañamiento al diseño de un frente nuevo", "Bau", 5, "New"],
+      ["Revisión de un diseño de otra célula", "Bau", 3, "New"],
+    ],
+  },
+});
+
 export const DEDICATION_BY_USER: Record<string, SeedUserSprint[]> = {
   [devOpsUserByEmail("maria.gonzalez@tuya.com").id]: MARIA_SPRINTS,
   [devOpsUserByEmail("carlos.lopez@tuya.com").id]: CARLOS_SPRINTS,
@@ -1767,4 +2079,7 @@ export const DEDICATION_BY_USER: Record<string, SeedUserSprint[]> = {
   [devOpsUserByEmail("laura.ruiz@tuya.com").id]: LAURA_SPRINTS,
   [devOpsUserByEmail("mateo.vargas@tuya.com").id]: MATEO_SPRINTS,
   [devOpsUserByEmail("sofia.herrera@tuya.com").id]: SOFIA_SPRINTS,
+  [devOpsUserByEmail("nicolas.betancur@tuya.com").id]: NICOLAS_SPRINTS,
+  [devOpsUserByEmail("emilio.naranjo@tuya.com").id]: EMILIO_SPRINTS,
+  [devOpsUserByEmail("tomas.giraldo@tuya.com").id]: TOMAS_SPRINTS,
 };
