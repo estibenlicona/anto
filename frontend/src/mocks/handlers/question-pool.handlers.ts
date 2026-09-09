@@ -187,7 +187,7 @@ const defaultPool: QuestionPool = [
     id: "O4",
     dimension: "Operación y soporte",
     texto:
-      "¿Requiere despliegue gradual, rollback, feature flags o migración controlada?",
+      "¿Requiere despliegue gradual, rollback o migración controlada?",
     peso: 2,
   },
   {
