@@ -103,7 +103,7 @@
          pantalla lo respeta: el riesgo no agranda la talla, baja la confianza. -->
     <div style="display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); border-bottom: 1px solid #E3E3E6">
       <div class="out" style="border-right: 1px solid #E3E3E6">
-        <span class="lbl">Salida 1 · Tamaño</span>
+        <span class="lbl">Tamaño</span>
         <div style="display: flex; align-items: center; gap: 12px">
           <span class="tag t-amber" style="font-size:22px; line-height:30px; font-weight:700; min-width:52px">L</span>
           <div>
@@ -114,7 +114,7 @@
         <span class="sm">Iniciativa grande</span>
       </div>
       <div class="out" style="border-right: 1px solid #E3E3E6">
-        <span class="lbl">Salida 2 · Esfuerzo</span>
+        <span class="lbl">Esfuerzo</span>
         <div style="display: flex; align-items: baseline; gap: 8px">
           <span class="metric num">8,0</span>
           <span class="sm">PM esperados</span>
@@ -122,12 +122,12 @@
         <span class="sm">Entre 6,0 y 10,0 · P10 – P90</span>
       </div>
       <div class="out">
-        <span class="lbl">Salida 3 · Confianza</span>
+        <span class="lbl">Confianza</span>
         <div style="display: flex; align-items: baseline; gap: 8px">
           <span class="metric" style="color:#6E4B00">Media</span>
           <span class="num sm">62 / 100</span>
         </div>
-        <span class="sm">No cambia la talla ni el esfuerzo: cambia cuánto creerles</span>
+        <span class="sm">Calidad de la información disponible</span>
       </div>
     </div>
 
@@ -191,7 +191,7 @@
         <div style="padding: 16px 20px; border-bottom: 1px solid #E3E3E6; display: flex; flex-direction: column; gap: 10px">
           <div style="display: flex; align-items: baseline; justify-content: space-between">
             <h3 class="h3" style="margin:0">Capacidad que exige el plazo</h3>
-            <span class="note">El plazo es la única entrada que se cambia sin responder nada</span>
+            <span class="note">No modifica talla ni esfuerzo</span>
           </div>
           <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
                       background:#FAFAFB; border-radius: 8px; padding: 12px 14px">
@@ -216,7 +216,6 @@
               <div class="note">12 meses</div><div class="num smd" style="font-weight:600">0,67 FTE</div>
             </div>
           </div>
-          <p class="note" style="margin:0">La talla sigue siendo L y el esfuerzo 8,0 PM en las cuatro columnas.</p>
         </div>
 
         <!-- Mix -->
@@ -238,10 +237,10 @@
             <tbody>
               <tr>
                 <td>Backend Dev</td>
-                <td><span class="bar"><i style="width:56%; background:#1B5FBF"></i></span></td>
-                <td class="r num">56</td>
-                <td class="r num">0,74</td>
-                <td class="note">base 60</td>
+                <td><span class="bar"><i style="width:48%; background:#1B5FBF"></i></span></td>
+                <td class="r num">48</td>
+                <td class="r num">0,64</td>
+                <td class="note" style="color:#6E4B00">base 52 · −4 pp</td>
               </tr>
               <tr>
                 <td>QA Engineer</td>
@@ -251,24 +250,38 @@
                 <td class="note" style="color:#6E4B00">base 18 · +4 pp</td>
               </tr>
               <tr>
+                <td>Frontend Dev</td>
+                <td><span class="bar"><i style="width:8%; background:#1B5FBF"></i></span></td>
+                <td class="r num">8</td>
+                <td class="r num">0,11</td>
+                <td class="note">base 8</td>
+              </tr>
+              <tr>
                 <td>Business Analyst</td>
-                <td><span class="bar"><i style="width:11%; background:#1B5FBF"></i></span></td>
-                <td class="r num">11</td>
-                <td class="r num">0,15</td>
-                <td class="note">base 11</td>
+                <td><span class="bar"><i style="width:8%; background:#1B5FBF"></i></span></td>
+                <td class="r num">8</td>
+                <td class="r num">0,11</td>
+                <td class="note">base 8</td>
               </tr>
               <tr>
                 <td>Arquitecto</td>
-                <td><span class="bar"><i style="width:11%; background:#1B5FBF"></i></span></td>
-                <td class="r num">11</td>
-                <td class="r num">0,15</td>
-                <td class="note">base 11</td>
+                <td><span class="bar"><i style="width:8%; background:#1B5FBF"></i></span></td>
+                <td class="r num">8</td>
+                <td class="r num">0,10</td>
+                <td class="note">base 8</td>
+              </tr>
+              <tr>
+                <td>DevOps</td>
+                <td><span class="bar"><i style="width:6%; background:#1B5FBF"></i></span></td>
+                <td class="r num">6</td>
+                <td class="r num">0,08</td>
+                <td class="note">base 6</td>
               </tr>
             </tbody>
             <tfoot>
               <tr>
                 <td>Total</td>
-                <td class="note" style="font-weight:400">+4 pp a QA por el driver Criticidad de negocio</td>
+                <td class="note" style="font-weight:400">Ajuste por driver Criticidad de negocio</td>
                 <td class="r num">100</td>
                 <td class="r num">1,33</td>
                 <td></td>
@@ -378,16 +391,12 @@
           <div style="display:flex; justify-content:space-between"><span class="sm">Pesos</span><span class="smd mono">pesos v4</span></div>
           <div style="display:flex; justify-content:space-between"><span class="sm">Reglas de talla</span><span class="smd mono">umbrales v2</span></div>
           <div style="display:flex; justify-content:space-between"><span class="sm">Mix</span><span class="smd mono">mix v5</span></div>
-          <p class="note" style="margin: 6px 0 0; border-top:1px solid #E3E3E6; padding-top:10px">
-            Este snapshot queda congelado. Si mañana cambian los pesos, esta
-            estimación sigue diciendo lo mismo.
-          </p>
         </div>
       </div>
     </div>
 
     <div class="ffoot">
-      <span class="note">Al guardar, la iniciativa queda con talla L y 1,33 FTE de demanda. Activarla es otro paso.</span>
+      <span class="note">Al guardar queda con talla L y 1,33 FTE de demanda.</span>
       <div style="display: flex; gap: 8px">
         <span class="btn btn-s">Revisar respuestas</span>
         <span class="btn btn-p">
@@ -401,9 +410,9 @@
   <div class="alert a-warn">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B57A00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
     <div>
-      <p class="at" style="margin:0">Cuatro preguntas sin responder abren el rango</p>
-      <p class="sm" style="margin:0; color:#26262C">Responder Operación y soporte completo subiría la confianza a Alta y
-        angostaría el rango a 6,8 – 9,2 PM. La talla no cambiaría.</p>
+      <p class="at" style="margin:0">Cuatro preguntas sin responder</p>
+      <p class="sm" style="margin:0; color:#26262C">Completar Operación y soporte sube la confianza a Alta y angosta el rango a 6,8 – 9,2 PM.
+        <span style="text-decoration: underline; text-underline-offset: 4px; margin-left: 4px">Ir a Operación y soporte</span></p>
     </div>
   </div>
 

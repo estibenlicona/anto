@@ -1,5 +1,6 @@
 using GestionCapacidad.Application.Abstractions;
 using GestionCapacidad.Application.DataTransferObjects;
+using GestionCapacidad.Application.Estimation;
 using GestionCapacidad.Application.Initiatives;
 using GestionCapacidad.Domain.Entities;
 using GestionCapacidad.Domain.Exceptions;
@@ -25,14 +26,19 @@ public sealed record SaveEvaluationResponse(InitiativeDto Initiative);
 /// todo lo demás —puntos, talla, FTE, composición y veredicto— lo calcula el
 /// servidor con el modelo vigente, para que nadie pueda declararse una talla.
 ///
-/// La validación vive acá y no en un <c>AbstractValidator</c> porque depende
-/// del modelo vigente: cuántas preguntas tiene el tamizaje y qué ids existen
-/// en el pool son datos, no constantes.
+/// Además de calcular, guarda **con qué versión del modelo se calculó**: es lo
+/// que hace que publicar una versión nueva deje de reescribir lo ya estimado.
+///
+/// La validación vive acá y no en un <c>AbstractValidator</c> porque depende de
+/// la versión vigente: qué ids existen y qué opciones admite cada pregunta son
+/// datos, no constantes. Y ya no es un rango 0–4 cableado: cada pregunta admite
+/// exactamente las opciones que su versión declara.
 /// </summary>
 public sealed class SaveEvaluationUseCase(
     IInitiativeRepository initiativeRepository,
     ISquadRepository squadRepository,
     IEvaluationModelProvider modelProvider,
+    IEstimationVersionProvider versionProvider,
     IUnitOfWork unitOfWork,
     TimeProvider timeProvider) : IUseCase<SaveEvaluationRequest, SaveEvaluationResponse>
 {
@@ -47,13 +53,23 @@ public sealed class SaveEvaluationUseCase(
         }
 
         EvaluationModelDto model = await modelProvider.GetAsync(cancellationToken);
+        EstimationModelVersionDto? version = await versionProvider.GetCurrentAsync(1, cancellationToken);
 
-        Validate(request, model);
+        Validate(request, model, version);
 
         InitiativeEvaluation evaluation = EvaluationEngine.Evaluate(
             model,
             new EvaluationInput(request.Triage, request.Answers, request.TargetMonths),
             timeProvider.GetUtcNow().UtcDateTime);
+
+        if (version is not null)
+        {
+            evaluation = evaluation with
+            {
+                ModelVersionId = Guid.Parse(version.VersionId),
+                ModelVersionNumber = version.VersionNumber,
+            };
+        }
 
         initiative.SaveEvaluation(evaluation);
 
@@ -66,7 +82,10 @@ public sealed class SaveEvaluationUseCase(
         return new SaveEvaluationResponse(context.ToDto(initiative));
     }
 
-    private static void Validate(SaveEvaluationRequest request, EvaluationModelDto model)
+    private static void Validate(
+        SaveEvaluationRequest request,
+        EvaluationModelDto model,
+        EstimationModelVersionDto? version)
     {
         if (request.Triage is null || request.Triage.Count != model.Triage.Count)
         {
@@ -87,6 +106,14 @@ public sealed class SaveEvaluationUseCase(
         }
 
         var known = model.Questions.Select(q => q.Id).ToHashSet(StringComparer.Ordinal);
+
+        // Cuántas opciones admite cada pregunta lo dice la versión vigente. Sin
+        // versión —una base recién creada— se cae al tope de la escala de hoy,
+        // que es lo único que hay con qué comparar.
+        Dictionary<string, int> optionCounts = version is null
+            ? []
+            : version.Questions.ToDictionary(q => q.Id, q => q.Options.Count, StringComparer.Ordinal);
+
         foreach ((string id, int value) in request.Answers)
         {
             if (!known.Contains(id))
@@ -94,10 +121,11 @@ public sealed class SaveEvaluationUseCase(
                 throw new BadRequestException($"La pregunta '{id}' no está en el modelo vigente.");
             }
 
-            if (value < 0 || value > EvaluationEngine.ScoreMax)
+            int count = optionCounts.GetValueOrDefault(id, EvaluationEngine.ScoreMax + 1);
+            if (value < 0 || value >= count)
             {
                 throw new BadRequestException(
-                    $"La respuesta de la pregunta '{id}' debe estar entre 0 y {EvaluationEngine.ScoreMax}.");
+                    $"La respuesta de la pregunta '{id}' no corresponde a ninguna de sus {count} opciones.");
             }
         }
     }

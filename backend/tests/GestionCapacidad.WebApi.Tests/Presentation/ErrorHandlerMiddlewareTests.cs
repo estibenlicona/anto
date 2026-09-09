@@ -35,6 +35,29 @@ public sealed class ErrorHandlerMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_ConvertsDomainExceptionInto400()
+    {
+        // Una regla del dominio que llega hasta acá la rompió lo que mandó el
+        // cliente, no el servidor: 400, no 500.
+        ProblemDetails problemDetails = await ExecuteMiddlewareAsync(
+            new DomainException("El persona-mes esperado no puede superar su máximo."));
+
+        Assert.Equal(StatusCodes.Status400BadRequest, problemDetails.Status);
+        Assert.Equal("Regla de negocio", problemDetails.Title);
+        Assert.True(problemDetails.Extensions.ContainsKey("traceId"));
+    }
+
+    [Fact]
+    public async Task InvokeAsync_ConvertsConflictExceptionInto409()
+    {
+        ProblemDetails problemDetails = await ExecuteMiddlewareAsync(
+            new ConflictException("La versión 1 está Vigente y no se edita."));
+
+        Assert.Equal(StatusCodes.Status409Conflict, problemDetails.Status);
+        Assert.Equal("Conflict", problemDetails.Title);
+    }
+
+    [Fact]
     public async Task InvokeAsync_ConvertsValidationExceptionInto400()
     {
         ProblemDetails problemDetails = await ExecuteMiddlewareAsync(

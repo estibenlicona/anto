@@ -43,6 +43,10 @@ export default defineConfig({
     strictPort: true,
     // El código vive un directorio arriba de este proyecto.
     fs: { allow: [resolve(import.meta.dirname, "..")] },
+    host: true,
+    allowedHosts: [
+      "7559-186-80-30-220.ngrok-free.app"
+    ]
   },
   preview: {
     port: 4500,

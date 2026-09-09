@@ -49,6 +49,15 @@ try
     // migraciones); Postgres ya quedó migrado arriba.
     await DevelopmentDataSeeder.SeedAsync(app.Services);
 
+    // Después de sembrar: la versión 1 del modelo se arma desde los parámetros
+    // de fila única y le pone su versión a las evaluaciones ya guardadas, así
+    // que necesita que esas evaluaciones existan. Es idempotente — con un
+    // modelo ya creado, no hace nada.
+    await EstimationModelMigrator.RunAsync(app.Services);
+
+    // Y en desarrollo, el modelo queda con las tres etapas visibles.
+    await EstimationModelDevelopmentSeeder.SeedAsync(app.Services);
+
     if (app.Environment.IsDevelopment())
     {
         app.UseSwaggerDocumentation();

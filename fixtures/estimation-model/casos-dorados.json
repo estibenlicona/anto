@@ -1,0 +1,447 @@
+{
+  "$schema": "./casos-dorados.schema.json",
+  "tolerance": 1e-6,
+  "notes": [
+    "Los casos dorados del motor de estimación. Los leen las dos implementaciones:",
+    "EvaluationEngine (C#) y computeEvaluation (TS). Si una de las dos deja de correrlos,",
+    "la protección contra divergencia no existe.",
+    "Los porcentajes (pct) y los persona-mes (pm*) se comparan exactos porque el motor los",
+    "redondea; los FTE se comparan con la tolerancia declarada arriba."
+  ],
+  "models": {
+    "base": {
+      "modelId": "MOD-F1",
+      "versionId": "MOD-F1-V1",
+      "versionNumber": 1,
+      "dimensions": [
+        { "code": "ALC", "name": "Alcance", "order": 1, "active": true },
+        { "code": "RSG", "name": "Riesgo", "order": 2, "active": true }
+      ],
+      "drivers": [
+        { "code": "VOL", "description": "Volumen de alcance", "outputs": ["Size", "Effort"] },
+        { "code": "INC", "description": "Incertidumbre", "outputs": ["Risk"] },
+        { "code": "INT", "description": "Integración con terceros", "outputs": ["Size", "Mix"] }
+      ],
+      "questions": [
+        {
+          "id": "Q1",
+          "dimension": "ALC",
+          "text": "¿Cuántas pantallas nuevas requiere?",
+          "type": "Cuantitativa",
+          "unit": "pantallas",
+          "driver": "VOL",
+          "active": true,
+          "options": [
+            { "label": "1 a 5", "from": 1, "to": 5, "score": 0.0 },
+            { "label": "6 a 20", "from": 5, "to": 20, "score": 0.5 },
+            { "label": "más de 20", "from": 20, "to": null, "score": 1.0 }
+          ],
+          "weights": { "Size": 4, "Effort": 4 }
+        },
+        {
+          "id": "Q2",
+          "dimension": "ALC",
+          "text": "¿Cuántas integraciones con sistemas de terceros involucra?",
+          "type": "Evaluativa",
+          "driver": "INT",
+          "active": true,
+          "options": [
+            { "label": "Ninguna", "score": 0.0 },
+            { "label": "Una", "score": 0.5 },
+            { "label": "Varias", "score": 1.0 }
+          ],
+          "weights": { "Size": 2, "Mix": 1 }
+        },
+        {
+          "id": "Q3",
+          "dimension": "RSG",
+          "text": "¿Depende de un proveedor externo para arrancar?",
+          "type": "Binaria",
+          "driver": "INC",
+          "active": true,
+          "options": [
+            { "label": "No", "score": 0.0 },
+            { "label": "Sí", "score": 1.0 }
+          ],
+          "weights": { "Risk": 3 }
+        },
+        {
+          "id": "Q4",
+          "dimension": "RSG",
+          "text": "¿Qué tan clara está la definición funcional?",
+          "type": "Evaluativa",
+          "driver": "INC",
+          "active": true,
+          "options": [
+            { "label": "Baja", "score": 0.0 },
+            { "label": "Media", "score": 0.5 },
+            { "label": "Alta", "score": 1.0 }
+          ],
+          "weights": { "Size": 0, "Effort": 2, "Risk": 1 }
+        }
+      ],
+      "triage": [
+        { "id": "T1", "text": "¿Toca datos personales?", "critical": true },
+        { "id": "T2", "text": "¿Requiere una habilidad que la célula no tiene?", "critical": false },
+        { "id": "T3", "text": "¿Depende de otra iniciativa en curso?", "critical": false },
+        { "id": "T4", "text": "¿Tiene una fecha comprometida por fuera?", "critical": true },
+        { "id": "T5", "text": "¿Cambia un proceso que hoy corre en producción?", "critical": false },
+        { "id": "T6", "text": "¿Involucra a más de una célula?", "critical": false }
+      ],
+      "tallaRules": [
+        { "talla": "XS", "minPct": 0, "maxPct": 20, "pmMin": 0.5, "pmExpected": 1.0, "pmMax": 2.0, "lectura": "Cabe en un sprint", "action": "Ejecutar" },
+        { "talla": "S", "minPct": 20, "maxPct": 40, "pmMin": 2.0, "pmExpected": 3.0, "pmMax": 5.0, "lectura": "Un trimestre corto", "action": "Ejecutar" },
+        { "talla": "M", "minPct": 40, "maxPct": 60, "pmMin": 5.0, "pmExpected": 6.0, "pmMax": 9.0, "lectura": "Un trimestre completo", "action": "Planificar" },
+        { "talla": "L", "minPct": 60, "maxPct": 80, "pmMin": 9.0, "pmExpected": 12.0, "pmMax": 16.0, "lectura": "Más de un trimestre", "action": "Partir" },
+        { "talla": "XL", "minPct": 80, "maxPct": 100, "pmMin": 16.0, "pmExpected": 20.0, "pmMax": 30.0, "lectura": "Un semestre o más", "action": "Partir" }
+      ],
+      "riskBands": [
+        { "level": "Bajo", "maxPct": 33 },
+        { "level": "Medio", "maxPct": 66 },
+        { "level": "Alto", "maxPct": 100 }
+      ],
+      "mix": [
+        { "capability": "Backend", "byTalla": { "XS": 60, "S": 50, "M": 50, "L": 40, "XL": 40 } },
+        { "capability": "Frontend", "byTalla": { "XS": 20, "S": 30, "M": 25, "L": 30, "XL": 30 } },
+        { "capability": "QA", "byTalla": { "XS": 20, "S": 20, "M": 25, "L": 30, "XL": 30 } }
+      ],
+      "mixModifiers": [
+        {
+          "code": "MOD-INT",
+          "driver": "INT",
+          "operator": "gte",
+          "value": 0.75,
+          "tallas": ["M", "L", "XL"],
+          "adjustments": [
+            { "capability": "Backend", "points": -10 },
+            { "capability": "QA", "points": 10 }
+          ]
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "Sin responder nada",
+      "why": "El piso del modelo: todo en cero cae en la talla más baja y el esfuerzo en el mínimo de su banda.",
+      "model": "base",
+      "input": { "triage": [false, false, false, false, false, false], "answers": {}, "targetMonths": 6 },
+      "expected": {
+        "size": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "XS",
+        "pmMin": 0.5, "pmExpected": 0.5, "pmMax": 2.0,
+        "fteMin": 0.0833333333, "fteExpected": 0.0833333333, "fteMax": 0.3333333333,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 0, "total": 2, "points": 0, "maxPoints": 6, "pct": 0, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 60, "fte": 0.05 },
+          { "capability": "Frontend", "pct": 20, "fte": 0.0166666667 },
+          { "capability": "QA", "pct": 20, "fte": 0.0166666667 }
+        ],
+        "mixModifiersApplied": [],
+        "answered": 0, "totalQuestions": 4,
+        "triageYes": 0, "triageVerdict": "FastTrack"
+      }
+    },
+    {
+      "name": "Cuantitativa en el tramo alto",
+      "why": "Un número cae en su tramo, ese tramo trae su puntaje normalizado, y el esfuerzo se ubica por encima del esperado de la banda.",
+      "model": "base",
+      "input": { "triage": [false, false, false, false, false, false], "answers": { "Q1": { "number": 25 } }, "targetMonths": 6 },
+      "expected": {
+        "size": { "points": 4, "maxPoints": 6, "pct": 66.7, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 4, "maxPoints": 6, "pct": 66.7, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "L",
+        "pmMin": 9.0, "pmExpected": 13.3, "pmMax": 16.0,
+        "fteMin": 1.5, "fteExpected": 2.2166666667, "fteMax": 2.6666666667,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 1, "total": 2, "points": 4, "maxPoints": 6, "pct": 67, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 40, "fte": 0.8866666667 },
+          { "capability": "Frontend", "pct": 30, "fte": 0.665 },
+          { "capability": "QA", "pct": 30, "fte": 0.665 }
+        ],
+        "mixModifiersApplied": [],
+        "derivations": [
+          { "questionId": "Q1", "raw": "25", "optionLabel": "más de 20", "score": 1.0, "driver": "VOL", "weights": { "Size": 4, "Effort": 4 } }
+        ],
+        "answered": 1, "totalQuestions": 4,
+        "triageYes": 0, "triageVerdict": "FastTrack"
+      }
+    },
+    {
+      "name": "El riesgo no agranda la iniciativa",
+      "why": "Q3 pesa sólo en riesgo y Q4 pesa cero en tamaño: responder las dos al máximo deja la talla donde estaba y lleva el riesgo al tope.",
+      "model": "base",
+      "input": { "triage": [false, false, false, false, false, false], "answers": { "Q3": { "option": 1 }, "Q4": { "option": 2 } }, "targetMonths": 6 },
+      "expected": {
+        "size": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 2, "maxPoints": 6, "pct": 33.3, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 4, "maxPoints": 4, "pct": 100.0, "level": "Alto", "contributes": ["Q3", "Q4"] },
+        "talla": "XS",
+        "pmMin": 0.5, "pmExpected": 0.8, "pmMax": 2.0,
+        "fteMin": 0.0833333333, "fteExpected": 0.1333333333, "fteMax": 0.3333333333,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 0, "total": 2, "points": 0, "maxPoints": 6, "pct": 0, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 2, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 60, "fte": 0.08 },
+          { "capability": "Frontend", "pct": 20, "fte": 0.0266666667 },
+          { "capability": "QA", "pct": 20, "fte": 0.0266666667 }
+        ],
+        "mixModifiersApplied": [],
+        "answered": 2, "totalQuestions": 4,
+        "triageYes": 0, "triageVerdict": "FastTrack"
+      }
+    },
+    {
+      "name": "Plazo de 3 meses",
+      "why": "El plazo sólo divide: misma talla, mismo persona-mes, el doble de FTE que a 6 meses.",
+      "model": "base",
+      "input": { "triage": [false, false, false, false, false, false], "answers": { "Q1": { "number": 25 } }, "targetMonths": 3 },
+      "expected": {
+        "size": { "points": 4, "maxPoints": 6, "pct": 66.7, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 4, "maxPoints": 6, "pct": 66.7, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "L",
+        "pmMin": 9.0, "pmExpected": 13.3, "pmMax": 16.0,
+        "fteMin": 3.0, "fteExpected": 4.4333333333, "fteMax": 5.3333333333,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 1, "total": 2, "points": 4, "maxPoints": 6, "pct": 67, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 40, "fte": 1.7733333333 },
+          { "capability": "Frontend", "pct": 30, "fte": 1.33 },
+          { "capability": "QA", "pct": 30, "fte": 1.33 }
+        ],
+        "mixModifiersApplied": [],
+        "answered": 1, "totalQuestions": 4,
+        "triageYes": 0, "triageVerdict": "FastTrack"
+      }
+    },
+    {
+      "name": "Plazo de 9 meses",
+      "why": "Tercer plazo del catálogo, con las mismas respuestas.",
+      "model": "base",
+      "input": { "triage": [false, false, false, false, false, false], "answers": { "Q1": { "number": 25 } }, "targetMonths": 9 },
+      "expected": {
+        "size": { "points": 4, "maxPoints": 6, "pct": 66.7, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 4, "maxPoints": 6, "pct": 66.7, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "L",
+        "pmMin": 9.0, "pmExpected": 13.3, "pmMax": 16.0,
+        "fteMin": 1.0, "fteExpected": 1.4777777778, "fteMax": 1.7777777778,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 1, "total": 2, "points": 4, "maxPoints": 6, "pct": 67, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 40, "fte": 0.5911111111 },
+          { "capability": "Frontend", "pct": 30, "fte": 0.4433333333 },
+          { "capability": "QA", "pct": 30, "fte": 0.4433333333 }
+        ],
+        "mixModifiersApplied": [],
+        "answered": 1, "totalQuestions": 4,
+        "triageYes": 0, "triageVerdict": "FastTrack"
+      }
+    },
+    {
+      "name": "Plazo de 12 meses",
+      "why": "Cuarto plazo del catálogo, con las mismas respuestas.",
+      "model": "base",
+      "input": { "triage": [false, false, false, false, false, false], "answers": { "Q1": { "number": 25 } }, "targetMonths": 12 },
+      "expected": {
+        "size": { "points": 4, "maxPoints": 6, "pct": 66.7, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 4, "maxPoints": 6, "pct": 66.7, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "L",
+        "pmMin": 9.0, "pmExpected": 13.3, "pmMax": 16.0,
+        "fteMin": 0.75, "fteExpected": 1.1083333333, "fteMax": 1.3333333333,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 1, "total": 2, "points": 4, "maxPoints": 6, "pct": 67, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 40, "fte": 0.4433333333 },
+          { "capability": "Frontend", "pct": 30, "fte": 0.3325 },
+          { "capability": "QA", "pct": 30, "fte": 0.3325 }
+        ],
+        "mixModifiersApplied": [],
+        "answered": 1, "totalQuestions": 4,
+        "triageYes": 0, "triageVerdict": "FastTrack"
+      }
+    },
+    {
+      "name": "El modificador de mix se dispara",
+      "why": "El driver de integración llega a 1,0 y la talla es XL: el modificador mueve diez puntos de Backend a QA sin cambiar el total.",
+      "model": "base",
+      "input": { "triage": [false, false, false, false, false, false], "answers": { "Q1": { "number": 25 }, "Q2": { "option": 2 } }, "targetMonths": 6 },
+      "expected": {
+        "size": { "points": 6, "maxPoints": 6, "pct": 100.0, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 4, "maxPoints": 6, "pct": 66.7, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "XL",
+        "pmMin": 16.0, "pmExpected": 23.3, "pmMax": 30.0,
+        "fteMin": 2.6666666667, "fteExpected": 3.8833333333, "fteMax": 5.0,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 2, "total": 2, "points": 6, "maxPoints": 6, "pct": 100, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 30, "fte": 1.165 },
+          { "capability": "Frontend", "pct": 30, "fte": 1.165 },
+          { "capability": "QA", "pct": 40, "fte": 1.5533333333 }
+        ],
+        "mixModifiersApplied": ["MOD-INT"],
+        "answered": 2, "totalQuestions": 4,
+        "triageYes": 0, "triageVerdict": "FastTrack"
+      }
+    },
+    {
+      "name": "El esperado es el parámetro y no el punto medio",
+      "why": "Con el esfuerzo justo en la mitad de su escala el persona-mes esperado es exactamente el parámetro de la banda (3,0), no el punto medio del rango (3,5).",
+      "model": "base",
+      "input": { "triage": [false, false, false, false, false, false], "answers": { "Q1": { "number": 10 }, "Q4": { "option": 1 } }, "targetMonths": 6 },
+      "expected": {
+        "size": { "points": 2, "maxPoints": 6, "pct": 33.3, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 3, "maxPoints": 6, "pct": 50.0, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0.5, "maxPoints": 4, "pct": 12.5, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "S",
+        "pmMin": 2.0, "pmExpected": 3.0, "pmMax": 5.0,
+        "fteMin": 0.3333333333, "fteExpected": 0.5, "fteMax": 0.8333333333,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 1, "total": 2, "points": 2, "maxPoints": 6, "pct": 33, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 1, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 50, "fte": 0.25 },
+          { "capability": "Frontend", "pct": 30, "fte": 0.15 },
+          { "capability": "QA", "pct": 20, "fte": 0.1 }
+        ],
+        "mixModifiersApplied": [],
+        "derivations": [
+          { "questionId": "Q1", "raw": "10", "optionLabel": "6 a 20", "score": 0.5, "driver": "VOL", "weights": { "Size": 4, "Effort": 4 } },
+          { "questionId": "Q4", "raw": "Media", "optionLabel": "Media", "score": 0.5, "driver": "INC", "weights": { "Size": 0, "Effort": 2, "Risk": 1 } }
+        ],
+        "answered": 2, "totalQuestions": 4,
+        "triageYes": 0, "triageVerdict": "FastTrack"
+      }
+    },
+    {
+      "name": "Cuantitativa en el tramo bajo",
+      "why": "Responder una cuantitativa con un número chico no es lo mismo que no responderla: la pregunta cuenta como respondida y su tramo queda en la derivación.",
+      "model": "base",
+      "input": { "triage": [false, false, false, false, false, false], "answers": { "Q1": { "number": 3 } }, "targetMonths": 6 },
+      "expected": {
+        "size": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "XS",
+        "pmMin": 0.5, "pmExpected": 0.5, "pmMax": 2.0,
+        "fteMin": 0.0833333333, "fteExpected": 0.0833333333, "fteMax": 0.3333333333,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 1, "total": 2, "points": 0, "maxPoints": 6, "pct": 0, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 60, "fte": 0.05 },
+          { "capability": "Frontend", "pct": 20, "fte": 0.0166666667 },
+          { "capability": "QA", "pct": 20, "fte": 0.0166666667 }
+        ],
+        "mixModifiersApplied": [],
+        "derivations": [
+          { "questionId": "Q1", "raw": "3", "optionLabel": "1 a 5", "score": 0.0, "driver": "VOL", "weights": { "Size": 4, "Effort": 4 } }
+        ],
+        "answered": 1, "totalQuestions": 4,
+        "triageYes": 0, "triageVerdict": "FastTrack"
+      }
+    },
+    {
+      "name": "Tamizaje con una crítica",
+      "why": "Una sola crítica en sí obliga la evaluación completa, aunque sea el único sí.",
+      "model": "base",
+      "input": { "triage": [true, false, false, false, false, false], "answers": {}, "targetMonths": 6 },
+      "expected": {
+        "size": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "XS",
+        "pmMin": 0.5, "pmExpected": 0.5, "pmMax": 2.0,
+        "fteMin": 0.0833333333, "fteExpected": 0.0833333333, "fteMax": 0.3333333333,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 0, "total": 2, "points": 0, "maxPoints": 6, "pct": 0, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 60, "fte": 0.05 },
+          { "capability": "Frontend", "pct": 20, "fte": 0.0166666667 },
+          { "capability": "QA", "pct": 20, "fte": 0.0166666667 }
+        ],
+        "mixModifiersApplied": [],
+        "answered": 0, "totalQuestions": 4,
+        "triageYes": 1, "triageVerdict": "Required"
+      }
+    },
+    {
+      "name": "Tamizaje con dos no críticas",
+      "why": "Dos síes sin ninguna crítica recomiendan la evaluación, no la obligan.",
+      "model": "base",
+      "input": { "triage": [false, true, true, false, false, false], "answers": {}, "targetMonths": 6 },
+      "expected": {
+        "size": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "XS",
+        "pmMin": 0.5, "pmExpected": 0.5, "pmMax": 2.0,
+        "fteMin": 0.0833333333, "fteExpected": 0.0833333333, "fteMax": 0.3333333333,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 0, "total": 2, "points": 0, "maxPoints": 6, "pct": 0, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 60, "fte": 0.05 },
+          { "capability": "Frontend", "pct": 20, "fte": 0.0166666667 },
+          { "capability": "QA", "pct": 20, "fte": 0.0166666667 }
+        ],
+        "mixModifiersApplied": [],
+        "answered": 0, "totalQuestions": 4,
+        "triageYes": 2, "triageVerdict": "Recommended"
+      }
+    },
+    {
+      "name": "Tamizaje con tres no críticas",
+      "why": "El tercer sí obliga la evaluación completa aunque ninguna de las tres sea crítica.",
+      "model": "base",
+      "input": { "triage": [false, true, true, false, true, false], "answers": {}, "targetMonths": 6 },
+      "expected": {
+        "size": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q2", "Q4"] },
+        "effort": { "points": 0, "maxPoints": 6, "pct": 0.0, "contributes": ["Q1", "Q4"] },
+        "risk": { "points": 0, "maxPoints": 4, "pct": 0.0, "level": "Bajo", "contributes": ["Q3", "Q4"] },
+        "talla": "XS",
+        "pmMin": 0.5, "pmExpected": 0.5, "pmMax": 2.0,
+        "fteMin": 0.0833333333, "fteExpected": 0.0833333333, "fteMax": 0.3333333333,
+        "dimensions": [
+          { "dimension": "ALC", "answered": 0, "total": 2, "points": 0, "maxPoints": 6, "pct": 0, "weightPct": 100 },
+          { "dimension": "RSG", "answered": 0, "total": 2, "points": 0, "maxPoints": 0, "pct": 0, "weightPct": 0 }
+        ],
+        "mix": [
+          { "capability": "Backend", "pct": 60, "fte": 0.05 },
+          { "capability": "Frontend", "pct": 20, "fte": 0.0166666667 },
+          { "capability": "QA", "pct": 20, "fte": 0.0166666667 }
+        ],
+        "mixModifiersApplied": [],
+        "answered": 0, "totalQuestions": 4,
+        "triageYes": 3, "triageVerdict": "Required"
+      }
+    }
+  ]
+}

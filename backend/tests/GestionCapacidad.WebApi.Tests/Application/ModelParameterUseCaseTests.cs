@@ -69,7 +69,9 @@ public sealed class ModelParameterUseCaseTests
         IReadOnlyList<CapabilityMixRowDto> rows =
             (await new GetCapabilityMixUseCase(repository.Object).ExecuteAsync()).Rows;
 
-        Assert.Equal(["Backend Dev", "QA Engineer", "Arquitecto"], rows.Select(r => r.Capacidad));
+        Assert.Equal(
+            ["Backend Dev", "Frontend Dev", "QA Engineer", "Arquitecto", "DevOps Engineer", "Data Engineer"],
+            rows.Select(r => r.Capacidad));
     }
 
     [Fact]

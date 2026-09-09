@@ -27,6 +27,13 @@ export interface InitiativeEvaluationDto {
   mix: MixResult[];
   triageVerdict: TriageVerdict;
   savedAtUtc: string;
+  /**
+   * Con qué versión del modelo se calculó. Es lo que hace que publicar deje de
+   * reescribir el pasado: la evaluación se lee siempre contra esta versión y
+   * no contra la vigente. Vacío en las que se guardaron antes del versionado.
+   */
+  modelVersionId: string;
+  modelVersionNumber: number;
 }
 
 export interface InitiativeDto {

@@ -7,6 +7,10 @@ import {
   useParams,
 } from "react-router-dom";
 import { useAuth } from "@features/authentication/index";
+import {
+  MODEL_VERSION_ROUTE,
+  PARAMETERS_ROUTE,
+} from "@features/admin-shell/adapters/ParametersRoutes";
 import { modulePath } from "@shared/services/modulePath";
 import type { CapacityPermission } from "@features/auth-session";
 import { CAPACITY_SECTION_PERMISSION } from "@features/capacity-shell/navigation";
@@ -34,6 +38,11 @@ const AdminSprintsPage = lazy(() =>
 const AdminParametersPage = lazy(() =>
   import("@pages/AdminParametersPage/AdminParametersPage").then((m) => ({
     default: m.AdminParametersPage,
+  }))
+);
+const AdminModelVersionPage = lazy(() =>
+  import("@pages/AdminModelVersionPage/AdminModelVersionPage").then((m) => ({
+    default: m.AdminModelVersionPage,
   }))
 );
 const AdminSkillsPage = lazy(() =>
@@ -120,6 +129,11 @@ const LeadInitiativesPage = lazy(() =>
   import("@pages/LeadInitiativesPage/LeadInitiativesPage").then((m) => ({
     default: m.LeadInitiativesPage,
   }))
+);
+const LeadInitiativeDetailPage = lazy(() =>
+  import("@pages/LeadInitiativeDetailPage/LeadInitiativeDetailPage").then(
+    (m) => ({ default: m.LeadInitiativeDetailPage })
+  )
 );
 const LeadInitiativeEvaluationPage = lazy(() =>
   import("@pages/LeadInitiativeEvaluationPage/LeadInitiativeEvaluationPage").then(
@@ -275,6 +289,14 @@ export const CapacityRoutes: React.FC<{
           }
         />
         <Route
+          path="iniciativas/:id"
+          element={
+            <RequirePermission permission={P["lead-iniciativas"]}>
+              <LeadInitiativeDetailPage />
+            </RequirePermission>
+          }
+        />
+        <Route
           path="iniciativas/:id/evaluacion"
           element={
             <RequirePermission permission={P["lead-iniciativas"]}>
@@ -390,10 +412,21 @@ export const CapacityRoutes: React.FC<{
           }
         />
         <Route
-          path="parametros"
+          path={PARAMETERS_ROUTE}
           element={
             <RequirePermission permission={P["admin-parametros"]}>
               <AdminParametersPage />
+            </RequirePermission>
+          }
+        />
+        {/* La sección del editor es un segmento de ruta y no estado local: así
+            un impedimento de la validación lleva a donde se corrige con un
+            enlace, y recargar abre donde estaba (design.md — D8). */}
+        <Route
+          path={MODEL_VERSION_ROUTE}
+          element={
+            <RequirePermission permission={P["admin-parametros"]}>
+              <AdminModelVersionPage />
             </RequirePermission>
           }
         />

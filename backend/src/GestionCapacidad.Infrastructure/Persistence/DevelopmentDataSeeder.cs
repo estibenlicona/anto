@@ -206,13 +206,23 @@ public static class DevelopmentDataSeeder
             null, null, new DateTime(2026, 8, 18, 0, 0, 0, DateTimeKind.Utc)),
         ("Motor antifraude de tarjetas", "Fraude Tarjetas", "Ana Restrepo", 12, "Evaluating",
             null, null, new DateTime(2026, 8, 20, 0, 0, 0, DateTimeKind.Utc)),
+        ("Data Mesh Gobernado", "Plataforma de Datos", "Diego Cardona", 3, "Active",
+            [true, true, false, true, false, true], LargeAnswers, new DateTime(2026, 8, 25, 0, 0, 0, DateTimeKind.Utc)),
     ];
 
     /// <summary>
-    /// Las asignaciones del mock, por nombre de persona y de célula:
+    /// Las asignaciones sembradas, por nombre de persona y de célula:
     /// dedicación y BAU (transformación = dedicación − BAU). Una persona,
-    /// una sola asignación; Backend Platform concentra 4 para el "+N" de
-    /// avatares del listado de células.
+    /// una sola asignación, así que la dedicación es también su utilización.
+    ///
+    /// Es la misma lista que <c>allocations.seeds.ts</c> en el front: las dos
+    /// tienen que decir lo mismo o la app cambia de datos según corra contra
+    /// el mock o contra esta base.
+    ///
+    /// Cada célula lleva perfiles del mix que pide la talla de su iniciativa
+    /// activa y le falta alguno; la brecha está sembrada a propósito. Cinco
+    /// personas quedan sin célula —las cinco utilizaciones en 0—, y Pagos
+    /// Instantáneos sin nadie, para el estado "sin demanda".
     /// </summary>
     private static readonly (string Person, string Squad, int Dedication, int Bau)[] Allocations =
     [
@@ -222,7 +232,11 @@ public static class DevelopmentDataSeeder
         ("Isabella Moreno", "Backend Platform", 50, 30),
         ("Laura Ruiz", "Canales Digitales", 100, 30),
         ("Diego Salazar", "Canales Digitales", 100, 70),
+        ("Nicolás Betancur", "Canales Digitales", 100, 40),
         ("Valentina Ospina", "Fraude Tarjetas", 60, 20),
+        ("Daniela Castaño", "Fraude Tarjetas", 100, 40),
+        ("Emilio Naranjo", "Fraude Tarjetas", 70, 30),
+        ("Tomás Giraldo", "Fraude Tarjetas", 60, 10),
         ("Sebastián Cárdenas", "Plataforma de Datos", 100, 50),
         ("Paula Ramírez", "Plataforma de Datos", 60, 60),
     ];

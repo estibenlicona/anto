@@ -81,6 +81,21 @@ describe("SquadsStatsCards", () => {
     );
   });
 
+  it("lo libre se muestra con un decimal, no con la cola del flotante", () => {
+    // 18.4 − 11.7 da 6.699999999999999 en coma flotante. Las cifras que llegan
+    // del servidor vienen redondeadas; ésta se deriva acá, y la leyenda imprime
+    // el número tal cual.
+    render(
+      <SquadsStatsCards
+        stats={{ ...stats, chapterFte: 18.4, allocatedFte: 11.7 }}
+        loading={false}
+      />
+    );
+
+    expect(legendItemFor("Libre")).toHaveTextContent("6.7");
+    expect(legendItemFor("Libre")).not.toHaveTextContent("6.69");
+  });
+
   it("no divide por cero cuando no hay FTE", () => {
     render(
       <SquadsStatsCards

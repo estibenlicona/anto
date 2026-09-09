@@ -6,11 +6,29 @@ import type {
 
 const CAPABILITY_MIX_URL = "/admin/capability-mix";
 
+/**
+ * Las capacidades que una iniciativa pide, por talla.
+ *
+ * Son seis y no tres porque tres —backend, QA y arquitecto— dejaban fuera a
+ * la mitad de la gente que las células tienen de verdad: una célula de datos
+ * o una de canales aparecía descubierta al 100 % contra una demanda que nunca
+ * nombraba su perfil. Los seis nombres son cargos que existen en el mock de
+ * personas, así que la comparación entre lo que la iniciativa pide y lo que
+ * la célula tiene se puede hacer perfil por perfil.
+ *
+ * Los totales por talla no cambian —1, 3, 5, 8 y 13 personas— para no mover
+ * la lectura de las bandas de talla al repartirlos entre más perfiles.
+ */
 const defaultMix: CapabilityMix = [
   {
     id: "backend-dev",
     capacidad: "Backend Dev",
-    porTalla: { XS: 1, S: 2, M: 3, L: 5, XL: 8 },
+    porTalla: { XS: 1, S: 2, M: 2, L: 3, XL: 4 },
+  },
+  {
+    id: "frontend-dev",
+    capacidad: "Frontend Dev",
+    porTalla: { XS: 0, S: 0, M: 1, L: 1, XL: 2 },
   },
   {
     id: "qa-engineer",
@@ -21,6 +39,16 @@ const defaultMix: CapabilityMix = [
     id: "arquitecto",
     capacidad: "Arquitecto",
     porTalla: { XS: 0, S: 0, M: 1, L: 1, XL: 2 },
+  },
+  {
+    id: "devops-engineer",
+    capacidad: "DevOps Engineer",
+    porTalla: { XS: 0, S: 0, M: 0, L: 1, XL: 1 },
+  },
+  {
+    id: "data-engineer",
+    capacidad: "Data Engineer",
+    porTalla: { XS: 0, S: 0, M: 0, L: 0, XL: 1 },
   },
 ];
 

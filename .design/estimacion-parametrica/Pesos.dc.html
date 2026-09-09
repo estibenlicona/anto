@@ -1,0 +1,402 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 12px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; display: flex;
+             align-items: baseline; justify-content: space-between; gap: 12px; }
+    .cfoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-sm { gap: 6px; padding: 4px 12px; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+    .btn-u { background: transparent; color: #26262C; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-purple { background: #EFEAFB; color: #3D2894; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-warn { background: #FBF2DE; color: #6E4B00; } .b-warn .dot { background: #B57A00; }
+
+    .tabs { display: flex; gap: 28px; border-bottom: 1px solid #E3E3E6; }
+    .tabs > span { padding-bottom: 14px; margin-bottom: -1px; border-bottom: 2px solid transparent;
+                   font-size: 14px; line-height: 22px; color: #55555E; }
+    .tabs > span.on { border-color: #ED1C29; font-weight: 600; color: #26262C; }
+    .tabs > span .n { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: #74747E; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6; }
+    td { padding: 9px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tfoot td { background: #FAFAFB; font-weight: 600; border-bottom: 0; border-top: 1px solid #E3E3E6; }
+    .r { text-align: right; } .c { text-align: center; }
+    .grouprow td { background: #FAFAFB; padding-top: 7px; padding-bottom: 7px; }
+
+    /* Celda de peso: un número editable por salida. El "—" no es cero: es
+       "esta pregunta no aporta a esta salida", y son cosas distintas. */
+    .w { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 30px;
+         border: 1px solid #E3E3E6; border-radius: 8px; background: #FFFFFF;
+         font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .w-off { border-style: dashed; color: #C9C9CE; background: transparent; }
+    .w-chg { border-color: #B57A00; background: #FBF2DE; color: #6E4B00; }
+    .col-size { background: #F4F8FE; } .col-eff { background: #F8F5FE; } .col-risk { background: #FDFAF2; }
+
+    .chk { display: inline-flex; width: 18px; height: 18px; border-radius: 4px; align-items: center;
+           justify-content: center; border: 1px solid #C9C9CE; background: #FFFFFF; }
+    .chk-on { background: #26262C; border-color: #26262C; }
+
+    .alert { display: flex; gap: 14px; border-left: 2px solid; border-radius: 0 8px 8px 0; padding: 16px; }
+    .a-warn { border-color: #B57A00; background: #FBF2DE; } .a-warn .at { color: #6E4B00; }
+    .at { font-size: 14px; line-height: 22px; font-weight: 600; margin-bottom: 4px; }
+    .bar { height: 6px; border-radius: 8px; background: #F4F4F5; overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 8px; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Administración <span style="color:#C9C9CE">/</span> Parámetros <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Modelo Paramétrico v1.5</span></div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <h1 class="h1" style="margin: 0">Modelo Paramétrico</h1>
+      <span class="tag t-gray mono" style="min-width:0">v1.5</span>
+      <span class="badge b-warn"><span class="dot"></span>Borrador</span>
+      <span class="note">7 cambios sin publicar</span>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <span class="btn btn-u">Descartar cambios</span>
+      <span class="btn btn-s">Vista previa con una iniciativa</span>
+      <span class="btn btn-p">Validar y publicar</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <span>Dimensiones y preguntas <span class="n">32</span></span>
+    <span class="on">Drivers y pesos <span class="n">9</span></span>
+    <span>Reglas de talla <span class="n">5</span></span>
+    <span>Mix de capacidades <span class="n">6</span></span>
+    <span>Publicar <span class="n" style="color:#700C13">2 errores</span></span>
+  </div>
+
+  <!-- Drivers: el nivel intermedio entre la respuesta y el resultado. Sin él,
+       cambiar una pregunta obliga a tocar cuatro fórmulas. -->
+  <div class="card" style="overflow: hidden">
+    <div class="chead">
+      <div>
+        <h2 class="h3" style="margin:0">Drivers</h2>
+        <span class="note">9 drivers · efecto por salida</span>
+      </div>
+      <span class="btn btn-s btn-sm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Agregar driver
+      </span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:15%">Código</th>
+          <th style="width:27%">Descripción</th>
+          <th class="c" style="width:9%">Tamaño</th>
+          <th class="c" style="width:9%">Esfuerzo</th>
+          <th class="c" style="width:9%">Riesgo</th>
+          <th class="c" style="width:9%">Mix</th>
+          <th style="width:22%">Preguntas que lo alimentan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">EXP-CLI</td><td>Exposición a cliente</td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="note mono">N1 · F2 · S2</td>
+        </tr>
+        <tr>
+          <td class="mono">CRIT-NEG</td><td>Criticidad de la capacidad de negocio</td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="note mono">N2 · O3</td>
+        </tr>
+        <tr>
+          <td class="mono">COMP-EXT</td><td>Compromiso de fecha con un tercero</td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="note mono">N3</td>
+        </tr>
+        <tr>
+          <td class="mono">COORD-ORG</td><td>Coordinación entre áreas y equipos</td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="note mono">N4 · I4</td>
+        </tr>
+        <tr>
+          <td class="mono">INT-INT</td><td>Integración con sistemas internos</td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="note mono">I1 · I3</td>
+        </tr>
+        <tr>
+          <td class="mono">INT-EXT</td><td>Integración con terceros externos</td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="note mono">I2</td>
+        </tr>
+        <tr>
+          <td class="mono">SEG-CUM</td><td>Seguridad, datos y cumplimiento</td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="note mono">S1 · S3 · S4 · S5</td>
+        </tr>
+        <tr>
+          <td class="mono">TEC-NUEVA</td><td>Tecnología o patrón nuevo para TI</td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="note mono">T1 · T2 · T5</td>
+        </tr>
+        <tr>
+          <td class="mono">INCERT</td><td>Incertidumbre y dependencias abiertas</td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="c"><span class="chk chk-on"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg></span></td>
+          <td class="c"><span class="chk"></span></td>
+          <td class="note mono">D1 · D2 · D4</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="cfoot">
+      <span class="note">9 drivers · todos con pregunta y salida</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 392px; gap: 16px; align-items: start">
+
+    <!-- La matriz. Es lo que hoy no existe: hay un solo peso por pregunta y
+         las tres salidas comparten el mismo número. -->
+    <div class="card" style="overflow: hidden">
+      <div class="chead">
+        <div>
+          <h2 class="h3" style="margin:0">Pesos por salida</h2>
+          <span class="note">El guion: no aporta a esa salida. No es un cero.</span>
+        </div>
+        <span class="note">Mostrando 2 de 7 dimensiones</span>
+      </div>
+      <div style="overflow-x: auto">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:9%">Código</th>
+              <th style="width:35%">Pregunta</th>
+              <th class="c col-size" style="width:14%">Tamaño</th>
+              <th class="c col-eff" style="width:14%">Esfuerzo</th>
+              <th class="c col-risk" style="width:14%">Riesgo</th>
+              <th class="c" style="width:14%">Mix</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="grouprow"><td colspan="6"><span class="lbl" style="color:#26262C">Negocio y cliente</span></td></tr>
+            <tr>
+              <td class="mono">N1</td><td class="sm">Impacto directo en clientes o canales</td>
+              <td class="c col-size"><span class="w">2</span></td>
+              <td class="c col-eff"><span class="w w-off">—</span></td>
+              <td class="c col-risk"><span class="w">1</span></td>
+              <td class="c"><span class="w w-off">—</span></td>
+            </tr>
+            <tr>
+              <td class="mono">N2</td><td class="sm">Criticidad de la capacidad de negocio</td>
+              <td class="c col-size"><span class="w">1</span></td>
+              <td class="c col-eff"><span class="w">3</span></td>
+              <td class="c col-risk"><span class="w">2</span></td>
+              <td class="c"><span class="w">1</span></td>
+            </tr>
+            <tr>
+              <td class="mono">N3</td><td class="sm">Fecha comprometida con un tercero</td>
+              <td class="c col-size"><span class="w w-off">—</span></td>
+              <td class="c col-eff"><span class="w w-off">—</span></td>
+              <td class="c col-risk"><span class="w">2</span></td>
+              <td class="c"><span class="w w-off">—</span></td>
+            </tr>
+            <tr>
+              <td class="mono">N4</td><td class="sm">Áreas que deben coordinarse</td>
+              <td class="c col-size"><span class="w">1</span></td>
+              <td class="c col-eff"><span class="w">1</span></td>
+              <td class="c col-risk"><span class="w w-off">—</span></td>
+              <td class="c"><span class="w w-off">—</span></td>
+            </tr>
+
+            <tr class="grouprow"><td colspan="6"><span class="lbl" style="color:#26262C">Integraciones</span></td></tr>
+            <tr>
+              <td class="mono">I1</td><td class="sm">Sistemas internos a integrar o modificar</td>
+              <td class="c col-size"><span class="w">3</span></td>
+              <td class="c col-eff"><span class="w">3</span></td>
+              <td class="c col-risk"><span class="w w-off">—</span></td>
+              <td class="c"><span class="w w-off">—</span></td>
+            </tr>
+            <tr>
+              <td class="mono">I2</td><td class="sm">Terceros externos involucrados</td>
+              <td class="c col-size"><span class="w">2</span></td>
+              <td class="c col-eff"><span class="w">3</span></td>
+              <td class="c col-risk"><span class="w w-chg">3</span></td>
+              <td class="c"><span class="w w-off">—</span></td>
+            </tr>
+            <tr>
+              <td class="mono">I3</td><td class="sm">APIs o integraciones nuevas</td>
+              <td class="c col-size"><span class="w">2</span></td>
+              <td class="c col-eff"><span class="w">2</span></td>
+              <td class="c col-risk"><span class="w w-off">—</span></td>
+              <td class="c"><span class="w w-off">—</span></td>
+            </tr>
+            <tr>
+              <td class="mono">I4</td><td class="sm">Equipos externos a la célula</td>
+              <td class="c col-size"><span class="w">1</span></td>
+              <td class="c col-eff"><span class="w">2</span></td>
+              <td class="c col-risk"><span class="w">1</span></td>
+              <td class="c"><span class="w w-off">—</span></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">Peso total del modelo</td>
+              <td class="c col-size num">31</td>
+              <td class="c col-eff num">38</td>
+              <td class="c col-risk num">24</td>
+              <td class="c num">6</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="cfoot" style="display:flex; align-items:center; gap:10px">
+        <span style="width:12px;height:12px;border-radius:3px;background:#FBF2DE;border:1px solid #B57A00;flex:none"></span>
+        <span class="note">1 peso cambiado en esta versión: <span class="mono">I2</span> en Riesgo, de 2 a 3.</span>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px">
+
+      <!-- Simular antes de publicar: sin esto, el efecto de mover un peso
+           sólo se descubre cuando alguien estima. -->
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Efecto en una iniciativa</h2>
+          <span class="note">Kafka Migration</span>
+        </div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 12px">
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 62px 62px; gap: 8px; align-items: baseline">
+            <span class="lbl"></span>
+            <span class="lbl r">v1.4</span>
+            <span class="lbl r">Borrador</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 62px 62px; gap: 8px; align-items: baseline">
+            <span class="sm">Score</span>
+            <span class="num sm r">68,4</span>
+            <span class="num smd r" style="font-weight:600">71,2</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 62px 62px; gap: 8px; align-items: center">
+            <span class="sm">Talla</span>
+            <span class="r"><span class="tag t-amber" style="min-width:0">L</span></span>
+            <span class="r"><span class="tag t-amber" style="min-width:0">L</span></span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 62px 62px; gap: 8px; align-items: baseline">
+            <span class="sm">PM esperado</span>
+            <span class="num sm r">8,0</span>
+            <span class="num smd r" style="font-weight:600">8,6</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 62px 62px; gap: 8px; align-items: baseline">
+            <span class="sm">Confianza</span>
+            <span class="num sm r">62</span>
+            <span class="num smd r" style="font-weight:600; color:#6E4B00">58</span>
+          </div>
+          <span class="btn btn-s btn-sm" style="align-self:flex-start">Probar con otra iniciativa</span>
+        </div>
+      </div>
+
+      <div class="alert a-warn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B57A00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <div>
+          <p class="at" style="margin:0">Tres preguntas no pesan en ninguna salida</p>
+          <p class="sm" style="margin:0; color:#26262C"><span class="mono">D3</span>, <span class="mono">O1</span> y
+            <span class="mono">O4</span> se responden pero no mueven ningún resultado.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cbody" style="display:flex; flex-direction:column; gap:10px">
+          <span class="lbl">Reparto del peso entre salidas</span>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <div style="display:flex; justify-content:space-between"><span class="sm">Tamaño</span><span class="num note">31 · 31 %</span></div>
+            <span class="bar"><i style="width:31%; background:#1B5FBF"></i></span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <div style="display:flex; justify-content:space-between"><span class="sm">Esfuerzo</span><span class="num note">38 · 38 %</span></div>
+            <span class="bar"><i style="width:38%; background:#5B3FC4"></i></span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <div style="display:flex; justify-content:space-between"><span class="sm">Riesgo</span><span class="num note">24 · 24 %</span></div>
+            <span class="bar"><i style="width:24%; background:#B57A00"></i></span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <div style="display:flex; justify-content:space-between"><span class="sm">Mix</span><span class="num note">6 · 6 %</span></div>
+            <span class="bar"><i style="width:6%; background:#74747E"></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

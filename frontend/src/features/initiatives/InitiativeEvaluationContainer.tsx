@@ -4,6 +4,7 @@ import { Alert, Button, EmptyState, Icon, useToast } from "@tuya-ui/components";
 import { useLeadBreadcrumbTrailing } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { modulePath } from "@shared/services/modulePath";
 import { useEvaluation } from "./hooks/useEvaluation";
+import { initiativePath } from "./adapters/InitiativeAdapter";
 import { RESULT_STEP, TRIAGE_STEP } from "./adapters/EvaluationAdapter";
 import { EvaluationHeader } from "./components/evaluation/EvaluationHeader";
 import { EvaluationSteps } from "./components/evaluation/EvaluationSteps";
@@ -41,7 +42,9 @@ export const InitiativeEvaluationContainer: React.FC<
         message: "Evaluación guardada",
         icon: <Icon name="status-success" size={16} />,
       });
-      navigate(listPath());
+      // A la ficha y no al listado: guardar deja algo que leer, y es ahí
+      // donde se lee.
+      navigate(initiativePath(initiativeId));
     } else if (result.error) {
       setSaveError(result.error);
     }

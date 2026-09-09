@@ -26,6 +26,8 @@ const evaluated: InitiativeDto = {
   name: "Kafka",
   status: "Active",
   evaluation: {
+    modelVersionId: "MOD-F1-V2",
+    modelVersionNumber: 2,
     triage: [],
     answers: {},
     targetMonths: 6,
@@ -76,11 +78,36 @@ const renderList = (ui: React.ReactElement) =>
   render(<MemoryRouter>{ui}</MemoryRouter>);
 
 describe("InitiativesList", () => {
-  it("fila con talla muestra badge y FTE; sin talla muestra el enlace Evaluar y un guion", () => {
+  it("la fila evaluada muestra talla, PM esperado y FTE; la que no, tres guiones", () => {
     renderList(
       <InitiativesList
         {...listProps}
         initiatives={[base, evaluated].map(initiativeAdapter.toEntity)}
+      />
+    );
+    // Sin evaluar no hay talla, ni esfuerzo, ni capacidad: los tres guiones
+    // dicen que falta el mismo dato, no que valgan cero.
+    const qr = screen.getByText("Pago con QR").closest("tr")!;
+    expect(within(qr).getAllByText("—")).toHaveLength(3);
+    expect(
+      within(qr).queryByRole("button", { name: "Evaluar" })
+    ).not.toBeInTheDocument();
+
+    const kafka = screen.getByText("Kafka").closest("tr")!;
+    expect(within(kafka).getByText("M")).toBeInTheDocument();
+    // PM esperado es el punto medio de la banda 3–6.
+    expect(within(kafka).getByText("4,5")).toBeInTheDocument();
+    expect(within(kafka).getByText("0,75")).toBeInTheDocument();
+    expect(within(kafka).getByText("Activa")).toBeInTheDocument();
+  });
+
+  it("el siguiente paso de cada fila: evaluar lleva a la evaluación, cerrar abre el diálogo", () => {
+    const onClose = vi.fn();
+    renderList(
+      <InitiativesList
+        {...listProps}
+        initiatives={[base, evaluated].map(initiativeAdapter.toEntity)}
+        onClose={onClose}
       />
     );
     const qr = screen.getByText("Pago con QR").closest("tr")!;
@@ -88,14 +115,32 @@ describe("InitiativesList", () => {
       "href",
       "/capacidad/iniciativas/i1/evaluacion"
     );
-    expect(within(qr).getByText("—")).toBeInTheDocument();
-    expect(
-      within(qr).queryByRole("button", { name: "Evaluar" })
-    ).not.toBeInTheDocument();
+
+    // Evaluada y activa: lo que sigue es cerrarla, y el paso es un botón
+    // porque abre un diálogo, no navega.
     const kafka = screen.getByText("Kafka").closest("tr")!;
-    expect(within(kafka).getByText("M")).toBeInTheDocument();
-    expect(within(kafka).getByText("0,75")).toBeInTheDocument();
-    expect(within(kafka).getByText("Activa")).toBeInTheDocument();
+    fireEvent.click(within(kafka).getByRole("button", { name: "Cerrar" }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("una cerrada no tiene siguiente paso", () => {
+    const closed = {
+      ...evaluated,
+      id: "i3",
+      name: "Lakehouse",
+      status: "Closed" as const,
+    };
+    renderList(
+      <InitiativesList
+        {...listProps}
+        initiatives={[closed].map(initiativeAdapter.toEntity)}
+      />
+    );
+    const row = screen.getByText("Lakehouse").closest("tr")!;
+    expect(
+      within(row).queryByRole("button", { name: /Evaluar|Activar|Cerrar/ })
+    ).not.toBeInTheDocument();
+    expect(within(row).getByText("—")).toBeInTheDocument();
   });
 
   it("el menú deshabilita Activar sin talla y Cerrar sin estar activa", () => {

@@ -32,6 +32,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<QuestionPool> QuestionPools => Set<QuestionPool>();
     public DbSet<SkillCatalogVersion> SkillCatalogVersions => Set<SkillCatalogVersion>();
 
+    // El modelo de estimación versionado: reemplaza a los tres agregados de
+    // arriba, que se retiran cuando nadie los consuma.
+    public DbSet<EstimationModel> EstimationModels => Set<EstimationModel>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);

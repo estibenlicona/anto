@@ -1,0 +1,348 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 14px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; display: flex;
+             align-items: baseline; justify-content: space-between; gap: 12px; }
+    .cfoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-sm { gap: 6px; padding: 4px 12px; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+    .btn-u { background: transparent; color: #26262C; }
+    .btn-off { background: #F4F4F5; color: #A0A0A8; border-color: #74747E2E; cursor: not-allowed; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-red { background: #FBE9EA; color: #700C13; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-warn { background: #FBF2DE; color: #6E4B00; } .b-warn .dot { background: #B57A00; }
+
+    .tabs { display: flex; gap: 28px; border-bottom: 1px solid #E3E3E6; }
+    .tabs > span { padding-bottom: 14px; margin-bottom: -1px; border-bottom: 2px solid transparent;
+                   font-size: 14px; line-height: 22px; color: #55555E; }
+    .tabs > span.on { border-color: #ED1C29; font-weight: 600; color: #26262C; }
+    .tabs > span .n { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: #74747E; }
+
+    /* Chequeos: el icono y la palabra dicen el estado, el color sólo refuerza. */
+    .chk { display: grid; grid-template-columns: 20px minmax(0,1fr) auto; gap: 12px;
+           align-items: start; padding: 11px 16px; border-bottom: 1px solid #F4F4F5; }
+    .chk:last-child { border-bottom: 0; }
+    .chk.err { background: #FBE9EA33; box-shadow: inset 2px 0 0 #8E0F18; }
+    .chk.warn { background: #FBF2DE33; box-shadow: inset 2px 0 0 #B57A00; }
+
+    .diff { display: grid; grid-template-columns: 132px minmax(0,1fr); gap: 12px;
+            padding: 10px 16px; border-bottom: 1px solid #F4F4F5; align-items: start; }
+    .diff:last-child { border-bottom: 0; }
+    .was { color: #74747E; text-decoration: line-through; }
+    .now { font-weight: 600; }
+
+    .pair { display: grid; grid-template-columns: 34px minmax(0,1fr) 40px; gap: 10px; align-items: center; }
+    .pbar { display: flex; flex-direction: column; gap: 3px; }
+    .pbar i { display: block; height: 9px; border-radius: 3px; }
+
+    .fieldbox { border: 1px solid #E3E3E6; border-radius: 8px; background: #FFFFFF;
+                padding: 8px 12px; font-size: 14px; line-height: 22px; color: #26262C; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Administración <span style="color:#C9C9CE">/</span> Parámetros <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Modelo Paramétrico v1.5</span></div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <h1 class="h1" style="margin: 0">Modelo Paramétrico</h1>
+      <span class="tag t-gray mono" style="min-width:0">v1.5</span>
+      <span class="badge b-warn"><span class="dot"></span>Borrador</span>
+      <span class="note">7 cambios sin publicar</span>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <span class="btn btn-u">Descartar cambios</span>
+      <span class="btn btn-s">Vista previa con una iniciativa</span>
+      <span class="btn btn-off">Validar y publicar</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <span>Dimensiones y preguntas <span class="n">32</span></span>
+    <span>Drivers y pesos <span class="n">9</span></span>
+    <span>Reglas de talla <span class="n">5</span></span>
+    <span>Mix de capacidades <span class="n">6</span></span>
+    <span class="on">Publicar <span class="n" style="color:#700C13">2 errores</span></span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; align-items: start">
+
+    <div style="display: flex; flex-direction: column; gap: 16px">
+
+      <!-- La puerta: una configuración incompleta o inconsistente no se
+           publica. Cada chequeo dice qué falta y lleva a dónde arreglarlo. -->
+      <div class="card" style="overflow: hidden">
+        <div class="chead">
+          <div>
+            <h2 class="h3" style="margin:0">Validación</h2>
+            <span class="note">9 chequeos</span>
+          </div>
+          <div style="display: flex; gap: 6px">
+            <span class="tag t-red" style="min-width:0">2 errores</span>
+            <span class="tag t-amber" style="min-width:0">1 advertencia</span>
+            <span class="tag t-green" style="min-width:0">6 correctos</span>
+          </div>
+        </div>
+
+        <div class="chk err">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8E0F18" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+          <div>
+            <div class="smd" style="font-weight:600">Dos preguntas cuantitativas no tienen tramos</div>
+            <div class="note"><span class="mono">I3</span> y <span class="mono">T4</span> piden un número pero no tienen tramos que lo conviertan en puntaje.</div>
+          </div>
+          <span class="btn btn-s btn-sm">Ir a la pregunta</span>
+        </div>
+
+        <div class="chk err">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8E0F18" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+          <div>
+            <div class="smd" style="font-weight:600">El mix de la talla XL suma 96 %</div>
+            <div class="note">Faltan 4 puntos por repartir. Toda iniciativa XL saldría con el FTE por perfil incompleto.</div>
+          </div>
+          <span class="btn btn-s btn-sm">Ir al mix</span>
+        </div>
+
+        <div class="chk warn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B57A00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <div>
+            <div class="smd" style="font-weight:600">Tres preguntas no pesan en ninguna salida</div>
+            <div class="note"><span class="mono">D3</span>, <span class="mono">O1</span> y <span class="mono">O4</span> se responden pero no mueven ningún resultado. No bloquea la publicación.</div>
+          </div>
+          <span class="btn btn-s btn-sm">Ir a los pesos</span>
+        </div>
+
+        <div class="chk">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#116B4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          <div><div class="smd">Las 7 dimensiones activas tienen al menos una pregunta</div></div>
+          <span></span>
+        </div>
+        <div class="chk">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#116B4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          <div><div class="smd">Las 32 preguntas tienen tipo y driver asignados</div></div>
+          <span></span>
+        </div>
+        <div class="chk">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#116B4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          <div><div class="smd">Los tramos definidos cubren su dominio sin huecos ni solapes</div></div>
+          <span></span>
+        </div>
+        <div class="chk">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#116B4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          <div><div class="smd">Los 4 umbrales de talla son contiguos y cubren 0 – 100</div></div>
+          <span></span>
+        </div>
+        <div class="chk">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#116B4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          <div><div class="smd">El PM esperado cae entre P10 y P90 en las 5 tallas</div></div>
+          <span></span>
+        </div>
+        <div class="chk">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#116B4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          <div><div class="smd">Ningún driver quedó sin preguntas ni sin salidas</div></div>
+          <span></span>
+        </div>
+      </div>
+
+      <!-- El diff. Publicar sin ver qué cambió es como hacer merge a ciegas. -->
+      <div class="card" style="overflow: hidden">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Qué cambia respecto de la v1.4</h2>
+          <span class="note">7 cambios en 4 secciones</span>
+        </div>
+        <div class="diff">
+          <span class="lbl">Preguntas</span>
+          <div>
+            <div class="smd">Dos nuevas en Operación y soporte — <span class="mono">O5</span>, <span class="mono">O6</span></div>
+            <div class="smd"><span class="mono">D3</span> desactivada</div>
+          </div>
+        </div>
+        <div class="diff">
+          <span class="lbl">Pesos</span>
+          <div class="smd">
+            <div><span class="mono">I2</span> en Riesgo <span class="was num">2</span> → <span class="now num">3</span></div>
+            <div><span class="mono">T3</span> en Esfuerzo <span class="was num">2</span> → <span class="now num">3</span></div>
+            <div><span class="mono">S4</span> en Riesgo <span class="was num">2</span> → <span class="now num">3</span></div>
+            <div><span class="mono">O3</span> en Esfuerzo <span class="was num">1</span> → <span class="now num">2</span></div>
+          </div>
+        </div>
+        <div class="diff">
+          <span class="lbl">Reglas de talla</span>
+          <div class="smd">Umbral S / M <span class="was num">40</span> → <span class="now num">44</span></div>
+        </div>
+        <div class="diff">
+          <span class="lbl">Esfuerzo</span>
+          <div class="smd">
+            <div>M esperado <span class="was num">4,5</span> → <span class="now num">4,8</span> · M P90 <span class="was num">6,0</span> → <span class="now num">6,8</span></div>
+            <div>L P90 <span class="was num">10,0</span> → <span class="now num">11,0</span></div>
+          </div>
+        </div>
+        <div class="diff">
+          <span class="lbl">Mix</span>
+          <div class="smd">XL · Backend Dev <span class="was num">48</span> → <span class="now num">46</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px">
+
+      <!-- Simulación sobre el histórico. No recalcula nada: sólo dice qué
+           habría pasado, que es lo que hace falta para decidir. -->
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Si esto hubiera estado vigente</h2>
+          <span class="note">47 estimaciones</span>
+        </div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; gap: 20px">
+            <div>
+              <span class="lbl">Cambian de talla</span>
+              <div class="num" style="font-size:26px;line-height:32px;font-weight:600">5</div>
+              <div class="note">de M a S</div>
+            </div>
+            <div>
+              <span class="lbl">PM esperado</span>
+              <div class="num" style="font-size:26px;line-height:32px;font-weight:600;color:#6E4B00">+4,2 %</div>
+              <div class="note">promedio</div>
+            </div>
+            <div>
+              <span class="lbl">Confianza</span>
+              <div class="num" style="font-size:26px;line-height:32px;font-weight:600;color:#6E4B00">−3</div>
+              <div class="note">puntos</div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div style="display: flex; align-items: center; gap: 16px">
+              <span class="lbl">Reparto por talla</span>
+              <span style="display:inline-flex;align-items:center;gap:6px" class="note">
+                <i style="width:12px;height:9px;border-radius:2px;background:#2563EB;display:inline-block"></i> v1.4
+              </span>
+              <span style="display:inline-flex;align-items:center;gap:6px" class="note">
+                <i style="width:12px;height:9px;border-radius:2px;background:#A21CAF;display:inline-block"></i> v1.5
+              </span>
+            </div>
+
+            <div class="pair">
+              <span class="note">XS</span>
+              <div class="pbar">
+                <i style="width:10%; background:#2563EB"></i>
+                <i style="width:10%; background:#A21CAF"></i>
+              </div>
+              <span class="num note r">2 · 2</span>
+            </div>
+            <div class="pair">
+              <span class="note">S</span>
+              <div class="pbar">
+                <i style="width:45%; background:#2563EB"></i>
+                <i style="width:70%; background:#A21CAF"></i>
+              </div>
+              <span class="num note r">9 · 14</span>
+            </div>
+            <div class="pair">
+              <span class="note">M</span>
+              <div class="pbar">
+                <i style="width:90%; background:#2563EB"></i>
+                <i style="width:65%; background:#A21CAF"></i>
+              </div>
+              <span class="num note r">18 · 13</span>
+            </div>
+            <div class="pair">
+              <span class="note">L</span>
+              <div class="pbar">
+                <i style="width:65%; background:#2563EB"></i>
+                <i style="width:65%; background:#A21CAF"></i>
+              </div>
+              <span class="num note r">13 · 13</span>
+            </div>
+            <div class="pair">
+              <span class="note">XL</span>
+              <div class="pbar">
+                <i style="width:25%; background:#2563EB"></i>
+                <i style="width:25%; background:#A21CAF"></i>
+              </div>
+              <span class="num note r">5 · 5</span>
+            </div>
+            <span class="note" style="margin-left: 44px">cantidad de estimaciones · máximo 20</span>
+          </div>
+
+          <p class="note" style="margin:0; border-top:1px solid #E3E3E6; padding-top:12px">
+            Simulación. Las 47 estimaciones no se recalculan.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chead"><h2 class="h3" style="margin:0">Publicación</h2></div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span class="lbl">Vigente desde</span>
+            <span class="fieldbox">10 feb 2026</span>
+            <span class="note">Las estimaciones nuevas usarán la v1.5 desde esa fecha.</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span class="lbl">Nota de cambio</span>
+            <span class="fieldbox" style="min-height: 68px; color:#55555E">
+              Ajustes de la calibración de febrero: sube el peso de riesgo en terceros externos y
+              se corrige el P90 de M y L, que se quedaba corto en 8 de 23 cierres.
+            </span>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #E3E3E6; padding-top: 12px">
+            <span class="sm">Publica</span><span class="smd">Tomás Giraldo</span>
+          </div>
+          <span class="btn btn-off" style="width:100%">Publicar v1.5</span>
+          <p class="note" style="margin: 0; text-align: center">
+            Se habilita cuando no queden errores. Faltan 2.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

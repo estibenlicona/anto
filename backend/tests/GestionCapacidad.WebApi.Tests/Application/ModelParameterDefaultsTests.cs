@@ -39,16 +39,29 @@ public sealed class ModelParameterDefaultsTests
     }
 
     [Fact]
-    public void CapabilityMix_HasTheThreeCapabilitiesWithTheirAmounts()
+    public void CapabilityMix_HasTheSixCapabilitiesWithTheirAmounts()
     {
         CapabilityMix mix = ModelParameterDefaults.CapabilityMix();
 
-        Assert.Equal(["Backend Dev", "QA Engineer", "Arquitecto"], mix.Rows.Select(r => r.Capacidad));
-        Assert.Equal(["backend-dev", "qa-engineer", "arquitecto"], mix.Rows.Select(r => r.Key));
+        Assert.Equal(
+            ["Backend Dev", "Frontend Dev", "QA Engineer", "Arquitecto", "DevOps Engineer", "Data Engineer"],
+            mix.Rows.Select(r => r.Capacidad));
+        Assert.Equal(
+            ["backend-dev", "frontend-dev", "qa-engineer", "arquitecto", "devops-engineer", "data-engineer"],
+            mix.Rows.Select(r => r.Key));
 
-        Assert.Equal([1, 2, 3, 5, 8], AmountsOf(mix, "Backend Dev"));
+        Assert.Equal([1, 2, 2, 3, 4], AmountsOf(mix, "Backend Dev"));
+        Assert.Equal([0, 0, 1, 1, 2], AmountsOf(mix, "Frontend Dev"));
         Assert.Equal([0, 1, 1, 2, 3], AmountsOf(mix, "QA Engineer"));
         Assert.Equal([0, 0, 1, 1, 2], AmountsOf(mix, "Arquitecto"));
+        Assert.Equal([0, 0, 0, 1, 1], AmountsOf(mix, "DevOps Engineer"));
+        Assert.Equal([0, 0, 0, 0, 1], AmountsOf(mix, "Data Engineer"));
+
+        // Repartir entre más perfiles no movió cuánta gente pide cada talla.
+        int[] totales = new[] { "XS", "S", "M", "L", "XL" }
+            .Select(talla => mix.Rows.Sum(r => r.PorTalla.TryGetValue(talla, out int n) ? n : 0))
+            .ToArray();
+        Assert.Equal(new[] { 1, 3, 5, 8, 13 }, totales);
     }
 
     [Fact]

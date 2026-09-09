@@ -36,7 +36,7 @@ describe("useCollaboratorDedication", () => {
     expect(result.current.summary).toMatchObject({
       possibleOverload: 5,
       possibleUnderload: 3,
-      usual: 2,
+      usual: 6,
     });
     expect(result.current.lastSyncedAt).not.toBeNull();
   });

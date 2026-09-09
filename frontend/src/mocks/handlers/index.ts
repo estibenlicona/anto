@@ -10,6 +10,8 @@ import { dedicationHandlers } from "./dedication.handlers";
 import { expertiseLinesHandlers } from "./expertise-lines.handlers";
 import { gatewayHandlers } from "./gateway.handlers";
 import { initiativesHandlers } from "./initiatives.handlers";
+import { modelPublishHandlers } from "./model-publish.handlers";
+import { modelVersionsHandlers } from "./model-versions.handlers";
 import { peopleHandlers } from "./people.handlers";
 import { personDetailHandlers } from "./personDetail.handlers";
 import { questionPoolHandlers } from "./question-pool.handlers";
@@ -36,6 +38,8 @@ export const handlers = [
   ...dedicationHandlers,
   ...expertiseLinesHandlers,
   ...initiativesHandlers,
+  ...modelPublishHandlers,
+  ...modelVersionsHandlers,
   ...peopleHandlers,
   ...personDetailHandlers,
   ...questionPoolHandlers,

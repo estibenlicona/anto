@@ -71,12 +71,12 @@ public sealed class ModelParameterRepositoryTests
 
         Assert.NotNull(saved);
         Assert.Equal(
-            ["Backend Dev", "QA Engineer", "Arquitecto"],
+            ["Backend Dev", "Frontend Dev", "QA Engineer", "Arquitecto", "DevOps Engineer", "Data Engineer"],
             saved.Rows.OrderBy(r => r.Position).Select(r => r.Capacidad));
 
         CapabilityMixRow backend = saved.Rows.Single(r => r.Key == "backend-dev");
         Assert.Equal(1, backend.PorTalla["XS"]);
-        Assert.Equal(8, backend.PorTalla["XL"]);
+        Assert.Equal(4, backend.PorTalla["XL"]);
     }
 
     [Fact]

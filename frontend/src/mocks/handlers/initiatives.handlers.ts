@@ -18,6 +18,7 @@ import type {
 import { getQuestionPoolSnapshot } from "./question-pool.handlers";
 import { getTallaBandsSnapshot } from "./talla-bands.handlers";
 import { getCapabilityMixSnapshot } from "./capability-mix.handlers";
+import { countEstimation, currentVersionSnapshot } from "./model-versions.handlers";
 import { getSquadsSnapshot } from "./squads.handlers";
 import {
   BAND_ACTIONS,
@@ -86,7 +87,12 @@ function evaluate(
 ): InitiativeEvaluationDto {
   const model = buildEvaluationModel();
   const r = computeEvaluation(model, input);
+  const version = currentVersionSnapshot();
   return {
+    // La versión con la que se calculó viaja con el resultado: sin ella, leer
+    // esta evaluación mañana usaría el modelo de mañana.
+    modelVersionId: version?.id ?? "",
+    modelVersionNumber: version?.number ?? 0,
     triage: [...input.triage],
     answers: { ...input.answers },
     targetMonths: r.targetMonths,
@@ -189,13 +195,21 @@ function isValidEvaluation(value: unknown): value is SaveEvaluationRequest {
   if (typeof v.targetMonths !== "number" || v.targetMonths < 1) return false;
   if (!v.answers || typeof v.answers !== "object") return false;
   const ids = new Set(getQuestionPoolSnapshot().map((q) => q.id));
+  // Cuántas opciones admite cada pregunta lo dice la versión vigente, no una
+  // constante: el 0–4 era del código, no del modelo.
+  const optionCounts = new Map(
+    (currentVersionSnapshot()?.content.questions ?? []).map((q) => [
+      q.id,
+      q.options.length,
+    ])
+  );
   return Object.entries(v.answers).every(
     ([id, val]) =>
       ids.has(id) &&
       typeof val === "number" &&
       Number.isInteger(val) &&
       val >= 0 &&
-      val <= SCORE_MAX
+      val < (optionCounts.get(id) ?? SCORE_MAX + 1)
   );
 }
 
@@ -357,12 +371,14 @@ export const initiativesHandlers = [
         { message: "Evaluación inválida" },
         { status: 400 }
       );
+    const evaluation = evaluate(body, new Date().toISOString());
     const updated: StoredInitiative = {
       ...current,
       targetMonths: body.targetMonths,
-      evaluation: evaluate(body, new Date().toISOString()),
+      evaluation,
     };
     initiatives = all().map((i) => (i.id === updated.id ? updated : i));
+    if (evaluation.modelVersionId) countEstimation(evaluation.modelVersionId);
     return HttpResponse.json(respond(updated));
   }),
 ];

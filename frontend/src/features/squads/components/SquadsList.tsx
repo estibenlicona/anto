@@ -33,7 +33,7 @@ import { useTeams } from "@features/teams/hooks/useTeams";
 // El mapa de talla → color se importa, no se copia: dos mapas que empiezan
 // iguales divergen en silencio la primera vez que se toca uno.
 import {
-  evaluationPath,
+  initiativePath,
   tallaColor,
 } from "@features/initiatives/adapters/InitiativeAdapter";
 import {
@@ -414,7 +414,7 @@ export const SquadsList: React.FC<SquadsListProps> = ({
                                   entera. */}
                           <Link asChild tone="neutral" className="truncate">
                             <RouterLink
-                              to={evaluationPath(initiative.id)}
+                              to={initiativePath(initiative.id)}
                               title={initiative.name}
                               className="truncate"
                             >

@@ -50,4 +50,15 @@ public sealed record InitiativeEvaluation(
     IReadOnlyList<EvaluationDimensionResult> Dimensions,
     IReadOnlyList<EvaluationMixResult> Mix,
     TriageVerdict TriageVerdict,
-    DateTime SavedAtUtc);
+    DateTime SavedAtUtc,
+    /// <summary>
+    /// Con qué versión del modelo se calculó. Es lo que hace que publicar deje
+    /// de reescribir el pasado: la evaluación se lee siempre contra esta
+    /// versión y no contra la vigente.
+    ///
+    /// Tiene valor por defecto porque la columna es un documento JSON y las
+    /// evaluaciones guardadas antes del versionado no lo traen: llegan en
+    /// <see cref="Guid.Empty"/> y la migración les asigna la versión 1.
+    /// </summary>
+    Guid ModelVersionId = default,
+    int ModelVersionNumber = 0);

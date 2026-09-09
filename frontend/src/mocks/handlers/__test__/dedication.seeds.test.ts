@@ -105,23 +105,29 @@ describe("semillas de balance de carga · los casos de la spec", () => {
     );
   });
 
-  it("sin identidad: Camila y Diego tienen sprints sembrados y nadie los vinculó", () => {
-    for (const email of [
-      "camila.restrepo@tuya.com",
-      "diego.salazar@tuya.com",
-    ]) {
-      const user = devOpsUserByEmail(email).id;
-      expect(DEDICATION_BY_USER[user]?.length).toBeGreaterThan(0);
-      expect(Object.values(LINKED_IDENTITIES).some((i) => i.id === user)).toBe(
-        false
-      );
-    }
+  /**
+   * El caso lo sostiene Camila sola, y no es casual: no tiene célula. Alguien
+   * con asignación declarada y sin identidad sería una contradicción entre
+   * módulos —la célula diría que dedica el 100 % y el balance de carga no
+   * podría decir nada de él—, y eso lo fija `dedication.consistency.test.ts`.
+   */
+  it("sin identidad: Camila tiene sprints sembrados y nadie la vinculó", () => {
+    const user = devOpsUserByEmail("camila.restrepo@tuya.com").id;
+
+    expect(DEDICATION_BY_USER[user]?.length).toBeGreaterThan(0);
+    expect(Object.values(LINKED_IDENTITIES).some((i) => i.id === user)).toBe(
+      false
+    );
   });
 
-  it("histórico insuficiente: Isabella, Camila y Diego quedan por debajo del mínimo de 3", () => {
+  it("histórico insuficiente: Isabella y Camila quedan por debajo del mínimo de 3", () => {
     expect(sealedCount("isabella.moreno@tuya.com")).toBe(2);
     expect(sealedCount("camila.restrepo@tuya.com")).toBe(1);
-    expect(sealedCount("diego.salazar@tuya.com")).toBe(2);
+  });
+
+  it("medible: Diego supera el mínimo de sellados que exige el Calendario", () => {
+    // Está asignado al 100 % en Canales, así que tiene que poder medirse.
+    expect(sealedCount("diego.salazar@tuya.com")).toBeGreaterThanOrEqual(3);
   });
 
   it("sprint cerrado sin snapshot: el S15 de María", () => {

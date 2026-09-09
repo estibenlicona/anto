@@ -84,15 +84,17 @@
   <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 24px">
     <div style="display: flex; flex-direction: column; gap: 4px">
       <h1 class="h1" style="margin: 0">Modelos de estimación</h1>
-      <p class="sm" style="margin: 0; max-width: 640px">
-        Un modelo por fase, cada uno con sus versiones. Lo que se publica queda inmutable:
-        las estimaciones ya hechas siguen leyendo la versión con la que se calcularon.
-      </p>
     </div>
-    <span class="btn btn-p">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      Nuevo modelo
-    </span>
+    <div style="display: flex; gap: 8px">
+      <span class="btn btn-s">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
+        Calibración histórica
+      </span>
+      <span class="btn btn-p">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Nuevo modelo
+      </span>
+    </div>
   </div>
 
   <div style="display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; align-items: start">
@@ -130,12 +132,7 @@
             <td><span class="badge b-ok"><span class="dot"></span>Vigente</span></td>
             <td class="num sm">desde 02 feb 2026</td>
             <td class="r num">12</td>
-            <td class="r">
-              <span style="display:inline-flex; align-items:center; gap:6px" class="note">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#74747E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                No editable
-              </span>
-            </td>
+            <td class="r"><span class="btn btn-s btn-sm">Crear versión a partir de ésta</span></td>
           </tr>
           <tr>
             <td><span class="mono">v1.3</span></td>
@@ -157,7 +154,7 @@
               <div style="display:flex; align-items:center; gap:10px">
                 <span class="h3">Refinado por Backlog</span>
                 <span class="tag t-blue" style="min-width:0">Fase 2</span>
-                <span class="note">Estimación refinada · entra el backlog de la épica</span>
+                <span class="note">Estimación refinada · requiere backlog</span>
               </div>
             </td>
           </tr>
@@ -173,12 +170,7 @@
             <td><span class="badge b-ok"><span class="dot"></span>Vigente</span></td>
             <td class="num sm">desde 20 ene 2026</td>
             <td class="r num">3</td>
-            <td class="r">
-              <span style="display:inline-flex; align-items:center; gap:6px" class="note">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#74747E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                No editable
-              </span>
-            </td>
+            <td class="r"><span class="btn btn-s btn-sm">Crear versión a partir de ésta</span></td>
           </tr>
 
           <tr class="grouprow">
@@ -186,7 +178,7 @@
               <div style="display:flex; align-items:center; gap:10px">
                 <span class="h3">Juicio experto guiado</span>
                 <span class="tag t-blue" style="min-width:0">Fase 2</span>
-                <span class="note">Alternativa cuando no hay backlog cargado</span>
+                <span class="note">Alternativa sin backlog</span>
               </div>
             </td>
           </tr>
@@ -200,8 +192,7 @@
         </tbody>
       </table>
       <div class="cfoot" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
-        <span class="note">3 modelos · 8 versiones · 123 estimaciones históricas</span>
-        <span class="note">Las versiones archivadas se conservan: sin ellas, 108 estimaciones dejarían de ser reproducibles.</span>
+        <span class="note">3 modelos · 7 versiones · 123 estimaciones históricas</span>
       </div>
     </div>
 
@@ -263,16 +254,6 @@
               <div class="note">Tomás Giraldo</div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="alert a-info">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B5FBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-        <div>
-          <p class="at" style="margin:0">Por qué la v1.4 no se puede editar</p>
-          <p class="sm" style="margin:0; color:#26262C">Ya calculó 12 estimaciones. Cambiarle un peso reescribiría
-            resultados que alguien usó para decidir. Para cambiar algo se crea una versión nueva a partir de ella
-            — que es de donde salió esta v1.5.</p>
         </div>
       </div>
     </div>

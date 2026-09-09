@@ -1,0 +1,360 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 14px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; display: flex;
+             align-items: baseline; justify-content: space-between; gap: 12px; }
+    .cfoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-sm { gap: 6px; padding: 4px 12px; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+    .btn-u { background: transparent; color: #26262C; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-red { background: #FBE9EA; color: #700C13; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-warn { background: #FBF2DE; color: #6E4B00; } .b-warn .dot { background: #B57A00; }
+
+    .tabs { display: flex; gap: 28px; border-bottom: 1px solid #E3E3E6; }
+    .tabs > span { padding-bottom: 14px; margin-bottom: -1px; border-bottom: 2px solid transparent;
+                   font-size: 14px; line-height: 22px; color: #55555E; }
+    .tabs > span.on { border-color: #ED1C29; font-weight: 600; color: #26262C; }
+    .tabs > span .n { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: #74747E; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6; }
+    td { padding: 8px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tfoot td { background: #FAFAFB; font-weight: 600; border-bottom: 0; border-top: 1px solid #E3E3E6; }
+    .r { text-align: right; } .c { text-align: center; }
+
+    .pct { display: inline-flex; align-items: center; justify-content: flex-end; width: 58px; height: 30px;
+           border: 1px solid #E3E3E6; border-radius: 8px; background: #FFFFFF; padding: 0 8px;
+           font-size: 14px; font-variant-numeric: tabular-nums; }
+    .pct-0 { color: #C9C9CE; border-style: dashed; background: transparent; }
+    .pct-err { border-color: #8E0F18; background: #FBE9EA; color: #700C13; font-weight: 600; }
+    .colsel { background: #FAFAFB; }
+
+    .adj { display: inline-flex; align-items: center; border-radius: 4px; padding: 1px 6px;
+           font-size: 12px; line-height: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .adj-up { background: #E7F3EC; color: #0D5239; }
+    .adj-dn { background: #FBE9EA; color: #700C13; }
+
+    .bar { height: 6px; border-radius: 8px; background: #F4F4F5; overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 8px; }
+
+    .alert { display: flex; gap: 14px; border-left: 2px solid; border-radius: 0 8px 8px 0; padding: 16px; }
+    .a-dang { border-color: #8E0F18; background: #FBE9EA; } .a-dang .at { color: #700C13; }
+    .at { font-size: 14px; line-height: 22px; font-weight: 600; margin-bottom: 4px; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Administración <span style="color:#C9C9CE">/</span> Parámetros <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Modelo Paramétrico v1.5</span></div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <h1 class="h1" style="margin: 0">Modelo Paramétrico</h1>
+      <span class="tag t-gray mono" style="min-width:0">v1.5</span>
+      <span class="badge b-warn"><span class="dot"></span>Borrador</span>
+      <span class="note">7 cambios sin publicar</span>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <span class="btn btn-u">Descartar cambios</span>
+      <span class="btn btn-s">Vista previa con una iniciativa</span>
+      <span class="btn btn-p">Validar y publicar</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <span>Dimensiones y preguntas <span class="n">32</span></span>
+    <span>Drivers y pesos <span class="n">9</span></span>
+    <span>Reglas de talla <span class="n">5</span></span>
+    <span class="on">Mix de capacidades <span class="n">6</span></span>
+    <span>Publicar <span class="n" style="color:#700C13">2 errores</span></span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) 392px; gap: 16px; align-items: start">
+
+    <!-- Mix base en porcentaje, no en personas. Personas y talla no son la
+         misma unidad: la talla dice cuánto esfuerzo, el mix cómo se reparte. -->
+    <div class="card" style="overflow: hidden">
+      <div class="chead">
+        <div>
+          <h2 class="h3" style="margin:0">Mix base por talla</h2>
+          <span class="note">Participación por perfil · cada columna suma 100 %</span>
+        </div>
+        <span class="btn btn-s btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Agregar capacidad
+        </span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:28%">Capacidad</th>
+            <th class="c" style="width:14%">XS</th>
+            <th class="c" style="width:14%">S</th>
+            <th class="c" style="width:14%">M</th>
+            <th class="c colsel" style="width:14%">L</th>
+            <th class="c" style="width:14%">XL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Backend Dev</td>
+            <td class="c"><span class="pct">66</span></td>
+            <td class="c"><span class="pct">60</span></td>
+            <td class="c"><span class="pct">56</span></td>
+            <td class="c colsel"><span class="pct">52</span></td>
+            <td class="c"><span class="pct">46</span></td>
+          </tr>
+          <tr>
+            <td>Frontend Dev</td>
+            <td class="c"><span class="pct">6</span></td>
+            <td class="c"><span class="pct">7</span></td>
+            <td class="c"><span class="pct">8</span></td>
+            <td class="c colsel"><span class="pct">8</span></td>
+            <td class="c"><span class="pct">9</span></td>
+          </tr>
+          <tr>
+            <td>QA Engineer</td>
+            <td class="c"><span class="pct">14</span></td>
+            <td class="c"><span class="pct">16</span></td>
+            <td class="c"><span class="pct">17</span></td>
+            <td class="c colsel"><span class="pct">18</span></td>
+            <td class="c"><span class="pct">20</span></td>
+          </tr>
+          <tr>
+            <td>Business Analyst</td>
+            <td class="c"><span class="pct">6</span></td>
+            <td class="c"><span class="pct">7</span></td>
+            <td class="c"><span class="pct">8</span></td>
+            <td class="c colsel"><span class="pct">8</span></td>
+            <td class="c"><span class="pct">8</span></td>
+          </tr>
+          <tr>
+            <td>DevOps</td>
+            <td class="c"><span class="pct">8</span></td>
+            <td class="c"><span class="pct">7</span></td>
+            <td class="c"><span class="pct">6</span></td>
+            <td class="c colsel"><span class="pct">6</span></td>
+            <td class="c"><span class="pct">6</span></td>
+          </tr>
+          <tr>
+            <td>Arquitecto</td>
+            <td class="c"><span class="pct pct-0">0</span></td>
+            <td class="c"><span class="pct">3</span></td>
+            <td class="c"><span class="pct">5</span></td>
+            <td class="c colsel"><span class="pct">8</span></td>
+            <td class="c"><span class="pct">7</span></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Suma</td>
+            <td class="c num" style="color:#0D5239">100</td>
+            <td class="c num" style="color:#0D5239">100</td>
+            <td class="c num" style="color:#0D5239">100</td>
+            <td class="c num colsel" style="color:#0D5239">100</td>
+            <td class="c"><span class="pct pct-err">96</span></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Vista previa: base contra base + modificadores, para la iniciativa de
+         referencia. Es lo que se guarda en la estimación. -->
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <div class="card">
+        <div class="chead">
+          <h2 class="h3" style="margin:0">Cómo queda en una iniciativa</h2>
+          <span class="note">Kafka Migration · L</span>
+        </div>
+        <div class="cbody" style="display: flex; flex-direction: column; gap: 12px">
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 8px; align-items: baseline">
+            <span class="lbl"></span>
+            <span class="lbl r">Base</span>
+            <span class="lbl r">Ajuste</span>
+            <span class="lbl r">Final</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 8px; align-items: baseline">
+            <span class="sm">Backend Dev</span>
+            <span class="num sm r">52</span>
+            <span class="r"><span class="adj adj-dn">−4</span></span>
+            <span class="num smd r" style="font-weight:600">48</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 8px; align-items: baseline">
+            <span class="sm">QA Engineer</span>
+            <span class="num sm r">18</span>
+            <span class="r"><span class="adj adj-up">+4</span></span>
+            <span class="num smd r" style="font-weight:600">22</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 8px; align-items: baseline">
+            <span class="sm">Frontend Dev</span>
+            <span class="num sm r">8</span>
+            <span class="r note">—</span>
+            <span class="num smd r" style="font-weight:600">8</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 8px; align-items: baseline">
+            <span class="sm">Business Analyst</span>
+            <span class="num sm r">8</span>
+            <span class="r note">—</span>
+            <span class="num smd r" style="font-weight:600">8</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 8px; align-items: baseline">
+            <span class="sm">Arquitecto</span>
+            <span class="num sm r">8</span>
+            <span class="r note">—</span>
+            <span class="num smd r" style="font-weight:600">8</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 8px; align-items: baseline">
+            <span class="sm">DevOps</span>
+            <span class="num sm r">6</span>
+            <span class="r note">—</span>
+            <span class="num smd r" style="font-weight:600">6</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 46px 46px 46px; gap: 8px;
+                      align-items: baseline; border-top: 1px solid #E3E3E6; padding-top: 10px">
+            <span class="smd" style="font-weight:600">Suma</span>
+            <span class="num sm r">100</span>
+            <span class="num sm r">0</span>
+            <span class="num smd r" style="font-weight:600">100</span>
+          </div>
+          <p class="note" style="margin:0">
+            Sólo se disparó un modificador: <span class="mono">CRIT-NEG</span> en nivel Crítica.
+          </p>
+        </div>
+      </div>
+
+      <div class="alert a-dang">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8E0F18" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
+        <div>
+          <p class="at" style="margin:0">La talla XL suma 96 %</p>
+          <p class="sm" style="margin:0; color:#26262C">Faltan 4 puntos por repartir. La validación bloquea la publicación
+            hasta que la columna cierre.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modificadores: la regla que hace que dos iniciativas de la misma talla
+       pidan equipos distintos. -->
+  <div class="card" style="overflow: hidden">
+    <div class="chead">
+      <div>
+        <h2 class="h3" style="margin:0">Modificadores de mix por driver</h2>
+        <span class="note">Cada modificador reparte: lo que gana un perfil lo pierde otro</span>
+      </div>
+      <span class="btn btn-s btn-sm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Agregar modificador
+      </span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:16%">Driver</th>
+          <th style="width:24%">Se dispara cuando</th>
+          <th style="width:14%">Tallas</th>
+          <th style="width:22%">Suma</th>
+          <th style="width:22%">Resta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono">CRIT-NEG</td>
+          <td class="sm">Nivel ≥ Crítica</td>
+          <td class="sm">M · L · XL</td>
+          <td><span class="adj adj-up">+4 pp</span> <span class="sm">QA Engineer</span></td>
+          <td><span class="adj adj-dn">−4 pp</span> <span class="sm">Backend Dev</span></td>
+        </tr>
+        <tr>
+          <td class="mono">SEG-CUM</td>
+          <td class="sm">Puntaje del driver ≥ 0,70</td>
+          <td class="sm">Todas</td>
+          <td><span class="adj adj-up">+3 pp</span> <span class="sm">Arquitecto</span></td>
+          <td><span class="adj adj-dn">−3 pp</span> <span class="sm">Backend Dev</span></td>
+        </tr>
+        <tr>
+          <td class="mono">INT-EXT</td>
+          <td class="sm">2 o más terceros externos</td>
+          <td class="sm">S · M · L · XL</td>
+          <td><span class="adj adj-up">+3 pp</span> <span class="sm">QA Engineer</span></td>
+          <td><span class="adj adj-dn">−3 pp</span> <span class="sm">Business Analyst</span></td>
+        </tr>
+        <tr>
+          <td class="mono">EXP-CLI</td>
+          <td class="sm">Impacta canales de cliente</td>
+          <td class="sm">Todas</td>
+          <td><span class="adj adj-up">+5 pp</span> <span class="sm">Frontend Dev</span></td>
+          <td><span class="adj adj-dn">−5 pp</span> <span class="sm">Backend Dev</span></td>
+        </tr>
+        <tr>
+          <td class="mono">TEC-NUEVA</td>
+          <td class="sm">Introduce patrón nuevo para TI</td>
+          <td class="sm">M · L · XL</td>
+          <td><span class="adj adj-up">+4 pp</span> <span class="sm">Arquitecto</span></td>
+          <td><span class="adj adj-dn">−4 pp</span> <span class="sm">Backend Dev</span></td>
+        </tr>
+        <tr>
+          <td class="mono">COORD-ORG</td>
+          <td class="sm">3 o más áreas a coordinar</td>
+          <td class="sm">Todas</td>
+          <td><span class="adj adj-up">+3 pp</span> <span class="sm">Business Analyst</span></td>
+          <td><span class="adj adj-dn">−3 pp</span> <span class="sm">Backend Dev</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="cfoot" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+      <span class="note">6 modificadores · ninguno puede dejar un perfil por debajo de 0 %</span>
+      <span class="note">Backend Dev: hasta −19 pp acumulados</span>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
