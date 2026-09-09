@@ -96,6 +96,13 @@ public sealed class ErrorHandlerMiddleware(
                 StatusCodes.Status401Unauthorized,
                 "Unauthorized",
                 exception.Message),
+            // Va después de las derivadas (NotFound, BadRequest, Conflict), que
+            // ya dijeron su código. Una regla de dominio que llega hasta acá la
+            // rompió lo que mandó el cliente, no el servidor: 400, no 500.
+            DomainException => (
+                StatusCodes.Status400BadRequest,
+                "Regla de negocio",
+                exception.Message),
             _ => (
                 StatusCodes.Status500InternalServerError,
                 "Internal server error",

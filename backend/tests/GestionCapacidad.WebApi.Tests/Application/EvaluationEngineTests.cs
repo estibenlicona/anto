@@ -74,7 +74,7 @@ public sealed class EvaluationEngineTests
             model.Dimensions);
         Assert.Equal(6, model.Triage.Count);
         Assert.Equal(5, model.Bands.Count);
-        Assert.Equal(3, model.Mix.Count);
+        Assert.Equal(6, model.Mix.Count);
     }
 
     [Fact]
@@ -192,7 +192,7 @@ public sealed class EvaluationEngineTests
     // ── Composición y dimensiones ─────────────────────────────────────────────
 
     [Fact]
-    public async Task Mix_ForTallaM_SplitsTheExpectedFteAcrossTheThreeCapabilities()
+    public async Task Mix_ForTallaM_SplitsTheExpectedFteAcrossTheCapabilitiesItAsksFor()
     {
         EvaluationModelDto model = await ReferenceModelAsync();
 
@@ -201,14 +201,18 @@ public sealed class EvaluationEngineTests
             new EvaluationInput([false, false, false, false, false, false], AnswersFrom(model, Medium), 6),
             SavedAt);
 
-        Assert.Equal(["Backend Dev", "QA Engineer", "Arquitecto"], result.Mix.Select(m => m.Capability));
-        Assert.Equal([3m, 1m, 1m], result.Mix.Select(m => m.People));
-        Assert.Equal([60m, 20m, 20m], result.Mix.Select(m => m.CompositionPct));
+        // La talla M pide cuatro de las seis capacidades; DevOps y Data
+        // quedan en cero y no aparecen.
+        Assert.Equal(
+            ["Backend Dev", "Frontend Dev", "QA Engineer", "Arquitecto"],
+            result.Mix.Select(m => m.Capability));
+        Assert.Equal([2m, 1m, 1m, 1m], result.Mix.Select(m => m.People));
+        Assert.Equal([40m, 20m, 20m, 20m], result.Mix.Select(m => m.CompositionPct));
 
-        // El FTE de cada capacidad no se redondea: las tres porciones tienen
-        // que sumar el esperado.
+        // El FTE de cada capacidad no se redondea: las porciones tienen que
+        // sumar el esperado.
         Assert.Equal(result.FteExpected, result.Mix.Sum(m => m.Fte));
-        Assert.Equal(0.45m, Math.Round(result.Mix[0].Fte, 4));
+        Assert.Equal(0.30m, Math.Round(result.Mix[0].Fte, 4));
     }
 
     [Fact]

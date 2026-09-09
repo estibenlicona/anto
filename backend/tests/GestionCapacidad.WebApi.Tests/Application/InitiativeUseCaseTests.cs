@@ -285,9 +285,16 @@ public sealed class InitiativeUseCaseTests
 
     // ── Guardar la evaluación ─────────────────────────────────────────────────
 
+    /// <summary>
+    /// Sin versión vigente: la validación de las respuestas cae al tope de la
+    /// escala de hoy, que es lo único con qué comparar cuando el modelo
+    /// versionado todavía no existe en esa base.
+    /// </summary>
+    private readonly Mock<IEstimationVersionProvider> _versionProvider = new();
+
     private SaveEvaluationUseCase Saving() =>
-        new(_initiatives.Object, _squads.Object, _modelProvider.Object, _unitOfWork.Object,
-            new FakeTimeProvider(Now));
+        new(_initiatives.Object, _squads.Object, _modelProvider.Object, _versionProvider.Object,
+            _unitOfWork.Object, new FakeTimeProvider(Now));
 
     private static Dictionary<string, int> AllAnswers(int value) =>
         ReferenceModel.Questions.ToDictionary(q => q.Id, _ => value);

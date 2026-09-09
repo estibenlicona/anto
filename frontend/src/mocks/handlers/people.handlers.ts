@@ -20,6 +20,9 @@ import {
   leadEntraObjectIdOf,
   scopePeople,
 } from "./chapters";
+// Datos puros, sin estado ni handlers: importarlo no rompe la regla de que
+// este mock no depende de ningún otro (ver la nota en allocations.handlers).
+import { seededUtilizationOf } from "./allocations.seeds";
 
 const PEOPLE_URL = "/people";
 const PEOPLE_STATS_URL = "/people/stats";
@@ -273,7 +276,8 @@ const initialPeople: PersonDto[] = [
     ...withSeniority(3, "Avanzado"),
     modality: "Hybrid",
     availableFte: 1,
-    utilization: 40,
+    // Derivada de las asignaciones más abajo, como en el backend.
+    utilization: 0,
     monthlyCost: 7900000,
     startDate: "2023-03-01",
     chapterId: null,
@@ -297,7 +301,8 @@ const initialPeople: PersonDto[] = [
     ...withSeniority(2, "Competente"),
     modality: "Remote",
     availableFte: 1,
-    utilization: 70,
+    // Derivada de las asignaciones más abajo, como en el backend.
+    utilization: 0,
     monthlyCost: 6200000,
     startDate: "2023-06-15",
     chapterId: null,
@@ -324,7 +329,8 @@ const initialPeople: PersonDto[] = [
     // arbitraria — si no, los totales del chapter leen 17.3 FTE, que no es
     // una capacidad que exista.
     availableFte: 0.5,
-    utilization: 100,
+    // Derivada de las asignaciones más abajo, como en el backend.
+    utilization: 0,
     monthlyCost: 11500000,
     startDate: "2021-01-10",
     chapterId: null,
@@ -338,25 +344,25 @@ const initialPeople: PersonDto[] = [
   // para que la paginación tenga más de una página con el tamaño por defecto.
   ...(
     [
-      ["Andrés Martínez", "Frontend Dev", 2, "Competente", "OnSite", 60],
-      ["Paula Ramírez", "Data Engineer", 4, "Experto", "Hybrid", 85],
-      ["Diego Salazar", "Backend Dev", 1, "Principiante", "Remote", 0],
-      ["Valentina Ospina", "UX Designer", 3, "Avanzado", "Hybrid", 40],
-      ["Sebastián Cárdenas", "DevOps Engineer", 3, "Avanzado", "Remote", 120],
-      ["Camila Restrepo", "Product Owner", 4, "Experto", "OnSite", 90],
-      ["Julián Peña", "QA Engineer", 2, "Competente", "Hybrid", 50],
-      ["Isabella Moreno", "Frontend Dev", 3, "Avanzado", "Remote", 75],
-      ["Mateo Vargas", "Data Analyst", 1, "Principiante", "Hybrid", 0],
-      ["Sofía Herrera", "Scrum Master", 3, "Avanzado", "OnSite", 100],
-      ["Tomás Giraldo", "Arquitecto", 4, "Experto", "Hybrid", 80],
-      ["Daniela Castaño", "Backend Dev", 2, "Competente", "Remote", 30],
-      ["Emilio Naranjo", "Security Engineer", 3, "Avanzado", "Hybrid", 65],
-      ["Lucía Arango", "UX Researcher", 2, "Competente", "Remote", 20],
-      ["Nicolás Betancur", "Mobile Dev", 3, "Avanzado", "OnSite", 55],
+      ["Andrés Martínez", "Frontend Dev", 2, "Competente", "OnSite"],
+      ["Paula Ramírez", "Data Engineer", 4, "Experto", "Hybrid"],
+      ["Diego Salazar", "Backend Dev", 1, "Principiante", "Remote"],
+      ["Valentina Ospina", "UX Designer", 3, "Avanzado", "Hybrid"],
+      ["Sebastián Cárdenas", "DevOps Engineer", 3, "Avanzado", "Remote"],
+      ["Camila Restrepo", "Product Owner", 4, "Experto", "OnSite"],
+      ["Julián Peña", "QA Engineer", 2, "Competente", "Hybrid"],
+      ["Isabella Moreno", "Frontend Dev", 3, "Avanzado", "Remote"],
+      ["Mateo Vargas", "Data Analyst", 1, "Principiante", "Hybrid"],
+      ["Sofía Herrera", "Scrum Master", 3, "Avanzado", "OnSite"],
+      ["Tomás Giraldo", "Arquitecto", 4, "Experto", "Hybrid"],
+      ["Daniela Castaño", "Backend Dev", 2, "Competente", "Remote"],
+      ["Emilio Naranjo", "Security Engineer", 3, "Avanzado", "Hybrid"],
+      ["Lucía Arango", "UX Researcher", 2, "Competente", "Remote"],
+      ["Nicolás Betancur", "Mobile Dev", 3, "Avanzado", "OnSite"],
     ] satisfies ReadonlyArray<
-      readonly [string, string, number, string, PersonDto["modality"], number]
+      readonly [string, string, number, string, PersonDto["modality"]]
     >
-  ).map(([name, position, level, levelLabel, modality, utilization], index) => {
+  ).map(([name, position, level, levelLabel, modality], index) => {
     // Una letra repetida por persona, con la misma forma que los ids de arriba
     // pero sin colisionar con ellos, que usan dígitos.
     const d = String.fromCharCode(97 + index);
@@ -387,10 +393,8 @@ const initialPeople: PersonDto[] = [
       // parcial para que la capacidad del balance de carga se lea
       // "0.50 / 0.50 FTE" y no siempre sobre 1.0.
       availableFte: name === "Isabella Moreno" ? 0.5 : 1,
-      // Fija y variada a propósito: cubre 0, medios, 100 y >100 para que la
-      // barra del listado muestre todos sus umbrales. No deriva de los mocks
-      // de Capacidades — el backend real la calculará desde las asignaciones.
-      utilization,
+      // Derivada de las asignaciones más abajo, igual que en el backend.
+      utilization: 0,
       monthlyCost: 6000000 + index * 350000,
       startDate: `202${(index % 4) + 1}-0${(index % 9) + 1}-15`,
       chapterId: null,
@@ -417,6 +421,12 @@ for (const p of initialPeople) {
   p.chapterId = CHAPTER_BY_PERSON_NAME[p.name] ?? null;
   p.entraObjectId = leadEntraObjectIdOf(p.name);
 }
+
+// La utilización es la suma de la dedicación de las asignaciones de la
+// persona, la misma cuenta que hace `PersonDerivedData.Build` en el backend.
+// Se deriva acá y no se escribe a mano: el listado de Personas y el detalle de
+// la célula leen del mismo reparto y no pueden discrepar.
+for (const p of initialPeople) p.utilization = seededUtilizationOf(p.name);
 
 // El rol de cada persona y quién la acompaña técnicamente, también por nombre.
 // El líder técnico se resuelve a id después de que todos tienen el suyo.

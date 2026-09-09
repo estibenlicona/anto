@@ -15,6 +15,7 @@ import {
 } from "@features/chapter-lead-shell/LeadBreadcrumbContext";
 import { initiativeService } from "../services/initiativeService";
 import { InitiativesContainer } from "../InitiativesContainer";
+import { InitiativeDetailContainer } from "../InitiativeDetailContainer";
 import { InitiativeEvaluationContainer } from "../InitiativeEvaluationContainer";
 
 // Hace las veces de la franja del breadcrumb del shell: pinta lo que el
@@ -43,12 +44,35 @@ function renderAt(path: string) {
   );
 }
 
+function renderDetail(id: string) {
+  return render(
+    <MemoryRouter initialEntries={[`/capacidad/iniciativas/${id}`]}>
+      <ToastProvider>
+        <LeadBreadcrumbProvider>
+          <Routes>
+            <Route path="/capacidad/iniciativas" element={<h1>Listado</h1>} />
+            <Route
+              path="/capacidad/iniciativas/:id"
+              element={<InitiativeDetailContainer initiativeId={id} />}
+            />
+            <Route
+              path="/capacidad/iniciativas/:id/evaluacion"
+              element={<h1>Evaluación</h1>}
+            />
+          </Routes>
+        </LeadBreadcrumbProvider>
+      </ToastProvider>
+    </MemoryRouter>
+  );
+}
+
 function renderEvaluation(id: string) {
   return render(
     <MemoryRouter initialEntries={[`/capacidad/iniciativas/${id}/evaluacion`]}>
       <ToastProvider>
         <Routes>
           <Route path="/capacidad/iniciativas" element={<h1>Listado</h1>} />
+          <Route path="/capacidad/iniciativas/:id" element={<h1>Ficha</h1>} />
           <Route
             path="/capacidad/iniciativas/:id/evaluacion"
             element={<InitiativeEvaluationContainer initiativeId={id} />}
@@ -124,10 +148,65 @@ describe("InitiativesContainer", () => {
   });
 });
 
+describe("InitiativeDetailContainer", () => {
+  beforeEach(() => resetInitiativesMock());
+
+  it("una evaluada muestra las tres fases y la lectura de la Fase 1", async () => {
+    renderDetail("ini-kafka");
+    expect(
+      await screen.findByRole("heading", { name: "Kafka Migration" })
+    ).toBeInTheDocument();
+
+    // Las tres fases: la primera cerrada, las otras dos pendientes porque
+    // todavía no existen.
+    const fases = screen.getByRole("list", {
+      name: "Fases de la estimación",
+    });
+    expect(within(fases).getAllByRole("listitem")).toHaveLength(3);
+    expect(within(fases).getAllByText("Aún no disponible")).toHaveLength(2);
+
+    // La misma lectura del último paso del asistente, sobre lo guardado.
+    expect(screen.getByText("De dónde viene el score")).toBeInTheDocument();
+    expect(
+      screen.getByText("Capacidad que exige el plazo")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: /Escala de tallas/ })
+    ).toBeInTheDocument();
+  });
+
+  it("sin evaluación ofrece evaluarla en vez de una lectura vacía", async () => {
+    renderDetail("ini-qr");
+    expect(
+      await screen.findByText("Todavía sin estimación temprana")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("De dónde viene el score")
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Evaluar" }));
+    expect(
+      await screen.findByRole("heading", { name: "Evaluación" })
+    ).toBeInTheDocument();
+  });
+
+  it("un id inexistente vuelve al listado", async () => {
+    renderDetail("nope");
+    expect(
+      await screen.findByText("Iniciativa no encontrada")
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Ir al listado de iniciativas" })
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Listado" })
+    ).toBeInTheDocument();
+  });
+});
+
 describe("InitiativeEvaluationContainer", () => {
   beforeEach(() => resetInitiativesMock());
 
-  it("responder cambia la talla del encabezado; el plazo no; guardar persiste y vuelve al listado", async () => {
+  it("responder cambia la talla del encabezado; el plazo no; guardar persiste y lleva a la ficha", async () => {
     renderEvaluation("ini-qr");
     expect(
       await screen.findByRole("heading", { name: "Pago con QR en App" })
@@ -149,21 +228,28 @@ describe("InitiativeEvaluationContainer", () => {
     expect(
       await screen.findByRole("heading", { name: "Negocio y cliente" })
     ).toBeInTheDocument();
-    // Elegir reemplaza: Crítico 4 y luego Bajo 1 en N1.
+    // Los chips llevan sólo la etiqueta: el 0-4 es del motor, no de quien
+    // responde. Elegir reemplaza: Crítico y luego Bajo en N1.
     const n1 = screen.getByRole("group", {
       name: /Impacta directamente clientes/,
     });
-    fireEvent.click(within(n1).getByRole("button", { name: "Crítico, 4" }));
-    expect(
-      within(n1).getByRole("button", { name: "Crítico, 4" })
-    ).toHaveAttribute("aria-pressed", "true");
-    fireEvent.click(within(n1).getByRole("button", { name: "Bajo, 1" }));
-    expect(
-      within(n1).getByRole("button", { name: "Crítico, 4" })
-    ).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(within(n1).getByRole("button", { name: "Crítico" }));
+    expect(within(n1).getByRole("button", { name: "Crítico" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    fireEvent.click(within(n1).getByRole("button", { name: "Bajo" }));
+    expect(within(n1).getByRole("button", { name: "Crítico" })).toHaveAttribute(
+      "aria-pressed",
+      "false"
+    );
     // Todo al máximo en la dimensión: 32 de 280 puntos → 11,4% en el encabezado.
+    // Sin el contador en el nombre, el máximo de cada pregunta se pide por su
+    // etiqueta. Si alguna cambia, el 11,4% de abajo lo delata.
     screen
-      .getAllByRole("button", { name: /, 4$/ })
+      .getAllByRole("button", {
+        name: /^(Crítico|Muy alto|5 o más|Más de 10|4 o más)$/,
+      })
       .forEach((b) => fireEvent.click(b));
     expect(screen.getAllByText("11,4%").length).toBeGreaterThan(0);
 
@@ -174,10 +260,18 @@ describe("InitiativeEvaluationContainer", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Resultado/ }));
     expect(await screen.findByText("Guardar evaluación")).toBeInTheDocument();
-    expect(screen.getByText("Qué la hace compleja")).toBeInTheDocument();
+    expect(screen.getByText("De dónde viene el score")).toBeInTheDocument();
+    // Tamaño y esfuerzo se leen por separado, y la capacidad depende del
+    // plazo: las cuatro filas de la tabla llevan el mismo esfuerzo.
+    expect(screen.getByText("Tamaño")).toBeInTheDocument();
+    expect(screen.getByText("PM esperados")).toBeInTheDocument();
+    const plazos = screen
+      .getByText("Capacidad que exige el plazo")
+      .closest("div")!.parentElement!;
+    expect(within(plazos).getAllByRole("row")).toHaveLength(5); // encabezado + 4
     fireEvent.click(screen.getByRole("button", { name: "Guardar evaluación" }));
     expect(
-      await screen.findByRole("heading", { name: "Listado" })
+      await screen.findByRole("heading", { name: "Ficha" })
     ).toBeInTheDocument();
     const saved = await initiativeService.get("ini-qr");
     expect(saved.evaluation?.targetMonths).toBe(3);

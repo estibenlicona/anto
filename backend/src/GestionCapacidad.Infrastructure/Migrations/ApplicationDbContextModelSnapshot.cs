@@ -249,6 +249,35 @@ namespace GestionCapacidad.Infrastructure.Migrations
                     b.HasAnnotation("Mongo:CollectionName", "Companies");
                 });
 
+            modelBuilder.Entity("GestionCapacidad.Domain.Entities.EstimationModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Phase")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EstimationModels", (string)null);
+
+                    b.HasAnnotation("Mongo:CollectionName", "EstimationModels");
+                });
+
             modelBuilder.Entity("GestionCapacidad.Domain.Entities.ExpertiseLine", b =>
                 {
                     b.Property<Guid>("Id")
@@ -963,6 +992,527 @@ namespace GestionCapacidad.Infrastructure.Migrations
                         });
 
                     b.Navigation("Rows");
+                });
+
+            modelBuilder.Entity("GestionCapacidad.Domain.Entities.EstimationModel", b =>
+                {
+                    b.OwnsMany("GestionCapacidad.Domain.Entities.ModelVersion", "Versions", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("ChangeNote")
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)");
+
+                            b1.Property<DateTime>("CreatedAtUtc")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<DateOnly?>("EffectiveFrom")
+                                .HasColumnType("date");
+
+                            b1.Property<DateOnly?>("EffectiveTo")
+                                .HasColumnType("date");
+
+                            b1.Property<Guid>("EstimationModelId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Number")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Status")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)");
+
+                            b1.Property<string>("TallaBoundaries")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.Property<DateTime?>("UpdatedAtUtc")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("EstimationModelId");
+
+                            b1.ToTable("ModelVersions", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("EstimationModelId");
+
+                            b1.OwnsMany("GestionCapacidad.Domain.Entities.MixModifier", "MixModifiers", b2 =>
+                                {
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<string>("Code")
+                                        .IsRequired()
+                                        .HasMaxLength(50)
+                                        .HasColumnType("character varying(50)");
+
+                                    b2.Property<string>("ConditionOperator")
+                                        .IsRequired()
+                                        .HasMaxLength(10)
+                                        .HasColumnType("character varying(10)");
+
+                                    b2.Property<string>("DriverCode")
+                                        .IsRequired()
+                                        .HasMaxLength(20)
+                                        .HasColumnType("character varying(20)");
+
+                                    b2.Property<Guid>("ModelVersionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Position")
+                                        .HasColumnType("integer");
+
+                                    b2.Property<string>("Tallas")
+                                        .IsRequired()
+                                        .HasMaxLength(200)
+                                        .HasColumnType("character varying(200)");
+
+                                    b2.Property<decimal>("Threshold")
+                                        .HasColumnType("decimal(5,4)");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("ModelVersionId");
+
+                                    b2.ToTable("ModelMixModifiers", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ModelVersionId");
+
+                                    b2.OwnsMany("GestionCapacidad.Domain.Entities.MixAdjustment", "Adjustments", b3 =>
+                                        {
+                                            b3.Property<int>("Id")
+                                                .ValueGeneratedOnAdd()
+                                                .HasColumnType("integer");
+
+                                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b3.Property<int>("Id"));
+
+                                            b3.Property<string>("CapabilityKey")
+                                                .IsRequired()
+                                                .HasMaxLength(50)
+                                                .HasColumnType("character varying(50)");
+
+                                            b3.Property<int>("MixModifierId")
+                                                .HasColumnType("integer");
+
+                                            b3.Property<decimal>("Points")
+                                                .HasColumnType("decimal(6,2)");
+
+                                            b3.Property<int>("Position")
+                                                .HasColumnType("integer");
+
+                                            b3.HasKey("Id");
+
+                                            b3.HasIndex("MixModifierId");
+
+                                            b3.ToTable("ModelMixAdjustments", (string)null);
+
+                                            b3.WithOwner()
+                                                .HasForeignKey("MixModifierId");
+                                        });
+
+                                    b2.Navigation("Adjustments");
+                                });
+
+                            b1.OwnsMany("GestionCapacidad.Domain.Entities.ModelChangeEntry", "History", b2 =>
+                                {
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<string>("Author")
+                                        .IsRequired()
+                                        .HasMaxLength(120)
+                                        .HasColumnType("character varying(120)");
+
+                                    b2.Property<Guid>("ModelVersionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<DateTime>("OccurredAtUtc")
+                                        .HasColumnType("timestamp with time zone");
+
+                                    b2.Property<string>("Section")
+                                        .IsRequired()
+                                        .HasMaxLength(50)
+                                        .HasColumnType("character varying(50)");
+
+                                    b2.Property<string>("Summary")
+                                        .IsRequired()
+                                        .HasMaxLength(500)
+                                        .HasColumnType("character varying(500)");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("ModelVersionId");
+
+                                    b2.ToTable("ModelChangeEntries", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ModelVersionId");
+                                });
+
+                            b1.OwnsMany("GestionCapacidad.Domain.Entities.ModelDimension", "Dimensions", b2 =>
+                                {
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<bool>("Active")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<string>("Code")
+                                        .IsRequired()
+                                        .HasMaxLength(20)
+                                        .HasColumnType("character varying(20)");
+
+                                    b2.Property<Guid>("ModelVersionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<string>("Name")
+                                        .IsRequired()
+                                        .HasMaxLength(100)
+                                        .HasColumnType("character varying(100)");
+
+                                    b2.Property<int>("Order")
+                                        .HasColumnType("integer");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("ModelVersionId");
+
+                                    b2.ToTable("ModelDimensions", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ModelVersionId");
+                                });
+
+                            b1.OwnsMany("GestionCapacidad.Domain.Entities.ModelDriver", "Drivers", b2 =>
+                                {
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<string>("Code")
+                                        .IsRequired()
+                                        .HasMaxLength(20)
+                                        .HasColumnType("character varying(20)");
+
+                                    b2.Property<string>("Description")
+                                        .IsRequired()
+                                        .HasMaxLength(200)
+                                        .HasColumnType("character varying(200)");
+
+                                    b2.Property<Guid>("ModelVersionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<string>("Outputs")
+                                        .IsRequired()
+                                        .HasMaxLength(200)
+                                        .HasColumnType("character varying(200)");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("ModelVersionId");
+
+                                    b2.ToTable("ModelDrivers", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ModelVersionId");
+                                });
+
+                            b1.OwnsMany("GestionCapacidad.Domain.Entities.ModelMixRow", "Mix", b2 =>
+                                {
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<string>("Capacidad")
+                                        .IsRequired()
+                                        .HasMaxLength(100)
+                                        .HasColumnType("character varying(100)");
+
+                                    b2.Property<string>("Key")
+                                        .IsRequired()
+                                        .HasMaxLength(50)
+                                        .HasColumnType("character varying(50)");
+
+                                    b2.Property<Guid>("ModelVersionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<string>("PorTalla")
+                                        .IsRequired()
+                                        .HasMaxLength(1000)
+                                        .HasColumnType("character varying(1000)");
+
+                                    b2.Property<int>("Position")
+                                        .HasColumnType("integer");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("ModelVersionId");
+
+                                    b2.ToTable("ModelMixRows", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ModelVersionId");
+                                });
+
+                            b1.OwnsMany("GestionCapacidad.Domain.Entities.ModelQuestion", "Questions", b2 =>
+                                {
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<bool>("Active")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<string>("Code")
+                                        .IsRequired()
+                                        .HasMaxLength(50)
+                                        .HasColumnType("character varying(50)");
+
+                                    b2.Property<string>("DimensionCode")
+                                        .IsRequired()
+                                        .HasMaxLength(20)
+                                        .HasColumnType("character varying(20)");
+
+                                    b2.Property<string>("DriverCode")
+                                        .IsRequired()
+                                        .HasMaxLength(20)
+                                        .HasColumnType("character varying(20)");
+
+                                    b2.Property<Guid>("ModelVersionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Position")
+                                        .HasColumnType("integer");
+
+                                    b2.Property<string>("Texto")
+                                        .IsRequired()
+                                        .HasMaxLength(500)
+                                        .HasColumnType("character varying(500)");
+
+                                    b2.Property<string>("Type")
+                                        .IsRequired()
+                                        .HasMaxLength(20)
+                                        .HasColumnType("character varying(20)");
+
+                                    b2.Property<string>("Unit")
+                                        .HasMaxLength(30)
+                                        .HasColumnType("character varying(30)");
+
+                                    b2.Property<string>("Weights")
+                                        .IsRequired()
+                                        .HasMaxLength(400)
+                                        .HasColumnType("character varying(400)");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("ModelVersionId");
+
+                                    b2.ToTable("ModelQuestions", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ModelVersionId");
+
+                                    b2.OwnsMany("GestionCapacidad.Domain.Entities.ModelQuestionOption", "Options", b3 =>
+                                        {
+                                            b3.Property<int>("Id")
+                                                .ValueGeneratedOnAdd()
+                                                .HasColumnType("integer");
+
+                                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b3.Property<int>("Id"));
+
+                                            b3.Property<decimal?>("From")
+                                                .HasColumnType("decimal(12,2)");
+
+                                            b3.Property<string>("Label")
+                                                .IsRequired()
+                                                .HasMaxLength(100)
+                                                .HasColumnType("character varying(100)");
+
+                                            b3.Property<int>("ModelQuestionId")
+                                                .HasColumnType("integer");
+
+                                            b3.Property<int>("Position")
+                                                .HasColumnType("integer");
+
+                                            b3.Property<decimal>("Score")
+                                                .HasColumnType("decimal(5,4)");
+
+                                            b3.Property<decimal?>("To")
+                                                .HasColumnType("decimal(12,2)");
+
+                                            b3.HasKey("Id");
+
+                                            b3.HasIndex("ModelQuestionId");
+
+                                            b3.ToTable("ModelQuestionOptions", (string)null);
+
+                                            b3.WithOwner()
+                                                .HasForeignKey("ModelQuestionId");
+                                        });
+
+                                    b2.Navigation("Options");
+                                });
+
+                            b1.OwnsMany("GestionCapacidad.Domain.Entities.ModelRiskBand", "RiskBands", b2 =>
+                                {
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<string>("Level")
+                                        .IsRequired()
+                                        .HasMaxLength(30)
+                                        .HasColumnType("character varying(30)");
+
+                                    b2.Property<decimal>("MaxPct")
+                                        .HasColumnType("decimal(5,2)");
+
+                                    b2.Property<Guid>("ModelVersionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Position")
+                                        .HasColumnType("integer");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("ModelVersionId");
+
+                                    b2.ToTable("ModelRiskBands", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ModelVersionId");
+                                });
+
+                            b1.OwnsMany("GestionCapacidad.Domain.Entities.ModelTallaRule", "TallaRules", b2 =>
+                                {
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<string>("Action")
+                                        .IsRequired()
+                                        .HasMaxLength(100)
+                                        .HasColumnType("character varying(100)");
+
+                                    b2.Property<string>("Lectura")
+                                        .IsRequired()
+                                        .HasMaxLength(200)
+                                        .HasColumnType("character varying(200)");
+
+                                    b2.Property<Guid>("ModelVersionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<decimal>("PmExpected")
+                                        .HasColumnType("decimal(6,2)");
+
+                                    b2.Property<decimal>("PmMax")
+                                        .HasColumnType("decimal(6,2)");
+
+                                    b2.Property<decimal>("PmMin")
+                                        .HasColumnType("decimal(6,2)");
+
+                                    b2.Property<int>("Position")
+                                        .HasColumnType("integer");
+
+                                    b2.Property<string>("Talla")
+                                        .IsRequired()
+                                        .HasMaxLength(10)
+                                        .HasColumnType("character varying(10)");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("ModelVersionId");
+
+                                    b2.ToTable("ModelTallaRules", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ModelVersionId");
+                                });
+
+                            b1.OwnsMany("GestionCapacidad.Domain.Entities.ModelTriageQuestion", "TriageQuestions", b2 =>
+                                {
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<string>("Code")
+                                        .IsRequired()
+                                        .HasMaxLength(50)
+                                        .HasColumnType("character varying(50)");
+
+                                    b2.Property<bool>("Critical")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<Guid>("ModelVersionId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Position")
+                                        .HasColumnType("integer");
+
+                                    b2.Property<string>("Texto")
+                                        .IsRequired()
+                                        .HasMaxLength(500)
+                                        .HasColumnType("character varying(500)");
+
+                                    b2.HasKey("Id");
+
+                                    b2.HasIndex("ModelVersionId");
+
+                                    b2.ToTable("ModelTriageQuestions", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ModelVersionId");
+                                });
+
+                            b1.Navigation("Dimensions");
+
+                            b1.Navigation("Drivers");
+
+                            b1.Navigation("History");
+
+                            b1.Navigation("Mix");
+
+                            b1.Navigation("MixModifiers");
+
+                            b1.Navigation("Questions");
+
+                            b1.Navigation("RiskBands");
+
+                            b1.Navigation("TallaRules");
+
+                            b1.Navigation("TriageQuestions");
+                        });
+
+                    b.Navigation("Versions");
                 });
 
             modelBuilder.Entity("GestionCapacidad.Domain.Entities.Person", b =>

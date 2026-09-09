@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; display: flex;
+             align-items: baseline; justify-content: space-between; gap: 12px; }
+
+    .tag { display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-off { background: transparent; color: #A0A0A8; border: 1px dashed #C9C9CE; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-ok { background: #E7F3EC; color: #0D5239; } .b-ok .dot { background: #116B4B; }
+    .b-info { background: #E8F0FC; color: #154A96; } .b-info .dot { background: #1B5FBF; }
+    .b-neu { background: #F4F4F5; color: #26262C; } .b-neu .dot { background: #74747E; }
+
+    .link { font-size: 14px; line-height: 22px; color: #26262C; font-weight: 500;
+            text-decoration: underline; text-underline-offset: 4px; }
+    .prim { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 8px;
+            background: #C9151F; color: #FFFFFF; font-size: 14px; line-height: 22px; font-weight: 500; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6; }
+    td { padding: 10px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+
+    .route { display: grid; grid-template-columns: 260px minmax(0,1fr) 76px; gap: 12px;
+             align-items: baseline; padding: 7px 0; border-top: 1px solid #F4F4F5; }
+    .route:first-of-type { border-top: 0; }
+    .nueva { font-size: 12px; line-height: 16px; font-weight: 600; color: #0D5239;
+             background: #E7F3EC; border-radius: 4px; padding: 1px 6px; justify-self: start; }
+    .existe { font-size: 12px; line-height: 16px; color: #74747E; justify-self: start; padding: 1px 0; }
+  </style>
+</helmet>
+
+<div style="padding: 24px 28px 28px; display: flex; flex-direction: column; gap: 16px">
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 24px">
+    <h1 class="h1" style="margin: 0">Recorrido</h1>
+    <span class="sm">Puntos de entrada a las tres fases</span>
+  </div>
+
+  <div class="card">
+    <div class="cbody">
+      <svg viewBox="0 0 1200 300" width="100%" role="img"
+           aria-label="Del listado se entra a la ficha, y desde la ficha a cada una de las tres fases">
+        <defs>
+          <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#A0A0A8"/>
+          </marker>
+        </defs>
+
+        <!-- conexiones -->
+        <path d="M180,146 L278,146" stroke="#A0A0A8" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+        <path d="M95,116 L95,46 L588,46" stroke="#A0A0A8" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+        <path d="M462,146 C520,146 540,46 588,46" stroke="#A0A0A8" stroke-width="1.5" fill="none"
+              marker-start="url(#a)" marker-end="url(#a)"/>
+        <path d="M462,146 L588,146" stroke="#A0A0A8" stroke-width="1.5" fill="none"
+              marker-start="url(#a)" marker-end="url(#a)"/>
+        <path d="M462,146 C520,146 540,246 588,246" stroke="#A0A0A8" stroke-width="1.5" fill="none"
+              marker-start="url(#a)" marker-end="url(#a)"/>
+
+        <text x="336" y="38" fill="#74747E" font-size="12" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">Estimar — fila sin estimación</text>
+        <text x="232" y="138" fill="#74747E" font-size="12" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">nombre</text>
+        <text x="580" y="36" fill="#26262C" font-size="12" text-anchor="end" font-weight="500" font-family="IBM Plex Sans, sans-serif">Ver</text>
+        <text x="580" y="136" fill="#26262C" font-size="12" text-anchor="end" font-weight="500" font-family="IBM Plex Sans, sans-serif">Refinar</text>
+        <text x="580" y="236" fill="#26262C" font-size="12" text-anchor="end" font-weight="500" font-family="IBM Plex Sans, sans-serif">Registrar</text>
+
+        <!-- pantallas -->
+        <rect x="10" y="116" width="170" height="60" rx="8" fill="#FFFFFF" stroke="#E3E3E6" stroke-width="1"/>
+        <text x="26" y="142" fill="#26262C" font-size="14" font-weight="600" font-family="IBM Plex Sans, sans-serif">Listado</text>
+        <text x="26" y="160" fill="#74747E" font-size="11" font-family="IBM Plex Sans, sans-serif">todas las iniciativas</text>
+
+        <rect x="290" y="116" width="172" height="60" rx="8" fill="#FFFFFF" stroke="#26262C" stroke-width="1.5"/>
+        <text x="306" y="142" fill="#26262C" font-size="14" font-weight="600" font-family="IBM Plex Sans, sans-serif">Ficha</text>
+        <text x="306" y="160" fill="#74747E" font-size="11" font-family="IBM Plex Sans, sans-serif">las tres fases juntas</text>
+
+        <rect x="600" y="16" width="290" height="60" rx="8" fill="#FFFFFF" stroke="#E3E3E6" stroke-width="1"/>
+        <circle cx="622" cy="46" r="11" fill="#116B4B"/>
+        <text x="622" y="50" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">1</text>
+        <text x="642" y="42" fill="#26262C" font-size="14" font-weight="600" font-family="IBM Plex Sans, sans-serif">Estimación temprana</text>
+        <text x="642" y="60" fill="#74747E" font-size="11" font-family="IBM Plex Sans, sans-serif">entra: 32 respuestas</text>
+
+        <rect x="600" y="116" width="290" height="60" rx="8" fill="#FFFFFF" stroke="#E3E3E6" stroke-width="1"/>
+        <circle cx="622" cy="146" r="11" fill="#B57A00"/>
+        <text x="622" y="150" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">2</text>
+        <text x="642" y="142" fill="#26262C" font-size="14" font-weight="600" font-family="IBM Plex Sans, sans-serif">Estimación refinada</text>
+        <text x="642" y="160" fill="#74747E" font-size="11" font-family="IBM Plex Sans, sans-serif">entra: backlog de la épica y 3 respuestas</text>
+
+        <rect x="600" y="216" width="290" height="60" rx="8" fill="#FFFFFF" stroke="#E3E3E6" stroke-width="1"/>
+        <circle cx="622" cy="246" r="11" fill="#74747E"/>
+        <text x="622" y="250" fill="#FFFFFF" font-size="12" font-weight="700" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">3</text>
+        <text x="642" y="242" fill="#26262C" font-size="14" font-weight="600" font-family="IBM Plex Sans, sans-serif">Cierre</text>
+        <text x="642" y="260" fill="#74747E" font-size="11" font-family="IBM Plex Sans, sans-serif">entra: PM, plazo y mix reales</text>
+
+        <!-- condiciones -->
+        <text x="910" y="30" fill="#74747E" font-size="11" font-family="IBM Plex Sans, sans-serif">SE HABILITA CON</text>
+        <rect x="910" y="38" width="200" height="24" rx="12" fill="#F4F4F5"/>
+        <text x="924" y="55" fill="#26262C" font-size="12" font-family="IBM Plex Sans, sans-serif">iniciativa no cerrada</text>
+
+        <rect x="910" y="138" width="200" height="24" rx="12" fill="#FBF2DE"/>
+        <text x="924" y="155" fill="#6E4B00" font-size="12" font-family="IBM Plex Sans, sans-serif">Fase 1 guardada</text>
+
+        <rect x="910" y="238" width="200" height="24" rx="12" fill="#FBF2DE"/>
+        <text x="924" y="255" fill="#6E4B00" font-size="12" font-family="IBM Plex Sans, sans-serif">estado Cerrada</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="card" style="overflow: hidden">
+    <div class="chead">
+      <h2 class="h3" style="margin: 0">Acción de la fila y de la ficha, por estado</h2>
+      <span class="note">El nombre de la iniciativa siempre abre la ficha</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 13%">Estado</th>
+          <th style="width: 12%">Última fase</th>
+          <th style="width: 18%">Siguiente paso</th>
+          <th style="width: 19%">Primaria en la ficha</th>
+          <th style="width: 12%">Fase 1</th>
+          <th style="width: 13%">Fase 2</th>
+          <th style="width: 13%">Fase 3</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge b-info"><span class="dot"></span>En evaluación</span></td>
+          <td class="note">Sin estimar</td>
+          <td><span class="link">Estimar</span></td>
+          <td><span class="prim">Estimar</span></td>
+          <td><span class="tag t-green">Disponible</span></td>
+          <td><span class="tag t-off">Bloqueada</span></td>
+          <td><span class="tag t-off">Bloqueada</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge b-info"><span class="dot"></span>En evaluación</span></td>
+          <td><span class="tag t-gray">Fase 1</span></td>
+          <td><span class="link">Refinar en Fase 2</span></td>
+          <td><span class="prim">Refinar</span></td>
+          <td><span class="tag t-gray">Reabrir</span></td>
+          <td><span class="tag t-green">Disponible</span></td>
+          <td><span class="tag t-off">Bloqueada</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge b-ok"><span class="dot"></span>Activa</span></td>
+          <td><span class="tag t-gray">Fase 1</span></td>
+          <td><span class="link">Refinar en Fase 2</span></td>
+          <td><span class="prim">Refinar</span></td>
+          <td><span class="tag t-gray">Reabrir</span></td>
+          <td><span class="tag t-green">Disponible</span></td>
+          <td><span class="tag t-off">Bloqueada</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge b-ok"><span class="dot"></span>Activa</span></td>
+          <td><span class="tag t-blue">Fase 2</span></td>
+          <td><span class="link">Ver ficha</span></td>
+          <td><span class="link">Marcar como cerrada</span></td>
+          <td><span class="tag t-gray">Sólo lectura</span></td>
+          <td><span class="tag t-gray">Reabrir</span></td>
+          <td><span class="tag t-off">Bloqueada</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge b-neu"><span class="dot"></span>Cerrada</span></td>
+          <td><span class="tag t-blue">Fase 2</span></td>
+          <td><span class="link">Registrar cierre</span></td>
+          <td><span class="prim">Registrar cierre</span></td>
+          <td><span class="tag t-gray">Sólo lectura</span></td>
+          <td><span class="tag t-gray">Sólo lectura</span></td>
+          <td><span class="tag t-green">Disponible</span></td>
+        </tr>
+        <tr>
+          <td><span class="badge b-neu"><span class="dot"></span>Cerrada</span></td>
+          <td><span class="tag t-green">Fase 3</span></td>
+          <td><span class="link">Ver comparación</span></td>
+          <td><span class="link">Ver comparación</span></td>
+          <td><span class="tag t-gray">Sólo lectura</span></td>
+          <td><span class="tag t-gray">Sólo lectura</span></td>
+          <td><span class="tag t-gray">Reabrir</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+    <div class="card">
+      <div class="chead"><h2 class="h3" style="margin: 0">Rutas · Iniciativas</h2></div>
+      <div class="cbody">
+        <div class="route"><span class="mono sm">iniciativas</span><span class="sm">Listado</span><span class="existe">existe</span></div>
+        <div class="route"><span class="mono sm">iniciativas/:id</span><span class="sm">Ficha</span><span class="nueva">nueva</span></div>
+        <div class="route"><span class="mono sm">iniciativas/:id/fase-1</span><span class="sm">Cuestionario y resultado</span><span class="existe">hoy <span class="mono">/evaluacion</span></span></div>
+        <div class="route"><span class="mono sm">iniciativas/:id/fase-2</span><span class="sm">Estimación refinada</span><span class="nueva">nueva</span></div>
+        <div class="route"><span class="mono sm">iniciativas/:id/fase-3</span><span class="sm">Cierre</span><span class="nueva">nueva</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chead"><h2 class="h3" style="margin: 0">Rutas · Administración</h2></div>
+      <div class="cbody">
+        <div class="route"><span class="mono sm">parametros</span><span class="sm">Modelos y versiones</span><span class="existe">reemplaza las 4 pestañas</span></div>
+        <div class="route"><span class="mono sm">parametros/:modelo/:version</span><span class="sm">Editor de la versión</span><span class="nueva">nueva</span></div>
+        <div class="route"><span class="mono sm">parametros/calibracion</span><span class="sm">Calibración histórica</span><span class="nueva">nueva</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

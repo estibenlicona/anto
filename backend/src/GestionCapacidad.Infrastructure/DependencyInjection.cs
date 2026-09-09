@@ -83,6 +83,7 @@ public static class DependencyInjection
         services.AddScoped<ISingleDocumentRepository<CapabilityMix>, SingleDocumentRepository<CapabilityMix>>();
         services.AddScoped<ISingleDocumentRepository<QuestionPool>, SingleDocumentRepository<QuestionPool>>();
         services.AddScoped<ISingleDocumentRepository<SkillCatalogVersion>, SingleDocumentRepository<SkillCatalogVersion>>();
+        services.AddScoped<IEstimationModelRepository, EstimationModelRepository>();
 
         services.AddSingleton<IStackCatalog, ChapterStackCatalog>();
         services.AddSingleton<IChapterCatalog, ChapterDirectoryCatalog>();
@@ -90,6 +91,7 @@ public static class DependencyInjection
         // El modelo de evaluación se compone desde los parámetros de Admin en
         // cada petición, así que sigue el ciclo de vida de sus repositorios.
         services.AddScoped<IEvaluationModelProvider, EvaluationModelProvider>();
+        services.AddScoped<IEstimationVersionProvider, EstimationVersionProvider>();
         services.AddRestClient<ICompanyRegistryClient, CompanyRegistryClient>(
             configuration.GetSection("HttpClients:CompanyRegistry"));
 

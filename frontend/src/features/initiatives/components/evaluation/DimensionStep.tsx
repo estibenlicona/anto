@@ -80,8 +80,10 @@ export const DimensionStep: React.FC<DimensionStepProps> = ({
                 <Tag>Peso {q.weight}</Tag>
               </span>
             </div>
-            {/* Chip seleccionable con contador: el contador es el valor 0–4.
-                Elegir uno reemplaza al anterior; no se deselecciona. */}
+            {/* Sólo la etiqueta: el 0–4 que la escala vale por dentro es del
+                motor, no de quien responde — a nadie le sirve elegir "Alto"
+                sabiendo que son 3 puntos, y verlo invita a puntear en vez de
+                describir. Elegir uno reemplaza al anterior; no se deselecciona. */}
             <div
               role="group"
               aria-label={q.text}
@@ -92,7 +94,6 @@ export const DimensionStep: React.FC<DimensionStepProps> = ({
                   key={value}
                   selectable
                   selected={answers[q.id] === value}
-                  count={value}
                   onSelectedChange={() => onAnswer(q.id, value)}
                 >
                   {label}

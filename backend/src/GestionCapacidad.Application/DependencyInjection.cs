@@ -33,6 +33,7 @@ using GestionCapacidad.Application.UseCases.Dedication.GetCollaboratorDetail;
 using GestionCapacidad.Application.UseCases.Dedication.SyncCollaborator;
 using GestionCapacidad.Application.UseCases.Dedication.SyncAllCollaborators;
 using GestionCapacidad.Application.UseCases.Admin.GetCapabilityMix;
+using GestionCapacidad.Application.UseCases.Admin;
 using GestionCapacidad.Application.UseCases.Admin.GetQuestionPool;
 using GestionCapacidad.Application.UseCases.Admin.GetSprintConfig;
 using GestionCapacidad.Application.UseCases.Admin.GetTallaBands;
@@ -181,6 +182,18 @@ public static class DependencyInjection
         services.AddScoped<GetCapabilityMixUseCase>();
         services.AddScoped<SaveCapabilityMixUseCase>();
         services.AddScoped<GetQuestionPoolUseCase>();
+        // El modelo de estimación versionado.
+        services.AddScoped<GetEstimationModelsUseCase>();
+        services.AddScoped<GetModelVersionContentUseCase>();
+        services.AddScoped<GetModelVersionValidationUseCase>();
+        services.AddScoped<GetModelVersionDiffUseCase>();
+        services.AddScoped<GetModelVersionHistoryUseCase>();
+        services.AddScoped<CreateModelVersionUseCase>();
+        services.AddScoped<SaveModelDimensionsUseCase>();
+        services.AddScoped<SaveModelDriversUseCase>();
+        services.AddScoped<SaveModelTallaRulesUseCase>();
+        services.AddScoped<SaveModelMixUseCase>();
+        services.AddScoped<PublishModelVersionUseCase>();
         services.AddScoped<SaveQuestionPoolUseCase>();
 
         // Allocations

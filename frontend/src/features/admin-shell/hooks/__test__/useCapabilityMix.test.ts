@@ -21,8 +21,11 @@ describe("useCapabilityMix", () => {
     const { result } = await renderLoaded();
     expect(result.current.values?.map((row) => row.capacidad)).toEqual([
       "Backend Dev",
+      "Frontend Dev",
       "QA Engineer",
       "Arquitecto",
+      "DevOps Engineer",
+      "Data Engineer",
     ]);
     expect(result.current.canSave).toBe(false);
   });
@@ -41,13 +44,13 @@ describe("useCapabilityMix", () => {
 
     act(() => result.current.addRow(TALLAS));
 
-    expect(result.current.values).toHaveLength(4);
-    const added = result.current.values![3];
+    expect(result.current.values).toHaveLength(7);
+    const added = result.current.values![6];
     expect(TALLAS.map((talla) => mixAmount(added, talla))).toEqual([
       0, 0, 0, 0, 0,
     ]);
     // Nace sin nombre, así que todavía no se puede guardar.
-    expect(result.current.errors[3].capacidad).toBeDefined();
+    expect(result.current.errors[6].capacidad).toBeDefined();
     expect(result.current.canSave).toBe(false);
   });
 
@@ -68,7 +71,10 @@ describe("useCapabilityMix", () => {
 
     expect(result.current.values?.map((row) => row.capacidad)).toEqual([
       "Backend Dev",
+      "QA Engineer",
       "Arquitecto",
+      "DevOps Engineer",
+      "Data Engineer",
     ]);
     expect(result.current.canSave).toBe(true);
   });
@@ -89,7 +95,7 @@ describe("useCapabilityMix", () => {
 
     // "QA" y "qa " son la misma capacidad para quien lee la tabla.
     expect(result.current.errors[0].capacidad).toBeDefined();
-    expect(result.current.errors[1].capacidad).toBeDefined();
+    expect(result.current.errors[2].capacidad).toBeDefined();
     expect(result.current.canSave).toBe(false);
   });
 
@@ -150,8 +156,11 @@ describe("useCapabilityMix", () => {
 
     expect(result.current.values?.map((row) => row.capacidad)).toEqual([
       "Backend Dev",
+      "Frontend Dev",
       "QA Engineer",
       "Arquitecto",
+      "DevOps Engineer",
+      "Data Engineer",
     ]);
     expect(result.current.canSave).toBe(false);
   });

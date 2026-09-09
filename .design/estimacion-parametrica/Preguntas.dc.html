@@ -1,0 +1,371 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 12px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; display: flex;
+             align-items: baseline; justify-content: space-between; gap: 12px; }
+    .cfoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-sm { gap: 6px; padding: 4px 12px; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+    .btn-u { background: transparent; color: #26262C; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-red { background: #FBE9EA; color: #700C13; }
+    .t-purple { background: #EFEAFB; color: #3D2894; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-warn { background: #FBF2DE; color: #6E4B00; } .b-warn .dot { background: #B57A00; }
+
+    /* Barra de contexto del editor: qué versión se está tocando y qué se puede
+       hacer con ella. Vive arriba de las pestañas porque aplica a las cinco. */
+    .tabs { display: flex; gap: 28px; border-bottom: 1px solid #E3E3E6; }
+    .tabs > span { padding-bottom: 14px; margin-bottom: -1px; border-bottom: 2px solid transparent;
+                   font-size: 14px; line-height: 22px; color: #55555E; }
+    .tabs > span.on { border-color: #ED1C29; font-weight: 600; color: #26262C; }
+    .tabs > span .n { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: #74747E; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6; }
+    td { padding: 10px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .r { text-align: right; }
+    .rowerr td { background: #FBE9EA33; box-shadow: inset 2px 0 0 #8E0F18; }
+    .rownew td { box-shadow: inset 2px 0 0 #116B4B; }
+
+    .dim { display: grid; grid-template-columns: 16px 20px minmax(0,1fr) auto; gap: 10px;
+           align-items: center; padding: 10px 14px; border-bottom: 1px solid #F4F4F5; }
+    .dim:last-of-type { border-bottom: 0; }
+    .dim.on { background: #FAFAFB; box-shadow: inset 2px 0 0 #C9151F; }
+    .grip { color: #C9C9CE; }
+    .sw { width: 30px; height: 18px; border-radius: 9999px; background: #116B4B; position: relative; flex: none; }
+    .sw i { position: absolute; top: 2px; left: 14px; width: 14px; height: 14px; border-radius: 9999px; background: #FFFFFF; }
+    .sw.off { background: #C9C9CE; } .sw.off i { left: 2px; }
+
+    .exp { background: #FAFAFB; border-bottom: 1px solid #E3E3E6; padding: 16px 20px;
+           display: flex; flex-direction: column; gap: 14px; }
+    .opt { display: grid; grid-template-columns: 28px minmax(0,1.4fr) minmax(0,1fr) 96px 28px;
+           gap: 10px; align-items: center; }
+    .fieldbox { border: 1px solid #E3E3E6; border-radius: 8px; background: #FFFFFF;
+                padding: 6px 10px; font-size: 14px; line-height: 22px; color: #26262C; }
+    .sel { display: inline-flex; align-items: center; justify-content: space-between; gap: 8px;
+           border: 1px solid #E3E3E6; border-radius: 8px; background: #FFFFFF; padding: 6px 10px;
+           font-size: 14px; line-height: 22px; color: #26262C; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Administración <span style="color:#C9C9CE">/</span> Parámetros <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Modelo Paramétrico v1.5</span></div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <h1 class="h1" style="margin: 0">Modelo Paramétrico</h1>
+      <span class="tag t-gray mono" style="min-width:0">v1.5</span>
+      <span class="badge b-warn"><span class="dot"></span>Borrador</span>
+      <span class="note">7 cambios sin publicar · guardado hace 20 min</span>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <span class="btn btn-u">Descartar cambios</span>
+      <span class="btn btn-s">Vista previa con una iniciativa</span>
+      <span class="btn btn-p">Validar y publicar</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <span class="on">Dimensiones y preguntas <span class="n">32</span></span>
+    <span>Drivers y pesos <span class="n">9</span></span>
+    <span>Reglas de talla <span class="n">5</span></span>
+    <span>Mix de capacidades <span class="n">6</span></span>
+    <span>Publicar <span class="n" style="color:#700C13">2 errores</span></span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; align-items: start">
+
+    <!-- Dimensiones: orden, estado y cuánto pesa cada una. El orden es el del
+         cuestionario, por eso se arrastra en vez de escribirse. -->
+    <div class="card" style="overflow: hidden">
+      <div class="chead">
+        <h2 class="h3" style="margin:0">Dimensiones</h2>
+        <span class="note">Orden del cuestionario</span>
+      </div>
+      <div class="dim on">
+        <span class="grip">⠿</span><span class="note num">1</span>
+        <div>
+          <div class="smd" style="font-weight:600">Negocio y cliente</div>
+          <div class="note">4 preguntas · peso 8 · 11 % del score</div>
+        </div>
+        <span class="sw"><i></i></span>
+      </div>
+      <div class="dim">
+        <span class="grip">⠿</span><span class="note num">2</span>
+        <div>
+          <div class="smd">Alcance funcional</div>
+          <div class="note">4 preguntas · peso 10 · 14 %</div>
+        </div>
+        <span class="sw"><i></i></span>
+      </div>
+      <div class="dim">
+        <span class="grip">⠿</span><span class="note num">3</span>
+        <div>
+          <div class="smd">Integraciones</div>
+          <div class="note">4 preguntas · peso 10 · 14 %</div>
+        </div>
+        <span class="sw"><i></i></span>
+      </div>
+      <div class="dim">
+        <span class="grip">⠿</span><span class="note num">4</span>
+        <div>
+          <div class="smd">Datos, seguridad y cumplimiento</div>
+          <div class="note">5 preguntas · peso 13 · 19 %</div>
+        </div>
+        <span class="sw"><i></i></span>
+      </div>
+      <div class="dim">
+        <span class="grip">⠿</span><span class="note num">5</span>
+        <div>
+          <div class="smd">Tecnología y arquitectura</div>
+          <div class="note">5 preguntas · peso 13 · 19 %</div>
+        </div>
+        <span class="sw"><i></i></span>
+      </div>
+      <div class="dim">
+        <span class="grip">⠿</span><span class="note num">6</span>
+        <div>
+          <div class="smd">Operación y soporte</div>
+          <div class="note">6 preguntas · peso 11 · 13 % <span style="color:#0D5239">· 2 nuevas</span></div>
+        </div>
+        <span class="sw"><i></i></span>
+      </div>
+      <div class="dim">
+        <span class="grip">⠿</span><span class="note num">7</span>
+        <div>
+          <div class="smd">Incertidumbre y dependencias</div>
+          <div class="note">4 preguntas · peso 7 · 10 %</div>
+        </div>
+        <span class="sw"><i></i></span>
+      </div>
+      <div class="cfoot" style="display:flex; align-items:center; justify-content:space-between; gap:8px">
+        <span class="btn btn-s btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Agregar dimensión
+        </span>
+        <span class="note num">peso total 72</span>
+      </div>
+    </div>
+
+    <!-- Preguntas de la dimensión abierta -->
+    <div class="card" style="overflow: hidden">
+      <div class="chead">
+        <div>
+          <h2 class="h3" style="margin:0">Negocio y cliente</h2>
+          <span class="note">4 preguntas · peso 8 · 11 % del score</span>
+        </div>
+        <span class="btn btn-s btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Agregar pregunta
+        </span>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:8%">Código</th>
+            <th style="width:38%">Pregunta</th>
+            <th style="width:14%">Tipo</th>
+            <th style="width:22%">Driver</th>
+            <th class="r" style="width:8%">Peso</th>
+            <th style="width:10%">Activa</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">N1</td>
+            <td>¿Impacta directamente clientes, comercios aliados o canales digitales?</td>
+            <td><span class="tag t-blue" style="min-width:0">Binaria</span></td>
+            <td class="sm">Exposición a cliente</td>
+            <td class="r num">2</td>
+            <td><span class="sw"><i></i></span></td>
+          </tr>
+          <tr>
+            <td class="mono">N2</td>
+            <td>¿Qué tan crítica es la capacidad de negocio que soporta?</td>
+            <td><span class="tag t-purple" style="min-width:0">Evaluativa</span></td>
+            <td class="sm">Criticidad de negocio</td>
+            <td class="r num">3</td>
+            <td><span class="sw"><i></i></span></td>
+          </tr>
+          <tr>
+            <td class="mono">N3</td>
+            <td>¿Tiene fecha comprometida por negocio, campaña, aliado, regulador o auditoría?</td>
+            <td><span class="tag t-blue" style="min-width:0">Binaria</span></td>
+            <td class="sm">Compromiso externo</td>
+            <td class="r num">2</td>
+            <td><span class="sw"><i></i></span></td>
+          </tr>
+          <tr style="background:#FAFAFB">
+            <td class="mono" style="font-weight:600">N4</td>
+            <td style="font-weight:500">¿Cuántas áreas de negocio u operación deben coordinarse?</td>
+            <td><span class="tag t-green" style="min-width:0">Cuantitativa</span></td>
+            <td class="sm">Coordinación organizacional</td>
+            <td class="r num">1</td>
+            <td><span class="sw"><i></i></span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Fila abierta: las opciones de respuesta. En una cuantitativa son
+           tramos sobre el número real, no cinco etiquetas sueltas. -->
+      <div class="exp">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px">
+          <div>
+            <span class="lbl">Opciones de respuesta de <span class="mono" style="letter-spacing:0">N4</span></span>
+            <p class="note" style="margin: 4px 0 0">Tramos sobre el número que responde el usuario</p>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <span class="lbl">Unidad</span>
+            <span class="fieldbox" style="width: 120px">áreas</span>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div class="opt">
+            <span></span>
+            <span class="lbl">Etiqueta</span>
+            <span class="lbl">Criterio</span>
+            <span class="lbl r">Puntaje norm.</span>
+            <span></span>
+          </div>
+          <div class="opt">
+            <span class="grip">⠿</span>
+            <span class="fieldbox">Ninguna otra</span>
+            <span class="fieldbox mono">= 0</span>
+            <span class="fieldbox num r">0,00</span>
+            <span class="note" style="text-align:center">✕</span>
+          </div>
+          <div class="opt">
+            <span class="grip">⠿</span>
+            <span class="fieldbox">1 área</span>
+            <span class="fieldbox mono">= 1</span>
+            <span class="fieldbox num r">0,25</span>
+            <span class="note" style="text-align:center">✕</span>
+          </div>
+          <div class="opt">
+            <span class="grip">⠿</span>
+            <span class="fieldbox">2 áreas</span>
+            <span class="fieldbox mono">= 2</span>
+            <span class="fieldbox num r">0,50</span>
+            <span class="note" style="text-align:center">✕</span>
+          </div>
+          <div class="opt">
+            <span class="grip">⠿</span>
+            <span class="fieldbox">3 – 4 áreas</span>
+            <span class="fieldbox mono">3 – 4</span>
+            <span class="fieldbox num r">0,75</span>
+            <span class="note" style="text-align:center">✕</span>
+          </div>
+          <div class="opt">
+            <span class="grip">⠿</span>
+            <span class="fieldbox">5 o más</span>
+            <span class="fieldbox mono">&gt;= 5</span>
+            <span class="fieldbox num r">1,00</span>
+            <span class="note" style="text-align:center">✕</span>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px">
+          <span class="btn btn-s btn-sm">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Agregar tramo
+          </span>
+          <span class="note" style="display:flex; align-items:center; gap:6px; color:#0D5239">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#116B4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+            Los 5 tramos cubren 0 a ∞ sin solaparse
+          </span>
+        </div>
+      </div>
+
+      <!-- Dos filas que no son de esta dimensión pero que la validación va a
+           frenar: se muestran acá porque es donde se arreglan. -->
+      <div style="padding: 14px 16px 4px">
+        <span class="lbl">Bloquean la publicación</span>
+      </div>
+      <table>
+        <tbody>
+          <tr class="rowerr">
+            <td class="mono" style="width:8%">I3</td>
+            <td style="width:38%">¿Cuántas APIs o integraciones nuevas requiere?</td>
+            <td style="width:14%"><span class="tag t-green" style="min-width:0">Cuantitativa</span></td>
+            <td class="sm" style="width:22%">Integración interna</td>
+            <td class="r num" style="width:8%">2</td>
+            <td style="width:10%"><span class="tag t-red" style="min-width:0">Sin tramos</span></td>
+          </tr>
+          <tr class="rowerr">
+            <td class="mono">T4</td>
+            <td>¿Requiere diseño de datos complejo, migración o sincronización?</td>
+            <td><span class="tag t-green" style="min-width:0">Cuantitativa</span></td>
+            <td class="sm">Complejidad de datos</td>
+            <td class="r num">2</td>
+            <td><span class="tag t-red" style="min-width:0">Sin tramos</span></td>
+          </tr>
+          <tr class="rownew">
+            <td class="mono">O5</td>
+            <td>¿Cuántas ventanas de despliegue controlado exige la puesta en producción?</td>
+            <td><span class="tag t-green" style="min-width:0">Cuantitativa</span></td>
+            <td class="sm">Fricción de despliegue</td>
+            <td class="r num">2</td>
+            <td><span class="tag t-green" style="min-width:0">Nueva</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="cfoot" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+        <span class="note">32 preguntas activas · 2 nuevas · 1 desactivada · desactivar no borra</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -120,7 +120,9 @@ describe("SquadsContainer", () => {
     expect(await screen.findByText("Backend Platform")).toBeInTheDocument();
     expect(screen.getByText("Canales Digitales")).toBeInTheDocument();
     expect(screen.getByText("Sin personas")).toBeInTheDocument();
-    expect(screen.getByText("4 personas")).toBeInTheDocument();
+    // Backend Platform y Fraude Tarjetas tienen cuatro cada una.
+    expect(screen.getAllByText("4 personas")).toHaveLength(2);
+    expect(screen.getByText("3 personas")).toBeInTheDocument();
   });
 
   it("the squad name links to its detail page", async () => {

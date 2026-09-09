@@ -1,0 +1,94 @@
+{
+  "artboards": [
+    { "file": "Recorrido.dc.html", "x": 0, "y": 0, "w": 1400, "h": 980, "title": "Recorrido · puntos de entrada" },
+
+    { "file": "Main.dc.html", "x": 0, "y": 1240, "w": 1280, "h": 880, "title": "Listado de iniciativas" },
+    { "file": "Ficha.dc.html", "x": 1400, "y": 1240, "w": 1280, "h": 1140, "title": "Ficha de la iniciativa" },
+    { "file": "Fase1.dc.html", "x": 0, "y": 2520, "w": 1280, "h": 950, "title": "Fase 1 · Cuestionario" },
+    { "file": "Fase1Resultado.dc.html", "x": 1400, "y": 2520, "w": 1280, "h": 1420, "title": "Fase 1 · Resultado" },
+    { "file": "Fase2.dc.html", "x": 0, "y": 4080, "w": 1280, "h": 1150, "title": "Fase 2 · Estimación refinada" },
+    { "file": "Fase3.dc.html", "x": 1400, "y": 4080, "w": 1280, "h": 1400, "title": "Fase 3 · Cierre" },
+
+    { "file": "Modelos.dc.html", "x": 0, "y": 5760, "w": 1280, "h": 1130, "title": "Parámetros · Modelos y versiones" },
+    { "file": "Preguntas.dc.html", "x": 1400, "y": 5760, "w": 1280, "h": 1080, "title": "Parámetros · Dimensiones y preguntas" },
+    { "file": "Pesos.dc.html", "x": 0, "y": 7030, "w": 1280, "h": 1460, "title": "Parámetros · Drivers y pesos por salida" },
+    { "file": "Tallas.dc.html", "x": 1400, "y": 7030, "w": 1280, "h": 1260, "title": "Parámetros · Reglas de talla y esfuerzo" },
+    { "file": "Mix.dc.html", "x": 0, "y": 8630, "w": 1280, "h": 1200, "title": "Parámetros · Mix y modificadores" },
+    { "file": "Publicar.dc.html", "x": 1400, "y": 8630, "w": 1280, "h": 1180, "title": "Parámetros · Validar y publicar" },
+
+    { "file": "Calibracion.dc.html", "x": 0, "y": 10110, "w": 1400, "h": 1350, "title": "Calibración histórica" }
+  ],
+  "annotations": [
+    {
+      "id": "sec-recorrido",
+      "x": 0,
+      "y": -200,
+      "w": 1400,
+      "text": "1 · RECORRIDO\n\nDe dónde se entra a cada fase. El listado ofrece una acción distinta según el estado y la última fase alcanzada; la ficha es el punto desde el que se abren las tres."
+    },
+    {
+      "id": "sec-iniciativas",
+      "x": 0,
+      "y": 1060,
+      "w": 1400,
+      "text": "2 · INICIATIVAS — 6 pantallas\n\nListado · Ficha · Fase 1 cuestionario · Fase 1 resultado · Fase 2 refinada · Fase 3 cierre.\nLa ficha es nueva: con tres estimaciones que conviven, el listado ya no puede llevar directo al cuestionario."
+    },
+    {
+      "id": "sec-parametrizacion",
+      "x": 0,
+      "y": 5580,
+      "w": 1400,
+      "text": "3 · PARAMETRIZACIÓN — 6 pantallas\n\nModelos y versiones · Dimensiones y preguntas · Drivers y pesos por salida · Reglas de talla y esfuerzo · Mix y modificadores · Validar y publicar.\nReemplaza las cuatro pestañas planas de hoy: la raíz pasa a ser la lista de versiones, y el editor vive dentro de una versión."
+    },
+    {
+      "id": "sec-calibracion",
+      "x": 0,
+      "y": 9930,
+      "w": 1400,
+      "text": "4 · CALIBRACIÓN — 1 pantalla\n\nLas seis comparaciones del punto 8 de la HU, y el botón que convierte el hallazgo en una versión nueva."
+    },
+    {
+      "id": "n-iniciativas",
+      "x": 2800,
+      "y": 1240,
+      "w": 800,
+      "text": "QUÉ CAMBIA EN INICIATIVAS\n\nHoy: una sola evaluación (tamizaje → 7 dimensiones → resultado) que produce talla, complejidad y FTE, y ahí termina.\n\n1. TRES SALIDAS SEPARADAS. Hoy el score es uno solo. Tamaño, esfuerzo y riesgo/confianza deben quedar independientes: el riesgo baja la confianza, no agranda la talla.\n\n2. CONFIANZA COMO SALIDA. Hoy no existe.\n\n3. TIPO DE PREGUNTA. Hoy las 30 se responden con cinco chips. Una pregunta que dice «¿cuántos?» recibe el número; el tramo se aplica después.\n\n4. TRAZA. CA02 pide que el cálculo sea trazable: respuesta → valor normalizado → driver → salidas.\n\n5. FASE 3. Cada novedad declara si fue cambio de alcance, evento no previsto o error de estimación. En el ejemplo, de +1,7 PM de desvío sólo +0,6 entran al histórico del modelo."
+    },
+    {
+      "id": "n-decidir-ini",
+      "x": 2800,
+      "y": 2300,
+      "w": 800,
+      "text": "PARA DECIDIR — INICIATIVAS\n\n1. ¿La talla de la Fase 2 reemplaza a la de la Fase 1 en el resto de la app (células, torre de control, demanda), o conviven y manda la más nueva? Los artboards asumen la más nueva.\n\n2. ¿Quién cierra cada fase? Evaluar y activar ya son permisos distintos. La Fase 3 toca datos que alimentan el modelo de toda la organización.\n\n3. ¿El backlog de Azure es obligatorio en Fase 2, o «Juicio experto guiado» es la salida cuando la épica no está mapeada? Acá quedan los dos modelos disponibles.\n\n4. Confianza: tres niveles o cinco. Con 23 cierres, tres es lo que se puede sostener."
+    },
+    {
+      "id": "n-parametrizacion",
+      "x": 2800,
+      "y": 5760,
+      "w": 800,
+      "text": "QUÉ FALTA HOY EN PARAMETRIZACIÓN\n\nHoy: cuatro pestañas planas (Bandas · Capacidades · Preguntas · Versionado), cada una una tabla editable en un modal. «Versionado» es un placeholder con el botón deshabilitado.\n\n1. PESOS POR SALIDA. Hoy hay un peso por pregunta y las tres salidas comparten el número. La matriz pregunta × salida es lo que hace paramétrico al motor.\n\n2. DRIVERS. No existen.\n\n3. TIPOS Y OPCIONES DE RESPUESTA. El pool guarda texto, dimensión y peso. Faltan tipo, driver, obligatoriedad y tramos.\n\n4. PM ESPERADO. Hoy la banda tiene mínimo y máximo, y el esperado es el punto medio.\n\n5. MIX EN PORCENTAJE. Hoy son personas por talla, y los modificadores por driver no existen."
+    },
+    {
+      "id": "n-reglas",
+      "x": 2800,
+      "y": 6820,
+      "w": 800,
+      "text": "LAS DOS REGLAS QUE ORDENAN EL MÓDULO\n\nINMUTABILIDAD (CA-A07, CA14). Una versión que ya calculó estimaciones no se edita: se crea una nueva a partir de ella. En Modelos, la v1.4 con 12 estimaciones aparece bloqueada, y de ahí salió la v1.5.\n\nVALIDACIÓN ANTES DE PUBLICAR (CA-A08). Nueve chequeos. Los dos errores dibujados son reales: dos preguntas cuantitativas sin tramos (el motor no sabría calificarlas) y el mix de XL sumando 96 % (el FTE por perfil saldría corto en toda XL)."
+    },
+    {
+      "id": "n-decidir-param",
+      "x": 2800,
+      "y": 7700,
+      "w": 800,
+      "text": "PARA DECIDIR — PARAMETRIZACIÓN\n\n1. ¿La vigencia es una fecha o un acto? Acá se dibujó con fecha, que permite programar el cambio y también olvidarlo.\n\n2. ¿Los parámetros son globales o por célula? Todo asume globales, salvo el factor puntos → PM de la Fase 2, que se dibujó por célula porque la velocidad de un equipo no es transferible.\n\n3. ¿Editar y publicar son el mismo permiso? Con uno solo, la validación es lo único que separa un error de producción.\n\n4. La simulación «si esto hubiera estado vigente» exige recalcular estimaciones viejas con una versión nueva sin guardarlas. Es un requisito del motor que la HU no menciona."
+    },
+    {
+      "id": "n-calibracion",
+      "x": 1560,
+      "y": 10110,
+      "w": 760,
+      "text": "CALIBRACIÓN\n\nLos números son de ejemplo; el hallazgo del primer gráfico no.\n\nEL PM ESPERADO ES EL PUNTO MEDIO DE LA BANDA — `evaluationModel.ts`: (band.pmMin + band.pmMax) / 2. Por eso los 23 cierres caen en cinco columnas verticales: dos iniciativas M reciben 4,5 PM aunque su score difiera 15 puntos.\n\nInterpolar dentro de la banda es el cambio de mayor efecto de toda la propuesta y no necesita un modelo estadístico: usa el score que ya se calcula.\n\nXS y XL tienen 2 y 3 cierres. Sus percentiles siguen siendo criterio experto, y la pantalla debería decirlo en vez de mostrarlos con la misma autoridad que los de M y L."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

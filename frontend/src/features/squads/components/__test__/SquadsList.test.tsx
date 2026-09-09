@@ -129,14 +129,14 @@ describe("SquadsList", () => {
       activeInitiatives,
     });
 
-    it("muestra su talla y el nombre como enlace a su evaluación", () => {
+    it("muestra su talla y el nombre como enlace a su ficha", () => {
       renderList({
         squads: [conActivas([ini("i1", "Kafka", "M")])],
       });
       expect(screen.getByText("M")).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Kafka" })).toHaveAttribute(
         "href",
-        "/capacidad/iniciativas/i1/evaluacion"
+        "/capacidad/iniciativas/i1"
       );
     });
 

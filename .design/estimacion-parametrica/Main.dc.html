@@ -9,8 +9,6 @@
 <helmet>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
   <style>
-    /* Tokens de @tuya-ui/tokens (dist/tokens.css), literales para que el
-       artboard se lea igual fuera de la app. */
     *, *::before, *::after { box-sizing: border-box; }
     body { margin: 0; background: #FAFAFB; color: #26262C;
            font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
@@ -18,7 +16,7 @@
     a { color: #C9151F; } a:hover { color: #A21018; }
 
     .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
-    .h2 { font-size: 18px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
     .sm { font-size: 14px; line-height: 22px; color: #55555E; }
     .smd { font-size: 14px; line-height: 22px; color: #26262C; }
     .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
@@ -37,6 +35,8 @@
     .btn-sm { gap: 6px; padding: 4px 12px; }
     .btn-p { background: #C9151F; color: #FFFFFF; }
     .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+    .link { font-size: 14px; line-height: 22px; color: #26262C; font-weight: 500;
+            text-decoration: underline; text-underline-offset: 4px; }
 
     .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
            border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
@@ -74,13 +74,13 @@
     .metric { font-size: 40px; line-height: 40px; font-weight: 700; letter-spacing: -0.04em; }
     .step { display: flex; flex-direction: column; gap: 6px; flex: 1; }
     .step .bar { height: 6px; border-radius: 8px; }
+    .conf { display: flex; gap: 2px; }
+    .conf i { width: 12px; height: 6px; border-radius: 2px; display: block; }
   </style>
 </helmet>
 
 <div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 12px">
 
-  <!-- Franja del shell: el breadcrumb nombra la pantalla y la acción sube ahí,
-       tal como hace hoy useLeadBreadcrumbActions. -->
   <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 4px">
     <div class="crumb">Gestión de Capacidad <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Iniciativas</span></div>
     <span class="btn btn-p btn-sm">
@@ -89,17 +89,13 @@
     </span>
   </div>
 
-  <!-- Tres lecturas. La primera se conserva tal cual está hoy; las otras dos
-       cambian: "Sin evaluar" se convierte en el avance por fase (la HU
-       introduce tres) y aparece el sesgo del modelo, que hoy no existe en
-       ningún lado y es lo que la Fase 3 produce. -->
   <div style="display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 12px">
 
     <div class="card">
       <div class="cbody" style="display: flex; align-items: stretch; gap: 20px; height: 100%">
         <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 4px; min-width: 96px">
           <span class="lbl">Activas</span>
-          <span class="metric num">5</span>
+          <span class="metric num">3</span>
           <span class="sm">de 8 iniciativas</span>
         </div>
         <ul style="flex: 1; display: flex; align-items: flex-end; justify-content: space-between;
@@ -116,7 +112,7 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M16 3 12 5 8 3 3 6l2 4 2-.6V21h10V9.4l2 .6 2-4z"/></svg>
             </span>
             <span class="lbl" style="color:#0D5239">S</span>
-            <span class="num" style="font-size:18px; line-height:26px; font-weight:600">1</span>
+            <span class="num" style="font-size:18px; line-height:26px; font-weight:600; color:#A0A0A8">0</span>
           </li>
           <li style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 44px">
             <span style="display:inline-flex; height:24px; align-items:flex-end; color:#154A96">
@@ -130,7 +126,7 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M16 3 12 5 8 3 3 6l2 4 2-.6V21h10V9.4l2 .6 2-4z"/></svg>
             </span>
             <span class="lbl" style="color:#6E4B00">L</span>
-            <span class="num" style="font-size:18px; line-height:26px; font-weight:600">2</span>
+            <span class="num" style="font-size:18px; line-height:26px; font-weight:600">1</span>
           </li>
           <li style="display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 44px">
             <span style="display:inline-flex; height:24px; align-items:flex-end; color:#700C13; transform: scale(1.3); transform-origin: bottom center">
@@ -143,11 +139,9 @@
       </div>
     </div>
 
-    <!-- NUEVA. Con tres fases, "sin evaluar" ya no alcanza: lo que importa es
-         dónde se atascan. Cuatro tramos, la barra a escala del conteo. -->
     <div class="card">
       <div class="cbody" style="display: flex; flex-direction: column; gap: 10px; height: 100%">
-        <span class="lbl">Avance por fase</span>
+        <span class="lbl">Última fase alcanzada</span>
         <div style="display: flex; align-items: flex-end; gap: 6px">
           <span class="metric num">2</span>
           <span class="sm" style="padding-bottom: 6px">sin estimar</span>
@@ -161,24 +155,22 @@
           <div class="step">
             <span class="bar" style="background:#5A94EC"></span>
             <span class="note">Fase 1</span>
-            <span class="num smd" style="font-weight:600">3</span>
+            <span class="num smd" style="font-weight:600">2</span>
           </div>
           <div class="step">
             <span class="bar" style="background:#1B5FBF"></span>
             <span class="note">Fase 2</span>
-            <span class="num smd" style="font-weight:600">2</span>
+            <span class="num smd" style="font-weight:600">3</span>
           </div>
           <div class="step">
             <span class="bar" style="background:#154A96"></span>
-            <span class="note">Cerradas</span>
+            <span class="note">Fase 3</span>
             <span class="num smd" style="font-weight:600">1</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- NUEVA. Lo que la Fase 3 produce, puesto donde se toman decisiones y no
-         escondido en una pantalla de administración. -->
     <div class="card">
       <div class="cbody" style="display: flex; flex-direction: column; justify-content: space-between; gap: 6px; height: 100%">
         <span class="lbl">Sesgo del modelo</span>
@@ -194,17 +186,15 @@
     </div>
   </div>
 
-  <!-- El listado. Dos columnas nuevas: Fase (dónde va cada iniciativa) y
-       Confianza (una salida del modelo que hoy no existe). -->
   <div class="card" style="overflow: hidden">
     <div class="toolbar">
-      <div class="inp" style="width: 384px">
+      <div class="inp" style="width: 340px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#74747E" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         Buscar iniciativa
       </div>
       <span class="filt">Estado <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
       <span class="filt">Célula <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
-      <span class="filt" style="border-color:#26262C; background:#26262C; color:#FFFFFF">Fase · 2 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+      <span class="filt">Fase <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
       <span class="filt">Talla <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
     </div>
 
@@ -212,14 +202,15 @@
       <table>
         <thead>
           <tr>
-            <th style="width: 27%">Iniciativa</th>
+            <th style="width: 23%">Iniciativa</th>
             <th style="width: 12%">Estado</th>
-            <th style="width: 13%">Fase</th>
-            <th style="width: 8%">Talla</th>
-            <th class="r" style="width: 12%">PM esperado</th>
-            <th class="r" style="width: 8%">FTE</th>
-            <th style="width: 14%">Confianza</th>
-            <th style="width: 6%"></th>
+            <th style="width: 10%">Fase</th>
+            <th style="width: 7%">Talla</th>
+            <th class="r" style="width: 11%">PM esperado</th>
+            <th class="r" style="width: 7%">FTE</th>
+            <th style="width: 11%">Confianza</th>
+            <th style="width: 15%">Siguiente paso</th>
+            <th style="width: 4%"></th>
           </tr>
         </thead>
         <tbody>
@@ -237,14 +228,11 @@
             <td class="r num">1,23</td>
             <td>
               <div style="display: flex; align-items: center; gap: 8px">
-                <span style="display:flex; gap:2px">
-                  <i style="width:12px;height:6px;border-radius:2px;background:#116B4B"></i>
-                  <i style="width:12px;height:6px;border-radius:2px;background:#116B4B"></i>
-                  <i style="width:12px;height:6px;border-radius:2px;background:#116B4B"></i>
-                </span>
+                <span class="conf"><i style="background:#116B4B"></i><i style="background:#116B4B"></i><i style="background:#116B4B"></i></span>
                 <span class="sm">Alta</span>
               </div>
             </td>
+            <td><span class="link">Continuar Fase 2</span></td>
             <td class="r"><span style="color:#55555E">···</span></td>
           </tr>
 
@@ -262,39 +250,11 @@
             <td class="r num">4,50</td>
             <td>
               <div style="display: flex; align-items: center; gap: 8px">
-                <span style="display:flex; gap:2px">
-                  <i style="width:12px;height:6px;border-radius:2px;background:#B57A00"></i>
-                  <i style="width:12px;height:6px;border-radius:2px;background:#B57A00"></i>
-                  <i style="width:12px;height:6px;border-radius:2px;background:#EFEFF0"></i>
-                </span>
+                <span class="conf"><i style="background:#B57A00"></i><i style="background:#B57A00"></i><i style="background:#EFEFF0"></i></span>
                 <span class="sm">Media</span>
               </div>
             </td>
-            <td class="r"><span style="color:#55555E">···</span></td>
-          </tr>
-
-          <tr>
-            <td>
-              <div style="display: flex; flex-direction: column">
-                <span style="font-weight: 500; line-height: 20px">Payment Engine v2</span>
-                <span class="note">Backend Platform · PO Ana Restrepo</span>
-              </div>
-            </td>
-            <td><span class="badge b-info"><span class="dot"></span>En evaluación</span></td>
-            <td><span class="tag t-gray" style="min-width:0">Fase 1</span></td>
-            <td><span class="tag t-amber">L</span></td>
-            <td class="r num">8,0</td>
-            <td class="r num">0,89</td>
-            <td>
-              <div style="display: flex; align-items: center; gap: 8px">
-                <span style="display:flex; gap:2px">
-                  <i style="width:12px;height:6px;border-radius:2px;background:#B57A00"></i>
-                  <i style="width:12px;height:6px;border-radius:2px;background:#B57A00"></i>
-                  <i style="width:12px;height:6px;border-radius:2px;background:#EFEFF0"></i>
-                </span>
-                <span class="sm">Media</span>
-              </div>
-            </td>
+            <td><span class="link">Ver ficha</span></td>
             <td class="r"><span style="color:#55555E">···</span></td>
           </tr>
 
@@ -312,19 +272,36 @@
             <td class="r num">0,75</td>
             <td>
               <div style="display: flex; align-items: center; gap: 8px">
-                <span style="display:flex; gap:2px">
-                  <i style="width:12px;height:6px;border-radius:2px;background:#B57A00"></i>
-                  <i style="width:12px;height:6px;border-radius:2px;background:#B57A00"></i>
-                  <i style="width:12px;height:6px;border-radius:2px;background:#EFEFF0"></i>
-                </span>
+                <span class="conf"><i style="background:#B57A00"></i><i style="background:#B57A00"></i><i style="background:#EFEFF0"></i></span>
                 <span class="sm">Media</span>
               </div>
             </td>
+            <td><span class="link">Refinar en Fase 2</span></td>
             <td class="r"><span style="color:#55555E">···</span></td>
           </tr>
 
-          <!-- Cerrada: la fila carga el real y el desvío, que es lo único que
-               una cerrada tiene para decir. -->
+          <tr>
+            <td>
+              <div style="display: flex; flex-direction: column">
+                <span style="font-weight: 500; line-height: 20px">Payment Engine v2</span>
+                <span class="note">Backend Platform · PO Ana Restrepo</span>
+              </div>
+            </td>
+            <td><span class="badge b-info"><span class="dot"></span>En evaluación</span></td>
+            <td><span class="tag t-gray" style="min-width:0">Fase 1</span></td>
+            <td><span class="tag t-amber">L</span></td>
+            <td class="r num">8,0</td>
+            <td class="r num">0,89</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span class="conf"><i style="background:#B57A00"></i><i style="background:#B57A00"></i><i style="background:#EFEFF0"></i></span>
+                <span class="sm">Media</span>
+              </div>
+            </td>
+            <td><span class="link">Refinar en Fase 2</span></td>
+            <td class="r"><span style="color:#55555E">···</span></td>
+          </tr>
+
           <tr>
             <td>
               <div style="display: flex; flex-direction: column">
@@ -333,21 +310,44 @@
               </div>
             </td>
             <td><span class="badge b-neu"><span class="dot"></span>Cerrada</span></td>
-            <td><span class="tag t-green" style="min-width:0">Fase 3</span></td>
+            <td><span class="tag t-blue" style="min-width:0">Fase 2</span></td>
             <td><span class="tag t-blue">M</span></td>
-            <td class="r">
-              <div style="display: flex; flex-direction: column; align-items: flex-end">
-                <span class="num" style="color:#74747E; text-decoration: line-through">7,5</span>
-                <span class="num" style="font-weight:600">9,1 real</span>
-              </div>
-            </td>
-            <td class="r num">1,17</td>
+            <td class="r num">5,4</td>
+            <td class="r num">0,90</td>
             <td>
               <div style="display: flex; align-items: center; gap: 8px">
-                <span class="tag t-amber" style="min-width:0">+22 %</span>
+                <span class="conf"><i style="background:#116B4B"></i><i style="background:#116B4B"></i><i style="background:#116B4B"></i></span>
+                <span class="sm">Alta</span>
+              </div>
+            </td>
+            <td><span class="link" style="color:#C9151F">Registrar cierre</span></td>
+            <td class="r"><span style="color:#55555E">···</span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <div style="display: flex; flex-direction: column">
+                <span style="font-weight: 500; line-height: 20px">Onboarding App</span>
+                <span class="note">Canales Digitales · PO Diego Cardona</span>
+              </div>
+            </td>
+            <td><span class="badge b-neu"><span class="dot"></span>Cerrada</span></td>
+            <td><span class="tag t-green" style="min-width:0">Fase 3</span></td>
+            <td><span class="tag t-green">S</span></td>
+            <td class="r">
+              <div style="display: flex; flex-direction: column; align-items: flex-end">
+                <span class="num" style="color:#74747E; text-decoration: line-through">2,0</span>
+                <span class="num" style="font-weight:600">2,4 real</span>
+              </div>
+            </td>
+            <td class="r num">0,60</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span class="tag t-amber" style="min-width:0">+20 %</span>
                 <span class="note">desvío</span>
               </div>
             </td>
+            <td><span class="link">Ver comparación</span></td>
             <td class="r"><span style="color:#55555E">···</span></td>
           </tr>
 
@@ -360,9 +360,11 @@
             </td>
             <td><span class="badge b-info"><span class="dot"></span>En evaluación</span></td>
             <td><span class="note">Sin estimar</span></td>
-            <td colspan="4">
-              <span style="font-size:14px; color:#26262C; text-decoration: underline; text-underline-offset: 4px">Estimar en Fase 1</span>
-            </td>
+            <td><span class="note">—</span></td>
+            <td class="r"><span class="note">—</span></td>
+            <td class="r"><span class="note">—</span></td>
+            <td><span class="note">—</span></td>
+            <td><span class="link" style="color:#C9151F">Estimar</span></td>
             <td class="r"><span style="color:#55555E">···</span></td>
           </tr>
 
@@ -375,9 +377,11 @@
             </td>
             <td><span class="badge b-info"><span class="dot"></span>En evaluación</span></td>
             <td><span class="note">Sin estimar</span></td>
-            <td colspan="4">
-              <span style="font-size:14px; color:#26262C; text-decoration: underline; text-underline-offset: 4px">Estimar en Fase 1</span>
-            </td>
+            <td><span class="note">—</span></td>
+            <td class="r"><span class="note">—</span></td>
+            <td class="r"><span class="note">—</span></td>
+            <td><span class="note">—</span></td>
+            <td><span class="link" style="color:#C9151F">Estimar</span></td>
             <td class="r"><span style="color:#55555E">···</span></td>
           </tr>
         </tbody>
@@ -385,7 +389,7 @@
     </div>
 
     <div class="foot" style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
-      <span class="sm">7 de 8 iniciativas</span>
+      <span class="sm">8 iniciativas</span>
       <div style="display: flex; align-items: center; gap: 8px">
         <span class="sm">Filas por página</span>
         <span class="filt btn-sm" style="padding: 4px 10px">10</span>

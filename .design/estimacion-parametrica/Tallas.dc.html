@@ -1,0 +1,357 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); }
+    .cbody { padding: 14px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; display: flex;
+             align-items: baseline; justify-content: space-between; gap: 12px; }
+    .cfoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-sm { gap: 6px; padding: 4px 12px; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+    .btn-u { background: transparent; color: #26262C; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-red { background: #FBE9EA; color: #700C13; }
+
+    .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 10px;
+             font-size: 14px; line-height: 22px; font-weight: 500; }
+    .dot { width: 6px; height: 6px; border-radius: 9999px; flex: none; }
+    .b-warn { background: #FBF2DE; color: #6E4B00; } .b-warn .dot { background: #B57A00; }
+
+    .tabs { display: flex; gap: 28px; border-bottom: 1px solid #E3E3E6; }
+    .tabs > span { padding-bottom: 14px; margin-bottom: -1px; border-bottom: 2px solid transparent;
+                   font-size: 14px; line-height: 22px; color: #55555E; }
+    .tabs > span.on { border-color: #ED1C29; font-weight: 600; color: #26262C; }
+    .tabs > span .n { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: #74747E; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    thead { background: #FAFAFB; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6; }
+    td { padding: 10px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .r { text-align: right; }
+    .fieldbox { display: inline-flex; align-items: center; justify-content: flex-end;
+                border: 1px solid #E3E3E6; border-radius: 8px; background: #FFFFFF; width: 72px;
+                padding: 5px 10px; font-size: 14px; line-height: 22px; font-variant-numeric: tabular-nums; }
+    .fieldbox.chg { border-color: #B57A00; background: #FBF2DE; color: #6E4B00; font-weight: 600; }
+    .textbox { border: 1px solid #E3E3E6; border-radius: 8px; background: #FFFFFF;
+               padding: 5px 10px; font-size: 14px; line-height: 22px; width: 100%; }
+
+    /* Editor de umbrales: cinco bandas contiguas sobre 0–100 con cuatro
+       manijas. El límite es uno solo entre dos bandas, por eso se arrastra en
+       vez de escribirse dos veces. */
+    .bands { position: relative; height: 34px; display: flex; gap: 2px; }
+    .bands > span { border-radius: 4px; display: flex; align-items: center; justify-content: center;
+                    font-size: 14px; font-weight: 600; }
+    .handle { position: absolute; top: -7px; width: 14px; height: 48px; border-radius: 4px;
+              background: #FFFFFF; border: 1px solid #74747E; transform: translateX(-50%);
+              display: flex; align-items: center; justify-content: center; color: #A0A0A8; font-size: 10px; }
+    .handle.chg { border-color: #B57A00; border-width: 2px; }
+    .ticks { position: relative; height: 16px; }
+    .ticks span { position: absolute; transform: translateX(-50%); }
+
+    /* Dispersión de cierres reales por talla. Un punto por iniciativa cerrada,
+       la banda configurada de fondo. Es la comparación "Talla vs PM real". */
+    .row { position: relative; height: 34px; border-radius: 6px; background: #FAFAFB; }
+    .row .grid { position: absolute; top: 0; bottom: 0; width: 1px; background: #EFEFF0; }
+    .band { position: absolute; top: 5px; height: 24px; border-radius: 4px;
+            background: #E8F0FC; border: 1px solid #B9D3F5; }
+    .exp { position: absolute; top: 3px; width: 2px; height: 28px; background: #74747E; }
+    .obs { position: absolute; top: 12px; width: 10px; height: 10px; border-radius: 9999px;
+           transform: translateX(-50%); box-shadow: 0 0 0 2px #FAFAFB; }
+    .in { background: #2563EB; } .out { background: #8E0F18; }
+
+    .alert { display: flex; gap: 14px; border-left: 2px solid; border-radius: 0 8px 8px 0; padding: 16px; }
+    .a-warn { border-color: #B57A00; background: #FBF2DE; } .a-warn .at { color: #6E4B00; }
+    .at { font-size: 14px; line-height: 22px; font-weight: 600; margin-bottom: 4px; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Administración <span style="color:#C9C9CE">/</span> Parámetros <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Modelo Paramétrico v1.5</span></div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <h1 class="h1" style="margin: 0">Modelo Paramétrico</h1>
+      <span class="tag t-gray mono" style="min-width:0">v1.5</span>
+      <span class="badge b-warn"><span class="dot"></span>Borrador</span>
+      <span class="note">7 cambios sin publicar</span>
+    </div>
+    <div style="display: flex; gap: 8px">
+      <span class="btn btn-u">Descartar cambios</span>
+      <span class="btn btn-s">Vista previa con una iniciativa</span>
+      <span class="btn btn-p">Validar y publicar</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <span>Dimensiones y preguntas <span class="n">32</span></span>
+    <span>Drivers y pesos <span class="n">9</span></span>
+    <span class="on">Reglas de talla <span class="n">5</span></span>
+    <span>Mix de capacidades <span class="n">6</span></span>
+    <span>Publicar <span class="n" style="color:#700C13">2 errores</span></span>
+  </div>
+
+  <div class="card">
+    <div class="chead">
+      <div>
+        <h2 class="h3" style="margin:0">Umbrales de talla</h2>
+        <span class="note">Cuatro límites, cinco tallas contiguas sobre 0 – 100</span>
+      </div>
+      <span class="note">Score de la salida Tamaño</span>
+    </div>
+    <div class="cbody" style="display: flex; flex-direction: column; gap: 12px">
+      <div style="padding: 8px 8px 0">
+        <div class="bands">
+          <span style="width:20%; background:#F4F4F5; color:#26262C">XS</span>
+          <span style="width:24%; background:#E7F3EC; color:#0D5239">S</span>
+          <span style="width:16%; background:#E8F0FC; color:#154A96">M</span>
+          <span style="width:20%; background:#FBF2DE; color:#6E4B00">L</span>
+          <span style="width:20%; background:#FBE9EA; color:#700C13">XL</span>
+          <span class="handle" style="left:20%">⋮</span>
+          <span class="handle chg" style="left:44%">⋮</span>
+          <span class="handle" style="left:60%">⋮</span>
+          <span class="handle" style="left:80%">⋮</span>
+        </div>
+        <div class="ticks note num" style="margin-top: 12px">
+          <span style="left:0%">0</span>
+          <span style="left:20%">20</span>
+          <span style="left:44%; color:#6E4B00; font-weight:600">44</span>
+          <span style="left:60%">60</span>
+          <span style="left:80%">80</span>
+          <span style="left:100%">100</span>
+        </div>
+      </div>
+      <p class="note" style="margin: 0; border-top: 1px solid #E3E3E6; padding-top: 12px">
+        Límite S / M movido de 40 a 44 · 5 de las 47 estimaciones históricas caerían en otra talla.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" style="overflow: hidden">
+    <div class="chead">
+      <div>
+        <h2 class="h3" style="margin:0">Parámetros de esfuerzo</h2>
+        <span class="note">Tres percentiles por talla · el esperado es la cifra que ve el estimador</span>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:8%">Talla</th>
+          <th class="r" style="width:12%">Rango de score</th>
+          <th class="r" style="width:11%">PM P10</th>
+          <th class="r" style="width:11%">PM esperado</th>
+          <th class="r" style="width:11%">PM P90</th>
+          <th style="width:20%">Lectura</th>
+          <th style="width:27%">Acción recomendada</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag t-gray">XS</span></td>
+          <td class="r num sm">0 – 20</td>
+          <td class="r"><span class="fieldbox">0,5</span></td>
+          <td class="r"><span class="fieldbox">0,8</span></td>
+          <td class="r"><span class="fieldbox">1,0</span></td>
+          <td><span class="textbox">Cambio menor</span></td>
+          <td><span class="textbox">Resolver con capacidad existente</span></td>
+        </tr>
+        <tr>
+          <td><span class="tag t-green">S</span></td>
+          <td class="r num sm" style="color:#6E4B00; font-weight:600">21 – 44</td>
+          <td class="r"><span class="fieldbox">1,0</span></td>
+          <td class="r"><span class="fieldbox">2,0</span></td>
+          <td class="r"><span class="fieldbox">3,0</span></td>
+          <td><span class="textbox">Ajuste puntual</span></td>
+          <td><span class="textbox">Célula reducida y apoyo puntual</span></td>
+        </tr>
+        <tr>
+          <td><span class="tag t-blue">M</span></td>
+          <td class="r num sm" style="color:#6E4B00; font-weight:600">45 – 60</td>
+          <td class="r"><span class="fieldbox">3,0</span></td>
+          <td class="r"><span class="fieldbox chg">4,8</span></td>
+          <td class="r"><span class="fieldbox chg">6,8</span></td>
+          <td><span class="textbox">Iniciativa media</span></td>
+          <td><span class="textbox">Célula base y discovery corto</span></td>
+        </tr>
+        <tr>
+          <td><span class="tag t-amber">L</span></td>
+          <td class="r num sm">61 – 80</td>
+          <td class="r"><span class="fieldbox">6,0</span></td>
+          <td class="r"><span class="fieldbox">8,0</span></td>
+          <td class="r"><span class="fieldbox chg">11,0</span></td>
+          <td><span class="textbox">Iniciativa grande</span></td>
+          <td><span class="textbox">Célula completa y arquitectura temprana</span></td>
+        </tr>
+        <tr>
+          <td><span class="tag t-red">XL</span></td>
+          <td class="r num sm">81 – 100</td>
+          <td class="r"><span class="fieldbox">10,0</span></td>
+          <td class="r"><span class="fieldbox">13,5</span></td>
+          <td class="r"><span class="fieldbox">18,0</span></td>
+          <td><span class="textbox">Transformación mayor</span></td>
+          <td><span class="textbox">Evaluar dividir en frentes o células</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="cfoot" style="display:flex; align-items:center; gap:10px">
+      <span style="width:12px;height:12px;border-radius:3px;background:#FBF2DE;border:1px solid #B57A00;flex:none"></span>
+      <span class="note">3 valores cambiados · propuestos por la calibración de febrero</span>
+    </div>
+  </div>
+
+  <!-- La evidencia, dentro del editor. Cambiar una banda a ciegas es lo que
+       hace que estos números sigan siendo criterio experto para siempre. -->
+  <div class="card">
+    <div class="chead">
+      <div>
+        <h2 class="h3" style="margin:0">Cierres reales por talla</h2>
+        <span class="note">Un punto por cierre, ubicado por su PM real y agrupado por su talla</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 16px">
+        <span style="display:inline-flex; align-items:center; gap:6px" class="note">
+          <i style="width:10px;height:10px;border-radius:9999px;background:#2563EB;display:inline-block"></i> Dentro de la banda
+        </span>
+        <span style="display:inline-flex; align-items:center; gap:6px" class="note">
+          <i style="width:10px;height:10px;border-radius:9999px;background:#8E0F18;display:inline-block"></i> Fuera de la banda
+        </span>
+        <span style="display:inline-flex; align-items:center; gap:6px" class="note">
+          <i style="width:2px;height:12px;background:#74747E;display:inline-block"></i> PM esperado
+        </span>
+      </div>
+    </div>
+    <div class="cbody" style="display: flex; flex-direction: column; gap: 6px">
+
+      <div style="display: grid; grid-template-columns: 52px minmax(0,1fr) 74px; gap: 12px; align-items: center">
+        <span class="tag t-gray">XS</span>
+        <div class="row">
+          <span class="grid" style="left:25%"></span><span class="grid" style="left:50%"></span><span class="grid" style="left:75%"></span>
+          <span class="band" style="left:2.5%; width:2.5%"></span>
+          <span class="exp" style="left:4%"></span>
+          <span class="obs in" style="left:3%"></span>
+          <span class="obs in" style="left:4.5%"></span>
+        </div>
+        <span class="note r">2 cierres</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 52px minmax(0,1fr) 74px; gap: 12px; align-items: center">
+        <span class="tag t-green">S</span>
+        <div class="row">
+          <span class="grid" style="left:25%"></span><span class="grid" style="left:50%"></span><span class="grid" style="left:75%"></span>
+          <span class="band" style="left:5%; width:10%"></span>
+          <span class="exp" style="left:10%"></span>
+          <span class="obs in" style="left:7%"></span>
+          <span class="obs in" style="left:10.5%"></span>
+          <span class="obs in" style="left:13%"></span>
+          <span class="obs out" style="left:17%"></span>
+          <span class="obs out" style="left:19.5%"></span>
+        </div>
+        <span class="note r">5 cierres</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 52px minmax(0,1fr) 74px; gap: 12px; align-items: center">
+        <span class="tag t-blue">M</span>
+        <div class="row">
+          <span class="grid" style="left:25%"></span><span class="grid" style="left:50%"></span><span class="grid" style="left:75%"></span>
+          <span class="band" style="left:15%; width:19%"></span>
+          <span class="exp" style="left:24%"></span>
+          <span class="obs in" style="left:19%"></span>
+          <span class="obs in" style="left:21%"></span>
+          <span class="obs in" style="left:25.5%"></span>
+          <span class="obs in" style="left:28%"></span>
+          <span class="obs out" style="left:32%"></span>
+          <span class="obs out" style="left:36%"></span>
+          <span class="obs out" style="left:40.5%"></span>
+        </div>
+        <span class="note r">7 cierres</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 52px minmax(0,1fr) 74px; gap: 12px; align-items: center">
+        <span class="tag t-amber">L</span>
+        <div class="row">
+          <span class="grid" style="left:25%"></span><span class="grid" style="left:50%"></span><span class="grid" style="left:75%"></span>
+          <span class="band" style="left:30%; width:25%"></span>
+          <span class="exp" style="left:40%"></span>
+          <span class="obs in" style="left:34.5%"></span>
+          <span class="obs in" style="left:42%"></span>
+          <span class="obs in" style="left:45.5%"></span>
+          <span class="obs in" style="left:49%"></span>
+          <span class="obs out" style="left:56%"></span>
+          <span class="obs out" style="left:63%"></span>
+        </div>
+        <span class="note r">6 cierres</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 52px minmax(0,1fr) 74px; gap: 12px; align-items: center">
+        <span class="tag t-red">XL</span>
+        <div class="row">
+          <span class="grid" style="left:25%"></span><span class="grid" style="left:50%"></span><span class="grid" style="left:75%"></span>
+          <span class="band" style="left:50%; width:40%"></span>
+          <span class="exp" style="left:67.5%"></span>
+          <span class="obs in" style="left:64%"></span>
+          <span class="obs in" style="left:77%"></span>
+          <span class="obs out" style="left:96%"></span>
+        </div>
+        <span class="note r">3 cierres</span>
+      </div>
+
+      <div class="ticks note num" style="margin: 4px 64px 0 64px">
+        <span style="left:0%">0</span><span style="left:25%">5</span><span style="left:50%">10</span>
+        <span style="left:75%">15</span><span style="left:100%">20 PM reales</span>
+      </div>
+    </div>
+    <div class="cfoot">
+      <div class="alert a-warn" style="border-radius: 8px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B57A00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+        <div>
+          <p class="at" style="margin:0">S y M se solapan entre 3,4 y 3,9 PM</p>
+          <p class="sm" style="margin:0; color:#26262C">Dos cierres etiquetados S costaron más que dos etiquetados M.
+            8 de 23 cierres quedaron fuera de su banda.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

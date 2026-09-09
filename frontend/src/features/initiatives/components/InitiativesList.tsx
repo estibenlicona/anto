@@ -23,7 +23,11 @@ import {
 } from "@tuya-ui/components";
 import { TableStatusRow } from "@shared/components/TableStatusRow";
 import type { Initiative } from "../adapters/InitiativeAdapter";
-import { STATUS_LABELS, evaluationPath } from "../adapters/InitiativeAdapter";
+import {
+  STATUS_LABELS,
+  evaluationPath,
+  initiativePath,
+} from "../adapters/InitiativeAdapter";
 import type { InitiativeStatus } from "../services/initiativeService";
 
 const STATUS_OPTIONS = (Object.keys(STATUS_LABELS) as InitiativeStatus[]).map(
@@ -32,6 +36,44 @@ const STATUS_OPTIONS = (Object.keys(STATUS_LABELS) as InitiativeStatus[]).map(
     label: STATUS_LABELS[value],
   })
 );
+
+/**
+ * Lo que sigue para esta fila. Navegar y abrir un diálogo son cosas distintas
+ * —enlace y botón—, pero se ven igual: quien recorre la columna busca "qué
+ * hago con ésta", no de qué tipo es el control.
+ */
+const NextStepCell: React.FC<{
+  initiative: Initiative;
+  onActivate: (initiative: Initiative) => void;
+  onClose: (initiative: Initiative) => void;
+}> = ({ initiative, onActivate, onClose }) => {
+  const step = initiative.nextStep;
+  if (step.kind === "none")
+    return <span className="text-body-sm text-neutral-subtle">—</span>;
+
+  const className = "text-body-sm underline underline-offset-4";
+  if (step.kind === "evaluate")
+    return (
+      <Link asChild tone="neutral" className={className}>
+        <RouterLink to={evaluationPath(initiative.id)}>{step.label}</RouterLink>
+      </Link>
+    );
+
+  return (
+    <Link asChild tone="neutral" className={className}>
+      <button
+        type="button"
+        onClick={() =>
+          step.kind === "activate"
+            ? onActivate(initiative)
+            : onClose(initiative)
+        }
+      >
+        {step.label}
+      </button>
+    </Link>
+  );
+};
 
 export interface InitiativesListProps {
   initiatives: Initiative[];
@@ -165,20 +207,24 @@ export const InitiativesList: React.FC<InitiativesListProps> = ({
           <TableHead>Iniciativa</TableHead>
           <TableHead>Estado</TableHead>
           <TableHead>Talla</TableHead>
+          {/* Esfuerzo y capacidad, en ese orden: el PM no depende del plazo y
+              el FTE sí, y con una sola cifra esa diferencia no se ve. */}
+          <TableHead align="right">PM esperado</TableHead>
           <TableHead align="right">FTE esperado</TableHead>
           <TableHead align="right">Plazo</TableHead>
+          <TableHead>Siguiente paso</TableHead>
           <TableHead />
         </TableRow>
       </TableHeader>
       <TableBody>
         {loading ? (
-          <TableStatusRow colSpan={6}>
+          <TableStatusRow colSpan={8}>
             <p className="text-body-sm text-neutral-subtle">
               Cargando iniciativas…
             </p>
           </TableStatusRow>
         ) : error ? (
-          <TableStatusRow colSpan={6}>
+          <TableStatusRow colSpan={8}>
             <Alert
               variant="danger"
               title="No se pudieron cargar las iniciativas"
@@ -192,7 +238,7 @@ export const InitiativesList: React.FC<InitiativesListProps> = ({
             </Alert>
           </TableStatusRow>
         ) : initiatives.length === 0 ? (
-          <TableStatusRow colSpan={6}>
+          <TableStatusRow colSpan={8}>
             <EmptyState
               icon={<Icon name="search" size={32} />}
               title="Sin resultados"
@@ -210,7 +256,7 @@ export const InitiativesList: React.FC<InitiativesListProps> = ({
                     tone="neutral"
                     className="leading-5 font-medium"
                   >
-                    <RouterLink to={evaluationPath(initiative.id)}>
+                    <RouterLink to={initiativePath(initiative.id)}>
                       {initiative.name}
                     </RouterLink>
                   </Link>
@@ -228,18 +274,13 @@ export const InitiativesList: React.FC<InitiativesListProps> = ({
                 {initiative.talla ? (
                   <Tag color={initiative.tallaColor}>{initiative.talla}</Tag>
                 ) : (
-                  // Sin talla, la acción vive en la celda como enlace: el
-                  // listado no repite botones por fila.
-                  <Link
-                    asChild
-                    tone="neutral"
-                    className="text-body-sm underline underline-offset-4"
-                  >
-                    <RouterLink to={evaluationPath(initiative.id)}>
-                      Evaluar
-                    </RouterLink>
-                  </Link>
+                  <span className="text-neutral-subtle">—</span>
                 )}
+              </TableCell>
+              <TableCell align="right">
+                <span className="tabular-nums text-neutral-default">
+                  {initiative.pmText}
+                </span>
               </TableCell>
               <TableCell align="right">
                 <span className="tabular-nums text-neutral-default">
@@ -250,6 +291,17 @@ export const InitiativesList: React.FC<InitiativesListProps> = ({
                 <span className="tabular-nums text-neutral-default">
                   {initiative.plazoText}
                 </span>
+              </TableCell>
+              {/* El siguiente paso, y sólo ése: el menú sigue teniendo todo lo
+                  demás. Los tres se visten igual —enlace neutro subrayado—
+                  aunque uno navegue y dos abran un diálogo, porque para quien
+                  lee son la misma cosa: lo que sigue. */}
+              <TableCell>
+                <NextStepCell
+                  initiative={initiative}
+                  onActivate={onActivate}
+                  onClose={onClose}
+                />
               </TableCell>
               <TableCell>
                 <div className="flex justify-end">

@@ -28,10 +28,13 @@ describe("capabilityMixService against the mock", () => {
     const mix = await capabilityMixService.getMix();
     expect(mix.map((row) => row.capacidad)).toEqual([
       "Backend Dev",
+      "Frontend Dev",
       "QA Engineer",
       "Arquitecto",
+      "DevOps Engineer",
+      "Data Engineer",
     ]);
-    expect(mixAmount(mix[0], "XL")).toBe(8);
+    expect(mixAmount(mix[0], "XL")).toBe(4);
   });
 
   it("persists a save so the next load reflects it", async () => {

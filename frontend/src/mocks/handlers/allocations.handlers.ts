@@ -11,6 +11,11 @@ import { clampPagination, paginate } from "@shared/services/pagination";
 // sentido (allocations → people); people no importa a nadie, así que no hay
 // ciclo.
 import { getPeopleSnapshot } from "./people.handlers";
+import {
+  initialAllocationSeeds,
+  SQUAD_NAMES,
+  type AllocationSeed,
+} from "./allocations.seeds";
 
 const now = new Date().toISOString();
 
@@ -25,75 +30,43 @@ type StoredAllocation = Omit<
   | "personAvailablePercentage"
 >;
 
-// Nombres de ejemplo de las semillas — el nombre real sale de la persona en
-// memoria al responder; esto sólo cubre el `personName` guardado.
-const PERSON_NAMES: Record<string, string> = {
-  "p1111111-1111-1111-1111-111111111111": "María González",
-  "p2222222-2222-2222-2222-222222222222": "Laura Ruiz",
-  "p3333333-3333-3333-3333-333333333333": "Carlos López",
-  // Ids de las personas generadas en people.handlers.ts (una letra repetida
-  // por índice: a = Andrés, b = Paula, c = Diego, d = Valentina, e = Sebastián).
-  "paaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa": "Andrés Martínez",
-  "pbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb": "Paula Ramírez",
-  "pccccccc-cccc-cccc-cccc-cccccccccccc": "Diego Salazar",
-  "pddddddd-dddd-dddd-dddd-dddddddddddd": "Valentina Ospina",
-  "peeeeeee-eeee-eeee-eeee-eeeeeeeeeeee": "Sebastián Cárdenas",
-  "phhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh": "Isabella Moreno",
-};
+/**
+ * Las semillas viven en `allocations.seeds` porque `people.handlers` deriva
+ * de ellas la utilización de cada persona. Acá sólo se resuelven los nombres a
+ * ids contra el snapshot de personas, que ya está construido cuando este
+ * módulo se evalúa (allocations importa a people, nunca al revés).
+ */
+function seedAllocations(): StoredAllocation[] {
+  const idByName = new Map(getPeopleSnapshot().map((p) => [p.name, p.id]));
+  return initialAllocationSeeds.flatMap(
+    (seed: AllocationSeed, index: number): StoredAllocation[] => {
+      const personId = idByName.get(seed.personName);
+      // Una semilla que nombra a alguien que no está sembrado es un error de
+      // datos, no un caso de uso: se descarta en vez de crear una asignación
+      // huérfana que rompería el enriquecido.
+      if (!personId) return [];
+      const n = String(index + 1);
+      return [
+        {
+          id: `a${n.repeat(7)}-${n.repeat(4)}-${n.repeat(4)}-${n.repeat(4)}-${n.repeat(12)}`,
+          personId,
+          personName: seed.personName,
+          squadId: seed.squadId,
+          squadName: SQUAD_NAMES[seed.squadId],
+          initiativeId: null,
+          initiativeName: null,
+          dedicationPercentage: seed.dedication,
+          bauPercentage: seed.bau,
+          transformationPercentage: seed.dedication - seed.bau,
+          createdAtUtc: now,
+          updatedAtUtc: now,
+        },
+      ];
+    }
+  );
+}
 
-const SQUAD_NAMES: Record<string, string> = {
-  "11111111-1111-1111-1111-111111111111": "Backend Platform",
-  "22222222-2222-2222-2222-222222222222": "Canales Digitales",
-  "33333333-3333-3333-3333-333333333333": "Fraude Tarjetas",
-  "44444444-4444-4444-4444-444444444444": "Pagos Instantáneos",
-  "55555555-5555-5555-5555-555555555555": "Plataforma de Datos",
-};
-
-// Semillas con variedad a propósito: Backend Platform tiene 4 personas (para
-// que el listado de Células muestre el "+N" de avatares), Pagos Instantáneos
-// no tiene ninguna, y ninguna persona supera el 100% sumando células (RN-12).
-const seed = (
-  n: number,
-  personId: string,
-  squadId: string,
-  dedication: number,
-  bau: number
-): StoredAllocation => ({
-  id: `a${String(n).repeat(7)}-${String(n).repeat(4)}-${String(n).repeat(4)}-${String(n).repeat(4)}-${String(n).repeat(12)}`,
-  personId,
-  personName: PERSON_NAMES[personId],
-  squadId,
-  squadName: SQUAD_NAMES[squadId],
-  initiativeId: null,
-  initiativeName: null,
-  dedicationPercentage: dedication,
-  bauPercentage: bau,
-  transformationPercentage: dedication - bau,
-  createdAtUtc: now,
-  updatedAtUtc: now,
-});
-
-const BACKEND = "11111111-1111-1111-1111-111111111111";
-const CANALES = "22222222-2222-2222-2222-222222222222";
-const FRAUDE = "33333333-3333-3333-3333-333333333333";
-const DATOS = "55555555-5555-5555-5555-555555555555";
-
-// Una persona pertenece a una sola célula: ninguna aparece dos veces. Isabella
-// (h) completa las 4 personas de Backend Platform para que el listado de
-// Células muestre el "+N" de avatares.
-const initialAllocations: StoredAllocation[] = [
-  seed(1, "p1111111-1111-1111-1111-111111111111", BACKEND, 80, 50),
-  seed(2, "p3333333-3333-3333-3333-333333333333", BACKEND, 100, 60),
-  seed(3, "paaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", BACKEND, 50, 20),
-  seed(4, "phhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh", BACKEND, 50, 30),
-  seed(5, "p2222222-2222-2222-2222-222222222222", CANALES, 100, 30),
-  seed(6, "pccccccc-cccc-cccc-cccc-cccccccccccc", CANALES, 100, 70),
-  seed(7, "pddddddd-dddd-dddd-dddd-dddddddddddd", FRAUDE, 60, 20),
-  seed(8, "peeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", DATOS, 100, 50),
-  seed(9, "pbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb", DATOS, 60, 60),
-];
-
-let allocations: StoredAllocation[] = initialAllocations.map((a) => ({ ...a }));
+let allocations: StoredAllocation[] = seedAllocations();
 
 /** Completa una asignación con los datos de la persona y su margen. */
 function enrich(allocation: StoredAllocation): AllocationDto {
@@ -145,7 +118,7 @@ export function getAllocationsSnapshot(): StoredAllocation[] {
 
 /** Reinicia el estado en memoria del mock — llamar explícitamente en los tests que ejercitan mutaciones. */
 export function resetAllocationsMock() {
-  allocations = initialAllocations.map((a) => ({ ...a }));
+  allocations = seedAllocations();
 }
 
 function isValidCreateRequest(
@@ -231,7 +204,6 @@ export const allocationsHandlers = [
       personId: body.personId,
       personName:
         getPeopleSnapshot().find((p) => p.id === body.personId)?.name ??
-        PERSON_NAMES[body.personId] ??
         "Persona",
       squadId: squadId as string,
       squadName: SQUAD_NAMES[squadId as string] ?? "Célula",

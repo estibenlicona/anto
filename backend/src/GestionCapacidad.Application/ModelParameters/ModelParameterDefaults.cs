@@ -38,11 +38,25 @@ public static class ModelParameterDefaults
             new TallaBand(4, "XL", 10m, 18m, "Transformación mayor"),
         ]);
 
+    /// <summary>
+    /// Las capacidades que una iniciativa pide, por talla. Son seis y no tres
+    /// porque backend, QA y arquitecto dejaban fuera a la mitad de los cargos
+    /// que las células tienen: una célula de datos o una de canales quedaba
+    /// descubierta contra una demanda que nunca nombraba su perfil. Los seis
+    /// nombres son cargos que existen en las personas sembradas, así que la
+    /// comparación se puede hacer perfil por perfil.
+    ///
+    /// Los totales por talla no cambian —1, 3, 5, 8 y 13 personas—: repartir
+    /// entre más perfiles no debe mover la lectura de las bandas de talla.
+    /// </summary>
     public static CapabilityMix CapabilityMix() => new(
     [
-        MixRow(0, "backend-dev", "Backend Dev", xs: 1, s: 2, m: 3, l: 5, xl: 8),
-        MixRow(1, "qa-engineer", "QA Engineer", xs: 0, s: 1, m: 1, l: 2, xl: 3),
-        MixRow(2, "arquitecto", "Arquitecto", xs: 0, s: 0, m: 1, l: 1, xl: 2),
+        MixRow(0, "backend-dev", "Backend Dev", xs: 1, s: 2, m: 2, l: 3, xl: 4),
+        MixRow(1, "frontend-dev", "Frontend Dev", xs: 0, s: 0, m: 1, l: 1, xl: 2),
+        MixRow(2, "qa-engineer", "QA Engineer", xs: 0, s: 1, m: 1, l: 2, xl: 3),
+        MixRow(3, "arquitecto", "Arquitecto", xs: 0, s: 0, m: 1, l: 1, xl: 2),
+        MixRow(4, "devops-engineer", "DevOps Engineer", xs: 0, s: 0, m: 0, l: 1, xl: 1),
+        MixRow(5, "data-engineer", "Data Engineer", xs: 0, s: 0, m: 0, l: 0, xl: 1),
     ]);
 
     public static QuestionPool QuestionPool()

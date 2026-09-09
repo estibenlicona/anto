@@ -1,0 +1,448 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: #FAFAFB; color: #26262C;
+           font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #C9151F; } a:hover { color: #A21018; }
+
+    .crumb { font-size: 14px; line-height: 22px; color: #74747E; }
+    .h1 { font-size: 24px; line-height: 32px; font-weight: 600; color: #26262C; }
+    .h3 { font-size: 16px; line-height: 26px; font-weight: 600; color: #26262C; }
+    .sm { font-size: 14px; line-height: 22px; color: #55555E; }
+    .smd { font-size: 14px; line-height: 22px; color: #26262C; }
+    .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.09em;
+           text-transform: uppercase; color: #74747E; }
+    .note { font-size: 12px; line-height: 16px; color: #74747E; }
+    .mono { font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    .card { background: #FFFFFF; border: 1px solid #E3E3E6; border-radius: 12px;
+            box-shadow: 0 2px 4px -1px rgb(0 0 0 / 0.08); display: flex; flex-direction: column; }
+    .cbody { padding: 14px 16px; }
+    .chead { border-bottom: 1px solid #E3E3E6; padding: 12px 16px; }
+    .cfoot { border-top: 1px solid #E3E3E6; background: #FAFAFB; padding: 12px 16px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+           padding: 8px 16px; border-radius: 8px; font-size: 14px; line-height: 22px;
+           font-weight: 500; border: 1px solid transparent; }
+    .btn-sm { gap: 6px; padding: 4px 12px; }
+    .btn-p { background: #C9151F; color: #FFFFFF; }
+    .btn-s { background: #F4F4F5; color: #26262C; border-color: #74747E2E; }
+
+    .tag { display: inline-flex; min-width: 40px; align-items: center; justify-content: center;
+           border-radius: 9999px; padding: 2px 10px; font-size: 14px; line-height: 22px; font-weight: 500; }
+    .t-gray { background: #F4F4F5; color: #26262C; }
+    .t-green { background: #E7F3EC; color: #0D5239; }
+    .t-blue { background: #E8F0FC; color: #154A96; }
+    .t-amber { background: #FBF2DE; color: #6E4B00; }
+    .t-red { background: #FBE9EA; color: #700C13; }
+
+    .filt { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #74747E2E;
+            background: #F4F4F5; border-radius: 8px; padding: 8px 12px; font-size: 14px;
+            line-height: 22px; color: #26262C; font-weight: 500; }
+
+    .stat { display: flex; align-items: baseline; gap: 8px; }
+    .stat b { font-size: 26px; line-height: 32px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+    th { padding: 8px 16px; text-align: left; font-size: 12px; line-height: 16px; font-weight: 700;
+         letter-spacing: 0.09em; text-transform: uppercase; color: #74747E; border-bottom: 1px solid #E3E3E6;
+         background: #FAFAFB; }
+    td { padding: 10px 16px; color: #26262C; border-bottom: 1px solid #E3E3E6; vertical-align: top; }
+    tbody tr:last-child td { border-bottom: 0; }
+    .r { text-align: right; }
+
+    /* Barra divergente: pp por encima o por debajo, con el cero al centro.
+       Dos hues opuestos, nunca verde/rojo solos. */
+    .div { position: relative; height: 22px; background: #FAFAFB; border-radius: 4px; }
+    .div .zero { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: #C9C9CE; }
+    .div i { position: absolute; top: 5px; height: 12px; border-radius: 3px; }
+
+    .row { position: relative; height: 24px; border-radius: 4px; background: #FAFAFB; }
+    .rbar { position: absolute; top: 6px; height: 12px; border-radius: 3px; }
+    .med { position: absolute; top: 2px; width: 2px; height: 20px; background: #26262C; }
+
+    .ticks { position: relative; height: 16px; }
+    .ticks span { position: absolute; transform: translateX(-50%); }
+
+    .alert { display: flex; gap: 14px; border-left: 2px solid; border-radius: 0 8px 8px 0; padding: 16px; }
+    .a-warn { border-color: #B57A00; background: #FBF2DE; } .a-warn .at { color: #6E4B00; }
+    .at { font-size: 14px; line-height: 22px; font-weight: 600; margin-bottom: 4px; }
+  </style>
+</helmet>
+
+<div style="padding: 20px 28px 26px; display: flex; flex-direction: column; gap: 16px">
+
+  <div class="crumb">Administración <span style="color:#C9C9CE">/</span> Parámetros <span style="color:#C9C9CE">/</span> <span style="color:#26262C">Calibración histórica</span></div>
+
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <h1 class="h1" style="margin: 0">Calibración histórica</h1>
+      <p class="sm" style="margin: 0; max-width: 700px">
+        Sólo entran los desvíos clasificados como error de estimación.
+      </p>
+    </div>
+    <div style="display: flex; gap: 8px; align-items: center">
+      <span class="filt">Últimos 24 meses <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+      <span class="filt">Todas las células <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+      <span class="filt">Paramétrico v1.4 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+      <span class="tag t-gray num" style="min-width:0">23 cierres</span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+
+    <!-- 1 · PM estimado vs real -->
+    <div class="card">
+      <div class="chead" style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
+        <div>
+          <h2 class="h3" style="margin:0">PM estimado contra PM real</h2>
+          <span class="note">Un punto por cierre. La diagonal es el acierto perfecto.</span>
+        </div>
+        <div style="display:flex; gap:16px">
+          <div><span class="lbl">Sesgo</span><div class="num smd" style="font-weight:600; color:#6E4B00">+18 %</div></div>
+          <div><span class="lbl">Dispersión</span><div class="num smd" style="font-weight:600">27 %</div></div>
+        </div>
+      </div>
+      <div class="cbody">
+        <svg viewBox="0 0 420 210" width="100%" role="img" aria-label="Dispersión de PM estimado contra PM real">
+          <line x1="40" y1="185" x2="410" y2="185" stroke="#E3E3E6" stroke-width="1"/>
+          <line x1="40" y1="10" x2="40" y2="185" stroke="#E3E3E6" stroke-width="1"/>
+          <line x1="40" y1="141.25" x2="410" y2="141.25" stroke="#F4F4F5" stroke-width="1"/>
+          <line x1="40" y1="97.5" x2="410" y2="97.5" stroke="#F4F4F5" stroke-width="1"/>
+          <line x1="40" y1="53.75" x2="410" y2="53.75" stroke="#F4F4F5" stroke-width="1"/>
+          <line x1="40" y1="185" x2="410" y2="10" stroke="#74747E" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="352" y="30" fill="#74747E" font-size="10" font-family="IBM Plex Sans, sans-serif">estimado = real</text>
+
+          <circle cx="54.8" cy="179.8" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="54.8" cy="177.1" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="77" cy="172.8" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="77" cy="166.6" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="77" cy="162.3" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="77" cy="155.3" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="77" cy="150.9" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="123.3" cy="151.8" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="123.3" cy="148.3" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="123.3" cy="140.4" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="123.3" cy="136" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="123.3" cy="129" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="123.3" cy="122" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="123.3" cy="114.1" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="188" cy="124.6" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="188" cy="111.5" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="188" cy="105.4" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="188" cy="99.3" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="188" cy="87" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="188" cy="74.8" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="289.8" cy="73" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="289.8" cy="50.3" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="289.8" cy="17" r="4" fill="#2563EB" stroke="#FFFFFF" stroke-width="1.5"/>
+
+          <text x="40" y="200" fill="#74747E" font-size="10" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">0</text>
+          <text x="132.5" y="200" fill="#74747E" font-size="10" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">5</text>
+          <text x="225" y="200" fill="#74747E" font-size="10" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">10</text>
+          <text x="317.5" y="200" fill="#74747E" font-size="10" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">15</text>
+          <text x="410" y="200" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">20 PM estimados</text>
+          <text x="34" y="189" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">0</text>
+          <text x="34" y="145" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">5</text>
+          <text x="34" y="101" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">10</text>
+          <text x="34" y="57" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">15</text>
+          <text x="34" y="14" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">20</text>
+        </svg>
+      </div>
+      <div class="cfoot">
+        <span class="note">
+          <b style="color:#26262C">Cinco columnas, no una nube:</b> el PM esperado es el punto medio de la banda,
+          así que dos iniciativas M reciben la misma cifra con 15 puntos de score de diferencia.
+        </span>
+      </div>
+    </div>
+
+    <!-- 2 · Score vs PM real -->
+    <div class="card">
+      <div class="chead" style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
+        <div>
+          <h2 class="h3" style="margin:0">Score contra PM real</h2>
+          <span class="note">Un punto por cierre</span>
+        </div>
+        <div style="display:flex; gap:16px">
+          <div><span class="lbl">Correlación</span><div class="num smd" style="font-weight:600">r 0,81</div></div>
+          <div><span class="lbl">Lectura</span><div class="smd" style="font-weight:600; color:#0D5239">Explica</div></div>
+        </div>
+      </div>
+      <div class="cbody">
+        <svg viewBox="0 0 420 210" width="100%" role="img" aria-label="Dispersión de score contra PM real">
+          <line x1="40" y1="185" x2="410" y2="185" stroke="#E3E3E6" stroke-width="1"/>
+          <line x1="40" y1="10" x2="40" y2="185" stroke="#E3E3E6" stroke-width="1"/>
+          <line x1="40" y1="141.25" x2="410" y2="141.25" stroke="#F4F4F5" stroke-width="1"/>
+          <line x1="40" y1="97.5" x2="410" y2="97.5" stroke="#F4F4F5" stroke-width="1"/>
+          <line x1="40" y1="53.75" x2="410" y2="53.75" stroke="#F4F4F5" stroke-width="1"/>
+          <line x1="77" y1="178" x2="391.5" y2="49.4" stroke="#74747E" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="330" y="70" fill="#74747E" font-size="10" font-family="IBM Plex Sans, sans-serif">tendencia</text>
+
+          <circle cx="84.4" cy="179.8" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="106.6" cy="177.1" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="128.8" cy="162.3" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="143.6" cy="172.8" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="162.1" cy="150.9" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="173.2" cy="166.6" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="184.3" cy="155.3" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="199.1" cy="136" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="210.2" cy="151.8" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="221.3" cy="114.1" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="232.4" cy="148.3" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="243.5" cy="122" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="250.9" cy="140.4" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="258.3" cy="129" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="273.1" cy="87" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="284.2" cy="124.6" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="295.3" cy="74.8" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="306.4" cy="111.5" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="321.2" cy="99.3" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="332.3" cy="105.4" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="347.1" cy="17" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="365.6" cy="73" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+          <circle cx="391.5" cy="50.3" r="4" fill="#A21CAF" stroke="#FFFFFF" stroke-width="1.5"/>
+
+          <text x="40" y="200" fill="#74747E" font-size="10" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">0</text>
+          <text x="132.5" y="200" fill="#74747E" font-size="10" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">25</text>
+          <text x="225" y="200" fill="#74747E" font-size="10" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">50</text>
+          <text x="317.5" y="200" fill="#74747E" font-size="10" text-anchor="middle" font-family="IBM Plex Sans, sans-serif">75</text>
+          <text x="410" y="200" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">100 de score</text>
+          <text x="34" y="189" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">0</text>
+          <text x="34" y="145" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">5</text>
+          <text x="34" y="101" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">10</text>
+          <text x="34" y="57" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">15</text>
+          <text x="34" y="14" fill="#74747E" font-size="10" text-anchor="end" font-family="IBM Plex Sans, sans-serif">20 PM reales</text>
+        </svg>
+      </div>
+      <div class="cfoot">
+        <span class="note">A más score, más esfuerzo. La dispersión que queda es la que la talla convierte en solape.</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+
+    <!-- 3 · Talla vs PM real -->
+    <div class="card">
+      <div class="chead">
+        <h2 class="h3" style="margin:0">Talla contra PM real</h2>
+        <span class="note">Rango observado y mediana de cada talla</span>
+      </div>
+      <div class="cbody" style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display:grid; grid-template-columns: 34px minmax(0,1fr); gap:10px; align-items:center">
+          <span class="tag t-gray" style="min-width:0">XS</span>
+          <div class="row"><span class="rbar" style="left:3%; width:1.5%; background:#2563EB"></span><span class="med" style="left:3.75%"></span></div>
+        </div>
+        <div style="display:grid; grid-template-columns: 34px minmax(0,1fr); gap:10px; align-items:center">
+          <span class="tag t-green" style="min-width:0">S</span>
+          <div class="row"><span class="rbar" style="left:7%; width:12.5%; background:#2563EB"></span><span class="med" style="left:13%"></span></div>
+        </div>
+        <div style="display:grid; grid-template-columns: 34px minmax(0,1fr); gap:10px; align-items:center">
+          <span class="tag t-blue" style="min-width:0">M</span>
+          <div class="row"><span class="rbar" style="left:19%; width:21.5%; background:#2563EB"></span><span class="med" style="left:28%"></span></div>
+        </div>
+        <div style="display:grid; grid-template-columns: 34px minmax(0,1fr); gap:10px; align-items:center">
+          <span class="tag t-amber" style="min-width:0">L</span>
+          <div class="row"><span class="rbar" style="left:34.5%; width:28.5%; background:#2563EB"></span><span class="med" style="left:47%"></span></div>
+        </div>
+        <div style="display:grid; grid-template-columns: 34px minmax(0,1fr); gap:10px; align-items:center">
+          <span class="tag t-red" style="min-width:0">XL</span>
+          <div class="row"><span class="rbar" style="left:64%; width:32%; background:#2563EB"></span><span class="med" style="left:77%"></span></div>
+        </div>
+        <div class="ticks note num" style="margin: 4px 0 0 44px">
+          <span style="left:0%">0</span><span style="left:25%">5</span><span style="left:50%">10</span>
+          <span style="left:75%">15</span><span style="left:100%">20 PM</span>
+        </div>
+      </div>
+      <div class="cfoot">
+        <span class="note"><b style="color:#26262C">Los bordes se solapan:</b> S llega a 3,9 PM y M arranca en 3,8; M llega a 8,1 y L arranca en 6,9.</span>
+      </div>
+    </div>
+
+    <!-- 4 · Mix estimado vs real -->
+    <div class="card">
+      <div class="chead">
+        <h2 class="h3" style="margin:0">Mix estimado contra real</h2>
+        <span class="note">Diferencia media en puntos porcentuales</span>
+      </div>
+      <div class="cbody" style="display: flex; flex-direction: column; gap: 8px">
+        <div style="display:grid; grid-template-columns: 96px minmax(0,1fr) 40px; gap:8px; align-items:center">
+          <span class="sm">QA Engineer</span>
+          <div class="div"><span class="zero"></span><span style="position:absolute;top:5px;height:12px;border-radius:3px;left:50%; width:30%; background:#B57A00"></span></div>
+          <span class="num note r">+6</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 96px minmax(0,1fr) 40px; gap:8px; align-items:center">
+          <span class="sm">Arquitecto</span>
+          <div class="div"><span class="zero"></span><span style="position:absolute;top:5px;height:12px;border-radius:3px;left:50%; width:5%; background:#B57A00"></span></div>
+          <span class="num note r">+1</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 96px minmax(0,1fr) 40px; gap:8px; align-items:center">
+          <span class="sm">Frontend Dev</span>
+          <div class="div"><span class="zero"></span></div>
+          <span class="num note r">0</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 96px minmax(0,1fr) 40px; gap:8px; align-items:center">
+          <span class="sm">DevOps</span>
+          <div class="div"><span class="zero"></span><span style="position:absolute;top:5px;height:12px;border-radius:3px;right:50%; width:5%; background:#2563EB"></span></div>
+          <span class="num note r">−1</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 96px minmax(0,1fr) 40px; gap:8px; align-items:center">
+          <span class="sm">Business Analyst</span>
+          <div class="div"><span class="zero"></span><span style="position:absolute;top:5px;height:12px;border-radius:3px;right:50%; width:10%; background:#2563EB"></span></div>
+          <span class="num note r">−2</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 96px minmax(0,1fr) 40px; gap:8px; align-items:center">
+          <span class="sm">Backend Dev</span>
+          <div class="div"><span class="zero"></span><span style="position:absolute;top:5px;height:12px;border-radius:3px;right:50%; width:20%; background:#2563EB"></span></div>
+          <span class="num note r">−4</span>
+        </div>
+        <div class="ticks note num" style="margin: 2px 0 0 104px">
+          <span style="left:0%">−10</span><span style="left:50%">0</span><span style="left:100%">+10 pp</span>
+        </div>
+        <div style="display:flex; gap:14px; margin-left:104px">
+          <span class="note" style="display:inline-flex;align-items:center;gap:5px">
+            <i style="width:10px;height:8px;border-radius:2px;background:#B57A00;display:inline-block"></i> más de lo previsto
+          </span>
+          <span class="note" style="display:inline-flex;align-items:center;gap:5px">
+            <i style="width:10px;height:8px;border-radius:2px;background:#2563EB;display:inline-block"></i> menos
+          </span>
+        </div>
+      </div>
+      <div class="cfoot">
+        <span class="note">QA: <b style="color:#26262C">+6 pp de media en 17 de 23 cierres</b>.</span>
+      </div>
+    </div>
+
+    <!-- 5 · Confianza vs error -->
+    <div class="card">
+      <div class="chead">
+        <h2 class="h3" style="margin:0">Confianza contra error</h2>
+        <span class="note">Error medio absoluto por nivel de confianza</span>
+      </div>
+      <div class="cbody" style="display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; flex-direction: column; gap: 5px">
+          <div style="display:flex; justify-content:space-between; align-items:baseline">
+            <span class="smd">Alta</span><span class="num note">12 % · 6 cierres</span>
+          </div>
+          <div style="height:14px;border-radius:3px;background:#FAFAFB"><i style="display:block;height:14px;width:24%;border-radius:3px;background:#B57A00"></i></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 5px">
+          <div style="display:flex; justify-content:space-between; align-items:baseline">
+            <span class="smd">Media</span><span class="num note">24 % · 13 cierres</span>
+          </div>
+          <div style="height:14px;border-radius:3px;background:#FAFAFB"><i style="display:block;height:14px;width:48%;border-radius:3px;background:#BB3A43"></i></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 5px">
+          <div style="display:flex; justify-content:space-between; align-items:baseline">
+            <span class="smd">Baja</span><span class="num note">41 % · 4 cierres</span>
+          </div>
+          <div style="height:14px;border-radius:3px;background:#FAFAFB"><i style="display:block;height:14px;width:82%;border-radius:3px;background:#8E0F18"></i></div>
+        </div>
+        <div class="ticks note num" style="margin: 0">
+          <span style="left:0%">0</span><span style="left:50%">25</span><span style="left:100%">50 % de error</span>
+        </div>
+        <div class="stat" style="border-top:1px solid #E3E3E6; padding-top:12px">
+          <span class="tag t-green" style="min-width:0">Monótona</span>
+          <span class="sm">a menor confianza, mayor error</span>
+        </div>
+      </div>
+      <div class="cfoot">
+        <span class="note">Los tres niveles ordenan el error sin cruzarse.</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 440px minmax(0, 1fr); gap: 16px; align-items: start">
+
+    <!-- 6 · FTE estimado vs real -->
+    <div class="card">
+      <div class="chead" style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
+        <div>
+          <h2 class="h3" style="margin:0">FTE estimado contra real</h2>
+          <span class="note">Valida la traducción de PM y plazo a capacidad</span>
+        </div>
+        <div><span class="lbl">Sesgo</span><div class="num smd" style="font-weight:600; color:#0D5239">−6 %</div></div>
+      </div>
+      <div class="cbody" style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; gap: 24px">
+          <div><span class="lbl">FTE medio estimado</span><div class="num smd" style="font-weight:600">1,41</div></div>
+          <div><span class="lbl">FTE medio real</span><div class="num smd" style="font-weight:600">1,33</div></div>
+          <div><span class="lbl">Plazo real</span><div class="num smd" style="font-weight:600; color:#6E4B00">+21 %</div></div>
+        </div>
+        <p class="sm" style="margin:0">
+          El esfuerzo se pasa y la capacidad se queda corta a la vez: el plazo se estira y la misma
+          gente trabaja más meses.
+        </p>
+      </div>
+      <div class="cfoot">
+        <span class="note">17 de 23 cierres terminaron después de su plazo objetivo.</span>
+      </div>
+    </div>
+
+    <!-- Lo que la calibración propone -->
+    <div class="card">
+      <div class="chead" style="display:flex; align-items:baseline; justify-content:space-between; gap:12px">
+        <div>
+          <h2 class="h3" style="margin:0">Qué propone recalibrar</h2>
+          <span class="note">Tres cambios que salen de los datos de arriba, no del criterio</span>
+        </div>
+        <span class="btn btn-p btn-sm">Crear versión con estos valores</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:26%">Cambio</th>
+            <th style="width:24%">De dónde sale</th>
+            <th style="width:26%">Valor propuesto</th>
+            <th style="width:24%">Efecto estimado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="smd">Interpolar el PM esperado dentro de la banda</td>
+            <td class="sm">PM estimado vs real · las cinco columnas</td>
+            <td class="sm">PM = P10 + (score − mín) / (máx − mín) × (P90 − P10)</td>
+            <td class="sm">Dispersión de 27 % a ≈ 19 %</td>
+          </tr>
+          <tr>
+            <td class="smd">Subir el mix base de QA Engineer</td>
+            <td class="sm">Mix estimado vs real · +6 pp en 17 de 23</td>
+            <td class="sm">+5 pp en las cinco tallas, a costa de Backend Dev</td>
+            <td class="sm">Diferencia media de QA a ≈ +1 pp</td>
+          </tr>
+          <tr>
+            <td class="smd">Subir el P90 de las tallas M y L</td>
+            <td class="sm">Talla vs PM real · 8 cierres fuera de banda</td>
+            <td class="sm">M: 6,0 → 6,8 · L: 10,0 → 11,0</td>
+            <td class="sm">Cierres fuera de banda de 8 a 4</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="cfoot">
+        <div class="alert a-warn" style="border-radius: 8px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B57A00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;flex:none"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <div>
+            <p class="at" style="margin:0">23 cierres son pocos para XS y XL</p>
+            <p class="sm" style="margin:0; color:#26262C">XS tiene 2 cierres y XL tiene 3. Sus percentiles siguen siendo criterio experto.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
