@@ -25,6 +25,16 @@ export interface SquadsStatsCardsProps {
 const fte = (n: number) => n.toFixed(1);
 
 /**
+ * Un decimal, que es la precisión con la que se muestra el FTE.
+ *
+ * Las cifras que llegan del servidor ya vienen redondeadas; la que se deriva
+ * acá, no. Restar dos flotantes limpios da `18.4 - 11.7 = 6.699999999999999`, y
+ * la leyenda de la card imprime el número tal cual — sin formatearlo, porque
+ * los otros dos tramos no lo necesitan.
+ */
+const round1 = (n: number) => Math.round(n * 10) / 10;
+
+/**
  * Tres lecturas sobre todas las células, de la misma altura y cada una
  * abriendo con la cifra que manda (el patrón del resumen de Personas): así
  * el resumen ocupa una fila y la tabla entra en el primer pantallazo.
@@ -41,7 +51,7 @@ export const SquadsStatsCards: React.FC<SquadsStatsCardsProps> = ({
     stats.chapterFte > 0
       ? Math.round((stats.allocatedFte / stats.chapterFte) * 100)
       : 0;
-  const freeFte = Math.max(stats.chapterFte - stats.allocatedFte, 0);
+  const freeFte = round1(Math.max(stats.chapterFte - stats.allocatedFte, 0));
   const severeCount = stats.byCriticality
     .filter((e) => e.criticality === "Critical" || e.criticality === "High")
     .reduce((sum, e) => sum + e.count, 0);
